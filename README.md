@@ -27,7 +27,7 @@ OiShip is an online food ordering platform inspired by ShopeeFood, built using J
 -   Clone the repository to your local machine:
 
     ```bash
-    git clone https://github.com/toanthienla/OiShipFoodOrdering.git
+    git clone https://github.com/toanthienla/oiship-food-ordering.git
     ```
 
 -   Navigate to the project directory:
@@ -67,7 +67,7 @@ Replace the placeholders with your actual database credentials.
 1. Open the project in NetBeans.
 2. Clean and build the project.
 3. Deploy to Apache Tomcat.
-4. Access the application at: `https://github.com/toanthienla/oiship-food-ordering.git`
+4. Access the application at: `http://localhost:8080/OiShipFoodOrdering/`
 
 ### 6. Push Changes to the Repository
 
@@ -92,4 +92,4 @@ Replace the placeholders with your actual database credentials.
     <link rel="stylesheet" href="css/bootstrap.css" />
     <script src="js/bootstrap.bundle.js"></script>
     ```
--   Remove any automatically generated header information that NetBeans might include in new file.
+-   Remove any automatically generated header information that NetBeans might include in new file such as author names, creation dates,...
