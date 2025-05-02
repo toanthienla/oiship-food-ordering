@@ -1,201 +1,256 @@
-USE [master]
+USE master
 GO
 
-/*******************************************************************************
-   Drop database if it exists
-********************************************************************************/
-IF EXISTS (SELECT name FROM master.dbo.sysdatabases WHERE name = N'FoodDeliveryApp')
+IF EXISTS (SELECT name FROM sys.databases WHERE name = N'Oiship')
 BEGIN
-	ALTER DATABASE [FoodDeliveryApp] SET OFFLINE WITH ROLLBACK IMMEDIATE;
-	ALTER DATABASE [FoodDeliveryApp] SET ONLINE;
-	DROP DATABASE [FoodDeliveryApp];
+    ALTER DATABASE [Oiship] SET SINGLE_USER WITH ROLLBACK IMMEDIATE;
+    DROP DATABASE [Oiship];
 END
-
 GO
 
-CREATE DATABASE [FoodDeliveryApp]
+CREATE DATABASE Oiship
 GO
 
-USE [FoodDeliveryApp]
+USE Oiship
 GO
 
-/*******************************************************************************
-	Drop tables if exists
-*******************************************************************************/
-DECLARE @sql nvarchar(MAX) 
-SET @sql = N'' 
+--I. Các bảng role:
 
-SELECT @sql = @sql + N'ALTER TABLE ' + QUOTENAME(KCU1.TABLE_SCHEMA) 
-    + N'.' + QUOTENAME(KCU1.TABLE_NAME) 
-    + N' DROP CONSTRAINT ' -- + QUOTENAME(rc.CONSTRAINT_SCHEMA)  + N'.'  -- not in MS-SQL
-    + QUOTENAME(rc.CONSTRAINT_NAME) + N'; ' + CHAR(13) + CHAR(10) 
-FROM INFORMATION_SCHEMA.REFERENTIAL_CONSTRAINTS AS RC 
-
-INNER JOIN INFORMATION_SCHEMA.KEY_COLUMN_USAGE AS KCU1 
-    ON KCU1.CONSTRAINT_CATALOG = RC.CONSTRAINT_CATALOG  
-    AND KCU1.CONSTRAINT_SCHEMA = RC.CONSTRAINT_SCHEMA 
-    AND KCU1.CONSTRAINT_NAME = RC.CONSTRAINT_NAME 
-
-EXECUTE(@sql) 
-
-GO
-DECLARE @sql2 NVARCHAR(max)=''
-
-SELECT @sql2 += ' Drop table ' + QUOTENAME(TABLE_SCHEMA) + '.'+ QUOTENAME(TABLE_NAME) + '; '
-FROM   INFORMATION_SCHEMA.TABLES
-WHERE  TABLE_TYPE = 'BASE TABLE'
-
-Exec Sp_executesql @sql2 
-GO
-
-
-/*******************************************************************************
-   Create table
-********************************************************************************/
-
--- Bảng quản lý trạng thái người dùng (customer, shipper, restaurant)
+-- Bảng trạng thái User
 CREATE TABLE UserStatus (
     status_id INT PRIMARY KEY,
-    status_name NVARCHAR(50)
-)
+    status_name NVARCHAR(50) UNIQUE NOT NULL,
+    description NVARCHAR(255)
+);
 
--- Bảng người dùng
-CREATE TABLE Users (
-    user_id INT IDENTITY PRIMARY KEY,
-    name NVARCHAR(100),
-    email NVARCHAR(100) UNIQUE,
-    phone NVARCHAR(20),
-    password NVARCHAR(255),
-    role NVARCHAR(20), -- customer, shipper, restaurant, admin
-    cccd NVARCHAR(20),
-    address NVARCHAR(255),
-    status_id INT FOREIGN KEY REFERENCES UserStatus(status_id),
+-- Bảng Customer
+CREATE TABLE Customer (
+    customer_id INT IDENTITY PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    email NVARCHAR(100) NOT NULL UNIQUE,
+    phone NVARCHAR(15) NOT NULL CHECK (phone LIKE '0%' AND LEN(phone) = 10 AND phone NOT LIKE '%[^0-9]%'),
+    password NVARCHAR(60) NOT NULL,
+    address NVARCHAR(255) NOT NULL, --tao bang rieng
+    status_id INT NOT NULL FOREIGN KEY REFERENCES UserStatus(status_id),
     created_at DATETIME DEFAULT GETDATE()
-)
+);
 
--- Tài khoản đăng nhập bằng social login
-CREATE TABLE SocialAccounts (
-    social_id INT IDENTITY PRIMARY KEY,
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
-    provider NVARCHAR(20), -- Google, Facebook
-    provider_uid NVARCHAR(100)
-)
+-- Bảng Shipper
+CREATE TABLE Shipper (
+    shipper_id INT IDENTITY PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    email NVARCHAR(100) NOT NULL UNIQUE,
+    phone NVARCHAR(15) NOT NULL CHECK (phone LIKE '0%' AND LEN(phone) = 10 AND phone NOT LIKE '%[^0-9]%'),
+    password NVARCHAR(60) NOT NULL,
+    cccd NVARCHAR(12) NOT NULL CHECK (LEN(cccd) = 12 AND cccd NOT LIKE '%[^0-9]%'),
+    driver_license NVARCHAR(12) NOT NULL CHECK (LEN(driver_license) BETWEEN 10 AND 12),
+    driver_license_image VARBINARY(MAX),
+    address NVARCHAR(255) NOT NULL,
+    vehicle_info NVARCHAR(100) NOT NULL, --bang so xe
+    status_id INT NOT NULL FOREIGN KEY REFERENCES UserStatus(status_id),
+    created_at DATETIME DEFAULT GETDATE()
+);
 
--- Nhà hàng
-CREATE TABLE Restaurants (
-    restaurant_id INT IDENTITY PRIMARY KEY,
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
-    name NVARCHAR(100),
-    address NVARCHAR(255),
+-- Bảng RestaurantManager
+CREATE TABLE RestaurantManager (
+    restaurantmanager_id INT IDENTITY PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    email NVARCHAR(100) NOT NULL UNIQUE,
+    phone NVARCHAR(15) NOT NULL CHECK (phone LIKE '0%' AND LEN(phone) = 10 AND phone NOT LIKE '%[^0-9]%'),
+    password NVARCHAR(60) NOT NULL,
+    address NVARCHAR(255) NOT NULL,
     opening_hours NVARCHAR(100),
-    cuisine_type NVARCHAR(100),
-    status_id INT FOREIGN KEY REFERENCES UserStatus(status_id)
-)
-
--- Món ăn
-CREATE TABLE MenuItems (
-    item_id INT IDENTITY PRIMARY KEY,
-    restaurant_id INT FOREIGN KEY REFERENCES Restaurants(restaurant_id),
-    name NVARCHAR(100),
-    price DECIMAL(10,2),
-    description NVARCHAR(255),
-    image_url NVARCHAR(255),
-    category NVARCHAR(50), -- đồ ăn, đồ uống, sáng, trưa, tối
-    is_available BIT DEFAULT 1
-)
-
--- Đánh giá món ăn
-CREATE TABLE ItemReviews (
-    review_id INT IDENTITY PRIMARY KEY,
-    item_id INT FOREIGN KEY REFERENCES MenuItems(item_id),
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
-    rating INT CHECK (rating BETWEEN 1 AND 5),
-    comment NVARCHAR(255),
+    status_id INT NOT NULL FOREIGN KEY REFERENCES UserStatus(status_id),
     created_at DATETIME DEFAULT GETDATE()
-)
+);
 
--- Giỏ hàng
+-- Bảng Admin
+CREATE TABLE [Admin] (
+    admin_id INT IDENTITY PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    email NVARCHAR(100) NOT NULL UNIQUE,
+    password NVARCHAR(60) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE()
+);
+
+
+--II. Các bảng giao dịch:
+
+-- Bảng Category (Phân loại món ăn)
+CREATE TABLE Category (
+    category_id INT IDENTITY PRIMARY KEY,
+    name NVARCHAR(100) NOT NULL,
+    restaurant_id INT NOT NULL FOREIGN KEY REFERENCES RestaurantManager(restaurantmanager_id),
+    created_at DATETIME DEFAULT GETDATE()
+);
+
+--Bảng Menu (Chứa các MenuItem/Món ăn)
+CREATE TABLE Menu (
+    menu_id INT IDENTITY PRIMARY KEY,
+    restaurant_id INT NOT NULL FOREIGN KEY REFERENCES RestaurantManager(restaurantmanager_id),
+    available BIT DEFAULT 1,
+    created_at DATETIME DEFAULT GETDATE()
+);
+
+-- Bảng MenuItem (Món ăn)
+CREATE TABLE MenuItem (
+    item_id INT IDENTITY PRIMARY KEY,
+    restaurant_id INT NOT NULL FOREIGN KEY REFERENCES RestaurantManager(restaurantmanager_id),
+	menu_id INT NOT NULL FOREIGN KEY REFERENCES Menu(menu_id),
+    name NVARCHAR(100) NOT NULL,
+    description NVARCHAR(255),
+    price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+    image_url NVARCHAR(255),
+    is_available BIT NOT NULL DEFAULT 1,
+    created_at DATETIME DEFAULT GETDATE(),
+	category_id INT FOREIGN KEY REFERENCES Category(category_id)
+);
+
+-- Bảng Cart (Giỏ hàng của Customer, chứa các CartItem)
 CREATE TABLE Cart (
     cart_id INT IDENTITY PRIMARY KEY,
-    user_id INT FOREIGN KEY REFERENCES Users(user_id)
-)
+    customer_id INT NOT NULL FOREIGN KEY REFERENCES Customer(customer_id),
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE() --update status cua Orders table
+);
 
-CREATE TABLE CartItems (
+-- Bảng CartItem (Là các Item Customer bỏ vào trong wishlist)
+CREATE TABLE CartItem (
     cart_item_id INT IDENTITY PRIMARY KEY,
-    cart_id INT FOREIGN KEY REFERENCES Cart(cart_id),
-    item_id INT FOREIGN KEY REFERENCES MenuItems(item_id),
-    quantity INT
-)
+    cart_id INT NOT NULL FOREIGN KEY REFERENCES Cart(cart_id),
+    item_id INT NOT NULL FOREIGN KEY REFERENCES MenuItem(item_id),
+    quantity INT NOT NULL CHECK (quantity > 0),
+    created_at DATETIME DEFAULT GETDATE()
+);
 
--- Đơn hàng
-CREATE TABLE Orders (
+-- Bảng Order (Là final cart đã được Customer xác nhận đặt hàng)
+CREATE TABLE [Order] (
     order_id INT IDENTITY PRIMARY KEY,
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
-    restaurant_id INT FOREIGN KEY REFERENCES Restaurants(restaurant_id),
-    shipper_id INT FOREIGN KEY REFERENCES Users(user_id),
-    total_amount DECIMAL(10,2),
-    payment_method NVARCHAR(50), -- online, offline
+    customer_id INT NOT NULL FOREIGN KEY REFERENCES Customer(customer_id),
+    restaurant_id INT NOT NULL FOREIGN KEY REFERENCES RestaurantManager(restaurantmanager_id),
+    shipper_id INT NULL FOREIGN KEY REFERENCES Shipper(shipper_id),
+    total_amount DECIMAL(10,2) NOT NULL,
+    payment_method NVARCHAR(50) NOT NULL CHECK (payment_method IN ('online', 'offline')),
     discount_code NVARCHAR(50),
-    status NVARCHAR(50), -- pending, preparing, delivering, delivered, cancelled
-    created_at DATETIME DEFAULT GETDATE()
-)
+    status NVARCHAR(50) NOT NULL CHECK (status IN ('pending', 'preparing', 'delivering', 'delivered', 'cancelled')),
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE() --update khi thay doi status pending, preparing, delivering, delivered, cancelled
+);
 
-CREATE TABLE OrderItems (
+-- Bảng OrderItem (Là các item chứa trong Order/bill)
+CREATE TABLE OrderItem (
     order_item_id INT IDENTITY PRIMARY KEY,
-    order_id INT FOREIGN KEY REFERENCES Orders(order_id),
-    item_id INT FOREIGN KEY REFERENCES MenuItems(item_id),
-    quantity INT,
-    price DECIMAL(10,2)
-)
+    order_id INT NOT NULL FOREIGN KEY REFERENCES [Order](order_id),
+    item_id INT NOT NULL FOREIGN KEY REFERENCES MenuItem(item_id),
+    quantity INT NOT NULL CHECK (quantity > 0),
+    unit_price DECIMAL(10,2) NOT NULL,
+);
 
--- Đánh giá shipper và nhà hàng
-CREATE TABLE DeliveryReviews (
-    review_id INT IDENTITY PRIMARY KEY,
-    order_id INT FOREIGN KEY REFERENCES Orders(order_id),
-    reviewer_id INT FOREIGN KEY REFERENCES Users(user_id),
-    target_type NVARCHAR(20), -- shipper, restaurant
-    rating INT CHECK (rating BETWEEN 1 AND 5),
-    comment NVARCHAR(255),
-    created_at DATETIME DEFAULT GETDATE()
-)
-
--- Mã giảm giá
-CREATE TABLE Promotions (
-    promo_id INT IDENTITY PRIMARY KEY,
-    code NVARCHAR(50),
-    description NVARCHAR(255),
-    discount_percent INT,
-    valid_from DATETIME,
-    valid_to DATETIME,
-    max_uses INT,
-    used_count INT DEFAULT 0
-)
-
--- Lịch sử giao hàng của shipper
-CREATE TABLE Deliveries (
+-- Bảng Deliverie
+CREATE TABLE Deliverie (
     delivery_id INT IDENTITY PRIMARY KEY,
-    order_id INT FOREIGN KEY REFERENCES Orders(order_id),
-    shipper_id INT FOREIGN KEY REFERENCES Users(user_id),
-    status NVARCHAR(50), -- picked_up, delivering, delivered
-    updated_at DATETIME DEFAULT GETDATE()
-)
+    order_id INT NOT NULL FOREIGN KEY REFERENCES [Order](order_id),
+    shipper_id INT NOT NULL FOREIGN KEY REFERENCES Shipper(shipper_id),
+    status NVARCHAR(50) NOT NULL CHECK (status IN ('picked_up', 'delivering_ship', 'delivered_ship')),
+    updated_at DATETIME DEFAULT GETDATE() --update khi thay doi status picked_up,delivering_ship,delivered_ship
+);
 
--- Doanh thu
-CREATE TABLE RevenueReports (
-    report_id INT IDENTITY PRIMARY KEY,
-    restaurant_id INT FOREIGN KEY REFERENCES Restaurants(restaurant_id),
-    date DATE,
-    total_orders INT,
-    total_revenue DECIMAL(10,2)
-)
+-- III. Các bảng phụ trợ:
 
--- Quản lý ticket hỗ trợ
-CREATE TABLE SupportTickets (
+-- Bảng ItemReview (Review từng món trong Order sau khi đơn hàng hoàn thành)
+CREATE TABLE ItemReview (
+    review_id INT IDENTITY PRIMARY KEY,
+    item_id INT NOT NULL FOREIGN KEY REFERENCES MenuItem(item_id),
+    customer_id INT NOT NULL FOREIGN KEY REFERENCES Customer(customer_id),
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment NVARCHAR(255),
+    created_at DATETIME DEFAULT GETDATE(),
+    UNIQUE (item_id, customer_id)
+);
+
+-- Bảng DeliveryReviews (Review đơn hàng, shipper, restaurant sau khi đơn hàng hoàn thành)
+CREATE TABLE DeliveryReview (
+    review_id INT IDENTITY PRIMARY KEY,
+    order_id INT NOT NULL FOREIGN KEY REFERENCES [Order](order_id),
+    customer_id INT NOT NULL FOREIGN KEY REFERENCES Customer(customer_id),
+    target_type NVARCHAR(20) NOT NULL CHECK (target_type IN ('shipper', 'restaurant')),
+    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+    comment NVARCHAR(255),
+    created_at DATETIME DEFAULT GETDATE(),
+    UNIQUE (order_id, target_type)
+);
+
+-- Bảng SupportTicket (Mở yêu cầu hỗ trợ khi Customer cần)
+CREATE TABLE SupportTicket (
     ticket_id INT IDENTITY PRIMARY KEY,
-    user_id INT FOREIGN KEY REFERENCES Users(user_id),
-    subject NVARCHAR(100),
-    message NVARCHAR(MAX),
-    status NVARCHAR(50), -- open, pending, closed
+    customer_id INT NULL FOREIGN KEY REFERENCES Customer(customer_id),
+    shipper_id INT NULL FOREIGN KEY REFERENCES Shipper(shipper_id),
+    restaurant_id INT NULL FOREIGN KEY REFERENCES RestaurantManager(restaurantmanager_id),
+    subject NVARCHAR(100) NOT NULL,
+    message NVARCHAR(MAX) NOT NULL,
+    status NVARCHAR(50) NOT NULL CHECK (status IN ('open', 'pending', 'closed')),
+    created_at DATETIME DEFAULT GETDATE(),
+    updated_at DATETIME DEFAULT GETDATE(),
+    CONSTRAINT chk_support_ticket CHECK (
+        (customer_id IS NOT NULL AND shipper_id IS NULL AND restaurant_id IS NULL) OR
+        (customer_id IS NULL AND shipper_id IS NOT NULL AND restaurant_id IS NULL) OR
+        (customer_id IS NULL AND shipper_id IS NULL AND restaurant_id IS NOT NULL)
+    )
+);
+
+-- Bảng VerificationCode (OTP hệ thống người cho user xác nhận gmail khi tạo tài khoản)
+CREATE TABLE VerificationCode (
+    verification_id INT IDENTITY PRIMARY KEY,
+    customer_id INT NULL FOREIGN KEY REFERENCES Customer(customer_id),
+    shipper_id INT NULL FOREIGN KEY REFERENCES Shipper(shipper_id),
+    restaurant_id INT NULL FOREIGN KEY REFERENCES RestaurantManager(restaurantmanager_id),
+    code NVARCHAR(32) NOT NULL,
+    plain_code NVARCHAR(6) NOT NULL,
+    created_at DATETIME DEFAULT GETDATE(),
+    expires_at DATETIME NOT NULL,
+    is_used BIT NOT NULL DEFAULT 0,
+    CONSTRAINT chk_verification_user CHECK (
+        (customer_id IS NOT NULL AND shipper_id IS NULL AND restaurant_id IS NULL) OR
+        (customer_id IS NULL AND shipper_id IS NOT NULL AND restaurant_id IS NULL) OR
+        (customer_id IS NULL AND shipper_id IS NULL AND restaurant_id IS NOT NULL)
+    )
+)
+
+-- Bảng phí nhà hàng (Dùng cho role Admin điều chỉnh phí)
+CREATE TABLE RestaurantFee (
+    fee_id INT IDENTITY PRIMARY KEY,
+    restaurant_id INT FOREIGN KEY REFERENCES RestaurantManager(restaurantmanager_id),
+    order_id INT FOREIGN KEY REFERENCES [Order](order_id),
+    fee_amount DECIMAL(10,2),
+    fee_type NVARCHAR(50), -- commission, service_fee
     created_at DATETIME DEFAULT GETDATE()
 )
+GO
 
+-- Bảng phí shipper (Dùng cho role Admin điều chỉnh phí)
+CREATE TABLE ShipperFee (
+    fee_id INT IDENTITY PRIMARY KEY,
+    shipper_id INT FOREIGN KEY REFERENCES Shipper(shipper_id),
+    order_id INT FOREIGN KEY REFERENCES [Order](order_id),
+    fee_amount DECIMAL(10,2),
+    fee_type NVARCHAR(50), -- delivery_fee, bonus
+    created_at DATETIME DEFAULT GETDATE()
+);
+
+--Thông báo cho customer khi đơn hoàn thành
+CREATE TABLE OrderNotification (
+    notification_id INT IDENTITY PRIMARY KEY,
+    order_id INT FOREIGN KEY REFERENCES [Order](order_id),
+    customer_id INT NULL FOREIGN KEY REFERENCES Customer(customer_id),
+    shipper_id INT NULL FOREIGN KEY REFERENCES Shipper(shipper_id),
+    restaurant_id INT NULL FOREIGN KEY REFERENCES RestaurantManager(restaurantmanager_id),
+    message NVARCHAR(255),
+    notification_type NVARCHAR(50), -- order_completed, order_cancelled
+    is_read BIT DEFAULT 0,
+    created_at DATETIME DEFAULT GETDATE(),
+    CONSTRAINT chk_one_user_target CHECK (
+        (customer_id IS NOT NULL AND shipper_id IS NULL AND restaurant_id IS NULL) OR
+        (customer_id IS NULL AND shipper_id IS NOT NULL AND restaurant_id IS NULL) OR
+        (customer_id IS NULL AND shipper_id IS NULL AND restaurant_id IS NOT NULL)
+    )
+);
