@@ -7,7 +7,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Verify Google Account</title>
+        <title>Verify Google Account - Oiship</title>
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
             rel="stylesheet"
@@ -18,7 +18,7 @@
         />
         <style>
             body {
-                background: #f5f5f5;
+                background: white;
                 font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
                 height: 100vh;
                 display: flex;
@@ -57,9 +57,14 @@
                 border-radius: 5px;
                 padding: 10px;
                 transition: background 0.3s;
+                color: white;
             }
             .btn-verify:hover {
                 background: #218838;
+                color: white;
+            }
+            .btn-verify:active {
+                color: white;
             }
             .btn-resend {
                 width: 100%;
@@ -73,6 +78,11 @@
             }
             .btn-resend:hover {
                 background: #0056b3;
+                color: white;
+            }
+             .btn-resend:active {
+                background: white;
+                color: white;
             }
         </style>
     </head>

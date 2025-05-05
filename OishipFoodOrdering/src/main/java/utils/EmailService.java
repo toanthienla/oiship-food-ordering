@@ -78,11 +78,11 @@ public class EmailService {
     public static void sendVerificationEmail(String to, String name, String code) {
         try {
             String subject = "Verify Your Food Delivery App Account";
-            String content = "<h3>Dear " + name + ",</h3>"
-                    + "<p>Thank you for registering with our Food Delivery App!</p>"
+            String content = "<h2>Dear " + name + ",</h3>"
+                    + "<p>Thank you for registering with our Oiship!</p>"
                     + "<p><strong>Verification Code:</strong> " + code + "</p>"
                     + "<p>This code is valid for 1 minute.</p>"
-                    + "<br><p>Best regards,<br>Food Delivery Team</p>";
+                    + "<br><p>Best regards,<br>Oiship Team</p>";
 
             sendEmail(List.of(to), subject, content);
         } catch (Exception e) {

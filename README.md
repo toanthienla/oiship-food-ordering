@@ -56,12 +56,18 @@ Create an `.env` file in `src/main/resources` with the following structure:
 DATABASE_NAME=
 DATABASE_USERNAME=
 DATABASE_PASSWORD=
+
 GOOGLE_CLIENT_ID=
 GOOGLE_CLIENT_SECRET=
 GOOGLE_REDIRECT_URI=
 GOOGLE_GRANT_TYPE=
 GOOGLE_LINK_GET_TOKEN=
 GOOGLE_LINK_GET_USER_INFO=
+
+EMAIL_HOST=
+EMAIL_PORT=
+EMAIL_NAME=
+EMAIL_APP_PASSWORD=
 ```
 
 Replace the placeholders with your actual database credentials.
