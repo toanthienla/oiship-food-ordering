@@ -53,9 +53,15 @@ OiShip is an online food ordering platform inspired by ShopeeFood, built using J
 Create an `.env` file in `src/main/resources` with the following structure:
 
 ```env
-DATABASE_NAME=YOUR_DATABASE_NAME
-DATABASE_USERNAME=YOUR_DATABASE_USERNAME
-DATABASE_PASSWORD=YOUR_DATABASE_PASSWORD
+DATABASE_NAME=
+DATABASE_USERNAME=
+DATABASE_PASSWORD=
+GOOGLE_CLIENT_ID=
+GOOGLE_CLIENT_SECRET=
+GOOGLE_REDIRECT_URI=
+GOOGLE_GRANT_TYPE=
+GOOGLE_LINK_GET_TOKEN=
+GOOGLE_LINK_GET_USER_INFO=
 ```
 
 Replace the placeholders with your actual database credentials.
