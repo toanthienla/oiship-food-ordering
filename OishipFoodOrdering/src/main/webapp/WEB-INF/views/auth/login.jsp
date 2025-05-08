@@ -27,6 +27,13 @@
                     transform: translateY(-5%); /* Shift slightly up */
                 }
 
+                .logo {
+                    position: absolute;
+                    top: 50px;
+                    left: 20px;
+                    height: 80px;
+                }
+
                 .login-card {
                     max-width: 900px;
                     width: 100%;
@@ -77,13 +84,13 @@
                 }
                 #customer {
                     background-color: #ffffff;
-                } 
+                }
                 #shipper {
                     background-color: #f0f8ff;
-                } 
+                }
                 #restaurant {
                     background-color: #fff9eb;
-                } 
+                }
                 #admin {
                     background-color: #feecec;
                 } /* Xám nhạt */
@@ -156,6 +163,8 @@
         </head>
 
         <body>
+            <!-- Logo -->
+            <a href="/OishipFoodOrdering"><img src="images/logo_1.png" alt="Oiship Logo" class="logo" /></a>
 
             <h1 class="display-5 fw-bold">
                 Welcome to Oiship!
@@ -276,34 +285,34 @@
                                                     >
                                                 </div>
                                             </div>
-                                                                                        <div class="col-12">
-                                                                                            <div
-                                                                                                class="row justify-content-between align-items-center"
-                                                                                                >
-                                                                                                <div class="col-6">
-                                                                                                    <div class="form-check">
-                                                                                                        <input
-                                                                                                            class="form-check-input"
-                                                                                                            type="checkbox"
-                                                                                                            name="remember_me"
-                                                                                                            id="customer_remember_me"
-                                                                                                            />
-                                                                                                        <label
-                                                                                                            class="form-check-label text-muted"
-                                                                                                            for="customer_remember_me"
-                                                                                                            >Remember me</label
-                                                                                                        >
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <div class="col-6 text-end">
-                                                                                                    <a
-                                                                                                        href="#!"
-                                                                                                        class="text-decoration-none text-primary"
-                                                                                                        >Forgot password?</a
-                                                                                                    >
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
+                                            <div class="col-12">
+                                                <div
+                                                    class="row justify-content-between align-items-center"
+                                                    >
+                                                    <div class="col-6">
+                                                        <div class="form-check">
+                                                            <input
+                                                                class="form-check-input"
+                                                                type="checkbox"
+                                                                name="remember_me"
+                                                                id="customer_remember_me"
+                                                                />
+                                                            <label
+                                                                class="form-check-label text-muted"
+                                                                for="customer_remember_me"
+                                                                >Remember me</label
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 text-end">
+                                                        <a
+                                                            href="#!"
+                                                            class="text-decoration-none text-primary"
+                                                            >Forgot password?</a
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="col-12">
                                                 <button
                                                     class="btn btn-login w-100 rounded-3 py-2"
@@ -386,34 +395,34 @@
                                                     >
                                                 </div>
                                             </div>
-                                                                                        <div class="col-12">
-                                                                                            <div
-                                                                                                class="row justify-content-between align-items-center"
-                                                                                                >
-                                                                                                <div class="col-6">
-                                                                                                    <div class="form-check">
-                                                                                                        <input
-                                                                                                            class="form-check-input"
-                                                                                                            type="checkbox"
-                                                                                                            name="remember_me"
-                                                                                                            id="shipper_remember_me"
-                                                                                                            />
-                                                                                                        <label
-                                                                                                            class="form-check-label text-muted"
-                                                                                                            for="shipper_remember_me"
-                                                                                                            >Remember me</label
-                                                                                                        >
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <div class="col-6 text-end">
-                                                                                                    <a
-                                                                                                        href="#!"
-                                                                                                        class="text-decoration-none text-primary"
-                                                                                                        >Forgot password?</a
-                                                                                                    >
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
+                                            <div class="col-12">
+                                                <div
+                                                    class="row justify-content-between align-items-center"
+                                                    >
+                                                    <div class="col-6">
+                                                        <div class="form-check">
+                                                            <input
+                                                                class="form-check-input"
+                                                                type="checkbox"
+                                                                name="remember_me"
+                                                                id="shipper_remember_me"
+                                                                />
+                                                            <label
+                                                                class="form-check-label text-muted"
+                                                                for="shipper_remember_me"
+                                                                >Remember me</label
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 text-end">
+                                                        <a
+                                                            href="#!"
+                                                            class="text-decoration-none text-primary"
+                                                            >Forgot password?</a
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="col-12">
                                                 <button
                                                     class="btn btn-login w-100 rounded-3 py-2"
@@ -496,34 +505,34 @@
                                                     >
                                                 </div>
                                             </div>
-                                                                                        <div class="col-12">
-                                                                                            <div
-                                                                                                class="row justify-content-between align-items-center"
-                                                                                                >
-                                                                                                <div class="col-6">
-                                                                                                    <div class="form-check">
-                                                                                                        <input
-                                                                                                            class="form-check-input"
-                                                                                                            type="checkbox"
-                                                                                                            name="remember_me"
-                                                                                                            id="restaurant_remember_me"
-                                                                                                            />
-                                                                                                        <label
-                                                                                                            class="form-check-label text-muted"
-                                                                                                            for="restaurant_remember_me"
-                                                                                                            >Remember me</label
-                                                                                                        >
-                                                                                                    </div>
-                                                                                                </div>
-                                                                                                <div class="col-6 text-end">
-                                                                                                    <a
-                                                                                                        href="#!"
-                                                                                                        class="text-decoration-none text-primary"
-                                                                                                        >Forgot password?</a
-                                                                                                    >
-                                                                                                </div>
-                                                                                            </div>
-                                                                                        </div>
+                                            <div class="col-12">
+                                                <div
+                                                    class="row justify-content-between align-items-center"
+                                                    >
+                                                    <div class="col-6">
+                                                        <div class="form-check">
+                                                            <input
+                                                                class="form-check-input"
+                                                                type="checkbox"
+                                                                name="remember_me"
+                                                                id="restaurant_remember_me"
+                                                                />
+                                                            <label
+                                                                class="form-check-label text-muted"
+                                                                for="restaurant_remember_me"
+                                                                >Remember me</label
+                                                            >
+                                                        </div>
+                                                    </div>
+                                                    <div class="col-6 text-end">
+                                                        <a
+                                                            href="#!"
+                                                            class="text-decoration-none text-primary"
+                                                            >Forgot password?</a
+                                                        >
+                                                    </div>
+                                                </div>
+                                            </div>
                                             <div class="col-12">
                                                 <button
                                                     class="btn btn-login w-100 rounded-3 py-2"

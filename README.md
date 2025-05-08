@@ -96,12 +96,26 @@ Replace the placeholders with your actual database credentials.
     git push origin main
     ```
 
-## 📝 Notes
+## 📝 JSP & Bootstrap Integration Notes
 
--   JSP files must be placed in the `WEB-INF/views/` folder.
--   Include Bootstrap 5 in JSP files as follows:
+-   ✅ **JSP File Location**  
+    Place all JSP files in the `WEB-INF/views/` directory.
+
+-   🎨 **Include Bootstrap 5** in JSP files:
+
     ```html
-    <link rel="stylesheet" href="css/bootstrap.css" />
-    <script src="js/bootstrap.bundle.js"></script>
+    <header>
+        <!-- Bootstrap 5 CSS & JS -->
+        <link rel="stylesheet" href="css/bootstrap.css" />
+        <script src="js/bootstrap.bundle.js"></script>
+
+        <!-- Include Bootstrap Icons if you need icons -->
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+        />
+    </header>
     ```
--   Remove any automatically generated header information that NetBeans might include in new file such as author names, creation dates,...
+
+-   🧹 Clean Up NetBeans Templates
+    Remove any auto-generated comments such as author names, creation dates, etc., when creating new files.

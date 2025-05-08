@@ -1,5 +1,5 @@
 // RestaurantManagerServlet.java
-package controller.user;
+package controller.restaurantManager;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -19,7 +19,7 @@ public class RestaurantManagerServlet extends HttpServlet {
             return;
         }
 
-        request.getRequestDispatcher("/WEB-INF/views/home/restaurantManager.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/restaurantManager/restaurantManager.jsp").forward(request, response);
     }
 
     @Override

@@ -26,6 +26,13 @@
                 transform: translateY(-5%); /* Shift slightly up */
             }
 
+            .logo {
+                position: absolute;
+                top: 50px;
+                left: 20px;
+                height: 80px;
+            }
+
             .register-card {
                 max-width: 900px;
                 width: 100%;
@@ -123,6 +130,9 @@
         </style>
     </head>
     <body>
+        <!-- Logo -->
+        <a href="/OishipFoodOrdering"><img src="images/logo_1.png" alt="Oiship Logo" class="logo" /></a>
+
         <h1 class="display-5 fw-bold">Welcome to Oiship!</h1>
         <p class="text-muted mt-2">Already have an account? <a href="login" class="text-decoration-none">Sign in</a></p>
 
@@ -433,7 +443,7 @@
                                         >
                                     </div>
                                 </div>
-                                 <div class="col-12 col-lg-12">
+                                <div class="col-12 col-lg-12">
                                     <div class="form-group">
                                         <label
                                             for="shipper_driver_license_image"

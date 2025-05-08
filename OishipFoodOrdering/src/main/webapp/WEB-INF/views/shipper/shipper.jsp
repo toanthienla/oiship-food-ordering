@@ -1,14 +1,9 @@
-<%-- 
-    Document   : shipper
-    Created on : Apr 25, 2025, 9:38:32 PM
-    Author     : DELL
---%>
-
+<%-- Document : shipper Created on : Apr 25, 2025, 9:38:32 PM Author : DELL --%>
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+        <meta http-equiv="Content-Type" content="text/html; charset=UTF-8" />
         <title>JSP Page</title>
     </head>
     <body>
@@ -21,7 +16,5 @@
                 </a>
             </li>
         </ul>
-
-
     </body>
 </html>

@@ -1,4 +1,4 @@
-package controller.user;
+package controller.admin;
 
 import dao.CustomerDAO;
 import dao.RestaurantManagerDAO;
@@ -38,7 +38,7 @@ public class AdminServlet extends HttpServlet {
         request.setAttribute("shippers", shippers);
         request.setAttribute("restaurants", restaurants);
 
-        request.getRequestDispatcher("/WEB-INF/views/home/admin.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/admin/admin.jsp").forward(request, response);
     }
 
     @Override

@@ -12,6 +12,7 @@ import java.util.stream.Collectors;
 import io.github.cdimascio.dotenv.Dotenv;
 
 public class EmailService {
+
     private static final Dotenv dotenv = Dotenv.configure()
             .filename(".env")
             .load();
@@ -77,12 +78,20 @@ public class EmailService {
 
     public static void sendVerificationEmail(String to, String name, String code) {
         try {
-            String subject = "Verify Your Food Delivery App Account";
-            String content = "<h2>Dear " + name + ",</h3>"
-                    + "<p>Thank you for registering with our Oiship!</p>"
-                    + "<p><strong>Verification Code:</strong> " + code + "</p>"
-                    + "<p>This code is valid for 1 minute.</p>"
-                    + "<br><p>Best regards,<br>Oiship Team</p>";
+            String subject = "Welcome to Oiship - Verify Your Account";
+            String content = "<!DOCTYPE html>"
+                    + "<html><body style='font-family: Arial, sans-serif; color: #333;'>"
+                    + "<div style='max-width: 600px; margin: 0 auto; padding: 20px;'>"
+                    + "<h2 style='color: #ff5733;'>Welcome to Oiship, " + name + "!</h2>"
+                    + "<p>We're thrilled to have you join our food delivery community!</p>"
+                    + "<p>To get started, please verify your account using the code below:</p>"
+                    + "<div style='background: #f9f9f9; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; color: #ff5733;'>"
+                    + code + "</div>"
+                    + "<p style='margin-top: 20px;'>This verification code is valid for <strong>1 minute</strong>.</p>"
+                    + "<p>If you didn't sign up for Oiship, please ignore this email.</p>"
+                    + "<br><p style='font-size: 14px;'>Best regards,<br><strong>The Oiship Team</strong></p>"
+                    + "<p style='font-size: 12px; color: #777;'>Oiship - Delivering Deliciousness to Your Doorstep</p>"
+                    + "</div></body></html>";
 
             sendEmail(List.of(to), subject, content);
         } catch (Exception e) {

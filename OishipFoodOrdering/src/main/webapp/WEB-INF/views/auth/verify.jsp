@@ -11,11 +11,11 @@
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
             rel="stylesheet"
-        />
+            />
         <link
             href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
             rel="stylesheet"
-        />
+            />
         <style>
             body {
                 background: white;
@@ -25,6 +25,14 @@
                 justify-content: center;
                 align-items: center;
             }
+
+            .logo {
+                position: absolute;
+                top: 10px;
+                left: 20px;
+                height: 80px;
+            }
+
             .verify-card {
                 max-width: 400px;
                 width: 100%;
@@ -80,13 +88,16 @@
                 background: #0056b3;
                 color: white;
             }
-             .btn-resend:active {
+            .btn-resend:active {
                 background: white;
                 color: white;
             }
         </style>
     </head>
     <body>
+        <!-- Logo -->
+        <a href="/OishipFoodOrdering"><img src="images/logo_1.png" alt="Oiship Logo" class="logo" /></a>
+
         <div class="verify-card">
             <h2>
                 <i class="bi bi-shield-check title-icon"></i> Enter Verification
@@ -107,7 +118,7 @@
                     maxlength="6"
                     pattern="\d{6}"
                     title="Please enter a 6-digit code"
-                />
+                    />
                 <button type="submit" class="btn btn-verify" id="verifyButton">
                     <i class="bi bi-check-circle title-icon"></i> Verify
                 </button>
