@@ -8,6 +8,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class RestaurantManagerDAO extends DBContext {
+
     public List<RestaurantManager> getAllRestaurants() {
         List<RestaurantManager> list = new ArrayList<>();
         String sql = "SELECT * FROM RestaurantManager";
@@ -36,17 +37,17 @@ public class RestaurantManagerDAO extends DBContext {
     }
 
     public int insertRestaurantAndReturnId(RestaurantManager r) {
-        String sql = "INSERT INTO RestaurantManager (name, email, phone, password, address, opening_hours, cuisine_type, status_id, created_at) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
+        String sql = "INSERT INTO RestaurantManager (name, email, phone, password, address, opening_hours, status_id, created_at) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, GETDATE())";
+
         try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, r.getName());
             stmt.setString(2, r.getEmail());
             stmt.setString(3, r.getPhone());
             stmt.setString(4, r.getPassword());
             stmt.setString(5, r.getAddress());
-            stmt.setString(6, r.getOpeningHours()); // Có thể null
-            stmt.setString(7, r.getCuisineType()); // Có thể null
-            stmt.setInt(8, r.getStatusId());
+            stmt.setString(6, r.getOpeningHours()); // NULL nếu bạn muốn để trống
+            stmt.setInt(7, r.getStatusId());
 
             int affectedRows = stmt.executeUpdate();
             if (affectedRows > 0) {
@@ -55,8 +56,10 @@ public class RestaurantManagerDAO extends DBContext {
                     return rs.getInt(1); // ID mới được sinh ra
                 }
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
+            System.out.println("SQL Error: " + e.getMessage());
         }
         return -1;
     }

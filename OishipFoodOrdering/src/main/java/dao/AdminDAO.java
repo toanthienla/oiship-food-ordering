@@ -81,7 +81,6 @@ public class AdminDAO extends DBContext {
                 return admin;
             }
         } catch (SQLException e) {
-            e.printStackTrace();
         }
         return null;
     }

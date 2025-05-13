@@ -8,8 +8,9 @@ import java.sql.SQLException;
 
 public class DBContext {
 
-    //Connection object 
+      //Connection object 
     protected Connection conn = null;
+
 
     /**
      * Constructor method that try to connect to the database. All information

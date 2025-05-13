@@ -45,6 +45,7 @@ public class ShipperCompleteProfileServlet extends HttpServlet {
         String address = request.getParameter("address");
         String cccd = request.getParameter("cccd");
         String driverLicense = request.getParameter("driver_license");
+        String vehicleInfo = request.getParameter("vehicle_info");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirm_password");
         Part driverLicenseImagePart = request.getPart("driver_license_image");
@@ -91,6 +92,7 @@ public class ShipperCompleteProfileServlet extends HttpServlet {
         shipper.setCccd(cccd);
         shipper.setDriverLicense(driverLicense);
         shipper.setDriverLicenseImage(driverLicenseImageBytes);
+        shipper.setVehicleInfo(vehicleInfo);
         shipper.setPassword(hashedPassword);
         shipper.setStatusId(2); // pending
         shipper.setCreatedAt(Timestamp.from(Instant.now()));
