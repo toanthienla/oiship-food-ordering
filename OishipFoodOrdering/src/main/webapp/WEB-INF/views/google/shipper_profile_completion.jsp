@@ -46,6 +46,9 @@
                     <label>Upload Driver License Image</label>
                     <input type="file" name="driver_license_image" class="form-control" required accept=".jpg,.png" />
                 </div>
+                
+                <div><input type="text" name="vehicle_info" required></div>
+
 
                 <div class="col-12">
                     <label>Password</label>

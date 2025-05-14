@@ -43,6 +43,8 @@ public class RestaurantManagerProfileCompletionServlet extends HttpServlet {
 
         String phone = request.getParameter("phone");
         String address = request.getParameter("address");
+        String openingHours = request.getParameter("opening_hours");
+
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirm_password");
 
@@ -72,6 +74,8 @@ public class RestaurantManagerProfileCompletionServlet extends HttpServlet {
         restaurant.setEmail(email);
         restaurant.setPhone(phone);
         restaurant.setAddress(address);
+        restaurant.setOpeningHours(openingHours); // có thể là null hoặc chuỗi trống
+
         restaurant.setPassword(hashedPassword);
         restaurant.setStatusId(2); // Pending approval
         restaurant.setCreatedAt(Timestamp.from(Instant.now()));

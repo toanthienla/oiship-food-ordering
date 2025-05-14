@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class ShipperDAO extends DBContext {
+
     public List<Shipper> getPendingShippers() {
         List<Shipper> list = new ArrayList<>();
         String sql = "SELECT * FROM Shipper WHERE status_id = 2";
@@ -144,8 +145,8 @@ public class ShipperDAO extends DBContext {
     public int insertShipperAndReturnId(Shipper shipper, Part licenseImage) {
         String sql = "INSERT INTO Shipper (name, email, phone, password, cccd, driver_license, driver_license_image, address, vehicle_info, status_id, created_at) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, GETDATE())";
-        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
+        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             stmt.setString(1, shipper.getName());
             stmt.setString(2, shipper.getEmail());
             stmt.setString(3, shipper.getPhone());
@@ -153,9 +154,13 @@ public class ShipperDAO extends DBContext {
             stmt.setString(5, shipper.getCccd());
             stmt.setString(6, shipper.getDriverLicense());
 
-            // Đọc ảnh từ Part
-            byte[] imageBytes = licenseImage.getInputStream().readAllBytes();
-            stmt.setBytes(7, imageBytes);
+            // Đọc ảnh từ Part nếu có
+            if (licenseImage != null && licenseImage.getSize() > 0) {
+                byte[] imageBytes = licenseImage.getInputStream().readAllBytes();
+                stmt.setBytes(7, imageBytes);
+            } else {
+                stmt.setNull(7, java.sql.Types.VARBINARY);
+            }
 
             stmt.setString(8, shipper.getAddress());
             stmt.setString(9, shipper.getVehicleInfo() != null ? shipper.getVehicleInfo() : "N/A");
@@ -163,15 +168,18 @@ public class ShipperDAO extends DBContext {
 
             int affected = stmt.executeUpdate();
             if (affected > 0) {
-                ResultSet rs = stmt.getGeneratedKeys();
-                if (rs.next()) {
-                    return rs.getInt(1);
+                try (ResultSet rs = stmt.getGeneratedKeys()) {
+                    if (rs.next()) {
+                        return rs.getInt(1);
+                    }
                 }
             }
 
         } catch (Exception e) {
+            System.err.println("Insert Shipper Error: " + e.getMessage());
             e.printStackTrace();
         }
+
         return -1;
     }
 
