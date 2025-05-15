@@ -76,14 +76,14 @@ public class VerificationDAO extends DBContext {
 
     public void saveVerificationCodeByEmail(String email, String hashedCode, String plainCode) {
         String sql = "INSERT INTO VerificationCode (customer_id, code, plain_code, created_at, expires_at, is_used) "
-                + "SELECT customer_id, ?, ?, GETDATE(), DATEADD(MINUTE,1,GETDATE()), 0 FROM Customers WHERE email = ?";
+                + "SELECT customer_id, ?, ?, GETDATE(), DATEADD(MINUTE,1,GETDATE()), 0 FROM Customer WHERE email = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, hashedCode);
             stmt.setString(2, plainCode);
             stmt.setString(3, email);
             stmt.executeUpdate();
         } catch (SQLException e) {
-            e.printStackTrace();
+            e.printStackTrace();    
         }
     }
 

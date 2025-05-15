@@ -29,9 +29,9 @@
 
                 .logo {
                     position: absolute;
-                    top: 50px;
-                    left: 20px;
-                    height: 80px;
+                    top: 65px;
+                    left: 30px;
+                    height: 45px;
                 }
 
                 .login-card {

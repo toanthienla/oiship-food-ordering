@@ -17,7 +17,7 @@ public class HomeServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("role") == null || session.getAttribute("userId") == null) {
-            request.getRequestDispatcher("/WEB-INF/views/home/landing_page.jsp").forward(request, response);
+            request.getRequestDispatcher("/WEB-INF/views/home/home.jsp").forward(request, response);
             return;
         }
 

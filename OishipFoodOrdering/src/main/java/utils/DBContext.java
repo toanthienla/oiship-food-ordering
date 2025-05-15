@@ -34,7 +34,7 @@ public class DBContext {
                     + "password=%s;"
                     + "encrypt=true;trustServerCertificate=true;", databaseName, username, password);
             conn = DriverManager.getConnection(dbURL);
-            
+
             //Log data for checking
             System.out.println("Connect database successfully!");
             DatabaseMetaData md = conn.getMetaData();
@@ -56,6 +56,34 @@ public class DBContext {
     }
 
     public static void main(String[] args) {
-        new DBContext();
+        DBContext db = new DBContext();
+        String sql = "SELECT admin_id, name, email, password, created_at FROM [Admin]";
+
+        try {
+            if (db.conn != null) {
+                var stmt = db.conn.createStatement();
+                var rs = stmt.executeQuery(sql);
+
+                while (rs.next()) {
+                    int id = rs.getInt("admin_id");
+                    String name = rs.getString("name");
+                    String email = rs.getString("email");
+                    String password = rs.getString("password");
+                    java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
+
+                    System.out.printf("ID: %d | Name: %s | Email: %s | Password: %s | Created At: %s\n",
+                            id, name, email, password, createdAt);
+                }
+
+                rs.close();
+                stmt.close();
+                db.conn.close(); // Always close when done
+            } else {
+                System.out.println("Connection is null.");
+            }
+        } catch (SQLException e) {
+            System.err.println("SQL error during test:");
+            e.printStackTrace();
+        }
     }
 }

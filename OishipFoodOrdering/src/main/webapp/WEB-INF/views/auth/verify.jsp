@@ -28,9 +28,9 @@
 
             .logo {
                 position: absolute;
-                top: 10px;
-                left: 20px;
-                height: 80px;
+                top: 25px;
+                left: 30px;
+                height: 45px;
             }
 
             .verify-card {
