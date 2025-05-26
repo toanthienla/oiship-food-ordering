@@ -1,4 +1,3 @@
-// HomeServlet.java
 package controller.home;
 
 import jakarta.servlet.ServletException;
@@ -17,25 +16,26 @@ public class HomeServlet extends HttpServlet {
         HttpSession session = request.getSession(false);
 
         if (session == null || session.getAttribute("role") == null || session.getAttribute("userId") == null) {
+            // Nếu chưa đăng nhập, hiển thị trang home công khai
             request.getRequestDispatcher("/WEB-INF/views/home/home.jsp").forward(request, response);
             return;
         }
 
-        String role = (String) session.getAttribute("role");
+        String role = ((String) session.getAttribute("role")).toLowerCase();
         redirectByRole(response, session, role);
     }
 
     private void redirectByRole(HttpServletResponse response, HttpSession session, String role) throws IOException {
         switch (role) {
             case "customer":
-                response.sendRedirect("customer");
+                response.sendRedirect("customer/dashboard");
                 break;
             case "shipper":
-                response.sendRedirect("shipper");
+                response.sendRedirect("shipper/dashboard");
                 break;
             case "restaurant":
-                response.sendRedirect("restaurant");
-                break;
+                response.sendRedirect("restaurant/dashboard");
+
             case "admin":
                 response.sendRedirect("admin");
                 break;

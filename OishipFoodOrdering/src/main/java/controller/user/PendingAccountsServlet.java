@@ -1,12 +1,10 @@
 package controller.user;
 
-import dao.RestaurantManagerDAO;
-import dao.ShipperDAO;
+import dao.AccountDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import model.RestaurantManager;
-import model.Shipper;
+import model.Account;
 
 import java.io.IOException;
 import java.util.List;
@@ -19,22 +17,21 @@ public class PendingAccountsServlet extends HttpServlet {
             throws ServletException, IOException {
 
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("role") == null || !"admin".equals(session.getAttribute("role"))) {
+        String role = session != null ? (String) session.getAttribute("role") : null;
+
+        if (role == null || !role.equalsIgnoreCase("admin")) {
             response.sendRedirect("login");
             return;
         }
 
-        // Lấy danh sách các tài khoản đang chờ duyệt
-        ShipperDAO shipperDAO = new ShipperDAO();
-        RestaurantManagerDAO restaurantDAO = new RestaurantManagerDAO();
+        AccountDAO dao = new AccountDAO();
 
-        List<Shipper> pendingShippers = shipperDAO.getPendingShippers(); // status_id = 2
-        List<RestaurantManager> pendingRestaurants = restaurantDAO.getPendingRestaurants(); // status_id = 2
+        List<Account> pendingShippers = dao.getAccountsByRoleAndStatus("Shipper", "pending_approval");
+        List<Account> pendingRestaurants = dao.getAccountsByRoleAndStatus("RestaurantManager", "pending_approval");
 
         request.setAttribute("shippers", pendingShippers);
         request.setAttribute("restaurants", pendingRestaurants);
 
-        // Forward tới trang JSP hiển thị danh sách
         request.getRequestDispatcher("/WEB-INF/views/pendingAccounts/admin_pending.jsp").forward(request, response);
     }
 
@@ -43,17 +40,23 @@ public class PendingAccountsServlet extends HttpServlet {
             throws ServletException, IOException {
 
         String type = request.getParameter("type"); // shipper or restaurant
-        int id = Integer.parseInt(request.getParameter("id"));
-        int newStatus = Integer.parseInt(request.getParameter("status"));
+        String idStr = request.getParameter("id");
+        String status = request.getParameter("status");
 
-        if ("shipper".equalsIgnoreCase(type)) {
-            new ShipperDAO().updateStatus(id, newStatus);
-        } else if ("restaurant".equalsIgnoreCase(type)) {
-            new RestaurantManagerDAO().updateStatus(id, newStatus);
+        if (type == null || idStr == null || status == null) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing parameters");
+            return;
         }
 
-        // Sau khi duyệt, load lại trang
-        response.sendRedirect("pending-accounts");
+        try {
+            int id = Integer.parseInt(idStr);
+            AccountDAO dao = new AccountDAO();
+            dao.updateStatus(id, status);
+            response.sendRedirect("pending-accounts");
+
+        } catch (NumberFormatException e) {
+            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Invalid ID format");
+        }
     }
 
     @Override

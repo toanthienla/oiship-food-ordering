@@ -3,15 +3,11 @@ package model;
 import java.sql.Timestamp;
 
 public class Admin {
-
     private int adminId;
     private String name;
     private String email;
     private String password;
     private Timestamp createdAt;
-
-    public Admin() {
-    }
 
     public Admin(int adminId, String name, String email, String password, Timestamp createdAt) {
         this.adminId = adminId;
@@ -21,7 +17,8 @@ public class Admin {
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters
+    // Getters and Setters...
+
     public int getAdminId() {
         return adminId;
     }
@@ -60,15 +57,5 @@ public class Admin {
 
     public void setCreatedAt(Timestamp createdAt) {
         this.createdAt = createdAt;
-    }
-
-    @Override
-    public String toString() {
-        return "SystemAdmins{"
-                + "adminId=" + adminId
-                + ", name='" + name + '\''
-                + ", email='" + email + '\''
-                + ", createdAt=" + createdAt
-                + '}';
     }
 }

@@ -414,6 +414,20 @@
                                 <div class="col-12 col-lg-6">
                                     <div class="form-floating">
                                         <input
+                                            type="text"
+                                            class="form-control rounded-3"
+                                            name="number_plate"
+                                            id="shipper_number_plate"
+                                            placeholder="Vehicle Number Plate"
+                                            required
+                                            />
+                                        <label for="shipper_number_plate">Vehicle Number Plate</label>
+                                    </div>
+                                </div>
+
+                                <div class="col-12 col-lg-6">
+                                    <div class="form-floating">
+                                        <input
                                             type="password"
                                             class="form-control rounded-3"
                                             name="password"

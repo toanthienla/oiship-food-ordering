@@ -1,14 +1,20 @@
-<%@ page contentType="text/html;charset=UTF-8" %>
+<%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ page import="java.util.List" %>
-<%@ page import="model.Customer, model.Shipper, model.RestaurantManager" %>
+<%@ page import="model.Account" %>
+<%@ page import="java.util.stream.Collectors" %>
+<%
+    List<Account> accounts = (List<Account>) request.getAttribute("accounts");
+    List<Account> customers = accounts.stream().filter(a -> "Customer".equalsIgnoreCase(a.getRole())).collect(Collectors.toList());
+    List<Account> shippers = accounts.stream().filter(a -> "Shipper".equalsIgnoreCase(a.getRole())).collect(Collectors.toList());
+    List<Account> restaurants = accounts.stream().filter(a -> "RestaurantManager".equalsIgnoreCase(a.getRole())).collect(Collectors.toList());
+%>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
         <meta charset="UTF-8">
         <title>Admin Dashboard</title>
-                <!-- Bootstrap v5 -->
-        <link rel="stylesheet" href="css/bootstrap.css"/>         
-        <script src="js/bootstrap.bundle.js"></script>   
+        <link rel="stylesheet" href="css/bootstrap.css"/>
+        <script src="js/bootstrap.bundle.js"></script>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" rel="stylesheet">
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
         <style>
@@ -53,7 +59,7 @@
                 color: green;
                 font-weight: bold;
             }
-            .status-pending {
+            .status-pending_approval {
                 color: orange;
                 font-weight: bold;
             }
@@ -115,33 +121,32 @@
                         </div>
                     </div>
 
-                    <!-- Customer Table -->
+                    <%-- Table Block --%>
+                    <% String[] roles = {"Customer", "Shipper", "RestaurantManager"}; %>
+                    <% for (String role : roles) {
+                            List<Account> list = role.equals("Customer") ? customers : (role.equals("Shipper") ? shippers : restaurants);
+                    %>
                     <div class="table-container">
-                        <h4><i class="bi bi-people"></i> Customer Accounts</h4>
-                        <div class="search-box mb-2">
-                            <input type="text" class="form-control" placeholder="Search customers">
-                        </div>
+                        <h4><i class="bi <%= role.equals("Customer") ? "bi-people" : role.equals("Shipper") ? "bi-truck" : "bi-shop"%>"></i> <%= role%> Accounts</h4>
                         <table class="table table-bordered">
                             <thead class="table-light">
                                 <tr><th>STT</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Activity</th><th>Action</th></tr>
                             </thead>
                             <tbody>
                                 <% int i = 1;
-                                    List<Customer> customers = (List<Customer>) request.getAttribute("customers");
-                                    for (Customer c : customers) {%>
+                        for (Account acc : list) {%>
                                 <tr>
                                     <td><%= i++%></td>
-                                    <td><%= c.getName()%></td>
-                                    <td><%= c.getEmail()%></td>
-                                    <td><%= c.getPhone()%></td>
-                                    <td class="status-<%= getStatusClass(c.getStatusId())%>"><%= getStatusText(c.getStatusId())%></td>
-                                    <td id="activity-<%= c.getCustomerId()%>">Offline</td>
+                                    <td><%= acc.getAccountName()%></td>
+                                    <td><%= acc.getEmail()%></td>
+                                    <td><%= acc.getPhone()%></td>
+                                    <td class="status-<%= acc.getStatus().toLowerCase()%>"><%= acc.getStatus()%></td>
+                                    <td id="activity-<%= acc.getAccountId()%>">Offline</td>
                                     <td>
-                                        <select class="form-select" onchange="updateStatus('customer', <%= c.getCustomerId()%>, this.value)">
+                                        <select class="form-select" onchange="updateStatus('<%= role.toLowerCase()%>', <%= acc.getAccountId()%>, this.value)">
                                             <option value="">Select Action</option>
                                             <option value="ban">Ban</option>
                                             <option value="unban">Unban</option>
-                                            <option value="edit">Edit Info</option>
                                         </select>
                                     </td>
                                 </tr>
@@ -149,77 +154,7 @@
                             </tbody>
                         </table>
                     </div>
-
-                    <!-- Shipper Table -->
-                    <div class="table-container">
-                        <h4><i class="bi bi-truck"></i> Shipper Accounts</h4>
-                        <div class="search-box mb-2">
-                            <input type="text" class="form-control" placeholder="Search shippers">
-                        </div>
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr><th>STT</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Activity</th><th>Action</th></tr>
-                            </thead>
-                            <tbody>
-                                <% int j = 1;
-                                    List<Shipper> shippers = (List<Shipper>) request.getAttribute("shippers");
-                                    for (Shipper s : shippers) {%>
-                                <tr>
-                                    <td><%= j++%></td>
-                                    <td><%= s.getName()%></td>
-                                    <td><%= s.getEmail()%></td>
-                                    <td><%= s.getPhone()%></td>
-                                    <td class="status-<%= getStatusClass(s.getStatusId())%>"><%= getStatusText(s.getStatusId())%></td>
-                                    <td id="activity-<%= s.getShipperId()%>">Offline</td>
-                                    <td>
-                                        <select class="form-select" onchange="updateStatus('shipper', <%= s.getShipperId()%>, this.value)">
-                                            <option value="">Select Action</option>
-                                            <option value="ban">Ban</option>
-                                            <option value="unban">Unban</option>
-                                            <option value="edit">Edit Info</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <% } %>
-                            </tbody>
-                        </table>
-                    </div>
-
-                    <!-- Restaurant Table -->
-                    <div class="table-container">
-                        <h4><i class="bi bi-shop"></i> Restaurant Accounts</h4>
-                        <div class="search-box mb-2">
-                            <input type="text" class="form-control" placeholder="Search restaurants">
-                        </div>
-                        <table class="table table-bordered">
-                            <thead class="table-light">
-                                <tr><th>STT</th><th>Name</th><th>Email</th><th>Phone</th><th>Status</th><th>Activity</th><th>Action</th></tr>
-                            </thead>
-                            <tbody>
-                                <% int k = 1;
-                                    List<RestaurantManager> restaurants = (List<RestaurantManager>) request.getAttribute("restaurants");
-                                    for (RestaurantManager r : restaurants) {%>
-                                <tr>
-                                    <td><%= k++%></td>
-                                    <td><%= r.getName()%></td>
-                                    <td><%= r.getEmail()%></td>
-                                    <td><%= r.getPhone()%></td>
-                                    <td class="status-<%= getStatusClass(r.getStatusId())%>"><%= getStatusText(r.getStatusId())%></td>
-                                    <td id="activity-<%= r.getRestaurantId()%>">Offline</td>
-                                    <td>
-                                        <select class="form-select" onchange="updateStatus('restaurant', <%= r.getRestaurantId()%>, this.value)">
-                                            <option value="">Select Action</option>
-                                            <option value="ban">Ban</option>
-                                            <option value="unban">Unban</option>
-                                            <option value="edit">Edit Info</option>
-                                        </select>
-                                    </td>
-                                </tr>
-                                <% }%>
-                            </tbody>
-                        </table>
-                    </div>
-
+                    <% }%>
                 </main>
             </div>
         </div>
@@ -256,66 +191,19 @@
 
             new Chart(document.getElementById('customerChart'), {
                 type: 'bar',
-                data: {
-                    labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-                    datasets: [{
-                            label: 'Orders', data: [20, 30, 40, 50, 60, 70, 65],
-                            backgroundColor: 'rgba(54, 162, 235, 0.7)'
-                        }]
-                },
+                data: {labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], datasets: [{label: 'Orders', data: [20, 30, 40, 50, 60, 70, 65], backgroundColor: 'rgba(54, 162, 235, 0.7)'}]},
                 options: {responsive: true}
             });
             new Chart(document.getElementById('restaurantChart'), {
                 type: 'bar',
-                data: {
-                    labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-                    datasets: [{
-                            label: 'Revenue', data: [5, 7, 8, 6, 7, 9, 8],
-                            backgroundColor: 'rgba(255, 99, 132, 0.7)'
-                        }]
-                },
+                data: {labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], datasets: [{label: 'Revenue', data: [5, 7, 8, 6, 7, 9, 8], backgroundColor: 'rgba(255, 99, 132, 0.7)'}]},
                 options: {responsive: true}
             });
             new Chart(document.getElementById('shipperChart'), {
                 type: 'bar',
-                data: {
-                    labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'],
-                    datasets: [{
-                            label: 'Deliveries', data: [10, 15, 20, 25, 30, 35, 40],
-                            backgroundColor: 'rgba(75, 192, 192, 0.7)'
-                        }]
-                },
+                data: {labels: ['T2', 'T3', 'T4', 'T5', 'T6', 'T7', 'CN'], datasets: [{label: 'Deliveries', data: [10, 15, 20, 25, 30, 35, 40], backgroundColor: 'rgba(75, 192, 192, 0.7)'}]},
                 options: {responsive: true}
             });
         </script>
-
-        <%!
-            private String getStatusText(int statusId) {
-                switch (statusId) {
-                    case 1:
-                        return "Active";
-                    case 0:
-                        return "Pending";
-                    case 3:
-                        return "Banned";
-                    default:
-                        return "Unknown";
-                }
-            }
-
-            private String getStatusClass(int statusId) {
-                switch (statusId) {
-                    case 1:
-                        return "active";
-                    case 0:
-                        return "pending";
-                    case 3:
-                        return "banned";
-                    default:
-                        return "unknown";
-                }
-            }
-        %>
-
     </body>
 </html>

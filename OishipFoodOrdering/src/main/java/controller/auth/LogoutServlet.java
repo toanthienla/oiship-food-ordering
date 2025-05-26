@@ -1,4 +1,4 @@
-package controller.account;
+package controller.auth;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;

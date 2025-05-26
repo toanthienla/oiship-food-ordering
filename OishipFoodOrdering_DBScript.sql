@@ -1,4 +1,4 @@
--- OishipFoodOrdering_DBScript_Ver10.1.sql
+-- OishipFoodOrdering_DBScript_Ver10.3.sql
 
 USE master
 GO
@@ -20,21 +20,23 @@ GO
 
 --Cần nhập dữ liệu mẫu Admin trước
 CREATE TABLE Account (
-	account_id INT PRIMARY KEY,
+	account_id INT IDENTITY PRIMARY KEY,
 	account_name NVARCHAR(100) NOT NULL,
 	email NVARCHAR(100) NOT NULL UNIQUE,
 	phone NVARCHAR(15) NOT NULL CHECK (phone LIKE '0%' AND LEN(phone) = 10 AND phone NOT LIKE '%[^0-9]%'),
 	[password] NVARCHAR(60) NOT NULL,
-	[status] NVARCHAR(50) NOT NULL, --Dữ liệu mẫu
+	[status] NVARCHAR(50) NOT NULL CHECK ([status] IN ('not_verified', 'active', 'pending_approval', 'banned', 'online', 'offline')),
 	cccd NVARCHAR(12) CHECK (LEN(cccd) = 12 AND cccd NOT LIKE '%[^0-9]%'), --Check NOT NULL với role Shipper
     license NVARCHAR(12) CHECK (LEN(license) BETWEEN 10 AND 12), --Check NOT NULL với role Shipper
     license_image VARBINARY(MAX), --Check NOT NULL với role Shipper
 	number_plate NVARCHAR(100), --Bảng số xe, Check NOT NULL với role Shipper
+	opening_time TIME,  -- Thời gian mở cửa, Check NOT NULL với role RestaurantManager
+    closing_time TIME,  -- Thời gian đóng cửa, Check NOT NULL với role RestaurantManager
 	[address] NVARCHAR(255),
 	longitude DECIMAL(9,6), --Kinh độ
     latitude DECIMAL(9,6), --Vĩ độ
 	account_created_at DATETIME DEFAULT GETDATE(), --Ngày tạo tài khoản
-	[role] NVARCHAR(100) NOT NULL --Dữ liệu mẫu 4 role: Admin, Customer, Shipper, RestaurantManager
+	[role] NVARCHAR(100) NOT NULL CHECK ([role] IN ('Admin', 'Customer', 'Shipper', 'RestaurantManager'))
 );
 
 
@@ -43,8 +45,8 @@ CREATE TABLE Account (
 --Bảng Menu (Chứa các MenuItem/Món ăn)
 CREATE TABLE Menu (
     menu_id INT IDENTITY PRIMARY KEY,
-	available BIT DEFAULT 1, --Mặc định là 1, not available là 0
-	category NVARCHAR(100) NOT NULL, --Dữ liệu mẫu: Nước uống, ăn sáng, ăn trưa, ăn tối,...
+	available BIT DEFAULT 1, -- 1: available, 0: not available
+	category NVARCHAR(100) NOT NULL CHECK (category IN ('breakfast', 'lunch', 'afternoon', 'dinner','late night')),
 	restaurant_manager_id INT FOREIGN KEY REFERENCES Account(account_id) -- [RestaurantManager]
 );
 
@@ -141,7 +143,7 @@ CREATE TABLE OTP (
 CREATE TABLE [Notification] (
     notification_id INT IDENTITY PRIMARY KEY,
     noti_message NVARCHAR(255),
-    noti_type NVARCHAR(50), -- order_completed, order_cancelled
+    noti_type NVARCHAR(50) CHECK (noti_type IN ('order_completed', 'order_cancelled')) NOT NULL,
     is_read BIT DEFAULT 0,
 	order_id INT NOT NULL FOREIGN KEY REFERENCES [Order](order_id),
     customer_id INT NOT NULL FOREIGN KEY REFERENCES Account(account_id),

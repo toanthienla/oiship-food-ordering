@@ -30,6 +30,23 @@ public class EmailService {
         PROPERTIES.put("mail.smtp.port", String.valueOf(EMAIL_PORT));
     }
 
+    public static String[] generateAndSendVerification(String to, String name) {
+        try {
+            // 1. Tạo mã
+            String plainCode = String.valueOf(100000 + new java.util.Random().nextInt(900000));
+            String hashedCode = org.apache.commons.codec.digest.DigestUtils.md5Hex(plainCode);
+
+            // 2. Gửi mail
+            sendVerificationEmail(to, name, plainCode);
+
+            // 3. Trả lại mã (để servlet hoặc DAO lưu vào DB)
+            return new String[]{plainCode, hashedCode};
+        } catch (Exception e) {
+            e.printStackTrace();
+            return null; // thất bại
+        }
+    }
+
     public static void sendEmail(List<String> recipients, String subject, String htmlContent)
             throws MessagingException {
         Session session = Session.getInstance(PROPERTIES, new Authenticator() {
