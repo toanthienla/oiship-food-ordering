@@ -1,5 +1,3 @@
--- OishipFoodOrdering_DBScript_Ver10.3.sql
-
 USE master
 GO
 
@@ -16,145 +14,177 @@ GO
 USE Oiship
 GO
 
---I. Bảng Account:
+-- Account table: Stores user information for all account types (admin, customer, staff).
+-- Includes personal details, login credentials, and account status/role.
+-- status values:
+-- 0 Ban
+-- 1 = Active
 
---Cần nhập dữ liệu mẫu Admin trước
 CREATE TABLE Account (
-	account_id INT IDENTITY PRIMARY KEY,
-	account_name NVARCHAR(100) NOT NULL,
-	email NVARCHAR(100) NOT NULL UNIQUE,
-	phone NVARCHAR(15) NOT NULL CHECK (phone LIKE '0%' AND LEN(phone) = 10 AND phone NOT LIKE '%[^0-9]%'),
-	[password] NVARCHAR(60) NOT NULL,
-	[status] NVARCHAR(50) NOT NULL CHECK ([status] IN ('not_verified', 'active', 'pending_approval', 'banned', 'online', 'offline')),
-	cccd NVARCHAR(12) CHECK (LEN(cccd) = 12 AND cccd NOT LIKE '%[^0-9]%'), --Check NOT NULL với role Shipper
-    license NVARCHAR(12) CHECK (LEN(license) BETWEEN 10 AND 12), --Check NOT NULL với role Shipper
-    license_image VARBINARY(MAX), --Check NOT NULL với role Shipper
-	number_plate NVARCHAR(100), --Bảng số xe, Check NOT NULL với role Shipper
-	opening_time TIME,  -- Thời gian mở cửa, Check NOT NULL với role RestaurantManager
-    closing_time TIME,  -- Thời gian đóng cửa, Check NOT NULL với role RestaurantManager
+	accountID INT IDENTITY(1,1) PRIMARY KEY,
+	fullName NVARCHAR(255),
+	email NVARCHAR(100) UNIQUE,
+	phone NVARCHAR(15),
+	[password] NVARCHAR(255),
 	[address] NVARCHAR(255),
-	longitude DECIMAL(9,6), --Kinh độ
-    latitude DECIMAL(9,6), --Vĩ độ
-	account_created_at DATETIME DEFAULT GETDATE(), --Ngày tạo tài khoản
-	[role] NVARCHAR(100) NOT NULL CHECK ([role] IN ('Admin', 'Customer', 'Shipper', 'RestaurantManager'))
+	[status] INT,
+	createAt DATETIME DEFAULT GETDATE(),
+	[role] VARCHAR(20) CHECK ([role] IN ('admin', 'customer', 'staff'))
 );
 
-
---II. Các bảng giao dịch:
-
---Bảng Menu (Chứa các MenuItem/Món ăn)
-CREATE TABLE Menu (
-    menu_id INT IDENTITY PRIMARY KEY,
-	available BIT DEFAULT 1, -- 1: available, 0: not available
-	category NVARCHAR(100) NOT NULL CHECK (category IN ('breakfast', 'lunch', 'afternoon', 'dinner','late night')),
-	restaurant_manager_id INT FOREIGN KEY REFERENCES Account(account_id) -- [RestaurantManager]
+-- Staff table: Stores specific details for staff accounts, linking to the Account table.
+-- Defines staff type (e.g., seller or inventory staff) for role-specific responsibilities.
+CREATE TABLE Staff (
+    staffId INT PRIMARY KEY,
+    staffType VARCHAR(20) CHECK ([staffType] IN ('sellerStaff', 'inventoryStaff')),
+    FOREIGN KEY (staffId) REFERENCES Account(accountID)
 );
 
--- Bảng MenuDetail là những món ăn nằm trong menu
-CREATE TABLE MenuDetail (
-    menu_detail_id INT IDENTITY PRIMARY KEY,
-	menu_detail_name NVARCHAR(100) NOT NULL,
-	price DECIMAL(10,2) NOT NULL CHECK (price >= 0),
+-- Category table: Stores food categories for organizing meals in the system.
+-- Includes category name and description for menu classification.
+CREATE TABLE Category (
+    catID INT IDENTITY(1,1) PRIMARY KEY,
+	catName NVARCHAR(255) UNIQUE,
+	catDescription NVARCHAR(255)
+);
+
+-- Meal table: Stores details of food items available for order.
+-- Includes meal name,, opCost (VND), interestPercentage(%) , image, description, stock, and category reference.
+CREATE TABLE Meal (
+    mealID INT IDENTITY(1,1) PRIMARY KEY,
+	mealName NVARCHAR(255),
+	opCost DECIMAL(10,2),
+	interestPercentage DECIMAL(10,2),
 	[image] NVARCHAR(255),
-	menu_description NVARCHAR(255),
-	is_available BIT NOT NULL DEFAULT 1,
-    restaurant_manager_id INT FOREIGN KEY REFERENCES Account(account_id), --[RestaurantManager]
-	menu_id INT NOT NULL FOREIGN KEY REFERENCES Menu(menu_id)
+	mealDescription NVARCHAR(255),
+	stock INT,
+	FK_Meal_Category INT FOREIGN KEY REFERENCES Category(catID)
 );
 
---Bảng mã giảm giá được sử dụng khi tạo Order
-CREATE TABLE Discount (
-    discount_id INT IDENTITY PRIMARY KEY,
-    discount_code NVARCHAR(50) UNIQUE NOT NULL,       -- Mã giảm giá, ví dụ: 'SUMMER2025'
-    discount_description NVARCHAR(255),
-    discount_type NVARCHAR(50) CHECK (discount_type IN ('fixed', 'percentage')) NOT NULL,
-    amount DECIMAL(10,2) NOT NULL CHECK (amount >= 0),
-    max_discount_value DECIMAL(10,2), -- Áp dụng nếu là phần trăm
-    min_order_value DECIMAL(10,2),    -- Giá trị đơn tối thiểu để được áp dụng
-    [start_date] DATETIME NOT NULL,
-    end_date DATETIME NOT NULL,
-    usage_limit INT,                 -- Số lần được dùng tổng cộng
-    used_count INT DEFAULT 0,
-    is_active BIT DEFAULT 1
+--Ingredient table: Stores raw materials, ingredient for meal
+-- Includes name, quantity(kg), unitCost(VND/kg)
+CREATE TABLE Ingredient (
+	ingredientID INT PRIMARY KEY,
+	name NVARCHAR(255),
+	quantity INT,
+	unitCost DECIMAL(10,2),
+	FK_Ingredient_Meal INT FOREIGN KEY REFERENCES Meal(mealID)
 );
 
--- Bảng Order (Là giỏ hàng đã được Customer xác nhận đặt hàng)
+-- Cart table: Stores items added to a user's cart before placing an order.
+-- Links accounts to meals with quantities for temporary storage.
+CREATE TABLE Cart (
+	cartID INT IDENTITY(1,1) PRIMARY KEY,
+	quantity INT,
+	FK_Cart_Account INT FOREIGN KEY REFERENCES Account(accountID),
+	FK_Cart_Meal INT FOREIGN KEY REFERENCES Meal(mealID)
+);
+
+-- Voucher table: Stores discount vouchers for orders.
+-- Includes voucher code, discount details, validity period, usage limits, and staff creator.
+-- active values:
+-- 0 = Not available
+-- 1 = Active
+CREATE TABLE Voucher (
+    voucherID INT IDENTITY(1,1) PRIMARY KEY,
+    code NVARCHAR(255) UNIQUE,
+    voucherDescription NVARCHAR(255),
+    discount DECIMAL(10,2),
+    maxDiscountValue DECIMAL(10,2),
+    minOrderValue DECIMAL(10,2),
+    startDate DATETIME,
+    endDate DATETIME,
+    usageLimit INT,
+    usedCount INT DEFAULT 0,
+    active INT,
+	FK_Voucher_Staff INT FOREIGN KEY REFERENCES Staff(staffID)
+);
+
+-- Order table: Stores order details with status tracking and references to related entities.
+-- Includes order amount, status (e.g., pending, delivered), creation/update timestamps, and links to voucher, account, and staff.
+-- orderStatus values:
+-- 0 = Pending            -- Order placed but not yet confirmed.
+-- 1 = Confirmed          -- Order confirmed and is being prepared.
+-- 2 = In Delivery        -- Order has been shipped and is on the way.
+-- 3 = Delivered          -- Order successfully delivered to the customer.
+-- 4 = Cancelled by User  -- Customer cancelled the order.
+-- 5 = Cancelled by Staff -- Staff/admin cancelled the order due to issues.
+-- 6 = Failed             -- Order failed due to payment or system error.
+-- 7 = Refunded           -- Payment refunded to the customer.
 CREATE TABLE [Order] (
-    order_id INT IDENTITY PRIMARY KEY,
-    total_amount DECIMAL(10,2) NOT NULL,
-    payment_method NVARCHAR(50) NOT NULL CHECK (payment_method IN ('online', 'offline')),
-    order_status NVARCHAR(50) CHECK (order_status IN ('pending', 'preparing','taking place','picked', 'delivering', 'delivered','payment error', 'cancelled')),
-	distance_km DECIMAL(10,2), --Khoảng cách tính dựa trên location của customer và restaurant manager
-    order_created_at DATETIME DEFAULT GETDATE(), --Thời gian tạo đơn
-    order_updated_at DATETIME DEFAULT GETDATE(), --Thời gian khi đơn cập nhật trạng thái/ hoàn thành đơn
-	discount_id INT FOREIGN KEY REFERENCES Discount (discount_id),
-	customer_id INT NOT NULL FOREIGN KEY REFERENCES Account(account_id),
-    restaurant_manager_id INT NOT NULL FOREIGN KEY REFERENCES Account(account_id),
-    shipper_id INT FOREIGN KEY REFERENCES Account(account_id)
+    orderID INT IDENTITY(1,1) PRIMARY KEY,
+	amount DECIMAL(10,2),
+    orderStatus INT,
+    orderCreatedAt DATETIME DEFAULT GETDATE(),
+    orderUpdatedAt DATETIME DEFAULT GETDATE(),
+	FK_Order_Voucher INT FOREIGN KEY REFERENCES Voucher(voucherID),
+	FK_Order_Account INT FOREIGN KEY REFERENCES Account(accountID),
+    FK_Order_Staff INT FOREIGN KEY REFERENCES Staff(staffID)
 );
 
--- Bảng OrderDetail (Là chi tiết của Order)
+-- OrderDetail table: Stores individual items within an order.
+-- Links orders to meals with quantities for detailed order breakdown.
 CREATE TABLE OrderDetail (
-    order_detail_id INT IDENTITY PRIMARY KEY,
-	quantity INT NOT NULL CHECK (quantity > 0),
-	is_cart BIT DEFAULT 1, --Trạng thái mặc định là cart, khi người dùng xác nhận đổi thành 0
-    order_id INT NOT NULL FOREIGN KEY REFERENCES [Order](order_id),
-    menu_detail_id INT NOT NULL FOREIGN KEY REFERENCES MenuDetail(menu_detail_id),
-	restaurant_manager_id INT FOREIGN KEY REFERENCES Account(account_id), --[RestaurantManager], Để biết món được thêm của nhà hàng nào 
-	customer_id INT FOREIGN KEY REFERENCES Account(account_id) --[Customer]
+    ODID INT IDENTITY(1,1) PRIMARY KEY,
+	quantity INT,
+    FK_OD_Order INT FOREIGN KEY REFERENCES [Order](orderID),
+    FK_OD_Meal INT FOREIGN KEY REFERENCES Meal(mealID)
 );
 
--- III. Các bảng phụ trợ:
+-- Payment table: Stores payment details for orders.
+-- Includes transaction information, confirmation status, and links to orders.
+CREATE TABLE Payment (
+    paymentID INT IDENTITY(1,1) PRIMARY KEY,
+    transactionCode NVARCHAR(100),
+    bankName NVARCHAR(100),
+    paymentTime DATETIME DEFAULT GETDATE(),
+    isConfirmed BIT DEFAULT 0,
+    FK_Payment_Order INT FOREIGN KEY REFERENCES [Order](orderID)
+);
 
--- Bảng DishReview (Review từng món trong Order sau khi đơn hàng hoàn thành)
-CREATE TABLE DishReview (
-    dish_review_id INT IDENTITY PRIMARY KEY,
-    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
+-- Review table: Stores customer reviews and ratings for orders.
+-- Includes rating, comments, creation timestamp, and links to order and account.
+CREATE TABLE Review (
+    reviewID INT IDENTITY(1,1) PRIMARY KEY,
+    rating INT,
     comment NVARCHAR(255),
-    dish_review_created_at DATETIME DEFAULT GETDATE(),
-	order_detail_id INT NOT NULL FOREIGN KEY REFERENCES OrderDetail(order_detail_id),
-    customer_id INT NOT NULL FOREIGN KEY REFERENCES Account(account_id)
+    reviewCreatedAt DATETIME DEFAULT GETDATE(),
+	FK_Review_Order INT FOREIGN KEY REFERENCES [Order](orderID),
+    FK_Review_Account INT FOREIGN KEY REFERENCES Account(accountID)
 );
 
--- Bảng DeliveryReviews (Review đơn hàng, shipper, restaurant sau khi đơn hàng hoàn thành)
-CREATE TABLE DeliveryReview (
-    delivery_review_id INT IDENTITY PRIMARY KEY,
-    rating INT NOT NULL CHECK (rating BETWEEN 1 AND 5),
-    comment NVARCHAR(255),
-    created_at DATETIME DEFAULT GETDATE(),
-	order_id INT NOT NULL FOREIGN KEY REFERENCES [Order](order_id),
-    restaurant_manager_id INT FOREIGN KEY REFERENCES Account(account_id),
-    shipper_id INT FOREIGN KEY REFERENCES Account(account_id),
-	customer_id INT FOREIGN KEY REFERENCES Account(account_id) --[Customer]
-);
-
--- Bảng VerificationCode (OTP hệ thống gửi cho user xác nhận gmail khi tạo tài khoản)
+-- OTP table: Stores one-time passwords for account verification or authentication.
+-- Includes OTP code, creation/expiry timestamps, usage status, and account link.
 CREATE TABLE OTP (
-    verification_id INT IDENTITY PRIMARY KEY,
-    code NVARCHAR(32) NOT NULL,
-    plain_code NVARCHAR(6) NOT NULL,
-    created_at DATETIME DEFAULT GETDATE(),
-    expires_at DATETIME NOT NULL,
-    is_used BIT NOT NULL DEFAULT 0,
-	account_id INT FOREIGN KEY REFERENCES Account(account_id)
+    otpID INT IDENTITY(1,1) PRIMARY KEY,
+    otp NVARCHAR(32),
+    otpCreatedAt DATETIME DEFAULT GETDATE(),
+    otpExpiresAt DATETIME,
+    isUsed INT,
+	email NVARCHAR(100),
+	FK_OTP_Account INT FOREIGN KEY REFERENCES Account(accountID)
 );
 
---Thông báo cho customer,shipper,restaurantmanager khi đơn hoàn thành
+-- Notification table: Stores notifications sent to users.
+-- Includes title, description, read status, notification status, and account link.
 CREATE TABLE [Notification] (
-    notification_id INT IDENTITY PRIMARY KEY,
-    noti_message NVARCHAR(255),
-    noti_type NVARCHAR(50) CHECK (noti_type IN ('order_completed', 'order_cancelled')) NOT NULL,
-    is_read BIT DEFAULT 0,
-	order_id INT NOT NULL FOREIGN KEY REFERENCES [Order](order_id),
-    customer_id INT NOT NULL FOREIGN KEY REFERENCES Account(account_id),
-    restaurant_manager_id INT NOT NULL FOREIGN KEY REFERENCES Account(account_id),
-    shipper_id INT FOREIGN KEY REFERENCES Account(account_id)
+    notID INT IDENTITY(1,1) PRIMARY KEY,
+    notTitle NVARCHAR(255),
+	notDescription NVARCHAR(255),
+    isRead INT,
+	notStatus INT,
+	FK_Notification_Account INT FOREIGN KEY REFERENCES Account(accountID)
 );
 
---Bảng Contact
+-- Contact table: Stores customer inquiries or support messages.
+-- Includes subject, message content, and link to the account submitting the contact.
 CREATE TABLE Contact (
-	contact_id INT IDENTITY PRIMARY KEY,
-	contact_subject NVARCHAR (255),
-	contact_message NVARCHAR (2000),
-	account_id INT FOREIGN KEY REFERENCES Account(account_id)
+	contactID INT IDENTITY PRIMARY KEY,
+	[subject] NVARCHAR (255),
+	[message] NVARCHAR (2000),
+	FK_Contact_Account INT FOREIGN KEY REFERENCES Account(accountID)
 );
+
+
+-- Triggers for notifications:
+-- Comming soon...
