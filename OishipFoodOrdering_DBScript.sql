@@ -36,7 +36,7 @@ CREATE TABLE Account (
 -- Defines staff type (e.g., seller or inventory staff) for role-specific responsibilities.
 CREATE TABLE Staff (
     staffId INT PRIMARY KEY,
-    staffType VARCHAR(20) CHECK ([staffType] IN ('sellerStaff', 'inventoryStaff')),
+    staffType VARCHAR(20) CHECK ([staffType] IN ('sellerStaff', 'ingredientStaff')),
     FOREIGN KEY (staffId) REFERENCES Account(accountID)
 );
 
@@ -49,7 +49,7 @@ CREATE TABLE Category (
 );
 
 -- Meal table: Stores details of food items available for order.
--- Includes meal name,, opCost (VND), interestPercentage(%) , image, description, stock, and category reference.
+-- Includes meal name, opCost (VND), interestPercentage(%), image, description, stock, and category reference.
 CREATE TABLE Meal (
     mealID INT IDENTITY(1,1) PRIMARY KEY,
 	mealName NVARCHAR(255),
@@ -64,7 +64,7 @@ CREATE TABLE Meal (
 --Ingredient table: Stores raw materials, ingredient for meal
 -- Includes name, quantity(kg), unitCost(VND/kg)
 CREATE TABLE Ingredient (
-	ingredientID INT PRIMARY KEY,
+	ingredientID INT IDENTITY(1,1) PRIMARY KEY,
 	name NVARCHAR(255),
 	quantity INT,
 	unitCost DECIMAL(10,2),
