@@ -40,7 +40,7 @@ CREATE TABLE Staff (
     FOREIGN KEY (staffId) REFERENCES Account(accountID)
 );
 
--- Category table: Stores food categories for organizing meals in the system.
+-- Category table: Stores food categories for organizing Dishes in the system.
 -- Includes category name and description for menu classification.
 CREATE TABLE Category (
     catID INT IDENTITY(1,1) PRIMARY KEY,
@@ -48,36 +48,36 @@ CREATE TABLE Category (
 	catDescription NVARCHAR(255)
 );
 
--- Meal table: Stores details of food items available for order.
--- Includes meal name, opCost (VND), interestPercentage(%), image, description, stock, and category reference.
-CREATE TABLE Meal (
-    mealID INT IDENTITY(1,1) PRIMARY KEY,
-	mealName NVARCHAR(255),
+-- Dish table: Stores details of food items available for order.
+-- Includes Dish name, opCost (VND), interestPercentage(%), image, description, stock, and category reference.
+CREATE TABLE Dish (
+    DishID INT IDENTITY(1,1) PRIMARY KEY,
+	DishName NVARCHAR(255),
 	opCost DECIMAL(10,2),
 	interestPercentage DECIMAL(10,2),
 	[image] NVARCHAR(255),
-	mealDescription NVARCHAR(255),
+	DishDescription NVARCHAR(255),
 	stock INT,
-	FK_Meal_Category INT FOREIGN KEY REFERENCES Category(catID)
+	FK_Dish_Category INT FOREIGN KEY REFERENCES Category(catID)
 );
 
---Ingredient table: Stores raw materials, ingredient for meal
+--Ingredient table: Stores raw materials, ingredient for Dish
 -- Includes name, quantity(kg), unitCost(VND/kg)
 CREATE TABLE Ingredient (
 	ingredientID INT IDENTITY(1,1) PRIMARY KEY,
 	name NVARCHAR(255),
 	quantity INT,
 	unitCost DECIMAL(10,2),
-	FK_Ingredient_Meal INT FOREIGN KEY REFERENCES Meal(mealID)
+	FK_Ingredient_Dish INT FOREIGN KEY REFERENCES Dish(DishID)
 );
 
 -- Cart table: Stores items added to a user's cart before placing an order.
--- Links accounts to meals with quantities for temporary storage.
+-- Links accounts to Dishes with quantities for temporary storage.
 CREATE TABLE Cart (
 	cartID INT IDENTITY(1,1) PRIMARY KEY,
 	quantity INT,
 	FK_Cart_Account INT FOREIGN KEY REFERENCES Account(accountID),
-	FK_Cart_Meal INT FOREIGN KEY REFERENCES Meal(mealID)
+	FK_Cart_Dish INT FOREIGN KEY REFERENCES Dish(DishID)
 );
 
 -- Voucher table: Stores discount vouchers for orders.
@@ -123,12 +123,12 @@ CREATE TABLE [Order] (
 );
 
 -- OrderDetail table: Stores individual items within an order.
--- Links orders to meals with quantities for detailed order breakdown.
+-- Links orders to Dishes with quantities for detailed order breakdown.
 CREATE TABLE OrderDetail (
     ODID INT IDENTITY(1,1) PRIMARY KEY,
 	quantity INT,
     FK_OD_Order INT FOREIGN KEY REFERENCES [Order](orderID),
-    FK_OD_Meal INT FOREIGN KEY REFERENCES Meal(mealID)
+    FK_OD_Dish INT FOREIGN KEY REFERENCES Dish(DishID)
 );
 
 -- Payment table: Stores payment details for orders.
@@ -188,3 +188,4 @@ CREATE TABLE Contact (
 
 -- Triggers for notifications:
 -- Comming soon...
+
