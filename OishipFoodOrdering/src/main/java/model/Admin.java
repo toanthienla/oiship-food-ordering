@@ -3,22 +3,31 @@ package model;
 import java.sql.Timestamp;
 
 public class Admin {
-    private int adminId;
-    private String name;
+    private int adminId;      // Matches accountID in the database
+    private String fullName;  // Replaced name with fullName to match database
     private String email;
     private String password;
+    private String phone;
+    private String address;
+    private int status;       // Added to match Account table
     private Timestamp createdAt;
 
-    public Admin(int adminId, String name, String email, String password, Timestamp createdAt) {
+    // Default Constructor
+    public Admin() {}
+
+    // Full Constructor
+    public Admin(int adminId, String fullName, String email, String password, String phone, String address, int status, Timestamp createdAt) {
         this.adminId = adminId;
-        this.name = name;
+        this.fullName = fullName;
         this.email = email;
         this.password = password;
+        this.phone = phone;
+        this.address = address;
+        this.status = status;
         this.createdAt = createdAt;
     }
 
-    // Getters and Setters...
-
+    // Getters and Setters
     public int getAdminId() {
         return adminId;
     }
@@ -27,12 +36,12 @@ public class Admin {
         this.adminId = adminId;
     }
 
-    public String getName() {
-        return name;
+    public String getFullName() {
+        return fullName;
     }
 
-    public void setName(String name) {
-        this.name = name;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -49,6 +58,30 @@ public class Admin {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public Timestamp getCreatedAt() {

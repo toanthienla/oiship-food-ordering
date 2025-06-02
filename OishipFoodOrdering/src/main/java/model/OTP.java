@@ -4,83 +4,65 @@ import java.time.LocalDateTime;
 
 public class OTP {
 
-    private int verificationId;
-    private String code;
-    private String plainCode;
-    private LocalDateTime createdAt;
-    private LocalDateTime expiresAt;
-    private boolean isUsed;
+    private int otpId;
+    private String otp;
+    private LocalDateTime otpCreatedAt;
+    private LocalDateTime otpExpiresAt;
+    private int isUsed;
     private int accountId;
+    private String email;
 
-    // ✅ Constructor đầy đủ dùng cho việc lấy từ DB
-    public OTP(int verificationId, String code, String plainCode, LocalDateTime createdAt,
-            LocalDateTime expiresAt, boolean isUsed, int accountId) {
-        this.verificationId = verificationId;
-        this.code = code;
-        this.plainCode = plainCode;
-        this.createdAt = createdAt;
-        this.expiresAt = expiresAt;
+    public OTP(int otpId, String otp, LocalDateTime otpCreatedAt, LocalDateTime otpExpiresAt, int isUsed, int accountId, String email) {
+        this.otpId = otpId;
+        this.otp = otp;
+        this.otpCreatedAt = otpCreatedAt;
+        this.otpExpiresAt = otpExpiresAt;
         this.isUsed = isUsed;
         this.accountId = accountId;
+        this.email = email;
     }
 
-    // ✅ Constructor dùng khi tạo OTP mới (ví dụ trong register/forgot password)
-    public OTP(String hashedCode, String plainCode, int accountId) {
-        this.code = hashedCode;
-        this.plainCode = plainCode;
-        this.accountId = accountId;
-        this.createdAt = LocalDateTime.now();
-        this.expiresAt = LocalDateTime.now().plusMinutes(5);
-        this.isUsed = false;
+    public OTP() {
     }
 
-    // Getters and Setters
-    public int getVerificationId() {
-        return verificationId;
+    public int getOtpId() {
+        return otpId;
     }
 
-    public void setVerificationId(int verificationId) {
-        this.verificationId = verificationId;
+    public void setOtpId(int otpId) {
+        this.otpId = otpId;
     }
 
-    public String getCode() {
-        return code;
+    public String getOtp() {
+        return otp;
     }
 
-    public void setCode(String code) {
-        this.code = code;
+    public void setOtp(String otp) {
+        this.otp = otp;
     }
 
-    public String getPlainCode() {
-        return plainCode;
+    public LocalDateTime getOtpCreatedAt() {
+        return otpCreatedAt;
     }
 
-    public void setPlainCode(String plainCode) {
-        this.plainCode = plainCode;
+    public void setOtpCreatedAt(LocalDateTime otpCreatedAt) {
+        this.otpCreatedAt = otpCreatedAt;
     }
 
-    public LocalDateTime getCreatedAt() {
-        return createdAt;
+    public LocalDateTime getOtpExpiresAt() {
+        return otpExpiresAt;
     }
 
-    public void setCreatedAt(LocalDateTime createdAt) {
-        this.createdAt = createdAt;
+    public void setOtpExpiresAt(LocalDateTime otpExpiresAt) {
+        this.otpExpiresAt = otpExpiresAt;
     }
 
-    public LocalDateTime getExpiresAt() {
-        return expiresAt;
-    }
-
-    public void setExpiresAt(LocalDateTime expiresAt) {
-        this.expiresAt = expiresAt;
-    }
-
-    public boolean isUsed() {
+    public int getIsUsed() {
         return isUsed;
     }
 
-    public void setUsed(boolean used) {
-        isUsed = used;
+    public void setIsUsed(int isUsed) {
+        this.isUsed = isUsed;
     }
 
     public int getAccountId() {
@@ -89,5 +71,13 @@ public class OTP {
 
     public void setAccountId(int accountId) {
         this.accountId = accountId;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
     }
 }

@@ -2,89 +2,64 @@ package dao;
 
 import model.OTP;
 import utils.DBContext;
-
 import java.sql.*;
-import java.util.ArrayList;
-import java.util.List;
+import java.time.LocalDateTime;
 
 public class OTPDAO extends DBContext {
 
-    public void insertOTP(OTP otp) {
-        String sql = "INSERT INTO OTP (code, plain_code, created_at, expires_at, is_used, account_id) VALUES (?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, otp.getCode());
-            stmt.setString(2, otp.getPlainCode());
-            stmt.setTimestamp(3, Timestamp.valueOf(otp.getCreatedAt()));
-            stmt.setTimestamp(4, Timestamp.valueOf(otp.getExpiresAt()));
-            stmt.setBoolean(5, otp.isUsed());
-            stmt.setInt(6, otp.getAccountId());
-            stmt.executeUpdate();
-        } catch (Exception e) {
+    public OTPDAO() {
+        super();
+    }
+
+    public void insertOtpTemp(String email, String hashedOTP, LocalDateTime createdAt, LocalDateTime expiresAt) {
+        String sql = "INSERT INTO OTP (otp, otpCreatedAt, otpExpiresAt, isUsed, email) VALUES (?, ?, ?, 0, ?)";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, hashedOTP);
+            ps.setObject(2, createdAt);
+            ps.setObject(3, expiresAt);
+            ps.setString(4, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public OTP getValidOTP(int accountId, String hashedCode) {
-        String sql = "SELECT * FROM OTP WHERE account_id = ? AND code = ? AND is_used = 0 AND expires_at > GETDATE()";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, accountId);
-            stmt.setString(2, hashedCode);
-            ResultSet rs = stmt.executeQuery();
+    public OTP getLatestOtpByEmail(String email) {
+        if (email == null) {
+            return null;
+        }
+        String sql = "SELECT * FROM OTP WHERE email = ? AND isUsed = 0 ORDER BY otpCreatedAt DESC";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, email);
+            ResultSet rs = ps.executeQuery();
             if (rs.next()) {
-                return new OTP(
-                        rs.getInt("verification_id"),
-                        rs.getString("code"),
-                        rs.getString("plain_code"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
-                        rs.getTimestamp("expires_at").toLocalDateTime(),
-                        rs.getBoolean("is_used"),
-                        rs.getInt("account_id")
-                );
+                OTP otp = new OTP();
+                otp.setOtpId(rs.getInt("otpID"));
+                otp.setOtp(rs.getString("otp"));
+                otp.setOtpCreatedAt(rs.getObject("otpCreatedAt", LocalDateTime.class));
+                otp.setOtpExpiresAt(rs.getObject("otpExpiresAt", LocalDateTime.class));
+                otp.setIsUsed(rs.getInt("isUsed"));
+                otp.setEmail(rs.getString("email"));
+                otp.setAccountId(rs.getInt("FK_OTP_Account"));
+                return otp;
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
             e.printStackTrace();
         }
         return null;
     }
 
-    public void markOtpAsUsed(int verificationId) {
-        String sql = "UPDATE OTP SET is_used = 1 WHERE verification_id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, verificationId);
-            stmt.executeUpdate();
-        } catch (Exception e) {
+    public void markOtpAsUsed(String email) {
+        String sql = "UPDATE OTP SET isUsed = 1 WHERE email = ? AND isUsed = 0";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.executeUpdate();
+        } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void deleteExpiredOTPs() {
-        String sql = "DELETE FROM OTP WHERE expires_at < GETDATE() OR is_used = 1";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-    }
-
-    public List<OTP> getAllOTPs() {
-        List<OTP> list = new ArrayList<>();
-        String sql = "SELECT * FROM OTP";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                list.add(new OTP(
-                        rs.getInt("verification_id"),
-                        rs.getString("code"),
-                        rs.getString("plain_code"),
-                        rs.getTimestamp("created_at").toLocalDateTime(),
-                        rs.getTimestamp("expires_at").toLocalDateTime(),
-                        rs.getBoolean("is_used"),
-                        rs.getInt("account_id")
-                ));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
+    public boolean isOtpExpired(LocalDateTime expiresAt) {
+        return expiresAt != null && LocalDateTime.now().isAfter(expiresAt);
     }
 }

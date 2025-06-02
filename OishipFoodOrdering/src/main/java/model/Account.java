@@ -1,65 +1,50 @@
 package model;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
 
 public class Account {
 
-    private int accountId;
-    private String accountName;
+    private int accountID;
+    private String fullName;
     private String email;
-    private String phone;
     private String password;
-    private String status;
-    private String cccd;
-    private String license;
-    private byte[] licenseImage;
-    private String numberPlate;
+    private String phone;
     private String address;
-    private BigDecimal longitude;
-    private BigDecimal latitude;
-    private Timestamp accountCreatedAt;
+    private int status;
     private String role;
+    private Timestamp createAt;
 
+    // Constructor không tham số
     public Account() {
     }
 
-    public Account(int accountId, String accountName, String email, String phone, String password,
-                   String status, String cccd, String license, byte[] licenseImage, String numberPlate,
-                   String address, BigDecimal longitude, BigDecimal latitude,
-                   Timestamp accountCreatedAt, String role) {
-        this.accountId = accountId;
-        this.accountName = accountName;
+    // Constructor đầy đủ
+    public Account(int accountID, String fullName, String email, String phone, String password, String address, int status, String role, Timestamp createAt) {
+        this.accountID = accountID;
+        this.fullName = fullName;
         this.email = email;
         this.phone = phone;
         this.password = password;
-        this.status = status;
-        this.cccd = cccd;
-        this.license = license;
-        this.licenseImage = licenseImage;
-        this.numberPlate = numberPlate;
         this.address = address;
-        this.longitude = longitude;
-        this.latitude = latitude;
-        this.accountCreatedAt = accountCreatedAt;
+        this.status = status;
         this.role = role;
+        this.createAt = createAt;
+    }
+    // Getter và setter
+    public int getAccountID() {
+        return accountID;
     }
 
-    // Getters and setters (đã đúng, chỉ cần cập nhật kiểu số)
-    public int getAccountId() {
-        return accountId;
+    public void setAccountID(int accountID) {
+        this.accountID = accountID;
     }
 
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
+    public String getFullName() {
+        return fullName;
     }
 
-    public String getAccountName() {
-        return accountName;
-    }
-
-    public void setAccountName(String accountName) {
-        this.accountName = accountName;
+    public void setFullName(String fullName) {
+        this.fullName = fullName;
     }
 
     public String getEmail() {
@@ -70,14 +55,6 @@ public class Account {
         this.email = email;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
     public String getPassword() {
         return password;
     }
@@ -86,44 +63,12 @@ public class Account {
         this.password = password;
     }
 
-    public String getStatus() {
-        return status;
+    public String getPhone() {
+        return phone;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    public String getCccd() {
-        return cccd;
-    }
-
-    public void setCccd(String cccd) {
-        this.cccd = cccd;
-    }
-
-    public String getLicense() {
-        return license;
-    }
-
-    public void setLicense(String license) {
-        this.license = license;
-    }
-
-    public byte[] getLicenseImage() {
-        return licenseImage;
-    }
-
-    public void setLicenseImage(byte[] licenseImage) {
-        this.licenseImage = licenseImage;
-    }
-
-    public String getNumberPlate() {
-        return numberPlate;
-    }
-
-    public void setNumberPlate(String numberPlate) {
-        this.numberPlate = numberPlate;
+    public void setPhone(String phone) {
+        this.phone = phone;
     }
 
     public String getAddress() {
@@ -134,28 +79,12 @@ public class Account {
         this.address = address;
     }
 
-    public BigDecimal getLongitude() {
-        return longitude;
+    public int getStatus() {
+        return status;
     }
 
-    public void setLongitude(BigDecimal longitude) {
-        this.longitude = longitude;
-    }
-
-    public BigDecimal getLatitude() {
-        return latitude;
-    }
-
-    public void setLatitude(BigDecimal latitude) {
-        this.latitude = latitude;
-    }
-
-    public Timestamp getAccountCreatedAt() {
-        return accountCreatedAt;
-    }
-
-    public void setAccountCreatedAt(Timestamp accountCreatedAt) {
-        this.accountCreatedAt = accountCreatedAt;
+    public void setStatus(int status) {
+        this.status = status;
     }
 
     public String getRole() {
@@ -165,6 +94,12 @@ public class Account {
     public void setRole(String role) {
         this.role = role;
     }
+
+    public Timestamp getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Timestamp createAt) {
+        this.createAt = createAt;
+    }
 }
-
-
