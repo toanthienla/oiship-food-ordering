@@ -56,8 +56,9 @@ public class EmailService {
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime expiresAt = createdAt.plusMinutes(5); // Hết hiệu lực sau 5 phút
 
+        // Lưu OTP vào database với customerId = null cho đăng ký mới
         OTPDAO otpDAO = new OTPDAO();
-        otpDAO.insertOtpTemp(email, hashedOTP, createdAt, expiresAt);
+        otpDAO.insertOtpTemp(email, hashedOTP, Timestamp.valueOf(createdAt), Timestamp.valueOf(expiresAt), null);
 
         String subject = "Welcome to Oiship - Verify Your Account";
         sendVerificationEmail(email, fullName, otp);
@@ -121,7 +122,7 @@ public class EmailService {
                     + "<p>To get started, please verify your account using the code below:</p>"
                     + "<div style='background: #f9f9f9; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; color: #ff5733;'>"
                     + code + "</div>"
-                    + "<p style='margin-top: 20px;'>This verification code is valid for <strong>5 minutes</strong>.</p>" // Cập nhật thành 5 phút
+                    + "<p style='margin-top: 20px;'>This verification code is valid for <strong>5 minutes</strong>.</p>"
                     + "<p>If you didn't sign up for Oiship, please ignore this email.</p>"
                     + "<br><p style='font-size: 14px;'>Best regards,<br><strong>The Oiship Team</strong></p>"
                     + "<p style='font-size: 12px; color: #777;'>Oiship - Delivering Deliciousness to Your Doorstep</p>"

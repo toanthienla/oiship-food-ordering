@@ -1,10 +1,10 @@
 package controller.customer;
 
+import dao.AccountDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import model.Account;
-import dao.AccountDAO;
+import model.Customer;
 
 import java.io.IOException;
 
@@ -23,12 +23,12 @@ public class CustomerServlet extends HttpServlet {
         int userId = (int) session.getAttribute("userId");
         AccountDAO dao = new AccountDAO();
 
-        Account account = dao.getAccountById(userId);
-        if (account != null) {
-            request.setAttribute("account", account);
-            request.setAttribute("userName", account.getFullName()); // Updated to getFullName
+        Customer customer = dao.getCustomerByEmail((String) session.getAttribute("email")); // Sử dụng email từ session
+        if (customer != null && "customer".equalsIgnoreCase(customer.getRole())) {
+            request.setAttribute("account", customer);
+            request.setAttribute("userName", customer.getFullName());
         } else {
-            request.setAttribute("error", "Account not found.");
+            request.setAttribute("error", "Account not found or not a customer.");
         }
 
         request.getRequestDispatcher("/WEB-INF/views/customer/customer.jsp").forward(request, response);

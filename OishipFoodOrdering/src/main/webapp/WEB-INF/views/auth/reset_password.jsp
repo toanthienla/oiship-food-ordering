@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
@@ -22,6 +23,12 @@
                 border-radius: 10px;
                 box-shadow: 0 0 10px rgba(0,0,0,0.1);
             }
+            .error-message {
+                display: none; /* Ẩn mặc định */
+            }
+            .error-message.show {
+                display: block; /* Hiển thị khi có lỗi */
+            }
         </style>
     </head>
     <body>
@@ -29,9 +36,9 @@
             <h3 class="text-center mb-4">Đặt lại mật khẩu</h3>
             <!-- Hiển thị email -->
             <p class="text-center mb-4">Đặt lại mật khẩu cho: <strong>${requestScope.email}</strong></p>
-            <!-- Hiển thị lỗi nếu có -->
+            <!-- Hiển thị lỗi chỉ khi có lỗi (OTP sai hoặc mật khẩu không khớp) -->
             <c:if test="${not empty requestScope.error}">
-                <div class="alert alert-danger text-center">${requestScope.error}</div>
+                <div class="alert alert-danger text-center error-message show">${requestScope.error}</div>
             </c:if>
             <form action="${pageContext.request.contextPath}/password-recovery" method="post" onsubmit="return validateForm()">
                 <div class="row gy-3 justify-content-center">

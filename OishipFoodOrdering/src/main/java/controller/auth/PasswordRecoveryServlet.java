@@ -7,10 +7,12 @@ import jakarta.mail.MessagingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import model.Account;
+import model.Customer;
 import model.OTP;
 import utils.EmailService;
+
 import java.io.IOException;
+import java.sql.Timestamp;
 import java.time.LocalDateTime;
 
 @WebServlet(name = "PasswordRecoveryServlet", urlPatterns = {"/password-recovery"})
@@ -23,7 +25,7 @@ public class PasswordRecoveryServlet extends HttpServlet {
         if (session != null && session.getAttribute("reset_email") != null) {
             String email = (String) session.getAttribute("reset_email");
             System.out.println("Showing reset password page for email: " + email);
-            request.setAttribute("email", email); // Truyền email vào request
+            request.setAttribute("email", email);
             request.getRequestDispatcher("/WEB-INF/views/auth/reset_password.jsp").forward(request, response);
         } else {
             System.out.println("No reset_email in session, redirecting to login");
@@ -54,15 +56,22 @@ public class PasswordRecoveryServlet extends HttpServlet {
 
     private void handleEmailSubmission(HttpServletRequest request, HttpServletResponse response, HttpSession session, String email)
             throws ServletException, IOException {
+        // Kiểm tra định dạng email cơ bản
+        if (!email.matches("^[A-Za-z0-9+_.-]+@(.+)$")) {
+            System.out.println("Invalid email format: " + email);
+            response.sendRedirect("login?error=invalid_email");
+            return;
+        }
+
         AccountDAO accountDAO = new AccountDAO();
-        Account account = accountDAO.getAccountByEmail(email);
+        Customer account = accountDAO.getCustomerByEmail(email);
         if (account == null) {
             System.out.println("Email not found: " + email);
             response.sendRedirect("login?error=email_not_found");
             return;
         }
 
-        System.out.println("Found account for email: " + email + ", accountId: " + account.getAccountID());
+        System.out.println("Found account for email: " + email + ", accountId: " + account.getCustomerID());
 
         // Vô hiệu hóa OTP cũ
         OTPDAO otpDAO = new OTPDAO();
@@ -80,8 +89,10 @@ public class PasswordRecoveryServlet extends HttpServlet {
             return;
         }
 
-        String hashedOtp = otpData[1]; // Sử dụng hashed OTP
-        otpDAO.insertOtpTemp(email, hashedOtp, LocalDateTime.now(), LocalDateTime.now().plusMinutes(5));
+        String hashedOtp = otpData[1];
+        Timestamp createdAt = Timestamp.valueOf(LocalDateTime.now());
+        Timestamp expiresAt = Timestamp.valueOf(LocalDateTime.now().plusMinutes(5));
+        otpDAO.insertOtpTemp(email, hashedOtp, createdAt, expiresAt, account.getCustomerID());
 
         session.setAttribute("reset_email", email);
         System.out.println("OTP sent and session set for email: " + email);
@@ -101,7 +112,7 @@ public class PasswordRecoveryServlet extends HttpServlet {
         if (email == null) {
             System.out.println("Session expired: no reset_email");
             request.setAttribute("error", "Session expired. Please try again.");
-            request.setAttribute("email", email); // Truyền email để hiển thị lại
+            request.setAttribute("email", email);
             request.getRequestDispatcher("/WEB-INF/views/auth/reset_password.jsp").forward(request, response);
             return;
         }
@@ -110,7 +121,7 @@ public class PasswordRecoveryServlet extends HttpServlet {
         OTP otp = otpDAO.getLatestOtpByEmail(email);
         if (otp == null) {
             System.out.println("No valid OTP for email: " + email);
-            request.setAttribute("error", "The verification code is invalid or expired..");
+            request.setAttribute("error", "The verification code is invalid or expired.");
             request.setAttribute("email", email);
             request.getRequestDispatcher("/WEB-INF/views/auth/reset_password.jsp").forward(request, response);
             return;
@@ -118,11 +129,11 @@ public class PasswordRecoveryServlet extends HttpServlet {
 
         System.out.println("Retrieved OTP for email: " + email + ", hashedOtp: " + otp.getOtp());
 
-        if (otpDAO.isOtpExpired(otp.getOtpExpiresAt())) {
-            System.out.println("OTP expired for email: " + email);
+        if (otpDAO.isOtpExpired(otp.getOtpExpiresAt()) || otp.getIsUsed() == 1) {
+            System.out.println("OTP expired or used for email: " + email);
             otpDAO.markOtpAsUsed(email);
             session.invalidate();
-            request.setAttribute("error", "The verification code is invalid or expired..");
+            request.setAttribute("error", "The verification code is invalid or expired.");
             request.setAttribute("email", email);
             request.getRequestDispatcher("/WEB-INF/views/auth/reset_password.jsp").forward(request, response);
             return;
@@ -130,7 +141,7 @@ public class PasswordRecoveryServlet extends HttpServlet {
 
         if (otpCode == null || !SecurityDAO.checkOTP(otpCode.trim(), otp.getOtp())) {
             System.out.println("Invalid OTP for email: " + email + ", inputOTP: " + otpCode + ", hashedInput: " + SecurityDAO.hashOTP(otpCode != null ? otpCode.trim() : "") + ", hashedOTP: " + otp.getOtp());
-            request.setAttribute("error", "The verification code is invalid or expired..");
+            request.setAttribute("error", "The verification code is invalid or expired.");
             request.setAttribute("email", email);
             request.getRequestDispatcher("/WEB-INF/views/auth/reset_password.jsp").forward(request, response);
             return;
@@ -145,7 +156,7 @@ public class PasswordRecoveryServlet extends HttpServlet {
         }
 
         AccountDAO accountDAO = new AccountDAO();
-        Account account = accountDAO.getAccountByEmail(email);
+        Customer account = accountDAO.getCustomerByEmail(email);
         if (account == null) {
             System.out.println("Account not found for email: " + email);
             request.setAttribute("error", "Account does not exist.");
@@ -165,13 +176,9 @@ public class PasswordRecoveryServlet extends HttpServlet {
             response.sendRedirect("login?success=reset");
         } else {
             System.out.println("Failed to update password for email: " + email + ", role: " + account.getRole());
-            request.setAttribute("error", "System error. Please try again..");
+            request.setAttribute("error", "System error. Please try again.");
             request.setAttribute("email", email);
             request.getRequestDispatcher("/WEB-INF/views/auth/reset_password.jsp").forward(request, response);
         }
-    }
-
-    private String capitalize(String str) {
-        return str == null ? null : str.substring(0, 1).toUpperCase() + str.substring(1).toLowerCase();
     }
 }

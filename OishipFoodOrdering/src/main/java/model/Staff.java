@@ -1,33 +1,23 @@
 package model;
 
-public class Staff {
+public class Staff extends Account {
 
-    private int staffId;
-    private int accountId;
-    private String staffType;
-
-    // Getters and Setters
-    public int getStaffId() {
-        return staffId;
+    public Staff() {
+        super();
     }
 
-    public void setStaffId(int staffId) {
-        this.staffId = staffId;
+    public Staff(int accountID, String fullName, String email, String password, String role, java.util.Date createAt, int status) {
+        super(accountID, fullName, email, password, role, createAt, status);
     }
 
-    public int getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
-    }
-
-    public String getStaffType() {
-        return staffType;
-    }
-
-    public void setStaffType(String staffType) {
-        this.staffType = staffType;
+    @Override
+    public String toString() {
+        return "Staff{"
+                + "accountID=" + getAccountID()
+                + ", fullName='" + getFullName() + '\''
+                + ", email='" + getEmail() + '\''
+                + ", role='" + getRole() + '\''
+                + '}';
     }
 }
+

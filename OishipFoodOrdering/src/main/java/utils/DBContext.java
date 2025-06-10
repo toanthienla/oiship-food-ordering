@@ -8,21 +8,35 @@ import java.sql.SQLException;
 
 public class DBContext {
 
-    //Connection object 
+    // Connection object
     protected Connection conn = null;
 
     public Connection getConnection() {
-        return this.conn;
+        try {
+            // Kiểm tra nếu kết nối đã bị đóng hoặc null
+            if (conn == null || conn.isClosed()) {
+                reconnect();
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking connection status: " + e.getMessage());
+            Util.logError("Error checking connection status: " + e.getMessage());
+            reconnect(); // Thử tái tạo kết nối
+        }
+        return conn;
     }
 
     /**
-     * Constructor method that try to connect to the database. All information
+     * Constructor method that tries to connect to the database. All information
      * about the connection (database name, username, password) are imported
      * through .env file
      */
     public DBContext() {
+        reconnect();
+    }
+
+    private void reconnect() {
         try {
-            //Load config from .env
+            // Load config from .env
             Dotenv dotenv = Dotenv.configure()
                     .filename(".env") // Ensures it looks for .env in the classpath
                     .load();
@@ -38,7 +52,7 @@ public class DBContext {
                     + "encrypt=true;trustServerCertificate=true;", databaseName, username, password);
             conn = DriverManager.getConnection(dbURL);
 
-            //Log data for checking
+            // Log data for checking
             System.out.println("Connect database successfully!");
             DatabaseMetaData md = conn.getMetaData();
             System.out.println("Driver name: " + md.getDriverName());
@@ -58,35 +72,16 @@ public class DBContext {
         }
     }
 
-    public static void main(String[] args) {
-        DBContext db = new DBContext();
-        String sql = "SELECT admin_id, name, email, password, created_at FROM [Admin]";
-
+    // Phương thức đóng kết nối (chỉ gọi khi cần, không tự động)
+    public void closeConnection() {
         try {
-            if (db.conn != null) {
-                var stmt = db.conn.createStatement();
-                var rs = stmt.executeQuery(sql);
-
-                while (rs.next()) {
-                    int id = rs.getInt("admin_id");
-                    String name = rs.getString("name");
-                    String email = rs.getString("email");
-                    String password = rs.getString("password");
-                    java.sql.Timestamp createdAt = rs.getTimestamp("created_at");
-
-                    System.out.printf("ID: %d | Name: %s | Email: %s | Password: %s | Created At: %s\n",
-                            id, name, email, password, createdAt);
-                }
-
-                rs.close();
-                stmt.close();
-                db.conn.close(); // Always close when done
-            } else {
-                System.out.println("Connection is null.");
+            if (conn != null && !conn.isClosed()) {
+                conn.close();
+                System.out.println("Database connection closed successfully.");
             }
         } catch (SQLException e) {
-            System.err.println("SQL error during test:");
-            e.printStackTrace();
+            System.out.println("Error closing connection: " + e.getMessage());
+            Util.logError("Error closing connection: " + e.getMessage());
         }
     }
 }

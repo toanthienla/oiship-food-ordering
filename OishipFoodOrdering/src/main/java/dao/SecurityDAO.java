@@ -20,26 +20,33 @@ public class SecurityDAO {
         return BCrypt.checkpw(plainPassword, hashedPassword);
     }
 
-
-
-    // Kiểm tra OTP người dùng nhập có khớp mã đã mã hóa không
-   public static boolean checkOTP(String inputOTP, String hashedOTPInDB) {
-    return hashOTP(inputOTP).equals(hashedOTPInDB);
-}
-
-    
-    public static String hashOTP(String otp) {
-    try {
-        MessageDigest md = MessageDigest.getInstance("MD5");
-        byte[] hashBytes = md.digest(otp.getBytes(StandardCharsets.UTF_8));
-        StringBuilder sb = new StringBuilder();
-        for (byte b : hashBytes) {
-            sb.append(String.format("%02x", b));
+    public static String hashOTP(String plainOTP) {
+        if (plainOTP == null) {
+            return null;
         }
-        return sb.toString();
-    } catch (NoSuchAlgorithmException e) {
-        throw new RuntimeException("MD5 algorithm not found");
+        try {
+            MessageDigest md = MessageDigest.getInstance("MD5");
+            byte[] bytes = md.digest(plainOTP.getBytes());
+            StringBuilder sb = new StringBuilder();
+            for (byte b : bytes) {
+                sb.append(String.format("%02x", b));
+            }
+            return sb.toString();
+        } catch (NoSuchAlgorithmException e) {
+            System.out.println("Error hashing OTP: " + e.getMessage());
+            return null;
+        }
     }
-}
+
+    public static boolean checkOTP(String plainOTP, String hashedOTP) {
+        if (plainOTP == null || hashedOTP == null) {
+            return false;
+        }
+        String hashedInput = hashOTP(plainOTP.trim());
+        System.out.println("Checking OTP - Plain: " + plainOTP + ", Hashed Input: " + hashedInput + ", Stored Hash: " + hashedOTP);
+        return hashedInput != null && hashedInput.equals(hashedOTP);
+    }
+
+
 
 }

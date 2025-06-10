@@ -10,7 +10,7 @@
             secondsLeft = 0;
         }
     } else {
-        secondsLeft = 60;
+        secondsLeft = 60; // Mặc định 60 giây nếu chưa có
     }
 %>
 
@@ -106,7 +106,7 @@
 <div class="verify-card">
     <h2><i class="bi bi-shield-check"></i> Enter Verification Code</h2>
 
-    <% if (request.getAttribute("error") != null) {%>
+    <% if (request.getAttribute("error") != null) { %>
     <p class="error-message"><%= request.getAttribute("error") %></p>
     <% } %>
 
@@ -122,7 +122,7 @@
             <i class="bi bi-check-circle"></i> Verify
         </button>
 
-        <button type="button" class="btn btn-resend" id="resendButton">
+        <button type="button" class="btn btn-resend" id="resendButton" style="display: none;">
             <i class="bi bi-arrow-repeat"></i> Resend Code
         </button>
     </form>
@@ -143,7 +143,7 @@
             countdownEl.textContent = "Code expired.";
             verifyButton.disabled = true;
             codeInput.disabled = true;
-            resendButton.style.display = 'block';
+            // Tạm thời vô hiệu hóa resend để tập trung khôi phục gửi ban đầu
             clearInterval(timer);
             return;
         }
@@ -155,41 +155,6 @@
 
     let timer = setInterval(updateCountdown, 1000);
     updateCountdown();
-
-    resendButton.addEventListener('click', function () {
-        resendButton.innerHTML = '<i class="bi bi-arrow-clockwise"></i> Sending...';
-        resendButton.disabled = true;
-
-        fetch('login-google?resend=true')
-            .then(response => response.json())
-            .then(data => {
-                if (data.success) {
-                    alert("A new verification code has been sent.");
-                    timeLeft = 60;
-                    countdownEl.textContent = tpl(1, 0);
-                    verifyButton.disabled = false;
-                    codeInput.disabled = false;
-                    codeInput.value = "";
-
-                    resendButton.style.display = 'none';
-                    resendButton.disabled = false;
-                    resendButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Resend Code';
-
-                    clearInterval(timer);
-                    timer = setInterval(updateCountdown, 1000);
-                } else {
-                    alert("Error: " + data.message);
-                    resendButton.disabled = false;
-                    resendButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Resend Code';
-                }
-            })
-            .catch(err => {
-                alert("Request failed.");
-                console.error(err);
-                resendButton.disabled = false;
-                resendButton.innerHTML = '<i class="bi bi-arrow-repeat"></i> Resend Code';
-            });
-    });
 </script>
 
 </body>

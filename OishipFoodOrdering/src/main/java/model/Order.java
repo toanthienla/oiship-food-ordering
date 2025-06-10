@@ -4,43 +4,41 @@ import java.sql.Timestamp;
 
 public class Order {
 
-    private int orderId;
-    private double amount; // ánh xạ với amount (DECIMAL(10,2))
-    private int orderStatus; // ánh xạ với orderStatus (0: Pending, 1: Confirmed, 2: In Delivery, 3: Delivered, 4: Cancelled by User, 5: Cancelled by Staff, 6: Failed, 7: Refunded)
+    private int orderID;
+    private double amount;
+    private int orderStatus;
+    private int paymentStatus;
     private Timestamp orderCreatedAt;
     private Timestamp orderUpdatedAt;
-    private int voucherId; // FK_Order_Voucher
-    private int accountId; // FK_Order_Account
-    private int staffId; // FK_Order_Staff
-    private String customerName; // Để hiển thị tên khách hàng trong giao diện
-    private String status; // Để hiển thị trạng thái dạng chuỗi trong giao diện
+    private String deliveryAddress;
+    private Timestamp deliveryTime;
+    private Integer fkOrderVoucher; // Sử dụng Integer để cho phép null
+    private Integer fkOrderCustomer; // Sử dụng Integer để cho phép null
+    private Integer fkOrderStaff;    // Sử dụng Integer để cho phép null
 
-    // Constructor mặc định
-    public Order() {
-    }
-
-    // Constructor đầy đủ
-    public Order(int orderId, double amount, int orderStatus, Timestamp orderCreatedAt, Timestamp orderUpdatedAt,
-            int voucherId, int accountId, int staffId, String customerName, String status) {
-        this.orderId = orderId;
+    public Order(int orderID, double amount, int orderStatus, int paymentStatus, Timestamp orderCreatedAt,
+            Timestamp orderUpdatedAt, String deliveryAddress, Timestamp deliveryTime,
+            Integer fkOrderVoucher, Integer fkOrderCustomer, Integer fkOrderStaff) {
+        this.orderID = orderID;
         this.amount = amount;
         this.orderStatus = orderStatus;
+        this.paymentStatus = paymentStatus;
         this.orderCreatedAt = orderCreatedAt;
         this.orderUpdatedAt = orderUpdatedAt;
-        this.voucherId = voucherId;
-        this.accountId = accountId;
-        this.staffId = staffId;
-        this.customerName = customerName;
-        this.status = status;
+        this.deliveryAddress = deliveryAddress;
+        this.deliveryTime = deliveryTime;
+        this.fkOrderVoucher = fkOrderVoucher;
+        this.fkOrderCustomer = fkOrderCustomer;
+        this.fkOrderStaff = fkOrderStaff;
     }
 
-    // Getters và Setters
-    public int getOrderId() {
-        return orderId;
+    // Getters and Setters
+    public int getOrderID() {
+        return orderID;
     }
 
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
+    public void setOrderID(int orderID) {
+        this.orderID = orderID;
     }
 
     public double getAmount() {
@@ -57,35 +55,14 @@ public class Order {
 
     public void setOrderStatus(int orderStatus) {
         this.orderStatus = orderStatus;
-        // Cập nhật status dạng chuỗi dựa trên orderStatus
-        switch (orderStatus) {
-            case 0:
-                this.status = "Pending";
-                break;
-            case 1:
-                this.status = "Confirmed";
-                break;
-            case 2:
-                this.status = "In Delivery";
-                break;
-            case 3:
-                this.status = "Delivered";
-                break;
-            case 4:
-                this.status = "Cancelled by User";
-                break;
-            case 5:
-                this.status = "Cancelled by Staff";
-                break;
-            case 6:
-                this.status = "Failed";
-                break;
-            case 7:
-                this.status = "Refunded";
-                break;
-            default:
-                this.status = "Unknown";
-        }
+    }
+
+    public int getPaymentStatus() {
+        return paymentStatus;
+    }
+
+    public void setPaymentStatus(int paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public Timestamp getOrderCreatedAt() {
@@ -104,76 +81,43 @@ public class Order {
         this.orderUpdatedAt = orderUpdatedAt;
     }
 
-    public int getVoucherId() {
-        return voucherId;
+    public String getDeliveryAddress() {
+        return deliveryAddress;
     }
 
-    public void setVoucherId(int voucherId) {
-        this.voucherId = voucherId;
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
 
-    public int getAccountId() {
-        return accountId;
+    public Timestamp getDeliveryTime() {
+        return deliveryTime;
     }
 
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
+    public void setDeliveryTime(Timestamp deliveryTime) {
+        this.deliveryTime = deliveryTime;
     }
 
-    public int getStaffId() {
-        return staffId;
+    public Integer getFkOrderVoucher() {
+        return fkOrderVoucher;
     }
 
-    public void setStaffId(int staffId) {
-        this.staffId = staffId;
+    public void setFkOrderVoucher(Integer fkOrderVoucher) {
+        this.fkOrderVoucher = fkOrderVoucher;
     }
 
-    public String getCustomerName() {
-        return customerName;
+    public Integer getFkOrderCustomer() {
+        return fkOrderCustomer;
     }
 
-    public void setCustomerName(String customerName) {
-        this.customerName = customerName;
+    public void setFkOrderCustomer(Integer fkOrderCustomer) {
+        this.fkOrderCustomer = fkOrderCustomer;
     }
 
-    public String getStatus() {
-        return status;
+    public Integer getFkOrderStaff() {
+        return fkOrderStaff;
     }
 
-    public void setStatus(String status) {
-        this.status = status;
-    }
-
-    // Để hỗ trợ giao diện, thêm totalAmount và orderDate (bí danh cho amount và orderCreatedAt)
-    public double getTotalAmount() {
-        return amount;
-    }
-
-    public void setTotalAmount(double totalAmount) {
-        this.amount = totalAmount;
-    }
-
-    public Timestamp getOrderDate() {
-        return orderCreatedAt;
-    }
-
-    public void setOrderDate(Timestamp orderDate) {
-        this.orderCreatedAt = orderDate;
-    }
-
-    @Override
-    public String toString() {
-        return "Order{"
-                + "orderId=" + orderId
-                + ", amount=" + amount
-                + ", orderStatus=" + orderStatus
-                + ", orderCreatedAt=" + orderCreatedAt
-                + ", orderUpdatedAt=" + orderUpdatedAt
-                + ", voucherId=" + voucherId
-                + ", accountId=" + accountId
-                + ", staffId=" + staffId
-                + ", customerName='" + customerName + '\''
-                + ", status='" + status + '\''
-                + '}';
+    public void setFkOrderStaff(Integer fkOrderStaff) {
+        this.fkOrderStaff = fkOrderStaff;
     }
 }

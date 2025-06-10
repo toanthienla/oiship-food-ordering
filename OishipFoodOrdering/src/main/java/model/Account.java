@@ -1,36 +1,29 @@
 package model;
 
-import java.sql.Timestamp;
-
-public class Account {
-
+// Lớp cha Account
+class Account {
     private int accountID;
     private String fullName;
     private String email;
     private String password;
-    private String phone;
-    private String address;
-    private int status;
     private String role;
-    private Timestamp createAt;
+    private java.util.Date createAt;
+    private int status; // 1: Active, 0: Inactive, -1: Banned
 
-    // Constructor không tham số
     public Account() {
     }
 
-    // Constructor đầy đủ
-    public Account(int accountID, String fullName, String email, String phone, String password, String address, int status, String role, Timestamp createAt) {
+    public Account(int accountID, String fullName, String email, String password, String role, java.util.Date createAt, int status) {
         this.accountID = accountID;
         this.fullName = fullName;
         this.email = email;
-        this.phone = phone;
         this.password = password;
-        this.address = address;
-        this.status = status;
         this.role = role;
         this.createAt = createAt;
+        this.status = status;
     }
-    // Getter và setter
+
+    // Getters and Setters
     public int getAccountID() {
         return accountID;
     }
@@ -63,30 +56,6 @@ public class Account {
         this.password = password;
     }
 
-    public String getPhone() {
-        return phone;
-    }
-
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
-
     public String getRole() {
         return role;
     }
@@ -95,11 +64,19 @@ public class Account {
         this.role = role;
     }
 
-    public Timestamp getCreateAt() {
+    public java.util.Date getCreateAt() {
         return createAt;
     }
 
-    public void setCreateAt(Timestamp createAt) {
+    public void setCreateAt(java.util.Date createAt) {
         this.createAt = createAt;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        this.status = status;
     }
 }
