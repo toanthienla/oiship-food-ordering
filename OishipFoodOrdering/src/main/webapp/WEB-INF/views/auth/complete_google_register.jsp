@@ -91,9 +91,12 @@
                                     placeholder="Full Name"
                                     required
                                     maxlength="255"
-                                    value="${fullName != null ? fullName : ''}"
+                                    value="${sessionScope.regFullName != null ? sessionScope.regFullName : ''}"
                                     />
                                 <label for="fullName">Full Name</label>
+                                <c:if test="${not empty errorMessage}">
+                                    <div class="text-danger mt-1">${errorMessage}</div>
+                                </c:if>
                             </div>
                         </div>
                         <div class="col-12 col-lg-6">
@@ -105,7 +108,7 @@
                                     id="email"
                                     placeholder="name@example.com"
                                     readonly
-                                    value="${email != null ? email : ''}"
+                                    value="${sessionScope.regEmail != null ? sessionScope.regEmail : ''}"
                                     />
                                 <label for="email">Email</label>
                             </div>
@@ -118,10 +121,13 @@
                                     name="phone"
                                     id="phone"
                                     placeholder="Phone Number"
-                                    value="${phone != null ? phone : ''}"
+                                    value="${sessionScope.regPhone != null ? sessionScope.regPhone : ''}"
                                     required
                                     />
                                 <label for="phone">Phone Number</label>
+                                <c:if test="${not empty emailPhoneError}">
+                                    <div class="text-danger mt-1">${emailPhoneError}</div>
+                                </c:if>
                             </div>
                         </div>
                         <div class="col-12 col-lg-6">
@@ -132,10 +138,13 @@
                                     name="address"
                                     id="address"
                                     placeholder="Address"
-                                    value="${address != null ? address : ''}"
+                                    value="${sessionScope.regAddress != null ? sessionScope.regAddress : ''}"
                                     required
                                     />
                                 <label for="address">Address</label>
+                                <c:if test="${not empty errorMessage}">
+                                    <div class="text-danger mt-1">${errorMessage}</div>
+                                </c:if>
                             </div>
                         </div>
                         <div class="col-12 col-lg-6">
@@ -149,6 +158,9 @@
                                     required
                                     />
                                 <label for="password">Password</label>
+                                <c:if test="${not empty passwordError}">
+                                    <div class="text-danger mt-1">${passwordError}</div>
+                                </c:if>
                             </div>
                         </div>
                         <div class="col-12 col-lg-6">
@@ -162,6 +174,9 @@
                                     required
                                     />
                                 <label for="confirmPassword">Confirm Password</label>
+                                <c:if test="${not empty passwordError}">
+                                    <div class="text-danger mt-1">${passwordError}</div>
+                                </c:if>
                             </div>
                         </div>
                         <div class="col-12 text-center">
