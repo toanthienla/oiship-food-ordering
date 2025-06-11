@@ -326,3 +326,17 @@ DELETE FROM Account
 WHERE role = 'staff';
 DELETE FROM Account;
 DBCC CHECKIDENT ('Account', RESEED, 0);
+
+
+INSERT INTO Category (catName, catDescription)
+VALUES (N'Chính', N'Món chính');
+
+INSERT INTO Meal (mealName, opCost, interestPercentage, [image], mealDescription, stock, FK_Meal_Category)
+VALUES (N'Cơm chiên', 20000.00, 20.00, N'/images/com-chien.jpg', N'Cơm chiên trứng', 50, 1);
+
+INSERT INTO Ingredient (name, quantity, unitCost, FK_Ingredient_Meal)
+VALUES (N'Gạo', 100, 10000.00, 1), (N'Trứng', 50, 5000.00, 1);
+
+SELECT i.*, m.mealName 
+FROM Ingredient i 
+LEFT JOIN Meal m ON i.FK_Ingredient_Meal = m.mealID;

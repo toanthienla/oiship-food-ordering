@@ -12,42 +12,46 @@ public class HomeServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         HttpSession session = request.getSession(false);
+        String role = null;
+        Integer userId = null;
+        String userName = null;
 
-        if (session == null || session.getAttribute("role") == null || session.getAttribute("userId") == null) {
-            // Nếu chưa đăng nhập, hiển thị trang home công khai
+        // Set default attributes for home.jsp
+        request.setAttribute("isLoggedIn", false);
+        request.setAttribute("role", null);
+        request.setAttribute("userId", null);
+        request.setAttribute("userName", null);
+        request.setAttribute("error", null);
+
+        if (session != null) {
+            userId = (Integer) session.getAttribute("userId");
+            role = (String) session.getAttribute("role");
+            userName = (String) session.getAttribute("userName");
+            System.out.println("HomeServlet: session exists, userId=" + userId + ", role=" + role + ", userName=" + userName);
+        } else {
+            System.out.println("HomeServlet: No session exists");
+        }
+
+        if (userId == null || role == null) {
+            System.out.println("HomeServlet: User not logged in or session invalid");
+            request.setAttribute("isLoggedIn", false);
             request.getRequestDispatcher("/WEB-INF/views/home/home.jsp").forward(request, response);
             return;
         }
 
-        String role = ((String) session.getAttribute("role")).toLowerCase();
-        redirectByRole(response, session, role);
-    }
+        // Set attributes for logged-in user
+        request.setAttribute("isLoggedIn", true);
+        request.setAttribute("role", role);
+        request.setAttribute("userId", userId);
+        request.setAttribute("userName", userName != null ? userName : "Unknown");
+        System.out.println("HomeServlet: Setting attributes - isLoggedIn=true, userName=" + userName);
 
-    private void redirectByRole(HttpServletResponse response, HttpSession session, String role) throws IOException {
-        switch (role) {
-            case "customer":
-                response.sendRedirect("customer/dashboard");
-                break;
-            case "shipper":
-                response.sendRedirect("shipper/dashboard");
-                break;
-            case "restaurant":
-                response.sendRedirect("restaurant/dashboard");
-
-            case "admin":
-                response.sendRedirect("admin");
-                break;
-            default:
-                session.invalidate();
-                response.sendRedirect("login");
+        // Redirect based on role
+        if ("staff".equalsIgnoreCase(role)) {
+            response.sendRedirect(request.getContextPath() + "/staff"); // Redirect to a generic staff page
+        } else {
+            response.sendRedirect(request.getContextPath() + "/customer");
         }
-    }
-
-    @Override
-    protected void doPost(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        doGet(request, response);
     }
 }

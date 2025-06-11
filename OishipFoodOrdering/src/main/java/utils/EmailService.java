@@ -1,15 +1,21 @@
 package utils;
 
+import dao.OTPDAO;
+import dao.SecurityDAO;
 import jakarta.mail.*;
 import jakarta.mail.internet.*;
 
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Properties;
+import java.util.Random;
 import java.util.stream.Collectors;
 
 import io.github.cdimascio.dotenv.Dotenv;
+import model.OTP;
 
 public class EmailService {
 
@@ -21,6 +27,7 @@ public class EmailService {
     private static final int EMAIL_PORT = Integer.parseInt(dotenv.get("EMAIL_PORT"));
     private static final String EMAIL_NAME = dotenv.get("EMAIL_NAME");
     private static final String EMAIL_APP_PASSWORD = dotenv.get("EMAIL_APP_PASSWORD");
+
     private static final Properties PROPERTIES = new Properties();
 
     static {
@@ -30,21 +37,33 @@ public class EmailService {
         PROPERTIES.put("mail.smtp.port", String.valueOf(EMAIL_PORT));
     }
 
-    public static String[] generateAndSendVerification(String to, String name) {
-        try {
-            // 1. Tạo mã
-            String plainCode = String.valueOf(100000 + new java.util.Random().nextInt(900000));
-            String hashedCode = org.apache.commons.codec.digest.DigestUtils.md5Hex(plainCode);
-
-            // 2. Gửi mail
-            sendVerificationEmail(to, name, plainCode);
-
-            // 3. Trả lại mã (để servlet hoặc DAO lưu vào DB)
-            return new String[]{plainCode, hashedCode};
-        } catch (Exception e) {
-            e.printStackTrace();
-            return null; // thất bại
+    /**
+     * Tạo và gửi OTP cho email trong quá trình đăng ký
+     *
+     * @param email Email người nhận
+     * @param fullName Tên người nhận
+     * @return mảng [plainOTP, hashedOTP]
+     * @throws MessagingException Nếu gửi email thất bại
+     */
+    public static String[] generateAndSendVerificationByEmail(String email, String fullName) throws MessagingException {
+        if (email == null || fullName == null) {
+            throw new IllegalArgumentException("Email and fullName must not be null");
         }
+
+        String otp = String.format("%06d", new Random().nextInt(999999));
+        String hashedOTP = SecurityDAO.hashOTP(otp);
+
+        LocalDateTime createdAt = LocalDateTime.now();
+        LocalDateTime expiresAt = createdAt.plusMinutes(5); // Hết hiệu lực sau 5 phút
+
+        // Lưu OTP vào database với customerId = null cho đăng ký mới
+        OTPDAO otpDAO = new OTPDAO();
+        otpDAO.insertOtpTemp(email, hashedOTP, Timestamp.valueOf(createdAt), Timestamp.valueOf(expiresAt), null);
+
+        String subject = "Welcome to Oiship - Verify Your Account";
+        sendVerificationEmail(email, fullName, otp);
+
+        return new String[]{otp, hashedOTP};
     }
 
     public static void sendEmail(List<String> recipients, String subject, String htmlContent)
@@ -64,7 +83,7 @@ public class EmailService {
                     try {
                         return new InternetAddress(email);
                     } catch (AddressException e) {
-                        throw new RuntimeException(e);
+                        throw new RuntimeException("Invalid email address: " + email, e);
                     }
                 }).toArray(Address[]::new);
 
@@ -78,7 +97,6 @@ public class EmailService {
         multipart.addBodyPart(mimeBodyPart);
 
         message.setContent(multipart);
-
         Transport.send(message);
     }
 
@@ -104,7 +122,7 @@ public class EmailService {
                     + "<p>To get started, please verify your account using the code below:</p>"
                     + "<div style='background: #f9f9f9; padding: 15px; text-align: center; font-size: 24px; font-weight: bold; color: #ff5733;'>"
                     + code + "</div>"
-                    + "<p style='margin-top: 20px;'>This verification code is valid for <strong>1 minute</strong>.</p>"
+                    + "<p style='margin-top: 20px;'>This verification code is valid for <strong>5 minutes</strong>.</p>"
                     + "<p>If you didn't sign up for Oiship, please ignore this email.</p>"
                     + "<br><p style='font-size: 14px;'>Best regards,<br><strong>The Oiship Team</strong></p>"
                     + "<p style='font-size: 12px; color: #777;'>Oiship - Delivering Deliciousness to Your Doorstep</p>"
@@ -115,5 +133,4 @@ public class EmailService {
             e.printStackTrace();
         }
     }
-
 }

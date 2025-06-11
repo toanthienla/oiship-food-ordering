@@ -1,66 +1,68 @@
 package model;
 
-import java.math.BigDecimal;
 import java.sql.Timestamp;
-import java.time.LocalDateTime;
-
 
 public class Order {
 
-    public Order(int aInt, BigDecimal bigDecimal, String string, String string1, BigDecimal bigDecimal1, LocalDateTime toLocalDateTime, LocalDateTime toLocalDateTime1, int aInt1, int aInt2, int aInt3, int aInt4) {
-    }
-    private int orderId;
-    private double totalAmount;
-    private String paymentMethod;
-    private String orderStatus;
-    private Double distanceKm;
-    private java.sql.Timestamp orderCreatedAt;
-    private java.sql.Timestamp orderUpdatedAt;
-    private Integer discountId;
-    private int customerId;
-    private int restaurantManagerId;
-    private Integer shipperId;
+    private int orderID;
+    private double amount;
+    private int orderStatus;
+    private int paymentStatus;
+    private Timestamp orderCreatedAt;
+    private Timestamp orderUpdatedAt;
+    private String deliveryAddress;
+    private Timestamp deliveryTime;
+    private Integer fkOrderVoucher; // Sử dụng Integer để cho phép null
+    private Integer fkOrderCustomer; // Sử dụng Integer để cho phép null
+    private Integer fkOrderStaff;    // Sử dụng Integer để cho phép null
 
-    // Getters and setters
-
-    public int getOrderId() {
-        return orderId;
-    }
-
-    public void setOrderId(int orderId) {
-        this.orderId = orderId;
-    }
-
-    public double getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(double totalAmount) {
-        this.totalAmount = totalAmount;
+    public Order(int orderID, double amount, int orderStatus, int paymentStatus, Timestamp orderCreatedAt,
+            Timestamp orderUpdatedAt, String deliveryAddress, Timestamp deliveryTime,
+            Integer fkOrderVoucher, Integer fkOrderCustomer, Integer fkOrderStaff) {
+        this.orderID = orderID;
+        this.amount = amount;
+        this.orderStatus = orderStatus;
+        this.paymentStatus = paymentStatus;
+        this.orderCreatedAt = orderCreatedAt;
+        this.orderUpdatedAt = orderUpdatedAt;
+        this.deliveryAddress = deliveryAddress;
+        this.deliveryTime = deliveryTime;
+        this.fkOrderVoucher = fkOrderVoucher;
+        this.fkOrderCustomer = fkOrderCustomer;
+        this.fkOrderStaff = fkOrderStaff;
     }
 
-    public String getPaymentMethod() {
-        return paymentMethod;
+    // Getters and Setters
+    public int getOrderID() {
+        return orderID;
     }
 
-    public void setPaymentMethod(String paymentMethod) {
-        this.paymentMethod = paymentMethod;
+    public void setOrderID(int orderID) {
+        this.orderID = orderID;
     }
 
-    public String getOrderStatus() {
+    public double getAmount() {
+        return amount;
+    }
+
+    public void setAmount(double amount) {
+        this.amount = amount;
+    }
+
+    public int getOrderStatus() {
         return orderStatus;
     }
 
-    public void setOrderStatus(String orderStatus) {
+    public void setOrderStatus(int orderStatus) {
         this.orderStatus = orderStatus;
     }
 
-    public Double getDistanceKm() {
-        return distanceKm;
+    public int getPaymentStatus() {
+        return paymentStatus;
     }
 
-    public void setDistanceKm(Double distanceKm) {
-        this.distanceKm = distanceKm;
+    public void setPaymentStatus(int paymentStatus) {
+        this.paymentStatus = paymentStatus;
     }
 
     public Timestamp getOrderCreatedAt() {
@@ -79,35 +81,43 @@ public class Order {
         this.orderUpdatedAt = orderUpdatedAt;
     }
 
-    public Integer getDiscountId() {
-        return discountId;
+    public String getDeliveryAddress() {
+        return deliveryAddress;
     }
 
-    public void setDiscountId(Integer discountId) {
-        this.discountId = discountId;
+    public void setDeliveryAddress(String deliveryAddress) {
+        this.deliveryAddress = deliveryAddress;
     }
 
-    public int getCustomerId() {
-        return customerId;
+    public Timestamp getDeliveryTime() {
+        return deliveryTime;
     }
 
-    public void setCustomerId(int customerId) {
-        this.customerId = customerId;
+    public void setDeliveryTime(Timestamp deliveryTime) {
+        this.deliveryTime = deliveryTime;
     }
 
-    public int getRestaurantManagerId() {
-        return restaurantManagerId;
+    public Integer getFkOrderVoucher() {
+        return fkOrderVoucher;
     }
 
-    public void setRestaurantManagerId(int restaurantManagerId) {
-        this.restaurantManagerId = restaurantManagerId;
+    public void setFkOrderVoucher(Integer fkOrderVoucher) {
+        this.fkOrderVoucher = fkOrderVoucher;
     }
 
-    public Integer getShipperId() {
-        return shipperId;
+    public Integer getFkOrderCustomer() {
+        return fkOrderCustomer;
     }
 
-    public void setShipperId(Integer shipperId) {
-        this.shipperId = shipperId;
+    public void setFkOrderCustomer(Integer fkOrderCustomer) {
+        this.fkOrderCustomer = fkOrderCustomer;
+    }
+
+    public Integer getFkOrderStaff() {
+        return fkOrderStaff;
+    }
+
+    public void setFkOrderStaff(Integer fkOrderStaff) {
+        this.fkOrderStaff = fkOrderStaff;
     }
 }

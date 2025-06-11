@@ -1,225 +1,155 @@
 package dao;
 
-import java.sql.Connection;
-import model.Account;
+import model.Customer;
 import utils.DBContext;
-
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.Statement;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.List;
+import java.sql.*;
 
 public class AccountDAO extends DBContext {
 
-    public Account getAccountByEmail(String email) {
-        String sql = "SELECT * FROM Account WHERE email = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return extractAccount(rs);
+    public AccountDAO() {
+        super();
+    }
+
+    public Customer login(String email, String plainPassword) {
+        if (email == null || plainPassword == null) {
+            System.out.println("login: email or plainPassword is null, email=" + email);
+            return null;
+        }
+        String sql = "SELECT accountID AS customerID, fullName, a.email, [password], role, createAt, c.status, c.phone, c.address " +
+                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
+                     "WHERE a.email = ? AND (c.status = 1 OR c.status IS NULL)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    String hashedPassword = rs.getString("password");
+                    if (SecurityDAO.checkPassword(plainPassword, hashedPassword)) {
+                        return new Customer(
+                                rs.getInt("customerID"),
+                                rs.getString("fullName"),
+                                rs.getString("email"),
+                                hashedPassword,
+                                rs.getString("role"),
+                                rs.getTimestamp("createAt"),
+                                rs.getInt("status") != 0 ? rs.getInt("status") : 1,
+                                rs.getString("phone") != null ? rs.getString("phone") : "",
+                                rs.getString("address") != null ? rs.getString("address") : ""
+                        );
+                    }
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.out.println("Error during login for email: " + email + ": " + e.getMessage());
             e.printStackTrace();
         }
         return null;
     }
 
-    public Account getAccountById(int id) {
-        String sql = "SELECT * FROM Account WHERE account_id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return extractAccount(rs);
+    public Customer getCustomerByEmail(String email) {
+        if (email == null) {
+            System.out.println("getCustomerByEmail: email is null");
+            return null;
+        }
+        String sql = "SELECT accountID AS customerID, fullName, a.email, [password], role, createAt, c.status, c.phone, c.address " +
+                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
+                     "WHERE a.email = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Customer(
+                            rs.getInt("customerID"),
+                            rs.getString("fullName"),
+                            rs.getString("email"),
+                            rs.getString("password"),
+                            rs.getString("role"),
+                            rs.getTimestamp("createAt"),
+                            rs.getInt("status") != 0 ? rs.getInt("status") : 1,
+                            rs.getString("phone") != null ? rs.getString("phone") : "",
+                            rs.getString("address") != null ? rs.getString("address") : ""
+                    );
+                }
             }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.out.println("Error retrieving account by email: " + email + ": " + e.getMessage());
             e.printStackTrace();
         }
         return null;
     }
 
-    public List<Account> getAllAccounts() {
-        List<Account> list = new ArrayList<>();
-        String sql = "SELECT * FROM Account";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                list.add(extractAccount(rs));
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public int insertAccount(Customer customer) {
+        if (customer == null) {
+            return -1;
         }
-        return list;
-    }
+        String sql = "INSERT INTO Account (fullName, email, [password], role, createAt) VALUES (?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, customer.getFullName());
+            ps.setString(2, customer.getEmail());
+            ps.setString(3, customer.getPassword());
+            ps.setString(4, customer.getRole());
+            ps.setTimestamp(5, new Timestamp(System.currentTimeMillis()));
 
-    public int insertAccountAndReturnId(Account a) {
-        String sql = "INSERT INTO Account (account_name, email, phone, password, status, cccd, license, license_image, number_plate, address, longitude, latitude, account_created_at, role) "
-                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
-        try (PreparedStatement stmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            stmt.setString(1, a.getAccountName());
-            stmt.setString(2, a.getEmail());
-            stmt.setString(3, a.getPhone());
-            stmt.setString(4, a.getPassword());
-            stmt.setString(5, a.getStatus());
-
-            // Nullable fields (depending on role)
-            if (a.getCccd() != null && !a.getCccd().isEmpty()) {
-                stmt.setString(6, a.getCccd());
-            } else {
-                stmt.setNull(6, java.sql.Types.NVARCHAR);
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                return -1;
             }
 
-            if (a.getLicense() != null && !a.getLicense().isEmpty()) {
-                stmt.setString(7, a.getLicense());
-            } else {
-                stmt.setNull(7, java.sql.Types.NVARCHAR);
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
             }
-
-            if (a.getLicenseImage() != null) {
-                stmt.setBytes(8, a.getLicenseImage());
-            } else {
-                stmt.setNull(8, java.sql.Types.VARBINARY);
-            }
-
-            if (a.getNumberPlate() != null && !a.getNumberPlate().isEmpty()) {
-                stmt.setString(9, a.getNumberPlate());
-            } else {
-                stmt.setNull(9, java.sql.Types.NVARCHAR);
-            }
-
-            stmt.setString(10, a.getAddress());
-
-            if (a.getLongitude() != null) {
-                stmt.setBigDecimal(11, a.getLongitude());
-            } else {
-                stmt.setNull(11, java.sql.Types.DECIMAL);
-            }
-
-            if (a.getLatitude() != null) {
-                stmt.setBigDecimal(12, a.getLatitude());
-            } else {
-                stmt.setNull(12, java.sql.Types.DECIMAL);
-            }
-
-            stmt.setTimestamp(13, a.getAccountCreatedAt());
-            stmt.setString(14, a.getRole());
-
-            stmt.executeUpdate();
-            ResultSet rs = stmt.getGeneratedKeys();
-            if (rs.next()) {
-                return rs.getInt(1);
-            }
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.out.println("Error inserting account: " + e.getMessage());
             e.printStackTrace();
         }
         return -1;
     }
 
-    public Account getAccountByEmailAndRole(String email, String role) {
-        String sql = "SELECT * FROM Account WHERE email = ? AND role = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            stmt.setString(2, role);
-            ResultSet rs = stmt.executeQuery();
-            if (rs.next()) {
-                return extractAccount(rs);
-            }
-        } catch (Exception e) {
-            e.printStackTrace();
+    public boolean updatePasswordByEmail(String email, String role, String hashedPassword) {
+        if (email == null || hashedPassword == null) {
+            System.out.println("updatePasswordByEmail: email or hashedPassword is null, email=" + email + ", role=" + role);
+            return false;
         }
-        return null;
-    }
-
-    public boolean isEmailOrPhoneExists(String email, String phone) {
-        String sql = "SELECT 1 FROM Account WHERE email = ? OR phone = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, email);
-            stmt.setString(2, phone);
-            ResultSet rs = stmt.executeQuery();
-            return rs.next();
-        } catch (Exception e) {
+        String sql = "UPDATE Account SET [password] = ? WHERE email = ?";
+        if (role != null) {
+            sql += " AND role = ?";
+        }
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hashedPassword);
+            ps.setString(2, email);
+            if (role != null) {
+                ps.setString(3, role);
+            }
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.out.println("Error updating password for email: " + email + ", role: " + role);
             e.printStackTrace();
         }
         return false;
     }
 
-    public void updateStatus(int accountId, String newStatus) {
-        String sql = "UPDATE Account SET status = ? WHERE account_id = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, newStatus);
-            stmt.setInt(2, accountId);
-            stmt.executeUpdate();
-        } catch (Exception e) {
-            e.printStackTrace();
+    public boolean isEmailOrPhoneExists(String email, String phone) {
+        if (email == null && phone == null) {
+            return false;
         }
-    }
-
-    public List<Account> getAccountsByRole(String role) {
-        List<Account> list = new ArrayList<>();
-        String sql = "SELECT * FROM Account WHERE role = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, role);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                list.add(extractAccount(rs));
+        String sql = "SELECT COUNT(*) FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID WHERE a.email = ? OR c.phone = ?";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            ps.setString(2, phone != null ? phone : "");
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
             }
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
-        return list;
-    }
-
-    public boolean updatePasswordByEmail(String email, String role, String newPassword) {
-        String sql = "UPDATE Account SET password = ? WHERE email = ? AND role = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setString(1, newPassword);
-            stmt.setString(2, email);
-            stmt.setString(3, role);
-            return stmt.executeUpdate() > 0;
-        } catch (Exception e) {
+        } catch (SQLException e) {
+            System.out.println("Error checking email or phone existence: " + e.getMessage());
             e.printStackTrace();
             return false;
         }
-    }
-
-    private Account extractAccount(ResultSet rs) throws Exception {
-        return new Account(
-                rs.getInt("account_id"),
-                rs.getString("account_name"),
-                rs.getString("email"),
-                rs.getString("phone"),
-                rs.getString("password"),
-                rs.getString("status"),
-                rs.getString("cccd"),
-                rs.getString("license"),
-                rs.getBytes("license_image"),
-                rs.getString("number_plate"),
-                rs.getString("address"),
-                rs.getBigDecimal("longitude"),
-                rs.getBigDecimal("latitude"),
-                rs.getTimestamp("account_created_at"),
-                rs.getString("role")
-        );
-    }
-
-    private Connection getConnection() {
-        throw new UnsupportedOperationException("Not supported yet.");
-    }
-
-    // Unused legacy methods - optional cleanup
-    public void insertAccount(Account a) {
-    }
-
-    public void updateAccount(Account a) {
-    }
-
-    public void deleteAccountById(int id) {
-    }
-
-    public List<Account> getAccountsByRoleAndStatus(String role, String status) {
-        return new ArrayList<>();
     }
 }

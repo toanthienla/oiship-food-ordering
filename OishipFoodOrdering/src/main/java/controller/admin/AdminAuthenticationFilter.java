@@ -15,15 +15,17 @@ public class AdminAuthenticationFilter implements Filter {
         HttpServletResponse res = (HttpServletResponse) response;
 
         String uri = req.getRequestURI();
+        String contextPath = req.getContextPath();
 
+        // Exclude /admin/login from authentication
+        boolean isLoginPage = uri.equals(contextPath + "/admin/login");
         HttpSession session = req.getSession(false);
         boolean isLoggedIn = session != null && session.getAttribute("admin") != null;
-        boolean isLoginPage = uri.endsWith("/admin/login");
 
         if (isLoggedIn || isLoginPage) {
             chain.doFilter(request, response);
         } else {
-            res.sendRedirect(req.getContextPath() + "/admin/login");
+            res.sendRedirect(contextPath + "/admin/login");
         }
     }
 }

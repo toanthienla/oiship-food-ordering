@@ -1,51 +1,19 @@
+/*
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
+ * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
+ */
 package model;
 
+/**
+ *
+ * @author DELL
+ */
 public class Contact {
+    private int contactID;
+    private String subject;
+    private String message;
+    private int accountID; // FK_Contact_Account
 
-    private int contactId;
-    private String contactSubject;
-    private String contactMessage;
-    private int accountId;
-
-    public Contact() {
-    }
-
-    public Contact(int contactId, String contactSubject, String contactMessage, int accountId) {
-        this.contactId = contactId;
-        this.contactSubject = contactSubject;
-        this.contactMessage = contactMessage;
-        this.accountId = accountId;
-    }
-
-    public int getContactId() {
-        return contactId;
-    }
-
-    public void setContactId(int contactId) {
-        this.contactId = contactId;
-    }
-
-    public String getContactSubject() {
-        return contactSubject;
-    }
-
-    public void setContactSubject(String contactSubject) {
-        this.contactSubject = contactSubject;
-    }
-
-    public String getContactMessage() {
-        return contactMessage;
-    }
-
-    public void setContactMessage(String contactMessage) {
-        this.contactMessage = contactMessage;
-    }
-
-    public int getAccountId() {
-        return accountId;
-    }
-
-    public void setAccountId(int accountId) {
-        this.accountId = accountId;
-    }
+    // Constructors, Getters, Setters
 }
+

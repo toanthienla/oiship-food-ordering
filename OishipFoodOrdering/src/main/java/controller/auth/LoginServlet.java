@@ -1,11 +1,11 @@
 package controller.auth;
 
 import dao.AccountDAO;
+import dao.SecurityDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-import model.Account;
-import org.mindrot.jbcrypt.BCrypt;
+import model.Customer;
 
 import java.io.IOException;
 
@@ -15,52 +15,57 @@ public class LoginServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        HttpSession session = request.getSession(false);
+        if (session != null && session.getAttribute("userId") != null) {
+            response.sendRedirect(request.getContextPath() + "/home");
+            return;
+        }
         request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String email = request.getParameter("email");
         String password = request.getParameter("password");
-        String role = request.getParameter("role");
 
-        HttpSession session = request.getSession();
+        System.out.println("Login attempt: email=" + email);
 
-        if (email == null || password == null || role == null) {
-            request.setAttribute("error", "Missing login information.");
+        if (email == null || password == null || email.trim().isEmpty() || password.trim().isEmpty()) {
+            System.out.println("Missing email or password");
+            request.setAttribute("error", "Please enter email and password.");
             request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
             return;
         }
 
-        AccountDAO dao = new AccountDAO();
-        Account account = dao.getAccountByEmailAndRole(email, capitalize(role));
+        AccountDAO accountDAO = new AccountDAO();
+        Customer account = accountDAO.login(email, password);
 
-        if (account == null || !BCrypt.checkpw(password, account.getPassword())) {
-            request.setAttribute("error", "Invalid email or password.");
+        if (account == null) {
+            System.out.println("No account found for email: " + email);
+            request.setAttribute("error", "Invalid account, please try again.");
             request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
             return;
         }
 
-        if (!"active".equalsIgnoreCase(account.getStatus())) {
-            request.setAttribute("error", "Your account is not activated or has been banned.");
-            request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
-            return;
+        // Login successful
+        HttpSession session = request.getSession(true);
+        session.setAttribute("userId", account.getCustomerID());
+        session.setAttribute("role", account.getRole());
+        session.setAttribute("userName", account.getFullName());
+        session.setAttribute("account", account);
+
+        // Debug
+        System.out.println("Login successful: email=" + email + ", role=" + account.getRole() + ", userName=" + account.getFullName() + ", userId=" + account.getCustomerID());
+        System.out.println("Session set: userId=" + session.getAttribute("userId") + ", role=" + session.getAttribute("role") + ", userName=" + session.getAttribute("userName"));
+
+        // Redirect dựa trên role
+        if ("admin".equalsIgnoreCase(account.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/admin");
+        } else if ("staff".equalsIgnoreCase(account.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/staff");
+        } else if ("customer".equalsIgnoreCase(account.getRole())) {
+            response.sendRedirect(request.getContextPath() + "/home");
         }
-
-        session.setAttribute("userId", account.getAccountId());
-        session.setAttribute("role", role.toLowerCase()); // lowercase for consistency
-        response.sendRedirect("home");
-    }
-
-    private String capitalize(String input) {
-        if (input == null || input.isEmpty()) return input;
-        return input.substring(0, 1).toUpperCase() + input.substring(1).toLowerCase();
-    }
-
-    @Override
-    public String getServletInfo() {
-        return "Handles unified login across all roles via AccountDAO";
     }
 }
