@@ -62,8 +62,9 @@ public class GoogleRegisterServlet extends HttpServlet {
                 }
             }
 
-            request.setAttribute("email", email);
-            request.setAttribute("fullName", fullName);
+            // Lưu email và fullName vào session
+            session.setAttribute("regEmail", email);
+            session.setAttribute("regFullName", fullName);
             request.getRequestDispatcher("/WEB-INF/views/auth/complete_google_register.jsp").forward(request, response);
 
         } catch (Exception e) {
@@ -78,6 +79,7 @@ public class GoogleRegisterServlet extends HttpServlet {
             throws ServletException, IOException {
         request.setCharacterEncoding("UTF-8");
 
+        HttpSession session = request.getSession();
         String fullName = request.getParameter("fullName");
         String email = request.getParameter("email");
         String password = request.getParameter("password");
@@ -85,22 +87,32 @@ public class GoogleRegisterServlet extends HttpServlet {
         String phone = request.getParameter("phone");
         String address = request.getParameter("address");
 
-        if (fullName == null || email == null || phone == null || address == null || password == null || confirmPassword == null) {
+        // Lưu các giá trị vào session để giữ nguyên khi có lỗi
+        session.setAttribute("regFullName", fullName);
+        session.setAttribute("regEmail", email);
+        session.setAttribute("regPhone", phone);
+        session.setAttribute("regAddress", address);
+
+        // Kiểm tra các trường bắt buộc
+        if (fullName == null || fullName.trim().isEmpty() || phone == null || phone.trim().isEmpty() ||
+            address == null || address.trim().isEmpty() || password == null || confirmPassword == null) {
             request.setAttribute("errorMessage", "All fields are required.");
             request.getRequestDispatcher("/WEB-INF/views/auth/complete_google_register.jsp").forward(request, response);
             return;
         }
 
+        // Kiểm tra mật khẩu
         if (!password.equals(confirmPassword)) {
-            request.setAttribute("errorMessage", "Passwords do not match.");
+            request.setAttribute("passwordError", "Passwords do not match.");
             request.getRequestDispatcher("/WEB-INF/views/auth/complete_google_register.jsp").forward(request, response);
             return;
         }
 
         AccountDAO accountDAO = new AccountDAO();
         try {
-            if (accountDAO.getCustomerByEmail(email) != null || accountDAO.isEmailOrPhoneExists(email, phone)) { // Giả định isEmailOrPhoneExists cần điều chỉnh
-                request.setAttribute("errorMessage", "Email or phone already exists.");
+            // Kiểm tra email hoặc phone đã tồn tại
+            if (accountDAO.getCustomerByEmail(email) != null || accountDAO.isEmailOrPhoneExists(email, phone)) {
+                request.setAttribute("emailPhoneError", "Email or phone already exists.");
                 request.getRequestDispatcher("/WEB-INF/views/auth/complete_google_register.jsp").forward(request, response);
                 return;
             }
@@ -117,7 +129,10 @@ public class GoogleRegisterServlet extends HttpServlet {
                 newCustomer.setCustomerID(accountId);
                 CustomerDAO customerDAO = new CustomerDAO();
                 if (customerDAO.insertCustomer(newCustomer)) {
-                    HttpSession session = request.getSession();
+                    session.removeAttribute("regFullName");
+                    session.removeAttribute("regEmail");
+                    session.removeAttribute("regPhone");
+                    session.removeAttribute("regAddress");
                     session.setAttribute("userId", accountId);
                     session.setAttribute("role", "customer");
                     session.setAttribute("userName", fullName);
