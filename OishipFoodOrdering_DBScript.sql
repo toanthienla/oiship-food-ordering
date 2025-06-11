@@ -147,7 +147,8 @@ CREATE TABLE Payment (
     bankName NVARCHAR(100),
     paymentTime DATETIME DEFAULT GETDATE(),
     isConfirmed BIT DEFAULT 0,
-    FK_Payment_Order INT FOREIGN KEY REFERENCES [Order](orderID)
+    FK_Payment_Order INT FOREIGN KEY REFERENCES [Order](orderID),
+	FK_Notification_Account INT FOREIGN KEY REFERENCES Account(accountID)
 );
 
 -- Review table
@@ -198,3 +199,4 @@ CREATE TABLE Contact (
 
 -- Triggers for notifications:
 -- Comming soon...
+
