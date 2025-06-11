@@ -50,9 +50,9 @@ VALUES
 (N'Ẩm thực quốc tế', N'Món ăn đến từ nhiều nước'),
 (N'Ăn vặt', N'Món ăn nhẹ và ăn vặt');
 
--- Insert Meals (with NULL image)
+-- Insert Dishes (with NULL image)
 -- Assuming category IDs start at 1 and are in the order they were inserted
-INSERT INTO Meal (mealName, opCost, interestPercentage, [image], mealDescription, stock, FK_Meal_Category)
+INSERT INTO Dish (dishName, opCost, interestPercentage, [image], dishDescription, stock, FK_Dish_Category)
 VALUES 
 (N'Cơm gà xối mỡ', 28000, 25, NULL, N'Cơm gà chiên giòn, nước mắm', 20, 1),
 (N'Phở bò tái', 36000, 25, NULL, N'Phở truyền thống với bò tái', 30, 2),
@@ -88,197 +88,197 @@ VALUES
 (N'Cháo sườn trứng bắc thảo', 28000, 25, NULL, N'Cháo đặc biệt cho buổi sáng', 15, 6),
 (N'Lẩu cá chua cay', 128000, 25, NULL, N'Lẩu với cá và măng chua', 8, 8);
 
---Insert ingredient for meals
-INSERT INTO Ingredient (name, quantity, unitCost, FK_Ingredient_Meal)
+--Insert ingredient for dishes
+INSERT INTO Ingredient (name, quantity, unitCost, FK_Ingredient_Dish)
 VALUES
--- Meal 1: Cơm gà xối mỡ
+-- Dish 1: Cơm gà xối mỡ
 (N'Gạo', 50, 500, 1),
 (N'Gà chiên', 20, 15000, 1),
 (N'Nước mắm', 30, 2000, 1),
 (N'Hành phi', 25, 1000, 1),
 
--- Meal 2: Phở bò tái
+-- Dish 2: Phở bò tái
 (N'Bánh phở', 50, 1000, 2),
 (N'Thịt bò tái', 25, 18000, 2),
 (N'Hành lá', 30, 500, 2),
 (N'Gừng', 10, 800, 2),
 (N'Nước dùng bò', 40, 3000, 2),
 
--- Meal 3: Bánh mì thịt nguội
+-- Dish 3: Bánh mì thịt nguội
 (N'Bánh mì', 50, 1500, 3),
 (N'Thịt nguội', 30, 7000, 3),
 (N'Dưa leo', 20, 1500, 3),
 (N'Rau sống', 20, 1000, 3),
 
--- Meal 4: Trà sữa trân châu đường đen
+-- Dish 4: Trà sữa trân châu đường đen
 (N'Trà đen', 30, 2000, 4),
 (N'Sữa đặc', 25, 1500, 4),
 (N'Trân châu', 40, 1000, 4),
 (N'Đường đen', 30, 1200, 4),
 
--- Meal 5: Cà phê sữa đá
+-- Dish 5: Cà phê sữa đá
 (N'Cà phê', 50, 1000, 5),
 (N'Sữa đặc', 40, 1500, 5),
 (N'Đá viên', 60, 200, 5),
 
--- Meal 6: Súp cua trứng bắc thảo
+-- Dish 6: Súp cua trứng bắc thảo
 (N'Thịt cua', 20, 12000, 6),
 (N'Trứng bắc thảo', 15, 7000, 6),
 (N'Ngô non', 20, 2000, 6),
 (N'Bột năng', 10, 500, 6),
 
--- Meal 7: Gà rán cay Hàn Quốc
+-- Dish 7: Gà rán cay Hàn Quốc
 (N'Gà miếng', 25, 15000, 7),
 (N'Sốt cay Hàn', 15, 3000, 7),
 (N'Bột chiên giòn', 20, 1000, 7),
 (N'Tỏi băm', 20, 500, 7),
 
--- Meal 8: Lẩu thái chua cay
+-- Dish 8: Lẩu thái chua cay
 (N'Tôm', 10, 10000, 8),
 (N'Mực', 10, 12000, 8),
 (N'Nước lẩu thái', 20, 3000, 8),
 (N'Rau thập cẩm', 30, 4000, 8),
 (N'Nấm', 20, 4000, 8),
 
--- Meal 9: Gỏi cuốn tôm thịt
+-- Dish 9: Gỏi cuốn tôm thịt
 (N'Bánh tráng', 30, 1000, 9),
 (N'Tôm luộc', 20, 8000, 9),
 (N'Thịt luộc', 20, 7000, 9),
 (N'Rau sống', 25, 1000, 9),
 
--- Meal 10: Nước ép cam tươi
+-- Dish 10: Nước ép cam tươi
 (N'Cam tươi', 40, 3000, 10),
 (N'Đường', 20, 500, 10),
 (N'Đá viên', 20, 200, 10),
 
--- Meal 11: Bánh tart trứng
+-- Dish 11: Bánh tart trứng
 (N'Trứng gà', 30, 2000, 11),
 (N'Sữa tươi', 20, 1500, 11),
 (N'Bột mì', 25, 1000, 11),
 (N'Bơ', 15, 5000, 11),
 
--- Meal 12: Pizza xúc xích
+-- Dish 12: Pizza xúc xích
 (N'Bột pizza', 20, 3000, 12),
 (N'Xúc xích', 20, 7000, 12),
 (N'Phô mai', 15, 10000, 12),
 (N'Sốt cà', 20, 2000, 12),
 
--- Meal 13: Bánh tráng trộn
+-- Dish 13: Bánh tráng trộn
 (N'Bánh tráng cắt sợi', 30, 1000, 13),
 (N'Tóp mỡ', 20, 3000, 13),
 (N'Trứng cút', 25, 2000, 13),
 (N'Xoài xanh', 20, 1500, 13),
 
--- Meal 14: Mì xào bò
+-- Dish 14: Mì xào bò
 (N'Mì trứng', 30, 1500, 14),
 (N'Thịt bò mềm', 20, 18000, 14),
 (N'Rau cải', 25, 1000, 14),
 (N'Nước tương', 20, 800, 14),
 
--- Meal 15: Bún bò Huế
+-- Dish 15: Bún bò Huế
 (N'Bún tươi', 30, 1500, 15),
 (N'Thịt bò Huế', 25, 18000, 15),
 (N'Chả Huế', 20, 5000, 15),
 (N'Nước dùng đặc biệt', 25, 3000, 15),
 
--- Meal 16: Cơm tấm sườn bì
+-- Dish 16: Cơm tấm sườn bì
 (N'Cơm tấm', 40, 1500, 16),
 (N'Sườn nướng', 25, 12000, 16),
 (N'Bì heo', 20, 5000, 16),
 (N'Chả trứng', 20, 4000, 16),
 
--- Meal 17: Bánh mì chảo
+-- Dish 17: Bánh mì chảo
 (N'Bánh mì', 30, 1500, 17),
 (N'Trứng ốp la', 25, 2000, 17),
 (N'Pate gan', 20, 4000, 17),
 (N'Xúc xích', 20, 7000, 17),
 
--- Meal 18: Trà sữa thái xanh
+-- Dish 18: Trà sữa thái xanh
 (N'Trà thái xanh', 30, 2000, 18),
 (N'Sữa bột', 20, 1500, 18),
 (N'Trân châu', 30, 1000, 18),
 (N'Đường', 20, 500, 18),
 
--- Meal 19: Cà phê đen đá
+-- Dish 19: Cà phê đen đá
 (N'Cà phê đen', 40, 1000, 19),
 (N'Đường', 20, 500, 19),
 (N'Đá viên', 30, 200, 19),
 
--- Meal 20: Súp hải sản
+-- Dish 20: Súp hải sản
 (N'Tôm tươi', 20, 8000, 20),
 (N'Mực', 15, 9000, 20),
 (N'Nước dùng', 25, 3000, 20),
 (N'Ngô non', 20, 1500, 20),
 
--- Meal 21: Cánh gà chiên nước mắm
+-- Dish 21: Cánh gà chiên nước mắm
 (N'Cánh gà', 25, 12000, 21),
 (N'Nước mắm', 20, 2000, 21),
 (N'Tỏi băm', 20, 500, 21),
 (N'Bột chiên giòn', 20, 1000, 21),
 
--- Meal 22: Lẩu nấm chay
+-- Dish 22: Lẩu nấm chay
 (N'Nấm rơm', 20, 4000, 22),
 (N'Nấm kim châm', 20, 4000, 22),
 (N'Rau cải', 30, 1500, 22),
 (N'Nước dùng chay', 20, 2000, 22),
 
--- Meal 23: Nem cuốn
+-- Dish 23: Nem cuốn
 (N'Bánh tráng', 25, 1000, 23),
 (N'Thịt heo luộc', 20, 7000, 23),
 (N'Rau sống', 25, 1000, 23),
 (N'Bún tươi', 25, 1500, 23),
 
--- Meal 24: Sinh tố bơ
+-- Dish 24: Sinh tố bơ
 (N'Bơ', 30, 5000, 24),
 (N'Sữa đặc', 20, 1500, 24),
 (N'Đá viên', 20, 200, 24),
 
--- Meal 25: Bánh tiramisu
+-- Dish 25: Bánh tiramisu
 (N'Bánh ladyfinger', 20, 3000, 25),
 (N'Mascarpone', 15, 10000, 25),
 (N'Cà phê', 10, 1000, 25),
 (N'Socola', 15, 5000, 25),
 
--- Meal 26: Cơm chiên hải sản
+-- Dish 26: Cơm chiên hải sản
 (N'Cơm trắng', 40, 1000, 26),
 (N'Tôm', 20, 9000, 26),
 (N'Mực', 15, 8000, 26),
 (N'Trứng', 20, 2000, 26),
 
--- Meal 27: Pizza hải sản
+-- Dish 27: Pizza hải sản
 (N'Đế pizza', 15, 3000, 27),
 (N'Tôm', 15, 8000, 27),
 (N'Mực', 15, 9000, 27),
 (N'Phô mai', 15, 10000, 27),
 
--- Meal 28: Bánh tráng nướng
+-- Dish 28: Bánh tráng nướng
 (N'Bánh tráng', 25, 1000, 28),
 (N'Trứng cút', 20, 1500, 28),
 (N'Hành phi', 15, 1000, 28),
 (N'Chà bông', 10, 3000, 28),
 
--- Meal 29: Bánh mì que
+-- Dish 29: Bánh mì que
 (N'Bánh mì que', 30, 1200, 29),
 (N'Pate', 20, 4000, 29),
 (N'Tương ớt', 15, 800, 29),
 
--- Meal 30: Mì ý sốt bò bằm
+-- Dish 30: Mì ý sốt bò bằm
 (N'Mì ý', 25, 3000, 30),
 (N'Thịt bò bằm', 20, 10000, 30),
 (N'Sốt cà', 20, 2000, 30),
 (N'Phô mai bào', 15, 4000, 30),
 
--- Meal 31: Nước ép dứa
+-- Dish 31: Nước ép dứa
 (N'Dứa tươi', 30, 3000, 31),
 (N'Đường', 15, 500, 31),
 (N'Đá viên', 20, 200, 31),
 
--- Meal 32: Cháo sườn trứng bắc thảo
+-- Dish 32: Cháo sườn trứng bắc thảo
 (N'Gạo tẻ', 30, 1000, 32),
 (N'Sườn non', 20, 10000, 32),
 (N'Trứng bắc thảo', 10, 7000, 32),
 
--- Meal 33: Lẩu cá chua cay
+-- Dish 33: Lẩu cá chua cay
 (N'Cá', 15, 10000, 33),
 (N'Măng chua', 15, 3000, 33),
 (N'Nước dùng cá', 20, 3000, 33),
@@ -298,45 +298,98 @@ VALUES
 ('LUNCHDEAL', N'Ưu đãi bữa trưa - giảm 20K đơn từ 120k', 20000, 20000, 120000, GETDATE(), DATEADD(DAY, 14, GETDATE()), 100, 1, 3),
 ('NEWUSER', N'Dành cho khách mới - giảm 15% tối đa 50K', 15.0, 50000, 0, GETDATE(), DATEADD(DAY, 30, GETDATE()), 150, 1, 3);
 
--- Lọc theo email
-SELECT * FROM Account
-WHERE role = 'customer'
-
--- Lọc theo accountID
-SELECT * FROM Account
-WHERE role = 'customer' AND accountID = ?;
-
--- Show ra bản phân loại từng account
-SELECT 
-    A.*, 
-    S.staffType,
-    CASE 
-        WHEN A.role = 'admin' THEN 'Admin'
-        WHEN A.role = 'customer' THEN 'Customer'
-        WHEN A.role = 'staff' THEN 'Staff'
-    END AS RoleName
-FROM Account A
-LEFT JOIN Staff S ON A.accountID = S.staffId;
 
 
 
---Xóa tất cả account 
-DELETE FROM Staff WHERE staffId IN (2, 3);
-DELETE FROM Account
+
+
+--Câu lệnh new
+
+select * from OTP
+
+-- Admin
+SELECT accountID, fullName, email, [password]
+FROM Account
+WHERE role = 'admin';
+
+-- Staff
+SELECT accountID, fullName, email, [password]
+FROM Account
 WHERE role = 'staff';
-DELETE FROM Account;
+
+-- Customer (thêm thông tin từ bảng Customer)
+SELECT a.accountID, a.fullName, a.email, a.[password], c.phone, c.address, c.status
+FROM Account a
+JOIN Customer c ON a.accountID = c.customerID
+WHERE a.role = 'customer';
+
+
+
+
+-- Insert Admin (ID = 1)
+SET IDENTITY_INSERT Account ON;
+INSERT INTO Account(accountID, fullName, email, [password], role)
+VALUES (1, N'Admin', 'oiship.team@gmail.com', '$2a$12$e9o18dZ1tnUqDbCV16syKunM5krYgJSOJVjCX54O1vEJxPVrGwCgK', 'admin'); --pass là admin 
+SET IDENTITY_INSERT Account OFF;
+
+-- Insert Staff (ID = 2)
+SET IDENTITY_INSERT Account ON;
+INSERT INTO Account(accountID, fullName, email, [password], role)
+VALUES (2, N'Staff User', 'staff@example.com', '$2a$12$IkgE/bAYXPFAeQvFCnczY.83Tj4Z9tmv6G5kJZANHenpyAg0fOFJO', 'staff'); --pass là ingredientstaff
+SET IDENTITY_INSERT Account OFF;
+
+-- Insert Customer (ID = 3) + thêm Customer info
+SET IDENTITY_INSERT Account ON;
+INSERT INTO Account(accountID, fullName, email, [password], role)
+VALUES (3, N'Customer User', 'customer@example.com', 'cust123', 'customer');
+SET IDENTITY_INSERT Account OFF;
+
+INSERT INTO Customer(customerID, phone, address)
+VALUES (3, '0123456789', N'123 Street Name');
+
+
+
+-- Delete Customer  (Nếu muốn xóa bản này phải xóa theo thứ tự này mới được)
+-- Giả sử bạn muốn xóa Customer có ID = 3
+DELETE FROM OTP WHERE FK_OTP_Customer = 5;
+DELETE FROM Cart WHERE FK_Cart_Customer = 5;
+DELETE FROM CustomerVoucher WHERE customerID = 5;
+DELETE FROM Contact WHERE FK_Contact_Customer = 5;
+DELETE FROM CustomertNotification WHERE customerID = 5;
+DELETE FROM [Order] WHERE FK_Order_Customer = 5;
+DELETE FROM Customer WHERE customerID = 5;
+DELETE FROM Account WHERE accountID = 5 AND role = 'customer';
+
+--còn xóa nguyên bản customer thì đây 
+ALTER TABLE OTP
+DROP CONSTRAINT FK__OTP__FK_OTP_Cust__6EF57B66;
+
+ALTER TABLE OTP
+ADD CONSTRAINT FK_OTP_Customer FOREIGN KEY (FK_OTP_Customer)
+REFERENCES Customer(customerID)
+ON DELETE CASCADE;
+
+
+-- Delete Staff
+DELETE FROM Account WHERE accountID = 2 AND role = 'staff';
+
+-- Delete Admin
+DELETE FROM Account WHERE accountID = 1 AND role = 'admin';
+
+
+
+
+-- Reset Account identity
 DBCC CHECKIDENT ('Account', RESEED, 0);
+DBCC CHECKIDENT ('Customer', RESEED, 0);
+
+-- Reset Customer identity (dù dùng accountID làm PK, vẫn reset nếu cần cho bảng khác)
+-- (Không cần nếu Customer không có IDENTITY)
+
+-- Nếu bạn có bảng khác có IDENTITY như Cart, Dish,... có thể reset như sau:
+DBCC CHECKIDENT ('Cart', RESEED, 0);
 
 
-INSERT INTO Category (catName, catDescription)
-VALUES (N'Chính', N'Món chính');
+SELECT * FROM OTP WHERE email = 'tho551506@gmail.com' ORDER BY otpCreatedAt DESC;
 
-INSERT INTO Meal (mealName, opCost, interestPercentage, [image], mealDescription, stock, FK_Meal_Category)
-VALUES (N'Cơm chiên', 20000.00, 20.00, N'/images/com-chien.jpg', N'Cơm chiên trứng', 50, 1);
 
-INSERT INTO Ingredient (name, quantity, unitCost, FK_Ingredient_Meal)
-VALUES (N'Gạo', 100, 10000.00, 1), (N'Trứng', 50, 5000.00, 1);
-
-SELECT i.*, m.mealName 
-FROM Ingredient i 
-LEFT JOIN Meal m ON i.FK_Ingredient_Meal = m.mealID;
