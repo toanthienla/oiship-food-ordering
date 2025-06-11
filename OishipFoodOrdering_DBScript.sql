@@ -131,7 +131,6 @@ CREATE TABLE [Order] (
     FK_Order_Customer INT FOREIGN KEY REFERENCES Customer(customerID)
 );
 
-
 -- OrderDetail table
 CREATE TABLE OrderDetail (
     ODID INT IDENTITY(1,1) PRIMARY KEY,
@@ -196,6 +195,5 @@ CREATE TABLE Contact (
 	FK_Contact_Customer INT FOREIGN KEY REFERENCES Customer(customerID)
 );
 
--- Triggers for notifications: Coming soon...
-
-
+-- Triggers for notifications:
+-- Comming soon...
