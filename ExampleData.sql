@@ -298,45 +298,98 @@ VALUES
 ('LUNCHDEAL', N'Ưu đãi bữa trưa - giảm 20K đơn từ 120k', 20000, 20000, 120000, GETDATE(), DATEADD(DAY, 14, GETDATE()), 100, 1, 3),
 ('NEWUSER', N'Dành cho khách mới - giảm 15% tối đa 50K', 15.0, 50000, 0, GETDATE(), DATEADD(DAY, 30, GETDATE()), 150, 1, 3);
 
--- Lọc theo email
-SELECT * FROM Account
-WHERE role = 'customer'
-
--- Lọc theo accountID
-SELECT * FROM Account
-WHERE role = 'customer' AND accountID = ?;
-
--- Show ra bản phân loại từng account
-SELECT 
-    A.*, 
-    S.staffType,
-    CASE 
-        WHEN A.role = 'admin' THEN 'Admin'
-        WHEN A.role = 'customer' THEN 'Customer'
-        WHEN A.role = 'staff' THEN 'Staff'
-    END AS RoleName
-FROM Account A
-LEFT JOIN Staff S ON A.accountID = S.staffId;
 
 
 
---Xóa tất cả account 
-DELETE FROM Staff WHERE staffId IN (2, 3);
-DELETE FROM Account
+
+
+--Câu lệnh new
+
+select * from OTP
+
+-- Admin
+SELECT accountID, fullName, email, [password]
+FROM Account
+WHERE role = 'admin';
+
+-- Staff
+SELECT accountID, fullName, email, [password]
+FROM Account
 WHERE role = 'staff';
-DELETE FROM Account;
+
+-- Customer (thêm thông tin từ bảng Customer)
+SELECT a.accountID, a.fullName, a.email, a.[password], c.phone, c.address, c.status
+FROM Account a
+JOIN Customer c ON a.accountID = c.customerID
+WHERE a.role = 'customer';
+
+
+
+
+-- Insert Admin (ID = 1)
+SET IDENTITY_INSERT Account ON;
+INSERT INTO Account(accountID, fullName, email, [password], role)
+VALUES (1, N'Admin', 'oiship.team@gmail.com', '$2a$12$e9o18dZ1tnUqDbCV16syKunM5krYgJSOJVjCX54O1vEJxPVrGwCgK', 'admin'); --pass là admin 
+SET IDENTITY_INSERT Account OFF;
+
+-- Insert Staff (ID = 2)
+SET IDENTITY_INSERT Account ON;
+INSERT INTO Account(accountID, fullName, email, [password], role)
+VALUES (2, N'Staff User', 'staff@example.com', '$2a$12$IkgE/bAYXPFAeQvFCnczY.83Tj4Z9tmv6G5kJZANHenpyAg0fOFJO', 'staff'); --pass là ingredientstaff
+SET IDENTITY_INSERT Account OFF;
+
+-- Insert Customer (ID = 3) + thêm Customer info
+SET IDENTITY_INSERT Account ON;
+INSERT INTO Account(accountID, fullName, email, [password], role)
+VALUES (3, N'Customer User', 'customer@example.com', 'cust123', 'customer');
+SET IDENTITY_INSERT Account OFF;
+
+INSERT INTO Customer(customerID, phone, address)
+VALUES (3, '0123456789', N'123 Street Name');
+
+
+
+-- Delete Customer  (Nếu muốn xóa bản này phải xóa theo thứ tự này mới được)
+-- Giả sử bạn muốn xóa Customer có ID = 3
+DELETE FROM OTP WHERE FK_OTP_Customer = 5;
+DELETE FROM Cart WHERE FK_Cart_Customer = 5;
+DELETE FROM CustomerVoucher WHERE customerID = 5;
+DELETE FROM Contact WHERE FK_Contact_Customer = 5;
+DELETE FROM CustomertNotification WHERE customerID = 5;
+DELETE FROM [Order] WHERE FK_Order_Customer = 5;
+DELETE FROM Customer WHERE customerID = 5;
+DELETE FROM Account WHERE accountID = 5 AND role = 'customer';
+
+--còn xóa nguyên bản customer thì đây 
+ALTER TABLE OTP
+DROP CONSTRAINT FK__OTP__FK_OTP_Cust__6EF57B66;
+
+ALTER TABLE OTP
+ADD CONSTRAINT FK_OTP_Customer FOREIGN KEY (FK_OTP_Customer)
+REFERENCES Customer(customerID)
+ON DELETE CASCADE;
+
+
+-- Delete Staff
+DELETE FROM Account WHERE accountID = 2 AND role = 'staff';
+
+-- Delete Admin
+DELETE FROM Account WHERE accountID = 1 AND role = 'admin';
+
+
+
+
+-- Reset Account identity
 DBCC CHECKIDENT ('Account', RESEED, 0);
+DBCC CHECKIDENT ('Customer', RESEED, 0);
+
+-- Reset Customer identity (dù dùng accountID làm PK, vẫn reset nếu cần cho bảng khác)
+-- (Không cần nếu Customer không có IDENTITY)
+
+-- Nếu bạn có bảng khác có IDENTITY như Cart, Dish,... có thể reset như sau:
+DBCC CHECKIDENT ('Cart', RESEED, 0);
 
 
-INSERT INTO Category (catName, catDescription)
-VALUES (N'Chính', N'Món chính');
+SELECT * FROM OTP WHERE email = 'tho551506@gmail.com' ORDER BY otpCreatedAt DESC;
 
-INSERT INTO Meal (mealName, opCost, interestPercentage, [image], mealDescription, stock, FK_Meal_Category)
-VALUES (N'Cơm chiên', 20000.00, 20.00, N'/images/com-chien.jpg', N'Cơm chiên trứng', 50, 1);
 
-INSERT INTO Ingredient (name, quantity, unitCost, FK_Ingredient_Meal)
-VALUES (N'Gạo', 100, 10000.00, 1), (N'Trứng', 50, 5000.00, 1);
-
-SELECT i.*, m.mealName 
-FROM Ingredient i 
-LEFT JOIN Meal m ON i.FK_Ingredient_Meal = m.mealID;
