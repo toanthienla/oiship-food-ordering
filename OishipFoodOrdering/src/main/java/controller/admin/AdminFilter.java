@@ -6,7 +6,7 @@ import jakarta.servlet.http.*;
 import java.io.IOException;
 
 @WebFilter("/admin/*")
-public class AdminAuthenticationFilter implements Filter {
+public class AdminFilter implements Filter {
 
     @Override
     public void doFilter(ServletRequest request, ServletResponse response, FilterChain chain)
@@ -21,11 +21,11 @@ public class AdminAuthenticationFilter implements Filter {
         boolean isLoginPage = uri.equals(contextPath + "/admin/login");
         HttpSession session = req.getSession(false);
         boolean isLoggedIn = session != null && session.getAttribute("admin") != null;
-
-        if (isLoggedIn || isLoginPage) {
+        
+//        if (isLoggedIn || isLoginPage) {
             chain.doFilter(request, response);
-        } else {
-            res.sendRedirect(contextPath + "/admin/login");
-        }
+//        } else {
+//            res.sendRedirect(contextPath + "/admin/login");
+//        }
     }
 }
