@@ -280,7 +280,7 @@
             <div class="dish-detail-container">
                 <img src="<%= imageUrl%>" alt="<%= dish.getDishName()%>" class="dish-detail-img mb-4" />
                 <h2><%= dish.getDishName()%></h2>
-                <p class="text-muted">Mã món: <%= dish.getDishID()%></p>
+                
                 <p><strong>Mô tả:</strong> <%= dish.getDishDescription() != null ? dish.getDishDescription() : "Không có mô tả."%></p>
                 <p><strong>Giá:</strong> <%= dish.getTotalPrice().intValue()%> VNĐ</p>
                 <p><strong>Tình trạng kho:</strong> <%= dish.getStock() > 0 ? dish.getStock() + " phần" : "Hết hàng"%></p>

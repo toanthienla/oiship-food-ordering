@@ -178,8 +178,8 @@
 
         <div class="main-content">
             <nav class="navbar navbar-light bg-light p-2 mb-3">
-                <form class="d-flex search-bar">
-                    <input class="form-control me-2" type="search" placeholder="Tìm kiếm món ăn..." aria-label="Search" />
+                <form method="POST" action="${pageContext.request.contextPath}/customer/search-dish" class="d-flex search-bar" role="search">
+                    <input class="form-control me-2" type="search-dish" name="searchQuery" placeholder="Tìm kiếm món ăn..." aria-label="Search" />
                     <button class="btn btn-outline-success" type="submit">Find</button>
                 </form>
                 <div class="d-flex align-items-center">
