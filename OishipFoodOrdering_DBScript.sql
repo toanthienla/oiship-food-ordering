@@ -49,6 +49,7 @@ CREATE TABLE Dish (
 	[image] NVARCHAR(255),
 	DishDescription NVARCHAR(255),
 	stock INT,
+	isAvailable BIT DEFAULT 0,  -- 1 = available, 0 = not available
 	FK_Dish_Category INT FOREIGN KEY REFERENCES Category(catID)
 );
 
