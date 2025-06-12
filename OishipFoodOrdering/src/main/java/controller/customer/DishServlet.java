@@ -1,115 +1,69 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
 package controller.customer;
 
+import dao.CategoryDAO;
 import dao.DishDAO;
-import java.io.IOException;
-import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.*;
+
+import java.io.IOException;
+import java.util.List;
+import model.Category;
 import model.Dish;
 
-/**
- *
- * @author Phi Yen
- */
 @WebServlet(name = "DishServlet", urlPatterns = {"/guest/dish"})
 public class DishServlet extends HttpServlet {
 
-    /**
-     * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
-     * methods.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    protected void processRequest(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        response.setContentType("text/html;charset=UTF-8");
-        try (PrintWriter out = response.getWriter()) {
-            /* TODO output your page here. You may use following sample code. */
-            out.println("<!DOCTYPE html>");
-            out.println("<html>");
-            out.println("<head>");
-            out.println("<title>Servlet DishServlet</title>");
-            out.println("</head>");
-            out.println("<body>");
-            out.println("<h1>Servlet DishServlet at " + request.getContextPath() + "</h1>");
-            out.println("</body>");
-            out.println("</html>");
-        }
-    }
-
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
-    /**
-     * Handles the HTTP <code>GET</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
-    @Override
-    protected void doGet(HttpServletRequest request, HttpServletResponse response)
-            throws ServletException, IOException {
-        processRequest(request, response);
-    }
-
-    /**
-     * Handles the HTTP <code>POST</code> method.
-     *
-     * @param request servlet request
-     * @param response servlet response
-     * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
-     */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String dishIdParam = request.getParameter("dishId");
 
+        DishDAO dishDAO = new DishDAO();
+        CategoryDAO categoryDAO = new CategoryDAO();
+
+        // Luôn lấy danh sách category để hiển thị menu
+        List<Category> categories = categoryDAO.getAllCategories();
+        request.setAttribute("categories", categories);
+
+        // Xử lý: nếu có dishId => xem chi tiết món ăn
+        String dishIdParam = request.getParameter("dishId");
         if (dishIdParam != null) {
             try {
                 int dishId = Integer.parseInt(dishIdParam);
-                DishDAO dao = new DishDAO();
-                Dish dish = dao.getDishById(dishId);
+                Dish dish = dishDAO.getDishById(dishId);
 
                 if (dish != null) {
                     request.setAttribute("dish", dish);
                     request.getRequestDispatcher("/WEB-INF/views/customer/dish_detail.jsp").forward(request, response);
+                    return;
                 } else {
-                    // Dish không tìm thấy
                     request.setAttribute("errorMessage", "Món ăn không tồn tại.");
-                    request.getRequestDispatcher("error.jsp").forward(request, response);
+                    request.getRequestDispatcher("/error.jsp").forward(request, response);
+                    return;
                 }
 
             } catch (NumberFormatException e) {
-                // ID không hợp lệ
                 request.setAttribute("errorMessage", "ID món ăn không hợp lệ.");
-                request.getRequestDispatcher("error.jsp").forward(request, response);
+                request.getRequestDispatcher("/error.jsp").forward(request, response);
+                return;
+            }
+        }
+
+        // Nếu có catId => lọc danh sách món ăn theo category
+        String catIdParam = request.getParameter("catId");
+        List<Dish> menuItems;
+        if (catIdParam != null) {
+            try {
+                int catId = Integer.parseInt(catIdParam);
+                menuItems = dishDAO.getDishesByCategory(catId);
+            } catch (NumberFormatException e) {
+                menuItems = dishDAO.getAllDishes();
             }
         } else {
-            // Thiếu tham số dishId
-            request.setAttribute("errorMessage", "Thiếu thông tin món ăn.");
-            request.getRequestDispatcher("error.jsp").forward(request, response);
+            menuItems = dishDAO.getAllDishes();
         }
+
+        request.setAttribute("menuItems", menuItems);
+        request.getRequestDispatcher("/WEB-INF/views/customer/dish_category.jsp").forward(request, response);
     }
-
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
-    @Override
-    public String getServletInfo() {
-        return "Short description";
-    }// </editor-fold>
-
 }

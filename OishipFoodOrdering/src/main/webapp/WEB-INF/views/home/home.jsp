@@ -1,3 +1,4 @@
+<%@page import="model.Category"%>
 <%@page import="model.Dish"%>
 <%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
@@ -10,6 +11,34 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+
+        <%-- style category --%>
+        <style>
+            .menu-section .btn {
+                border-radius: 20px;
+                padding: 8px 20px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+                white-space: nowrap;
+            }
+
+            .menu-section .btn.active,
+            .menu-section .btn:hover {
+                background-color: #ff6200;
+                color: #fff;
+                box-shadow: 0 3px 8px rgba(255, 98, 0, 0.3);
+            }
+
+            .menu-section .d-flex::-webkit-scrollbar {
+                display: none;
+            }
+
+            .menu-section .d-flex {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        </style>
+        <%-- style home --%>
         <style>
             body {
                 font-family: 'Arial', sans-serif;
@@ -227,17 +256,36 @@
             <!-- Menu Section -->
             <div id="menu" class="menu-section">
                 <h2 class="mb-4">MENU</h2>
-                <div class="btn-group" role="group" aria-label="Menu categories">
-                    <button type="button" class="btn btn-outline-primary menu-btn active" data-category="all">Tất cả</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="pho">Phở</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="com">Cơm</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="banhmi">Bánh mì</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="hai-san">Hải sản</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="do-uong">Đồ uống</button>
+                <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
+                    <form action="guest/dish" method="post">
+                        <input type="hidden" name="catId" value="all">
+                        <a href="guest/dish" 
+                           class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
+                            Tất cả
+                        </a>
+
+                    </form>
+
+                    <%
+                        List<Category> categories = (List<Category>) request.getAttribute("categories");
+                        if (categories != null) {
+                            for (model.Category cat : categories) {
+                    %>
+                    <form action="guest/dish" method="post">
+                        <input type="hidden" name="catId" value="<%= cat.getCatID()%>">
+                        <button type="submit" class="btn btn-outline-primary menu-btn">
+                            <%= cat.getCatName()%>
+                        </button>
+                    </form>
+                    <%
+                            }
+                        }
+                    %>
                 </div>
             </div>
 
-            <!-- Dishes Section -->
+
+
 
             <!-- Dishes Section -->
             <div id="dishes" class="dish-section">

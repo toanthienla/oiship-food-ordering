@@ -1,5 +1,6 @@
 package controller.home;
 
+import dao.CategoryDAO;
 import dao.DishDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
@@ -7,6 +8,7 @@ import jakarta.servlet.http.*;
 
 import java.io.IOException;
 import java.util.List;
+import model.Category;
 import model.Dish;
 
 @WebServlet(name = "HomeServlet", urlPatterns = {"/home"})
@@ -26,6 +28,13 @@ public class HomeServlet extends HttpServlet {
         request.setAttribute("userId", null);
         request.setAttribute("userName", null);
         request.setAttribute("error", null);
+
+        // lấy list category
+        // Gọi DAO để lấy danh sách category
+        CategoryDAO categoryDAO = new CategoryDAO();
+        List<Category> categories = categoryDAO.getAllCategories();
+        // Đưa vào request để truyền sang JSP
+        request.setAttribute("categories", categories);
         // Lấy danh sách món ăn để luôn hiển thị lên home.jsp
         List<Dish> menuItems = null;
         try {
