@@ -6,7 +6,7 @@ import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.*;
 import java.io.IOException;
 
-@WebFilter("/admin/*")
+@WebFilter("/staff/*")
 public class StaffFilter implements Filter {
 
     @Override

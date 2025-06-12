@@ -1,3 +1,6 @@
+<%@page import="java.util.List"%>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+
 <%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html>
@@ -20,6 +23,9 @@
 
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
+        <style>
+        </style>
     </head>
     <body>
 
@@ -42,11 +48,20 @@
                 <p>Manage your restaurant's menu and menu items.</p>
 
                 <!-- Add Category Form -->
-                <form action="manage_menu" method="post" class="row g-3 mt-4">
+                <form action="manage-categories" method="post" class="row g-3 mt-4">
+                    <!-- Category Name -->
                     <div class="col-md-6">
-                        <label for="categoryName" class="form-label">New Category Name</label>
-                        <input type="text" class="form-control" id="categoryName" name="categoryName" required placeholder="e.g. Fast food">
+                        <label for="catName" class="form-label">New Category Name</label>
+                        <input type="text" class="form-control" id="catName" name="catName" required placeholder="e.g. Fast food">
                     </div>
+
+                    <!-- Category Description -->
+                    <div class="col-12">
+                        <label for="catDescription" class="form-label">New Category Description</label>
+                        <textarea class="form-control" id="catDescription" name="catDescription" rows="3" required placeholder="e.g. Quick and affordable meals"></textarea>
+                    </div>
+
+                    <!-- Submit Button -->
                     <div class="col-12">
                         <button type="submit" class="btn btn-success">Add Category</button>
                     </div>
@@ -56,33 +71,116 @@
                 <div class="mt-5">
                     <h4>Existing Categories</h4>
                     <ul class="list-group mt-3">
-                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                             onclick="window.location.href = 'view_category?id=1'" style="cursor: pointer;">
-                            <span>Fast food</span>
-                            <div>
-                                <a href="edit_category?id=1" class="btn btn-sm btn-primary me-2" onclick="event.stopPropagation();">Edit</a>
-                                <a href="delete_category?id=1" class="btn btn-sm btn-danger" onclick="event.stopPropagation();">Delete</a>
+                        <% List<model.Category> categories = (List<model.Category>) request.getAttribute("categories");%>
+                        <c:forEach var="cat" items="${categories}">
+                            <div class="list-group-item list-group-item-action"
+                                 style="cursor: pointer;"
+                                 onclick="toggleDescription(this)">
+                                <div class="d-flex justify-content-between align-items-center">
+                                    <span>${cat.catName}</span>
+                                    <div>
+                                        <!--Edit button-->
+                                        <a href="#" class="btn btn-sm btn-primary me-2"
+                                           data-id="${cat.catID}"
+                                           data-name="${cat.catName}"
+                                           data-description="${cat.catDescription}"
+                                           onclick="handleEditClick(this); event.stopPropagation();">
+                                            Edit
+                                        </a>
+                                        <!--Delete button-->
+                                        <a href="manage-categories?action=delete&id=${cat.catID}" 
+                                           class="btn btn-sm btn-danger" 
+                                           onclick="return confirmDelete(event);">
+                                            Delete
+                                        </a>
+                                    </div>
+                                </div>
+                                <div class="cat-description mt-1 text-muted" style="display: none;">
+                                    Description: ${cat.catDescription}
+                                </div>
                             </div>
-                        </div>
-                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                             onclick="window.location.href = 'view_category?id=1'" style="cursor: pointer;">
-                            <span>Fast food</span>
-                            <div>
-                                <a href="edit_category?id=1" class="btn btn-sm btn-primary me-2" onclick="event.stopPropagation();">Edit</a>
-                                <a href="delete_category?id=1" class="btn btn-sm btn-danger" onclick="event.stopPropagation();">Delete</a>
-                            </div>
-                        </div>
-                        <div class="list-group-item list-group-item-action d-flex justify-content-between align-items-center"
-                             onclick="window.location.href = 'view_category?id=1'" style="cursor: pointer;">
-                            <span>Fast food</span>
-                            <div>
-                                <a href="edit_category?id=1" class="btn btn-sm btn-primary me-2" onclick="event.stopPropagation();">Edit</a>
-                                <a href="delete_category?id=1" class="btn btn-sm btn-danger" onclick="event.stopPropagation();">Delete</a>
-                            </div>
-                        </div>
+                        </c:forEach>
                     </ul>
                 </div>
             </div>
         </div>
+
+        <!-- Edit Category Modal -->
+        <div class="modal fade" id="editCategoryModal" tabindex="-1" aria-labelledby="editCategoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form action="manage-categories" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="editCategoryModalLabel">Edit Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" id="editCatID" name="catID" />
+                        <div class="mb-3">
+                            <label for="editCatName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="editCatName" name="catName" required />
+                        </div>
+                        <div class="mb-3">
+                            <label for="editCatDescription" class="form-label">Category Description</label>
+                            <textarea class="form-control" id="editCatDescription" name="catDescription" rows="3" required></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-primary">Update Category</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+
+        <script>
+            const params = new URLSearchParams(window.location.search);
+            const success = params.get("success");
+
+            if (success === "false") {
+                alert("Failed to add category. Please try again.");
+            }
+
+            function toggleDescription(item) {
+                const desc = item.querySelector('.cat-description');
+                if (desc) {
+                    desc.style.display = (desc.style.display === 'none' || desc.style.display === '') ? 'block' : 'none';
+                }
+            }
+
+            // Optional: Close all descriptions when clicking outside
+            document.addEventListener('click', function (event) {
+                const items = document.querySelectorAll('.list-group-item');
+                items.forEach(i => {
+                    if (!i.contains(event.target)) {
+                        const desc = i.querySelector('.cat-description');
+                        if (desc)
+                            desc.style.display = 'none';
+                    }
+                });
+            });
+
+            function handleEditClick(button) {
+                const id = button.getAttribute('data-id');
+                const name = button.getAttribute('data-name');
+                const description = button.getAttribute('data-description');
+
+                document.getElementById("editCatID").value = id;
+                document.getElementById("editCatName").value = name;
+                document.getElementById("editCatDescription").value = description;
+
+                const modal = new bootstrap.Modal(document.getElementById('editCategoryModal'));
+                modal.show();
+            }
+
+            function confirmDelete(event) {
+                const confirmed = confirm("Are you sure you want to delete this category?");
+                if (!confirmed) {
+                    event.preventDefault(); // Stop the link if user cancels
+                    return false;
+                }
+                return true; // Allow link to proceed if confirmed
+            }
+        </script>
     </body>
 </html>
