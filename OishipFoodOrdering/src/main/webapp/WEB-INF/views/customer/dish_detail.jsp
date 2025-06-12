@@ -1,3 +1,5 @@
+<%@page import="model.Category"%>
+<%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@page import="model.Dish"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
@@ -9,6 +11,33 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 
+        
+          <%-- style category --%>
+        <style>
+            .menu-section .btn {
+                border-radius: 20px;
+                padding: 8px 20px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+                white-space: nowrap;
+            }
+
+            .menu-section .btn.active,
+            .menu-section .btn:hover {
+                background-color: #ff6200;
+                color: #fff;
+                box-shadow: 0 3px 8px rgba(255, 98, 0, 0.3);
+            }
+
+            .menu-section .d-flex::-webkit-scrollbar {
+                display: none;
+            }
+
+            .menu-section .d-flex {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        </style>
         <%-- style dish detail --%>
         <style>
             .dish-detail-container {
@@ -253,19 +282,41 @@
             <!-- Menu Section -->
             <div id="menu" class="menu-section">
                 <h2 class="mb-4">MENU</h2>
-                <div class="btn-group" role="group" aria-label="Menu categories">
-                    <button type="button" class="btn btn-outline-primary menu-btn active" data-category="all">Tất cả</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="pho">Phở</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="com">Cơm</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="banhmi">Bánh mì</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="hai-san">Hải sản</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="do-uong">Đồ uống</button>
+                <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
+                    <form action="guest/dish" method="post">
+                        <input type="hidden" name="catId" value="all">
+                        <a href="guest/dish" 
+                           class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
+                            Tất cả
+                        </a>
+
+                    </form>
+
+                    <%
+                        List<Category> categories = (List<Category>) request.getAttribute("categories");
+                        if (categories != null) {
+                            for (model.Category cat : categories) {
+                    %>
+                    <form action="guest/dish" method="post">
+                        <input type="hidden" name="catId" value="<%= cat.getCatID()%>">
+                        <button type="submit" class="btn btn-outline-primary menu-btn">
+                            <%= cat.getCatName()%>
+                        </button>
+                    </form>
+                    <%
+                            }
+                        }
+                    %>
                 </div>
             </div>
+            
+             <!-- Dish Detail-->
+              <div id="dishes" class="dish-section">
             <%
                 Dish dish = (Dish) request.getAttribute("dish");
                 if (dish == null) {
             %>
+            
             <div class="text-center mt-5">
                 <h3>Không tìm thấy món ăn.</h3>
                 <a href="home.jsp" class="btn btn-secondary mt-3">Quay về trang chủ</a>
@@ -283,7 +334,7 @@
                 
                 <p><strong>Mô tả:</strong> <%= dish.getDishDescription() != null ? dish.getDishDescription() : "Không có mô tả."%></p>
                 <p><strong>Giá:</strong> <%= dish.getTotalPrice().intValue()%> VNĐ</p>
-                <p><strong>Tình trạng kho:</strong> <%= dish.getStock() > 0 ? dish.getStock() + " phần" : "Hết hàng"%></p>
+              
 
                 <div class="mt-4">
                     <a href="addToCart?dishId=<%= dish.getDishID()%>" class="btn btn-orange">Đặt ngay</a>
@@ -294,33 +345,9 @@
             <%
                 }
             %>
-            <!-- Contact Section -->
-            <div id="contact" class="contact-section">
-                <h2 class="mb-4">Contact</h2>
-                <p>Chúng tôi luôn sẵn sàng hỗ trợ bạn! Hãy liên hệ qua thông tin bên dưới hoặc để lại tin nhắn.</p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><i class="fas fa-map-marker-alt"></i> Địa chỉ: 27 Huỳnh Phúc Thọ, Quận 1, TP. HCM</p>
-                        <p><i class="fas fa-phone"></i> Hotline: 0909 123 456</p>
-                        <p><i class="fas fa-envelope"></i> Email: support@oiship.com</p>
-                    </div>
-                    <div class="col-md-6">
-                        <form class="contact-form">
-                            <div class="mb-3">
-                                <input type="text" class="form-control" placeholder="Họ và tên" required>
-                            </div>
-                            <div class="mb-3">
-                                <input type="email" class="form-control" placeholder="Email" required>
-                            </div>
-                            <div class="mb-3">
-                                <textarea class="form-control" rows="3" placeholder="Tin nhắn" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-custom">Gửi tin nhắn</button>
-                        </form>
-                    </div>
-                </div>
-            </div>
+           
         </div>
+           
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     
