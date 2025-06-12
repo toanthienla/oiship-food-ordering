@@ -4,9 +4,9 @@
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
     <head>
-        <title>Trang Chủ - Oiship</title>
+        <title>Home - Oiship</title>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
@@ -208,7 +208,7 @@
         <div class="main-content">
             <nav class="navbar navbar-light bg-light p-2 mb-3">
                 <form method="POST" action="${pageContext.request.contextPath}/customer/search-dish" class="d-flex search-bar" role="search">
-                    <input class="form-control me-2" type="search-dish" name="searchQuery" placeholder="Tìm kiếm món ăn..." aria-label="Search" />
+                    <input class="form-control me-2" type="search-dish" name="searchQuery" placeholder="Search for dishes..." aria-label="Search" />
                     <button class="btn btn-outline-success" type="submit">Find</button>
                 </form>
                 <div class="d-flex align-items-center">
@@ -245,11 +245,11 @@
 
             <div class="hero-section">
                 <div class="content">
-                    <h1>Giao món ngon tận nơi chỉ trong 30 phút!</h1>
-                    <p>Khám phá hàng trăm món ăn Việt Nam và quốc tế với đội ngũ giao hàng tận nơi nhanh chóng, đảm bảo chất lượng.</p>
-                    <button class="btn btn-custom me-2">Đặt ngay</button>
-                    <button class="btn btn-outline-custom me-2">Xem thực đơn</button>
-                    <button class="btn btn-outline-custom">Tải ứng dụng</button>
+                    <h1>Delicious meals delivered in just 30 minutes!</h1>
+                    <p>Discover hundreds of Vietnamese and international dishes with fast, reliable delivery service.</p>
+                    <button class="btn btn-custom me-2">Order Now</button>
+                    <button class="btn btn-outline-custom me-2">View Menu</button>
+                    <button class="btn btn-outline-custom">Download App</button>
                 </div>
             </div>
 
@@ -259,11 +259,10 @@
                 <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
                     <form action="guest/dish" method="post">
                         <input type="hidden" name="catId" value="all">
-                        <a href="guest/dish" 
+                        <a href="guest/dish"
                            class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
-                            Tất cả
+                            All
                         </a>
-
                     </form>
 
                     <%
@@ -283,6 +282,7 @@
                     %>
                 </div>
             </div>
+
             <!-- Dishes Section -->
             <div id="dishes" class="dish-section">
                 <h2 class="mb-4">Trending Food</h2>
@@ -304,32 +304,30 @@
                                     <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
                                     <div class="card-body">
                                         <h5 class="card-title"><%= menuItem.getDishName()%></h5>
-                                        <p class="card-text">Giá: <%= menuItem.getTotalPrice().intValue()%> VNĐ</p>
+                                        <p class="card-text">Price: <%= menuItem.getTotalPrice().intValue()%>đ</p>
                                     </div>
                                 </div>
                                 <div class="mt-1">
                                     <a href="addToCart?dishId=<%= menuItem.getDishID()%>" class="btn btn-custom w-100" type="button">
-                                        Đặt ngay
+                                        Order
                                     </a>
                                 </div>
                             </button>
-
                         </form>
                     </div>
                     <%
                         }
                     } else {
                     %>
-                    <p class="text-muted">Không có món ăn nào để hiển thị.</p>
+                    <p class="text-muted">No dishes available to display.</p>
                     <%
                         }
                     %>
                 </div>
                 <div class="text-end">
-                    <a href="menu.jsp" class="btn btn-outline-custom">Xem tất cả món</a>
+                    <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
                 </div>
             </div>
-
         </div>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -349,7 +347,7 @@
 
                 document.querySelectorAll('.dish-card .btn').forEach(button => {
                     button.addEventListener('click', () => {
-                        alert('Đã thêm món vào giỏ hàng!');
+                        alert('Dish added to cart!');
                     });
                 });
             });
