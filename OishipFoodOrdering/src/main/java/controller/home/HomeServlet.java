@@ -1,10 +1,15 @@
 package controller.home;
 
+import dao.CategoryDAO;
+import dao.DishDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.util.List;
+import model.Category;
+import model.Dish;
 
 @WebServlet(name = "HomeServlet", urlPatterns = {"/home"})
 public class HomeServlet extends HttpServlet {
@@ -24,6 +29,20 @@ public class HomeServlet extends HttpServlet {
         request.setAttribute("userName", null);
         request.setAttribute("error", null);
 
+        // lấy list category
+        // Gọi DAO để lấy danh sách category
+        CategoryDAO categoryDAO = new CategoryDAO();
+        List<Category> categories = categoryDAO.getAllCategories();
+        // Đưa vào request để truyền sang JSP
+        request.setAttribute("categories", categories);
+        // Lấy danh sách món ăn để luôn hiển thị lên home.jsp
+        List<Dish> menuItems = null;
+        try {
+            menuItems = new DishDAO().getAllDishes();
+            request.setAttribute("menuItems", menuItems);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         if (session != null) {
             userId = (Integer) session.getAttribute("userId");
             role = (String) session.getAttribute("role");

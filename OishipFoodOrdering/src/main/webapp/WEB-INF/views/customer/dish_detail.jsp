@@ -1,18 +1,18 @@
 <%@page import="model.Category"%>
-<%@page import="model.Dish"%>
 <%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
+<%@page import="model.Dish"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
 <html lang="vi">
     <head>
-        <title>Trang Chủ - Oiship</title>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <meta charset="UTF-8">
+        <title>Chi Tiết Món Ăn</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 
-        <%-- style category --%>
+        
+          <%-- style category --%>
         <style>
             .menu-section .btn {
                 border-radius: 20px;
@@ -38,6 +38,31 @@
                 scrollbar-width: none;
             }
         </style>
+        <%-- style dish detail --%>
+        <style>
+            .dish-detail-container {
+                max-width: 800px;
+                margin: 40px auto;
+                padding: 20px;
+                background: #ffffff;
+                box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+                border-radius: 10px;
+            }
+            .dish-detail-img {
+                width: 100%;
+                height: 300px;
+                object-fit: cover;
+                border-radius: 10px;
+            }
+            .btn-orange {
+                background-color: #ff6200;
+                color: white;
+            }
+            .btn-orange:hover {
+                background-color: #e65c00;
+            }
+        </style>
+
         <%-- style home --%>
         <style>
             body {
@@ -190,6 +215,7 @@
         </style>
     </head>
     <body>
+
         <div class="sidebar">
             <div class="text-center mb-4">
                 <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
@@ -207,8 +233,8 @@
 
         <div class="main-content">
             <nav class="navbar navbar-light bg-light p-2 mb-3">
-                <form method="POST" action="${pageContext.request.contextPath}/customer/search-dish" class="d-flex search-bar" role="search">
-                    <input class="form-control me-2" type="search-dish" name="searchQuery" placeholder="Tìm kiếm món ăn..." aria-label="Search" />
+                <form class="d-flex search-bar">
+                    <input class="form-control me-2" type="search" placeholder="Tìm kiếm món ăn..." aria-label="Search" />
                     <button class="btn btn-outline-success" type="submit">Find</button>
                 </form>
                 <div class="d-flex align-items-center">
@@ -283,57 +309,49 @@
                     %>
                 </div>
             </div>
-            <!-- Dishes Section -->
-            <div id="dishes" class="dish-section">
-                <h2 class="mb-4">Trending Food</h2>
-                <div class="row">
-                    <%
-                        List<Dish> menuItems = (List<Dish>) request.getAttribute("menuItems");
-                        if (menuItems != null && !menuItems.isEmpty()) {
-                            for (Dish menuItem : menuItems) {
-                                String imageUrl = (menuItem.getImage() != null && !menuItem.getImage().isEmpty())
-                                        ? menuItem.getImage()
-                                        : "https://via.placeholder.com/300x200";
-                    %>
+            
+             <!-- Dish Detail-->
+              <div id="dishes" class="dish-section">
+            <%
+                Dish dish = (Dish) request.getAttribute("dish");
+                if (dish == null) {
+            %>
+            
+            <div class="text-center mt-5">
+                <h3>Không tìm thấy món ăn.</h3>
+                <a href="home.jsp" class="btn btn-secondary mt-3">Quay về trang chủ</a>
+            </div>
+            <%
+            } else {
+                String imageUrl = (dish.getImage() != null && !dish.getImage().isEmpty())
+                        ? dish.getImage()
+                        : "https://via.placeholder.com/600x400";
+            %>
 
-                    <div class="col-md-4 mb-3">
-                        <form action="guest/dish" method="post">
-                            <input type="hidden" name="dishId" value="<%= menuItem.getDishID()%>">
-                            <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
-                                <div class="card dish-card">
-                                    <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><%= menuItem.getDishName()%></h5>
-                                        <p class="card-text">Giá: <%= menuItem.getTotalPrice().intValue()%> VNĐ</p>
-                                    </div>
-                                </div>
-                                <div class="mt-1">
-                                    <a href="addToCart?dishId=<%= menuItem.getDishID()%>" class="btn btn-custom w-100" type="button">
-                                        Đặt ngay
-                                    </a>
-                                </div>
-                            </button>
+            <div class="dish-detail-container">
+                <img src="<%= imageUrl%>" alt="<%= dish.getDishName()%>" class="dish-detail-img mb-4" />
+                <h2><%= dish.getDishName()%></h2>
+                
+                <p><strong>Mô tả:</strong> <%= dish.getDishDescription() != null ? dish.getDishDescription() : "Không có mô tả."%></p>
+                <p><strong>Giá:</strong> <%= dish.getTotalPrice().intValue()%> VNĐ</p>
+              
 
-                        </form>
-                    </div>
-                    <%
-                        }
-                    } else {
-                    %>
-                    <p class="text-muted">Không có món ăn nào để hiển thị.</p>
-                    <%
-                        }
-                    %>
-                </div>
-                <div class="text-end">
-                    <a href="menu.jsp" class="btn btn-outline-custom">Xem tất cả món</a>
+                <div class="mt-4">
+                    <a href="addToCart?dishId=<%= dish.getDishID()%>" class="btn btn-orange">Đặt ngay</a>
+                    <a href="${pageContext.request.contextPath}/home" class="btn btn-outline-secondary ms-2">Quay lại</a>
                 </div>
             </div>
 
+            <%
+                }
+            %>
+           
         </div>
+           
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script>
+    
+     <script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.sidebar a').forEach(anchor => {
                     anchor.addEventListener('click', function (e) {
@@ -385,5 +403,6 @@
                 }
             });
         </script>
+    
     </body>
 </html>
