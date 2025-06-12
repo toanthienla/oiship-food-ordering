@@ -1,3 +1,5 @@
+<%@page import="model.Review"%>
+<%@ page import="java.text.SimpleDateFormat" %>
 <%@page import="model.Category"%>
 <%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
@@ -11,8 +13,8 @@
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
 
-        
-          <%-- style category --%>
+
+        <%-- style category --%>
         <style>
             .menu-section .btn {
                 border-radius: 20px;
@@ -309,100 +311,138 @@
                     %>
                 </div>
             </div>
-            
-             <!-- Dish Detail-->
-              <div id="dishes" class="dish-section">
-            <%
-                Dish dish = (Dish) request.getAttribute("dish");
-                if (dish == null) {
-            %>
-            
-            <div class="text-center mt-5">
-                <h3>Không tìm thấy món ăn.</h3>
-                <a href="home.jsp" class="btn btn-secondary mt-3">Quay về trang chủ</a>
-            </div>
-            <%
-            } else {
-                String imageUrl = (dish.getImage() != null && !dish.getImage().isEmpty())
-                        ? dish.getImage()
-                        : "https://via.placeholder.com/600x400";
-            %>
 
-            <div class="dish-detail-container">
-                <img src="<%= imageUrl%>" alt="<%= dish.getDishName()%>" class="dish-detail-img mb-4" />
-                <h2><%= dish.getDishName()%></h2>
-                
-                <p><strong>Mô tả:</strong> <%= dish.getDishDescription() != null ? dish.getDishDescription() : "Không có mô tả."%></p>
-                <p><strong>Giá:</strong> <%= dish.getTotalPrice().intValue()%> VNĐ</p>
-              
+            <!-- Dish Detail -->
+            <div id="dishes" class="dish-section">
+                <%
+                    Dish dish = (Dish) request.getAttribute("dish");
+                    List<Review> reviews = (List<Review>) request.getAttribute("reviews");
 
-                <div class="mt-4">
-                    <a href="addToCart?dishId=<%= dish.getDishID()%>" class="btn btn-orange">Đặt ngay</a>
-                    <a href="${pageContext.request.contextPath}/home" class="btn btn-outline-secondary ms-2">Quay lại</a>
+                    if (dish == null) {
+                %>
+                <div class="text-center mt-5">
+                    <h3>Không tìm thấy món ăn.</h3>
+                    <a href="home.jsp" class="btn btn-secondary mt-3">Quay về trang chủ</a>
                 </div>
+                <%
+                } else {
+                    String imageUrl = (dish.getImage() != null && !dish.getImage().isEmpty())
+                            ? dish.getImage()
+                            : "https://via.placeholder.com/600x400";
+                %>
+
+                <div class="dish-detail-container">
+                    <img src="<%= imageUrl%>" alt="<%= dish.getDishName()%>" class="dish-detail-img mb-4" />
+                    <h2><%= dish.getDishName()%></h2>
+
+                    <p><strong>Mô tả:</strong> <%= dish.getDishDescription() != null ? dish.getDishDescription() : "Không có mô tả."%></p>
+                    <p><strong>Nguyên liệu:</strong> <%= dish.getIngredientNames() != null ? dish.getIngredientNames() : "Không rõ."%></p>
+                    <p><strong>Giá:</strong> <%= dish.getTotalPrice().intValue()%> VNĐ</p>
+
+                    <%
+                        if (dish.getAvgRating() != null) {
+                    %>
+                    <p><strong>Đánh giá trung bình:</strong> <%= dish.getAvgRating()%> /5★</p>
+                    <%
+                        }
+                    %>
+
+                    <div class="mt-4">
+                        <a href="addToCart?dishId=<%= dish.getDishID()%>" class="btn btn-orange">Đặt ngay</a>
+                        <a href="${pageContext.request.contextPath}/home" class="btn btn-outline-secondary ms-2">Quay lại</a>
+                    </div>
+                </div>
+
+                <%
+                    if (reviews != null && !reviews.isEmpty()) {
+                %>
+                <div class="mt-5">
+                    <h4>Đánh giá gần đây:</h4>
+                    <ul class="list-group mt-3">
+                        <%
+                            for (Review r : reviews) {
+                        %>
+                        <li class="list-group-item">
+                            <strong><%= r.getCustomerName()%></strong> - 
+                            <%= r.getRating()%> ★ 
+                            <%
+                                SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                            %>
+                          <small class="text-muted float-end"><%= sdf.format(r.getReviewCreatedAt()) %></small>
+                            <br />
+                            <%= r.getComment()%>
+                        </li>
+                        <%
+                            }
+                        %>
+                    </ul>
+                </div>
+                <%
+                } else {
+                %>
+                <p class="mt-4 text-muted">Chưa có đánh giá nào cho món ăn này.</p>
+                <%
+                        }
+                    }
+                %>
             </div>
 
-            <%
-                }
-            %>
-           
-        </div>
-           
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    
-     <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('.sidebar a').forEach(anchor => {
-                    anchor.addEventListener('click', function (e) {
-                        if (this.getAttribute('href').startsWith('#')) {
-                            e.preventDefault();
-                            const targetId = this.getAttribute('href').substring(1);
-                            document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
-                            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-                            this.classList.add('active');
-                        }
+
+            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    document.querySelectorAll('.sidebar a').forEach(anchor => {
+                        anchor.addEventListener('click', function (e) {
+                            if (this.getAttribute('href').startsWith('#')) {
+                                e.preventDefault();
+                                const targetId = this.getAttribute('href').substring(1);
+                                document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
+                                document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                                this.classList.add('active');
+                            }
+                        });
+                    });
+
+                    document.querySelectorAll('.dish-card .btn').forEach(button => {
+                        button.addEventListener('click', () => {
+                            alert('Đã thêm món vào giỏ hàng!');
+                        });
                     });
                 });
+            </script>
 
-                document.querySelectorAll('.dish-card .btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        alert('Đã thêm món vào giỏ hàng!');
+            <script>
+                document.addEventListener('DOMContentLoaded', () => {
+                    const menuButtons = document.querySelectorAll('.menu-btn');
+
+                    menuButtons.forEach(btn => {
+                        btn.addEventListener('click', () => {
+                            menuButtons.forEach(b => b.classList.remove('active'));
+                            btn.classList.add('active');
+
+                            const category = btn.getAttribute('data-category');
+                            filterDishes(category);
+                        });
                     });
-                });
-            });
-        </script>
 
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const menuButtons = document.querySelectorAll('.menu-btn');
-
-                menuButtons.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        menuButtons.forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-
-                        const category = btn.getAttribute('data-category');
-                        filterDishes(category);
-                    });
-                });
-
-                function filterDishes(category) {
-                    const dishes = document.querySelectorAll('.dish-card');
-                    dishes.forEach(dish => {
-                        if (category === 'all') {
-                            dish.parentElement.style.display = 'block';
-                        } else {
-                            if (dish.getAttribute('data-category') === category) {
+                    function filterDishes(category) {
+                        const dishes = document.querySelectorAll('.dish-card');
+                        dishes.forEach(dish => {
+                            if (category === 'all') {
                                 dish.parentElement.style.display = 'block';
                             } else {
-                                dish.parentElement.style.display = 'none';
+                                if (dish.getAttribute('data-category') === category) {
+                                    dish.parentElement.style.display = 'block';
+                                } else {
+                                    dish.parentElement.style.display = 'none';
+                                }
                             }
-                        }
-                    });
-                }
-            });
-        </script>
-    
+                        });
+                    }
+                });
+            </script>
+
     </body>
 </html>

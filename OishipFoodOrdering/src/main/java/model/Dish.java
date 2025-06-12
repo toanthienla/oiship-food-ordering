@@ -13,12 +13,12 @@ public class Dish {
     private int categoryId;  // FK_Dish_Category
 
     private BigDecimal totalPrice; // thêm trường phụ trợ nếu cần dùng trong truy vấn tính giá bán
-
+private String ingredientNames;
+private Double avgRating;
     // Constructors
     public Dish() {}
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
-                String dishDescription, int stock, int categoryId) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -27,7 +27,32 @@ public class Dish {
         this.dishDescription = dishDescription;
         this.stock = stock;
         this.categoryId = categoryId;
+        this.totalPrice = totalPrice;
+        this.ingredientNames = ingredientNames;
+        this.avgRating = avgRating;
     }
+
+
+    public String getIngredientNames() {
+        return ingredientNames;
+    }
+
+    public void setIngredientNames(String ingredientNames) {
+        this.ingredientNames = ingredientNames;
+    }
+
+    public Double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(Double avgRating) {
+        this.avgRating = avgRating;
+    }
+
+  
+
+ 
+    
 
     // Getters and Setters
     public int getDishID() {
