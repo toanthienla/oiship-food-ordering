@@ -4,7 +4,7 @@ import java.sql.*;
 import org.mindrot.jbcrypt.BCrypt;
 import utils.Util;
 
-public class MainTestPasswords {
+public class AdminTestPassword {
 
     public static void main(String[] args) {
         String dbURL = "jdbc:sqlserver://localhost:1433;databaseName=Oiship;encrypt=false";
@@ -19,13 +19,11 @@ public class MainTestPasswords {
             conn = DriverManager.getConnection(dbURL, username, password);
             System.out.println("✅ Database Connected!");
 
-            // Test passwords and generate new hashes for each account
-            testAccountPassword(conn, "inventory@oiship.com", "inventorystaff", "Inventory Staff");
-
-            testAccountPassword(conn, "seller@oiship.com", "sellerstaff", "Seller Staff");
+            // Test admin account password
+            testAccountPassword(conn, "oiship.team@gmail.com", "admin", "Admin");
 
         } catch (Exception e) {
-            Util.logError(String.format("Test passwords failed\n%s\n---", e.getMessage()));
+            Util.logError(String.format("Test password failed\n%s\n---", e.getMessage()));
         } finally {
             if (conn != null) {
                 try {
@@ -57,9 +55,9 @@ public class MainTestPasswords {
                 // Check if the plain password matches the stored hash
                 boolean matched = BCrypt.checkpw(plainPassword, hashedPassword);
                 System.out.println("🔍 [" + accountType + "] Test password '" + plainPassword + "': "
-                        + (matched ? "✅ CHÍNH XÁC!" : "❌ KHÔNG KHỚP!"));
+                        + (matched ? "✅ MATCHED!" : "❌ NOT MATCHED!"));
             } else {
-                System.out.println("❌ [" + accountType + "] Không tìm thấy tài khoản với email: " + email);
+                System.out.println("❌ [" + accountType + "] Account not found with email: " + email);
             }
 
             rs.close();
