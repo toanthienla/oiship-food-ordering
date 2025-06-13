@@ -13,7 +13,7 @@ import model.Category;
 import model.Dish;
 import model.Review;
 
-@WebServlet(name = "DishServlet", urlPatterns = {"/guest/dish"})
+@WebServlet(name = "DishServlet", urlPatterns = {"/home/dish"})
 public class DishServlet extends HttpServlet {
 
     @Override
@@ -55,6 +55,7 @@ public class DishServlet extends HttpServlet {
 
         // Nếu có catId => lọc danh sách món ăn theo category
         String catIdParam = request.getParameter("catId");
+        request.setAttribute("selectedCatId", catIdParam);
         List<Dish> menuItems;
         if (catIdParam != null) {
             try {

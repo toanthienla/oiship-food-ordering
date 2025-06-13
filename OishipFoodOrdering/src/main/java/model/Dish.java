@@ -18,12 +18,15 @@ public class Dish {
     private BigDecimal totalPrice; // thêm trường phụ trợ nếu cần dùng trong truy vấn tính giá bán
     private String ingredientNames;
     private Double avgRating;
+    private String formattedPrice;
 
     // Constructors
     public Dish() {
     }
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
+                String dishDescription, int stock, int categoryId, BigDecimal totalPrice,
+                String ingredientNames, Double avgRating) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -39,7 +42,7 @@ public class Dish {
 
     // Constructor for update (with ID)
     public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
-            String dishDescription, int stock, boolean isAvailable, int categoryId) {
+                String dishDescription, int stock, boolean isAvailable, int categoryId) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -53,7 +56,7 @@ public class Dish {
 
     // Constructor for add (no ID)
     public Dish(String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
-            String dishDescription, int stock, boolean isAvailable, int categoryId) {
+                String dishDescription, int stock, boolean isAvailable, int categoryId) {
         this.dishName = dishName;
         this.opCost = opCost;
         this.interestPercentage = interestPercentage;
@@ -64,23 +67,8 @@ public class Dish {
         this.categoryId = categoryId;
     }
 
-    public String getIngredientNames() {
-        return ingredientNames;
-    }
-
-    public void setIngredientNames(String ingredientNames) {
-        this.ingredientNames = ingredientNames;
-    }
-
-    public Double getAvgRating() {
-        return avgRating;
-    }
-
-    public void setAvgRating(Double avgRating) {
-        this.avgRating = avgRating;
-    }
-
     // Getters and Setters
+
     public int getDishID() {
         return dishID;
     }
@@ -167,6 +155,30 @@ public class Dish {
 
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
+    }
+
+    public String getIngredientNames() {
+        return ingredientNames;
+    }
+
+    public void setIngredientNames(String ingredientNames) {
+        this.ingredientNames = ingredientNames;
+    }
+
+    public Double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(Double avgRating) {
+        this.avgRating = avgRating;
+    }
+
+    public String getFormattedPrice() {
+        return formattedPrice;
+    }
+
+    public void setFormattedPrice(String formattedPrice) {
+        this.formattedPrice = formattedPrice;
     }
 
     public Category getCategory() {
