@@ -15,6 +15,7 @@ public class Dish {
     private BigDecimal totalPrice; // thêm trường phụ trợ nếu cần dùng trong truy vấn tính giá bán
 private String ingredientNames;
 private Double avgRating;
+private String formattedPrice;
     // Constructors
     public Dish() {}
 
@@ -51,7 +52,13 @@ private Double avgRating;
 
   
 
- 
+ public String getFormattedPrice() {
+    return formattedPrice;
+}
+
+public void setFormattedPrice(String formattedPrice) {
+    this.formattedPrice = formattedPrice;
+}
     
 
     // Getters and Setters

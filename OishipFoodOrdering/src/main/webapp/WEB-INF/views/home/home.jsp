@@ -297,14 +297,14 @@
                     %>
 
                     <div class="col-md-4 mb-3">
-                        <form action="guest/dish" method="post">
+                        <form action="home/dish" method="post">
                             <input type="hidden" name="dishId" value="<%= menuItem.getDishID()%>">
                             <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
                                 <div class="card dish-card">
                                     <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
                                     <div class="card-body">
                                         <h5 class="card-title"><%= menuItem.getDishName()%></h5>
-                                        <p class="card-text">Price: <%= menuItem.getTotalPrice().intValue()%>đ</p>
+                                        <p class="card-text">Price: <%= menuItem.getFormattedPrice()%>đ</p>
                                     </div>
                                 </div>
                                 <div class="mt-1">

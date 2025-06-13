@@ -170,10 +170,7 @@
 
 <div class="main-content">
     <nav class="navbar navbar-light bg-light p-2 mb-3">
-        <form class="d-flex search-bar">
-            <input class="form-control me-2" type="search" placeholder="Search dishes..." aria-label="Search" />
-            <button class="btn btn-outline-success" type="submit">Find</button>
-        </form>
+
         <div class="d-flex align-items-center">
             <div class="notification-bell me-3">
                 <i class="fas fa-bell"></i>
@@ -206,43 +203,9 @@
         </div>
     </nav>
 
-    <div class="hero-section">
-        <div class="content">
-            <h1>Delicious food delivered in just 30 minutes!</h1>
-            <p>Discover hundreds of Vietnamese and international dishes with fast and high-quality delivery service.</p>
-            <button class="btn btn-custom me-2">Order Now</button>
-            <button class="btn btn-outline-custom me-2">View Menu</button>
-            <button class="btn btn-outline-custom">Download App</button>
-        </div>
-    </div>
+   
 
-    <!-- Menu Section -->
-    <div id="menu" class="menu-section">
-        <h2 class="mb-4">MENU</h2>
-        <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
-            <form action="guest/dish" method="post">
-                <input type="hidden" name="catId" value="all">
-                <a href="guest/dish" class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
-                    All
-                </a>
-            </form>
-            <%
-                List<Category> categories = (List<Category>) request.getAttribute("categories");
-                if (categories != null) {
-                    for (model.Category cat : categories) {
-            %>
-            <form action="guest/dish" method="post">
-                <input type="hidden" name="catId" value="<%= cat.getCatID()%>">
-                <button type="submit" class="btn btn-outline-primary menu-btn">
-                    <%= cat.getCatName()%>
-                </button>
-            </form>
-            <%
-                    }
-                }
-            %>
-        </div>
-    </div>
+   
 
     <!-- Dish Detail -->
     <div id="dishes" class="dish-section">
