@@ -197,7 +197,7 @@
             </div>
             <a href="#" class="active"><i class="fas fa-home me-2"></i> Home</a>
             <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
-            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dish</a>
+            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
             <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>

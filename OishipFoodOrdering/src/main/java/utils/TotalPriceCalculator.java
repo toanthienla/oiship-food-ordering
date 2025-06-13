@@ -9,7 +9,7 @@ import model.Ingredient;
 
 public class TotalPriceCalculator {
 
-    // ✅ Tính tổng chi phí nguyên liệu từ danh sách Ingredient
+    // Tính tổng chi phí nguyên liệu 
     public static BigDecimal calculateIngredientCost(List<Ingredient> ingredients) {
         if (ingredients == null || ingredients.isEmpty()) {
             return BigDecimal.ZERO;
@@ -40,16 +40,16 @@ public class TotalPriceCalculator {
             ingredientCost = BigDecimal.ZERO;
         }
 
-        // (ingredientCost + opCost) * (1 + interest %)
+        
         BigDecimal total = ingredientCost.add(opCost);
         BigDecimal interest = BigDecimal.ONE.add(interestPercentage.divide(new BigDecimal("100")));
         BigDecimal result = total.multiply(interest);
 
-        // Làm tròn đến bội số 1,000
+       
         return result.divide(new BigDecimal("1000"), 0, RoundingMode.UP).multiply(new BigDecimal("1000"));
     }
 
-    // Định dạng kiểu VND, ví dụ: 35000 -> "35.000"
+  
     public static String formatVND(BigDecimal amount) {
         if (amount == null) {
             return "0";
