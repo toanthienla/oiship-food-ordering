@@ -2,6 +2,7 @@ package controller.customer;
 
 import dao.CategoryDAO;
 import dao.DishDAO;
+import dao.ReviewDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -10,6 +11,7 @@ import java.io.IOException;
 import java.util.List;
 import model.Category;
 import model.Dish;
+import model.Review;
 
 @WebServlet(name = "DishServlet", urlPatterns = {"/guest/dish"})
 public class DishServlet extends HttpServlet {
@@ -19,6 +21,7 @@ public class DishServlet extends HttpServlet {
             throws ServletException, IOException {
 
         DishDAO dishDAO = new DishDAO();
+        ReviewDAO reviewDAO = new ReviewDAO();
         CategoryDAO categoryDAO = new CategoryDAO();
 
         // Luôn lấy danh sách category để hiển thị menu
@@ -30,10 +33,11 @@ public class DishServlet extends HttpServlet {
         if (dishIdParam != null) {
             try {
                 int dishId = Integer.parseInt(dishIdParam);
-                Dish dish = dishDAO.getDishById(dishId);
-
+                Dish dish = dishDAO.getDishDetailById(dishId);
+                List<Review> reviews = reviewDAO.getTop5ReviewsByDishId(dishId);
                 if (dish != null) {
                     request.setAttribute("dish", dish);
+                    request.setAttribute("reviews", reviews);
                     request.getRequestDispatcher("/WEB-INF/views/customer/dish_detail.jsp").forward(request, response);
                     return;
                 } else {

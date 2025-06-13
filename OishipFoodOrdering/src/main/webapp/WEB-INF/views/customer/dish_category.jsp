@@ -6,21 +6,21 @@
 %>
 
 <!DOCTYPE html>
-<html lang="vi">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>Danh sách món ăn theo danh mục</title>
+    <title>Dish List by Category</title>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
 </head>
 <body>
 <div class="container py-4">
-    <h2 class="mb-4">Danh sách món ăn</h2>
+    <h2 class="mb-4">Dish List</h2>
 
     <!-- Category Filter -->
     <div class="mb-4 d-flex gap-2 flex-wrap">
-        <!-- Nút "Tất cả" -->
+        <!-- "All" button -->
         <form method="post" action="dish">
-            <button type="submit" class="btn btn-outline-secondary">Tất cả</button>
+            <button type="submit" class="btn btn-outline-secondary">All</button>
         </form>
 
         <% if (categories != null) {
@@ -51,7 +51,7 @@
                         <img src="<%= img %>" class="card-img-top" alt="<%= dish.getDishName() %>">
                         <div class="card-body">
                             <h5 class="card-title"><%= dish.getDishName() %></h5>
-                            <p class="card-text">Giá: <%= dish.getTotalPrice().intValue() %> VNĐ</p>
+                            <p class="card-text">Price: <%= dish.getTotalPrice().intValue() %> VND</p>
                             <p class="card-text"><%= dish.getDishDescription() %></p>
                         </div>
                     </div>
@@ -59,7 +59,7 @@
             </form>
         </div>
         <% }} else { %>
-            <p class="text-muted">Không có món ăn trong danh mục này.</p>
+            <p class="text-muted">No dishes found in this category.</p>
         <% } %>
     </div>
 </div>
