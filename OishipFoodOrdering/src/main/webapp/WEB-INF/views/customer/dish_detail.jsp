@@ -242,7 +242,7 @@
                     <% }%>
 
                     <div class="mt-4">
-                        <a href="addToCart?dishId=<%= dish.getDishID()%>" class="btn btn-orange">Order Now</a>
+                        <a href="addToCart?dishId=<%= dish.getDishID()%>" class="btn btn-orange">Add Cart</a>
                        
                     </div>
                     <% if (reviews != null && !reviews.isEmpty()) { %>

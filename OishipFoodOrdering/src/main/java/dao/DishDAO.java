@@ -101,39 +101,46 @@ public class DishDAO extends DBContext {
 }
 
 
-    // search dish
-    public List<Dish> searchDishByName(String searchQuery) {
-        List<Dish> dishes = new ArrayList<>();
-        String sql = "SELECT d.DishID, d.DishName, d.image, d.DishDescription, d.stock, "
-                + "CEILING((ISNULL(SUM(i.quantity * i.unitCost), 0) + d.opCost) * (1 + d.interestPercentage / 100) / 10000.0) * 10000 AS totalPrice "
-                + "FROM Dish d "
-                + "LEFT JOIN Ingredient i ON d.DishID = i.FK_Ingredient_Dish "
-                + "WHERE d.DishName LIKE ? "
-                + "GROUP BY d.DishID, d.DishName, d.image, d.DishDescription, d.stock, d.opCost, d.interestPercentage";
+   public List<Dish> searchDishByName(String searchQuery) {
+    List<Dish> dishes = new ArrayList<>();
+    String sql = "SELECT d.DishID, d.DishName, d.image, d.DishDescription, d.stock, d.opCost, d.interestPercentage "
+               + "FROM Dish d "
+               + "WHERE d.DishName LIKE ?";
 
-        try (
-                PreparedStatement stmt = conn.prepareStatement(sql)) {
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setString(1, "%" + searchQuery + "%");
 
-            stmt.setString(1, "%" + searchQuery + "%");
+        try (ResultSet rs = stmt.executeQuery()) {
+            while (rs.next()) {
+                Dish dish = new Dish();
+                int dishId = rs.getInt("DishID");
 
-            try (ResultSet rs = stmt.executeQuery()) {
-                while (rs.next()) {
-                    Dish dish = new Dish();
-                    dish.setDishID(rs.getInt("DishID"));
-                    dish.setDishName(rs.getString("DishName"));
-                    dish.setImage(rs.getString("image"));
-                    dish.setDishDescription(rs.getString("DishDescription"));
-                    dish.setStock(rs.getInt("stock"));
-                    dish.setTotalPrice(rs.getBigDecimal("totalPrice"));
+                dish.setDishID(dishId);
+                dish.setDishName(rs.getString("DishName"));
+                dish.setImage(rs.getString("image"));
+                dish.setDishDescription(rs.getString("DishDescription"));
+                dish.setStock(rs.getInt("stock"));
 
-                    dishes.add(dish);
-                }
+                BigDecimal opCost = rs.getBigDecimal("opCost");
+                BigDecimal interest = rs.getBigDecimal("interestPercentage");
+
+                // Lấy danh sách nguyên liệu từ DAO
+                List<Ingredient> ingredients = new IngredientDAO().getIngredientsByDishId(dishId);
+                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+
+                // Tính totalPrice
+                BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(opCost, interest, ingredientCost);
+                dish.setTotalPrice(totalPrice);
+                dish.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
+
+                dishes.add(dish);
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
         }
-        return dishes;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+    return dishes;
+}
 
     // view dish theo category
     public List<Dish> getDishesByCategory(int catId) {

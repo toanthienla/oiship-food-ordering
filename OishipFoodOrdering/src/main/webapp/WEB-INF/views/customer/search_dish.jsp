@@ -1,171 +1,136 @@
+<%@page import="model.Dish"%>
+<%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
-<%@ page import="model.Dish" %>
-<%@ page import="java.util.List" %>
-
 <!DOCTYPE html>
 <html lang="en">
 <head>
+    <title>Search Result - Oiship</title>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <title>Search</title>
-
-    <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-    <!-- FontAwesome -->
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css" rel="stylesheet" />
-    <!-- Google Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet" />
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
     <style>
         body {
-            font-family: 'Roboto', sans-serif;
+            font-family: 'Arial', sans-serif;
+            background-color: #f8f9fa;
         }
-
-        .navbar {
-            transition: all 0.3s ease;
+        .sidebar {
+            width: 250px;
+            background-color: #ffffff;
+            height: 100vh;
+            position: fixed;
+            padding-top: 20px;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
         }
-
-        .navbar .nav-link:hover {
-            color: #ff7f50 !important;
-        }
-
-        .card:hover {
-            transform: translateY(-5px);
-            transition: transform 0.3s ease;
-        }
-
-        .footer {
-            background-color: #343a40;
-            color: #fff;
-            padding: 40px 0;
-        }
-
-        .footer a {
-            color: #ccc;
+        .sidebar a {
+            display: block;
+            padding: 10px 15px;
+            color: #000;
             text-decoration: none;
         }
-
-        .footer a:hover {
-            color: #fff;
+        .sidebar a:hover, .sidebar .active {
+            background-color: #ff6200;
+            color: #fff !important;
         }
-
-        .card-title {
-            font-size: 1.5rem;
-            font-weight: bold;
-            color: #333;
-            margin-top: 10px;
-        }
-
-        .card-body {
+        .main-content {
+            margin-left: 250px;
             padding: 20px;
         }
-
-        .card-img-top {
-            object-fit: cover;
-            height: 200px;
+        .dish-card {
+            border: 1px solid #ddd;
+            border-radius: 10px;
+            overflow: hidden;
+            transition: transform 0.3s ease;
         }
-
-        .card {
-            min-height: 350px;
+        .dish-card:hover {
+            transform: translateY(-5px);
+        }
+        .dish-card img {
+            height: 200px;
+            object-fit: cover;
+            width: 100%;
+        }
+        .btn-custom {
+            background-color: #ff6200;
+            color: #fff;
+            border: none;
+            padding: 8px 16px;
+            transition: background-color 0.3s ease;
+        }
+        .btn-custom:hover {
+            background-color: #e65c00;
+        }
+        .footer {
+            margin-top: 40px;
+            padding: 20px;
+            background: #fff;
+            text-align: center;
+            box-shadow: 0 -1px 6px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
 <body>
 
-<!-- Navbar -->
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark shadow-sm sticky-top">
-    <div class="container">
-        <a class="navbar-brand d-flex align-items-center" href="#">
-            <img src="images/logo_1.png" alt="Logo" class="logo" style="height:40px;" />
-        </a>
-        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#mainNav" aria-controls="mainNav" aria-expanded="false" aria-label="Toggle navigation">
-            <span class="navbar-toggler-icon"></span>
-        </button>
-
-        <div class="collapse navbar-collapse" id="mainNav">
-            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                <li class="nav-item"><a class="nav-link" href="${pageContext.request.contextPath}/home">Home</a></li>
-                <li class="nav-item"><a class="nav-link" href="#contact">Contact</a></li>
-            </ul>
-
-            <!-- Search form -->
-            <form method="POST" action="${pageContext.request.contextPath}/customer/search" class="d-flex me-3" role="search" aria-label="Search form">
-                <div class="input-group">
-                    <input class="form-control py-2" type="search" name="searchQuery" placeholder="Search" aria-label="Search" />
-                    <button class="btn btn-warning" type="submit" aria-label="Search button">
-                        <i class="fas fa-search"></i>
-                    </button>
-                </div>
-            </form>
-
-            <!-- Cart -->
-            <ul class="navbar-nav">
-                <li class="nav-item position-relative ms-3">
-                    <a class="nav-link d-flex align-items-center" href="viewcart" style="position: relative;">
-                        <i class="fas fa-shopping-cart fa-lg"></i>
-                        <span class="ms-2">Cart</span>
-                        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger" style="font-size: 0.7rem;">
-                            <%= session.getAttribute("cartItemCount") != null ? session.getAttribute("cartItemCount") : 0 %>
-                            <span class="visually-hidden">items in cart</span>
-                        </span>
-                    </a>
-                </li>
-            </ul>
-        </div>
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="text-center mb-4">
+        <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
+        <h5 class="mt-2 text-orange">OISHIP</h5>
     </div>
-</nav>
+    <a href="${pageContext.request.contextPath}/home"><i class="fas fa-home me-2"></i> Home</a>
+    <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
+    <a href="#dishes" class="active"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
+    <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
+    <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
+    <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
+    <a href="#cart"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
+    <a href="#"><i class="fas fa-list me-2"></i> Order</a>
+</div>
 
 <!-- Main Content -->
-<main class="container my-5">
+<div class="main-content">
+    <h2 class="mb-4">Search Results</h2>
+
     <%
         List<Dish> menuItems = (List<Dish>) request.getAttribute("menuItems");
-
         if (menuItems == null || menuItems.isEmpty()) {
     %>
         <div class="alert alert-warning text-center" role="alert">
-            No restaurants or dishes found matching your search.
+            No dishes found matching your search.
         </div>
     <%
         } else {
     %>
-        <h2 class="text-center mb-4">Search Results</h2>
-
-        <!-- Display Menu Items -->
-        <h4>Dishes:</h4>
-        <div class="row">
-            <% for (Dish menuItem : menuItems) { %>
-                <div class="col-md-4 mb-4">
-                    <div class="card h-100 shadow-sm">
-                        <img src="<%= menuItem.getImage()%>" class="card-img-top" alt="<%= menuItem.getDishName()%>" />
+    <div class="row">
+        <% for (Dish menuItem : menuItems) {
+               String imageUrl = (menuItem.getImage() != null && !menuItem.getImage().isEmpty()) ? menuItem.getImage() : "https://via.placeholder.com/300x200";
+        %>
+        <div class="col-md-4 mb-4">
+            <form action="${pageContext.request.contextPath}/home/dish" method="post">
+                <input type="hidden" name="dishId" value="<%= menuItem.getDishID() %>">
+                <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
+                    <div class="card dish-card h-100">
+                        <img src="<%= imageUrl %>" class="card-img-top" alt="<%= menuItem.getDishName() %>">
                         <div class="card-body d-flex flex-column">
                             <h5 class="card-title"><%= menuItem.getDishName() %></h5>
                             <p class="card-text"><%= menuItem.getDishDescription() %></p>
-                            <p><strong>Price:</strong> <%= menuItem.getTotalPrice()%> VND</p>
-                            <form method="post" action="addCart" class="d-flex align-items-center gap-2 m-0 p-0">
-                                <input type="hidden" name="itemId" value="<%= menuItem.getDishID()%>">
-                                <input type="number" name="quantity" value="1" min="1" class="form-control form-control-sm" style="width:70px;" required>
-                                <button type="submit" class="btn btn-sm btn-success" title="Add to cart">
-                                    <i class="fas fa-cart-plus"></i>
-                                </button>
-                            </form>
+                            <p><strong>Price:</strong> <%= menuItem.getFormattedPrice() %> đ</p>
+                            <div class="mt-auto">
+                                <a href="addToCart?dishId=<%= menuItem.getDishID() %>" class="btn btn-custom w-100" type="button">
+                                    Add Cart
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </div>
-            <% } %>
+                </button>
+            </form>
         </div>
-    <%
-        }
-    %>
-</main>
-
-<!-- Footer -->
-<footer class="footer">
-    <div class="container text-center">
-        <p>&copy; 2025 Culinary Delights. All rights reserved.</p>
+        <% } %>
     </div>
-</footer>
+    <% } %>
+</div>
 
-<!-- Bootstrap JS Bundle -->
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
