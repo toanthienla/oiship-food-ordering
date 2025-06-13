@@ -15,7 +15,6 @@
         <a class="nav-link" href="contact-requests"><i class="bi bi-envelope"></i>Contact Requests</a>
         <a class="nav-link" href="manage-notifications"><i class="bi bi-bell"></i>Notifications</a>
         <a class="nav-link" href="manage-customers"><i class="bi bi-people"></i> Staff & Customers</a>
-        <a class="nav-link" href="profile"><i class="bi bi-person-circle"></i> Profile</a>
         <a class="nav-link" href="/OishipFoodOrdering/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
     </div>
 
@@ -24,3 +23,4 @@
         <p style="font-weight: 500" class="">Admin</p>
     </div>
 </div>
+    
