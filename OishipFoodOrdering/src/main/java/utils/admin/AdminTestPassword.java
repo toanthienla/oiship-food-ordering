@@ -1,4 +1,4 @@
-package utils.test;
+package utils.admin;
 
 import java.sql.*;
 import org.mindrot.jbcrypt.BCrypt;
@@ -38,10 +38,6 @@ public class AdminTestPassword {
 
     private static void testAccountPassword(Connection conn, String email, String plainPassword, String accountType) {
         try {
-            // Generate and print new BCrypt hash for the password
-            String newHashedPassword = BCrypt.hashpw(plainPassword, BCrypt.gensalt(10));
-            System.out.println("🔐 [" + accountType + "] New BCrypt Hash for '" + plainPassword + "': " + newHashedPassword);
-
             // Read password from Account table
             String sql = "SELECT [password] FROM Account WHERE email = ?";
             PreparedStatement stmt = conn.prepareStatement(sql);

@@ -1,4 +1,4 @@
-package utils.test;
+package utils.admin;
 
 import java.sql.*;
 import org.mindrot.jbcrypt.BCrypt;

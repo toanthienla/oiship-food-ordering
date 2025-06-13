@@ -1,7 +1,11 @@
 ﻿-- Insert Admin
-INSERT INTO Account (fullName, email, phone, [password], [address], [status], [role])
-VALUES (N'Admin', N'oiship.team@gmail.com', '0000000000', 
-N'$2a$12$e9o18dZ1tnUqDbCV16syKunM5krYgJSOJVjCX54O1vEJxPVrGwCgK', NULL, 1, 'admin'); -- bcrypt hash for 'admin'
+INSERT INTO Account (fullName, email, [password], role)
+VALUES (
+    N'Admin',
+    N'oiship.team@gmail.com',
+    N'$2a$12$e9o18dZ1tnUqDbCV16syKunM5krYgJSOJVjCX54O1vEJxPVrGwCgK', -- bcrypt hash for 'admin'
+    'admin'
+);
 
 -- Insert Staff Accounts
 INSERT INTO Account (fullName, email, phone, [password], [address], [status], [role])

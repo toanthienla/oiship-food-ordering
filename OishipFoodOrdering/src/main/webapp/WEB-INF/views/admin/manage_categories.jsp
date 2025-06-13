@@ -95,7 +95,9 @@
                                         </a>
                                     </div>
                                 </div>
+
                                 <div class="cat-description mt-1 text-muted" style="display: none;">
+                                    <hr class="my-1" />
                                     Description: ${cat.catDescription}
                                 </div>
                             </div>
