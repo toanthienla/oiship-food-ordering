@@ -3,6 +3,7 @@ package controller.admin;
 import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.*;
+
 import java.io.IOException;
 
 @WebFilter("/admin/*")
@@ -20,12 +21,18 @@ public class AdminFilter implements Filter {
         // Exclude /admin/login from authentication
         boolean isLoginPage = uri.equals(contextPath + "/admin/login");
         HttpSession session = req.getSession(false);
-        boolean isLoggedIn = session != null && session.getAttribute("admin") != null;
-        
-//        if (isLoggedIn || isLoginPage) {
+        boolean isLoggedIn = session != null && session.getAttribute("admin") != null && "admin".equalsIgnoreCase((String) session.getAttribute("role"));
+
+        if (isLoggedIn || isLoginPage) {
             chain.doFilter(request, response);
-//        } else {
-//            res.sendRedirect(contextPath + "/admin/login");
-//        }
+        } else {
+            res.sendRedirect(contextPath + "/admin/login");
+        }
     }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {}
+
+    @Override
+    public void destroy() {}
 }

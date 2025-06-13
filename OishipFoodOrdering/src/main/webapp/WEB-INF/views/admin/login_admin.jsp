@@ -217,7 +217,7 @@
                 <h1 class="login-title">Admin Login</h1>
                 <form action="${pageContext.request.contextPath}/admin/login" method="POST" class="login-form" id="loginForm">
                     <div class="form-floating mb-3">
-                        <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required>
+                        <input type="email" class="form-control" name="email" id="email" placeholder="name@example.com" required value="${param.email}">
                         <label for="email">Email</label>
                     </div>
                     <div class="form-floating mb-3">
@@ -241,16 +241,33 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            // Add loading effect on form submission
+            // Add loading effect on form submission and handle response
             document.getElementById('loginForm').addEventListener('submit', function (e) {
                 const loginButton = document.getElementById('loginButton');
                 loginButton.classList.add('loading');
                 loginButton.disabled = true;
+
+                // Simulate response handling (optional, depends on backend)
+                // This can be enhanced with AJAX if needed
+                setTimeout(() => {
+                    if ('${not empty error}') {
+                        loginButton.classList.remove('loading');
+                        loginButton.disabled = false;
+                    }
+                }, 2000); // Giả lập thời gian phản hồi
             });
 
             // Fade-in animation for the logo
             window.addEventListener('load', function () {
                 document.querySelector('.logo').style.opacity = '1';
+            });
+
+            // Debug: Log form data
+            document.getElementById('loginForm').addEventListener('submit', function (e) {
+                console.log('Form submitted with:', {
+                    email: document.getElementById('email').value,
+                    password: document.getElementById('password').value
+                });
             });
         </script>
     </body>

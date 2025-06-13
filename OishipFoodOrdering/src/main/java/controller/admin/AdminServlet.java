@@ -20,7 +20,7 @@ public class AdminServlet extends HttpServlet {
         }
 
         System.out.println("AdminDashboardServlet: Rendering admin dashboard for userId=" + session.getAttribute("userId"));
-        request.getRequestDispatcher("/WEB-INF/views/admin/admin.jsp").forward(request, response);
+        request.getRequestDispatcher("/WEB-INF/views/admin/admindashboard.jsp").forward(request, response);
     }
 
     @Override

@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package utils.test;
 
 import java.sql.*;
@@ -14,36 +10,19 @@ public class ResetAdminPassword {
         String username = "sa"; // Thay bằng username SQL Server của bạn
         String password = "123456"; // Thay bằng password SQL Server của bạn
 
-        Connection conn = null;
-        PreparedStatement stmt = null;
-
-        try {
+        try (Connection conn = DriverManager.getConnection(dbURL, username, password)) {
             // Kết nối Database
             Class.forName("com.microsoft.sqlserver.jdbc.SQLServerDriver");
-            conn = DriverManager.getConnection(dbURL, username, password);
             System.out.println("✅ Connected to DB");
 
             // Reset admin
-            resetAccount(conn, "oiship.team@gmail.com", "admin", "Admin", "admin", "0000000000");
-            // Reset inventory staff
-            resetAccount(conn, "ingredient@oiship.com", "ingredientstaff", "Staff Ingredient", "staff", "0000000001");
-            // Reset seller staff
-            resetAccount(conn, "seller@oiship.com", "sellerstaff", "Staff Seller", "staff", "0000000002");
-            
-            resetAccount(conn, "customer@satff.com", "customer", "Customer", "customer", "0000000003");
+            resetAccount(conn, "oiship.team@gmail.com", "admin", "Admin", "admin", "0000000001");
+            // Reset staff
+            resetAccount(conn, "staff@example.com", "staff", "Staff", "staff", "0000000002");
 
         } catch (Exception e) {
             System.err.println("❌ Lỗi: " + e.getMessage());
             e.printStackTrace();
-        } finally {
-            try {
-                if (conn != null) {
-                    conn.close();
-                    System.out.println("✅ Database connection closed.");
-                }
-            } catch (SQLException e) {
-                System.err.println("❌ Lỗi khi đóng kết nối: " + e.getMessage());
-            }
         }
     }
 
@@ -53,41 +32,45 @@ public class ResetAdminPassword {
         System.out.println("🔒 [" + fullName + "] New Hash for '" + plainPassword + "': " + hashedPassword);
 
         // Thử update mật khẩu
-        String updateSql = "UPDATE Account SET password = ? WHERE email = ?";
-        PreparedStatement stmt = conn.prepareStatement(updateSql);
-        stmt.setString(1, hashedPassword);
-        stmt.setString(2, email);
-        int rowsUpdated = stmt.executeUpdate();
-
-        if (rowsUpdated > 0) {
-            System.out.println("✅ Cập nhật mật khẩu cho " + fullName + " thành công!");
-            System.out.println("_____________________________________________________");
-        } else {
-            System.out.println("❌ Không tìm thấy tài khoản " + fullName + " với email: " + email + ". Tiến hành insert...");
-            System.out.println("___________________________________________________________________________________________");
-
-            // Insert tài khoản mới
-            String insertSql = "INSERT INTO Account (fullName, email, phone, [password], [address], [status], [role], createAt) "
-                    + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
-            stmt = conn.prepareStatement(insertSql);
-            stmt.setString(1, fullName);
+        String updateSql = "UPDATE Account SET [password] = ? WHERE email = ?"; // Loại bỏ [status]
+        try (PreparedStatement stmt = conn.prepareStatement(updateSql)) {
+            stmt.setString(1, hashedPassword);
             stmt.setString(2, email);
-            stmt.setString(3, phone);
-            stmt.setString(4, hashedPassword);
-            stmt.setString(5, null);
-            stmt.setInt(6, 1);
-            stmt.setString(7, role);
-            stmt.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
+            int rowsUpdated = stmt.executeUpdate();
 
-            int rowsInserted = stmt.executeUpdate();
-            if (rowsInserted > 0) {
-                System.out.println("✅ Insert tài khoản " + fullName + " thành công!");
+            if (rowsUpdated > 0) {
+                System.out.println("✅ Cập nhật mật khẩu cho " + fullName + " thành công!");
                 System.out.println("_____________________________________________________");
             } else {
-                System.out.println("❌ Insert tài khoản " + fullName + " thất bại!");
-                System.out.println("_____________________________________________________");
+                System.out.println("❌ Không tìm thấy tài khoản " + fullName + " với email: " + email + ". Tiến hành insert...");
+                System.out.println("___________________________________________________________________________________________");
+
+                // Insert tài khoản mới
+                String insertSql = "INSERT INTO Account (fullName, email, phone, [password], [address], [status], [role], createAt) " +
+                        "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                try (PreparedStatement insertStmt = conn.prepareStatement(insertSql)) {
+                    insertStmt.setString(1, fullName);
+                    insertStmt.setString(2, email);
+                    insertStmt.setString(3, phone);
+                    insertStmt.setString(4, hashedPassword);
+                    insertStmt.setString(5, "No address provided"); // Giá trị mặc định nếu không có address
+                    insertStmt.setInt(6, 1); // Status active
+                    insertStmt.setString(7, role);
+                    insertStmt.setTimestamp(8, new Timestamp(System.currentTimeMillis()));
+
+                    int rowsInserted = insertStmt.executeUpdate();
+                    if (rowsInserted > 0) {
+                        System.out.println("✅ Insert tài khoản " + fullName + " thành công!");
+                        System.out.println("_____________________________________________________");
+                    } else {
+                        System.out.println("❌ Insert tài khoản " + fullName + " thất bại!");
+                        System.out.println("_____________________________________________________");
+                    }
+                }
             }
+        } catch (SQLException e) {
+            System.err.println("❌ Lỗi khi xử lý tài khoản " + fullName + ": " + e.getMessage());
+            e.printStackTrace();
         }
-        stmt.close();
     }
 }

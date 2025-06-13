@@ -3,27 +3,25 @@ package model;
 import java.sql.Timestamp;
 
 public class Admin {
+
     private int adminId;      // Matches accountID in the database
     private String fullName;  // Replaced name with fullName to match database
     private String email;
     private String password;
-    private String phone;
-    private String address;
-    private int status;       // Added to match Account table
+    private String role;      // Thêm role để khớp với schema
     private Timestamp createdAt;
 
     // Default Constructor
-    public Admin() {}
+    public Admin() {
+    }
 
     // Full Constructor
-    public Admin(int adminId, String fullName, String email, String password, String phone, String address, int status, Timestamp createdAt) {
+    public Admin(int adminId, String fullName, String email, String password, String role, Timestamp createdAt) {
         this.adminId = adminId;
         this.fullName = fullName;
         this.email = email;
         this.password = password;
-        this.phone = phone;
-        this.address = address;
-        this.status = status;
+        this.role = role;
         this.createdAt = createdAt;
     }
 
@@ -60,28 +58,12 @@ public class Admin {
         this.password = password;
     }
 
-    public String getPhone() {
-        return phone;
+    public String getRole() {
+        return role;
     }
 
-    public void setPhone(String phone) {
-        this.phone = phone;
-    }
-
-    public String getAddress() {
-        return address;
-    }
-
-    public void setAddress(String address) {
-        this.address = address;
-    }
-
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
+    public void setRole(String role) {
+        this.role = role;
     }
 
     public Timestamp getCreatedAt() {

@@ -17,7 +17,7 @@ public class LoginAdminServlet extends HttpServlet {
             throws ServletException, IOException {
         HttpSession session = request.getSession(false);
         if (session != null) {
-            session.invalidate();
+            session.invalidate(); // Xóa session cũ
         }
         request.getRequestDispatcher("/WEB-INF/views/admin/login_admin.jsp").forward(request, response);
     }
@@ -25,10 +25,12 @@ public class LoginAdminServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8"); // Đảm bảo mã hóa UTF-8
+
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        System.out.println("Admin login attempt: email=" + email);
+        System.out.println("Admin login attempt: email=" + email + ", password length=" + (password != null ? password.length() : 0));
 
         if (email == null || password == null || email.trim().isEmpty() || password.trim().isEmpty()) {
             System.out.println("Admin login failed: Missing email or password");
@@ -47,8 +49,9 @@ public class LoginAdminServlet extends HttpServlet {
             return;
         }
 
+        System.out.println("Admin found: email=" + admin.getEmail() + ", hashed password=" + (admin.getPassword() != null ? admin.getPassword().substring(0, 10) + "..." : "null"));
         if (!BCrypt.checkpw(password, admin.getPassword())) {
-            System.out.println("Admin login failed: Invalid password for email=" + email + ", stored hash=" + admin.getPassword());
+            System.out.println("Admin login failed: Invalid password for email=" + email + ", input hash=" + BCrypt.hashpw(password, BCrypt.gensalt(12)).substring(0, 10) + "...");
             request.setAttribute("error", "Invalid email or password.");
             request.getRequestDispatcher("/WEB-INF/views/admin/login_admin.jsp").forward(request, response);
             return;
@@ -56,11 +59,11 @@ public class LoginAdminServlet extends HttpServlet {
 
         // Login successful
         HttpSession session = request.getSession(true);
-        session.setAttribute("admin", admin.getAdminId());
-        session.setAttribute("role", "admin");
+        session.setAttribute("admin", admin);
+        session.setAttribute("role", admin.getRole()); // Sử dụng role từ model
         session.setAttribute("userId", admin.getAdminId());
         session.setAttribute("userName", admin.getFullName());
-        System.out.println("Admin login successful: email=" + email + ", adminId=" + admin.getAdminId() + ", role=admin, userName=" + admin.getFullName());
+        System.out.println("Admin login successful: email=" + email + ", adminId=" + admin.getAdminId() + ", role=" + admin.getRole() + ", userName=" + admin.getFullName());
 
         response.sendRedirect(request.getContextPath() + "/admin/dashboard");
     }

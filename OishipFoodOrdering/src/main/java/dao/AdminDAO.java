@@ -15,28 +15,31 @@ public class AdminDAO extends DBContext {
     }
 
     public Admin getAdminByEmail(String email) {
-        String sql = "SELECT accountID, fullName, email, phone, [password], [address], [status], createAt "
-                + "FROM [Account] WHERE email = ? AND [role] = 'admin'";
+        String sql = "SELECT accountID, fullName, email, [password], role, createAt " +
+                     "FROM [Account] WHERE email = ? AND role = 'admin'";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
+            if (email == null || email.trim().isEmpty()) {
+                System.out.println("AdminDAO: Invalid email parameter: " + email);
+                return null;
+            }
+            ps.setString(1, email.trim());
+            System.out.println("AdminDAO: Executing query: " + sql + " with email: " + email.trim());
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
                     Admin admin = new Admin();
                     admin.setAdminId(rs.getInt("accountID"));
                     admin.setFullName(rs.getString("fullName"));
                     admin.setEmail(rs.getString("email"));
-                    admin.setPhone(rs.getString("phone"));
                     admin.setPassword(rs.getString("password"));
-                    admin.setAddress(rs.getString("address"));
-                    admin.setStatus(rs.getInt("status"));
+                    admin.setRole(rs.getString("role")); // Thêm role để xác nhận
                     admin.setCreatedAt(rs.getTimestamp("createAt"));
-                    System.out.println("AdminDAO: Found admin for email=" + email + ", adminId=" + admin.getAdminId() + ", status=" + admin.getStatus() + ", fullName=" + admin.getFullName());
+                    System.out.println("AdminDAO: Found admin for email=" + email + ", adminId=" + admin.getAdminId() + ", fullName=" + admin.getFullName());
                     return admin;
                 }
-                System.out.println("AdminDAO: No admin found for email=" + email);
+                System.out.println("AdminDAO: No admin found for email=" + email + ". Query executed: " + sql);
             }
         } catch (SQLException e) {
-            System.out.println("AdminDAO: Error retrieving admin for email=" + email);
+            System.out.println("AdminDAO: Error retrieving admin for email=" + email + ": " + e.getMessage());
             e.printStackTrace();
         }
         return null;
