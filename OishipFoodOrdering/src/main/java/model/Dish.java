@@ -3,6 +3,7 @@ package model;
 import java.math.BigDecimal;
 
 public class Dish {
+
     private int dishID;
     private String dishName;
     private BigDecimal opCost;
@@ -10,16 +11,22 @@ public class Dish {
     private String image;
     private String dishDescription;
     private int stock;
+    private boolean isAvailable;
     private int categoryId;  // FK_Dish_Category
+    private Category category;
 
     private BigDecimal totalPrice; // thêm trường phụ trợ nếu cần dùng trong truy vấn tính giá bán
-private String ingredientNames;
-private Double avgRating;
-private String formattedPrice;
-    // Constructors
-    public Dish() {}
+    private String ingredientNames;
+    private Double avgRating;
+    private String formattedPrice;
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating) {
+    // Constructors
+    public Dish() {
+    }
+
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
+                String dishDescription, int stock, int categoryId, BigDecimal totalPrice,
+                String ingredientNames, Double avgRating) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -33,35 +40,35 @@ private String formattedPrice;
         this.avgRating = avgRating;
     }
 
-
-    public String getIngredientNames() {
-        return ingredientNames;
+    // Constructor for update (with ID)
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
+                String dishDescription, int stock, boolean isAvailable, int categoryId) {
+        this.dishID = dishID;
+        this.dishName = dishName;
+        this.opCost = opCost;
+        this.interestPercentage = interestPercentage;
+        this.image = image;
+        this.dishDescription = dishDescription;
+        this.stock = stock;
+        this.isAvailable = isAvailable;
+        this.categoryId = categoryId;
     }
 
-    public void setIngredientNames(String ingredientNames) {
-        this.ingredientNames = ingredientNames;
+    // Constructor for add (no ID)
+    public Dish(String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
+                String dishDescription, int stock, boolean isAvailable, int categoryId) {
+        this.dishName = dishName;
+        this.opCost = opCost;
+        this.interestPercentage = interestPercentage;
+        this.image = image;
+        this.dishDescription = dishDescription;
+        this.stock = stock;
+        this.isAvailable = isAvailable;
+        this.categoryId = categoryId;
     }
-
-    public Double getAvgRating() {
-        return avgRating;
-    }
-
-    public void setAvgRating(Double avgRating) {
-        this.avgRating = avgRating;
-    }
-
-  
-
- public String getFormattedPrice() {
-    return formattedPrice;
-}
-
-public void setFormattedPrice(String formattedPrice) {
-    this.formattedPrice = formattedPrice;
-}
-    
 
     // Getters and Setters
+
     public int getDishID() {
         return dishID;
     }
@@ -118,6 +125,22 @@ public void setFormattedPrice(String formattedPrice) {
         this.stock = stock;
     }
 
+    public boolean isAvailable() {
+        return isAvailable;
+    }
+
+    public void setAvailable(boolean available) {
+        this.isAvailable = available;
+    }
+
+    public boolean isIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
     public int getCategoryId() {
         return categoryId;
     }
@@ -133,4 +156,37 @@ public void setFormattedPrice(String formattedPrice) {
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
+
+    public String getIngredientNames() {
+        return ingredientNames;
+    }
+
+    public void setIngredientNames(String ingredientNames) {
+        this.ingredientNames = ingredientNames;
+    }
+
+    public Double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(Double avgRating) {
+        this.avgRating = avgRating;
+    }
+
+    public String getFormattedPrice() {
+        return formattedPrice;
+    }
+
+    public void setFormattedPrice(String formattedPrice) {
+        this.formattedPrice = formattedPrice;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
 }
