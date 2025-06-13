@@ -55,6 +55,7 @@ public class DishServlet extends HttpServlet {
 
         // Nếu có catId => lọc danh sách món ăn theo category
         String catIdParam = request.getParameter("catId");
+        request.setAttribute("selectedCatId", catIdParam);
         List<Dish> menuItems;
         if (catIdParam != null) {
             try {

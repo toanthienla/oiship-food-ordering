@@ -259,7 +259,7 @@
                 <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
                     <form action="home/dish" method="post">
                         <input type="hidden" name="catId" value="all">
-                        <a href="guest/dish"
+                        <a href="#"
                            class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
                             All
                         </a>
@@ -309,7 +309,7 @@
                                 </div>
                                 <div class="mt-1">
                                     <a href="addToCart?dishId=<%= menuItem.getDishID()%>" class="btn btn-custom w-100" type="button">
-                                        Order
+                                        Add Cart
                                     </a>
                                 </div>
                             </button>

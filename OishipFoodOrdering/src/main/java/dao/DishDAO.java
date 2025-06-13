@@ -144,32 +144,43 @@ public class DishDAO extends DBContext {
 
     // view dish theo category
     public List<Dish> getDishesByCategory(int catId) {
-        List<Dish> dishes = new ArrayList<>();
-        String sql = "	SELECT d.DishID, d.DishName, d.image, d.DishDescription, d.stock, \n"
-                + "               \n"
-                + "			 CEILING((ISNULL(SUM(i.quantity * i.unitCost), 0) + d.opCost) * (1 + d.interestPercentage / 100) / 10000.0) * 10000 AS totalPrice\n"
-                + "                 FROM Dish d \n"
-                + "                 LEFT JOIN Ingredient i ON d.DishID = i.FK_Ingredient_Dish \n"
-                + "                 WHERE d.FK_Dish_Category = ?\n"
-                + "                 GROUP BY d.DishID, d.DishName, d.image, d.DishDescription, d.stock, d.opCost, d.interestPercentage";
+    List<Dish> dishes = new ArrayList<>();
+    String sql = "SELECT d.DishID, d.DishName, d.image, d.DishDescription, d.stock, d.opCost, d.interestPercentage "
+               + "FROM Dish d "
+               + "WHERE d.FK_Dish_Category = ?";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, catId);
-            ResultSet rs = stmt.executeQuery();
-            while (rs.next()) {
-                Dish dish = new Dish();
-                dish.setDishID(rs.getInt("DishID"));
-                dish.setDishName(rs.getString("DishName"));
-                dish.setImage(rs.getString("image"));
-                dish.setDishDescription(rs.getString("DishDescription"));
-                dish.setStock(rs.getInt("stock"));
-                dish.setTotalPrice(rs.getBigDecimal("totalPrice"));
-                dishes.add(dish);
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
+    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+        stmt.setInt(1, catId);
+        ResultSet rs = stmt.executeQuery();
+
+        IngredientDAO ingredientDAO = new IngredientDAO();
+
+        while (rs.next()) {
+            Dish dish = new Dish();
+            dish.setDishID(rs.getInt("DishID"));
+            dish.setDishName(rs.getString("DishName"));
+            dish.setImage(rs.getString("image"));
+            dish.setDishDescription(rs.getString("DishDescription"));
+            dish.setStock(rs.getInt("stock"));
+
+            BigDecimal opCost = rs.getBigDecimal("opCost");
+            BigDecimal interest = rs.getBigDecimal("interestPercentage");
+
+            List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dish.getDishID());
+            BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+            BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(opCost, interest, ingredientCost);
+
+            dish.setTotalPrice(totalPrice);
+            dish.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
+
+            dishes.add(dish);
         }
-        return dishes;
+    } catch (SQLException e) {
+        e.printStackTrace();
     }
+
+    return dishes;
+}
+
 
 }
