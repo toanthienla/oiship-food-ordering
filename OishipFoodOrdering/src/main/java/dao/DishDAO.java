@@ -21,8 +21,7 @@ public class DishDAO extends DBContext {
                 + "FROM Dish d "
                 + "ORDER BY d.DishID ASC";
 
-        try (PreparedStatement stmt = conn.prepareStatement(sql);
-             ResultSet rs = stmt.executeQuery()) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
 
             CategoryDAO categoryDAO = new CategoryDAO();
             IngredientDAO ingredientDAO = new IngredientDAO();
@@ -62,14 +61,14 @@ public class DishDAO extends DBContext {
 
     public Dish getDishDetailById(int dishId) {
         String sql = "SELECT d.DishID, d.DishName, d.image, d.dishDescription, d.stock, d.opCost, d.interestPercentage, "
-                   + "STUFF((SELECT DISTINCT ', ' + i2.name FROM Ingredient i2 WHERE i2.FK_Ingredient_Dish = d.DishID FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS ingredientNames, "
-                   + "ROUND(AVG(CAST(r.rating AS FLOAT)), 2) AS avgRating "
-                   + "FROM Dish d "
-                   + "LEFT JOIN Ingredient i ON d.DishID = i.FK_Ingredient_Dish "
-                   + "LEFT JOIN OrderDetail od ON od.FK_OD_Dish = d.DishID "
-                   + "LEFT JOIN Review r ON r.FK_Review_OrderDetail = od.ODID "
-                   + "WHERE d.DishID = ? "
-                   + "GROUP BY d.DishID, d.DishName, d.image, d.dishDescription, d.stock, d.opCost, d.interestPercentage";
+                + "STUFF((SELECT DISTINCT ', ' + i2.name FROM Ingredient i2 WHERE i2.FK_Ingredient_Dish = d.DishID FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS ingredientNames, "
+                + "ROUND(AVG(CAST(r.rating AS FLOAT)), 2) AS avgRating "
+                + "FROM Dish d "
+                + "LEFT JOIN Ingredient i ON d.DishID = i.FK_Ingredient_Dish "
+                + "LEFT JOIN OrderDetail od ON od.FK_OD_Dish = d.DishID "
+                + "LEFT JOIN Review r ON r.FK_Review_OrderDetail = od.ODID "
+                + "WHERE d.DishID = ? "
+                + "GROUP BY d.DishID, d.DishName, d.image, d.dishDescription, d.stock, d.opCost, d.interestPercentage";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, dishId);
@@ -105,7 +104,7 @@ public class DishDAO extends DBContext {
     public List<Dish> searchDishByName(String searchQuery) {
         List<Dish> dishes = new ArrayList<>();
         String sql = "SELECT d.DishID, d.DishName, d.image, d.DishDescription, d.stock, d.opCost, d.interestPercentage "
-                   + "FROM Dish d WHERE d.DishName LIKE ?";
+                + "FROM Dish d WHERE d.DishName LIKE ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, "%" + searchQuery + "%");
@@ -142,7 +141,7 @@ public class DishDAO extends DBContext {
     public List<Dish> getDishesByCategory(int catId) {
         List<Dish> dishes = new ArrayList<>();
         String sql = "SELECT d.DishID, d.DishName, d.image, d.DishDescription, d.stock, d.opCost, d.interestPercentage "
-                   + "FROM Dish d WHERE d.FK_Dish_Category = ?";
+                + "FROM Dish d WHERE d.FK_Dish_Category = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, catId);
@@ -178,7 +177,7 @@ public class DishDAO extends DBContext {
 
     public boolean addDish(Dish dish) {
         String sql = "INSERT INTO Dish (DishName, DishDescription, image, opCost, interestPercentage, stock, isAvailable, FK_Dish_Category) "
-                   + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, dish.getDishName());
@@ -198,8 +197,8 @@ public class DishDAO extends DBContext {
 
     public boolean updateDish(Dish dish) {
         String sql = "UPDATE Dish SET DishName = ?, DishDescription = ?, image = ?, opCost = ?, "
-                   + "interestPercentage = ?, stock = ?, isAvailable = ?, FK_Dish_Category = ? "
-                   + "WHERE DishID = ?";
+                + "interestPercentage = ?, stock = ?, isAvailable = ?, FK_Dish_Category = ? "
+                + "WHERE DishID = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, dish.getDishName());
@@ -218,15 +217,29 @@ public class DishDAO extends DBContext {
         return false;
     }
 
-    public boolean deleteDishById(int id) {
-        String sql = "DELETE FROM Dish WHERE DishID = ?";
-        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            return stmt.executeUpdate() > 0;
+    public void deleteDishIngredientsByDishId(int dishID) {
+        String sql = "DELETE FROM DishIngredient WHERE dishID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, dishID);
+            ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        return false;
+    }
+
+    public boolean deleteDishById(int dishID) {
+        // First, delete related DishIngredient records
+        deleteDishIngredientsByDishId(dishID);
+
+        String sql = "DELETE FROM Dish WHERE DishID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, dishID);
+            int rowsAffected = ps.executeUpdate(); 
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false; 
+        }
     }
 
     public Dish getDishById(int dishID) {
