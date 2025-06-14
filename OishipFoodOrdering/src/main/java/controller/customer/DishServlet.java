@@ -24,11 +24,11 @@ public class DishServlet extends HttpServlet {
         ReviewDAO reviewDAO = new ReviewDAO();
         CategoryDAO categoryDAO = new CategoryDAO();
 
-        // Luôn lấy danh sách category để hiển thị menu
+        // Always fetch the category list to display in the menu
         List<Category> categories = categoryDAO.getAllCategories();
         request.setAttribute("categories", categories);
 
-        // Xử lý: nếu có dishId => xem chi tiết món ăn
+        // Logic: if dishId exists => view dish detail
         String dishIdParam = request.getParameter("dishId");
         if (dishIdParam != null) {
             try {
@@ -38,22 +38,40 @@ public class DishServlet extends HttpServlet {
                 if (dish != null) {
                     request.setAttribute("dish", dish);
                     request.setAttribute("reviews", reviews);
+
+                    // Identify customer vs. guest
+                    HttpSession session = request.getSession(false);
+                    boolean isLoggedIn = false;
+                    String userName = "Guest";
+
+                    if (session != null && session.getAttribute("userId") != null
+                            && "customer".equals(session.getAttribute("role"))) {
+                        isLoggedIn = true;
+                        Object name = session.getAttribute("userName"); // or fetch from DB if not set
+                        if (name != null) {
+                            userName = name.toString();
+                        }
+                    }
+
+                    request.setAttribute("isLoggedIn", isLoggedIn);
+                    request.setAttribute("userName", userName);
+
                     request.getRequestDispatcher("/WEB-INF/views/customer/dish_detail.jsp").forward(request, response);
                     return;
                 } else {
-                    request.setAttribute("errorMessage", "Món ăn không tồn tại.");
+                    request.setAttribute("errorMessage", "Dish does not exist.");
                     request.getRequestDispatcher("/error.jsp").forward(request, response);
                     return;
                 }
 
             } catch (NumberFormatException e) {
-                request.setAttribute("errorMessage", "ID món ăn không hợp lệ.");
+                request.setAttribute("errorMessage", "Invalid dish ID.");
                 request.getRequestDispatcher("/error.jsp").forward(request, response);
                 return;
             }
         }
 
-        // Nếu có catId => lọc danh sách món ăn theo category
+        // If catId exists => filter dishes by category
         String catIdParam = request.getParameter("catId");
         request.setAttribute("selectedCatId", catIdParam);
         List<Dish> menuItems;
@@ -62,13 +80,32 @@ public class DishServlet extends HttpServlet {
                 int catId = Integer.parseInt(catIdParam);
                 menuItems = dishDAO.getDishesByCategory(catId);
             } catch (NumberFormatException e) {
-                menuItems = dishDAO.getAllDishes();
+                menuItems = dishDAO.getAllDishes(); // Fallback to all if invalid catId
             }
         } else {
             menuItems = dishDAO.getAllDishes();
         }
 
         request.setAttribute("menuItems", menuItems);
+
+        // Check login state and user name
+        HttpSession session = request.getSession(false);
+        boolean isLoggedIn = false;
+        String userName = "Guest";
+
+        if (session != null && session.getAttribute("userId") != null
+                && "customer".equals(session.getAttribute("role"))) {
+            isLoggedIn = true;
+            Object name = session.getAttribute("userName");
+            if (name != null) {
+                userName = name.toString();
+            }
+        }
+
+        request.setAttribute("isLoggedIn", isLoggedIn);
+        request.setAttribute("userName", userName);
+
+        // Forward to dish category view
         request.getRequestDispatcher("/WEB-INF/views/customer/dish_category.jsp").forward(request, response);
     }
 }

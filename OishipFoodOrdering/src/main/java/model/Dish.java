@@ -10,9 +10,9 @@ public class Dish {
     private String image;
     private String dishDescription;
     private int stock;
-    private int categoryId;  // FK_Dish_Category
+    private int categoryId;  
 
-    private BigDecimal totalPrice; // thêm trường phụ trợ nếu cần dùng trong truy vấn tính giá bán
+    private BigDecimal totalPrice; 
 private String ingredientNames;
 private Double avgRating;
 private String formattedPrice;

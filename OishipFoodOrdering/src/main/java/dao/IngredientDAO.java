@@ -23,7 +23,7 @@ public List<Ingredient> getIngredientsByDishId(int dishId) {
                 Ingredient ing = new Ingredient();
                 ing.setIngredientID(rs.getInt("ingredientID"));
                 ing.setName(rs.getString("name"));
-                ing.setQuantity(rs.getInt("usedQuantity")); // Số lượng dùng trong món
+                ing.setQuantity(rs.getInt("usedQuantity")); 
                 ing.setUnitCost(rs.getBigDecimal("unitCost"));
                 ingredients.add(ing);
             }

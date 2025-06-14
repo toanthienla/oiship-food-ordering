@@ -28,14 +28,14 @@ public class HomeServlet extends HttpServlet {
         request.setAttribute("userId", null);
         request.setAttribute("userName", null);
         request.setAttribute("error", null);
-
-        // lấy list category
-        // Gọi DAO để lấy danh sách category
+ // Get list of categories
         CategoryDAO categoryDAO = new CategoryDAO();
         List<Category> categories = categoryDAO.getAllCategories();
-        // Đưa vào request để truyền sang JSP
+
+        // Store in request scope to send to JSP
         request.setAttribute("categories", categories);
-        // Lấy danh sách món ăn để luôn hiển thị lên home.jsp
+
+        // Get all dishes to display on the home.jsp page
         List<Dish> menuItems = null;
         try {
             menuItems = new DishDAO().getAllDishes();
@@ -43,6 +43,7 @@ public class HomeServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
         }
+
         if (session != null) {
             userId = (Integer) session.getAttribute("userId");
             role = (String) session.getAttribute("role");
