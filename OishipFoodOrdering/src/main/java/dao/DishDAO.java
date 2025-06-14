@@ -15,8 +15,8 @@ public class DishDAO extends DBContext {
     public List<Dish> getAllDishes() {
         List<Dish> dishes = new ArrayList<>();
         String sql = "SELECT d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage "
-                   + "FROM Dish d "
-                   + "ORDER BY d.DishID ASC";
+                + "FROM Dish d "
+                + "ORDER BY d.DishID ASC";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
             IngredientDAO ingredientDAO = new IngredientDAO();
@@ -50,17 +50,19 @@ public class DishDAO extends DBContext {
 
     // View dish detail by ID
     public Dish getDishDetailById(int dishId) {
-        String sql = "SELECT d.DishID, d.DishName, d.image, d.dishDescription, d.stock, "
-                   + "d.opCost, d.interestPercentage, " 
-                   + "STUFF((SELECT DISTINCT ', ' + i2.name "
-                   + "       FROM Ingredient i2 WHERE i2.FK_Ingredient_Dish = d.DishID FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS ingredientNames, "
-                   + "ROUND(AVG(CAST(r.rating AS FLOAT)), 2) AS avgRating "
-                   + "FROM Dish d "
-                   + "LEFT JOIN Ingredient i ON d.DishID = i.FK_Ingredient_Dish "
-                   + "LEFT JOIN OrderDetail od ON od.FK_OD_Dish = d.DishID "
-                   + "LEFT JOIN Review r ON r.FK_Review_OrderDetail = od.ODID "
-                   + "WHERE d.DishID = ? "
-                   + "GROUP BY d.DishID, d.DishName, d.image, d.dishDescription, d.stock, d.opCost, d.interestPercentage";
+        String sql = "SELECT d.DishID, d.DishName, d.image, d.dishDescription, d.stock,\n"
+                + "       d.opCost, d.interestPercentage,\n"
+                + "       STUFF((SELECT DISTINCT ', ' + i2.name\n"
+                + "              FROM DishIngredient di2\n"
+                + "              JOIN Ingredient i2 ON di2.ingredientID = i2.ingredientID\n"
+                + "              WHERE di2.dishID = d.DishID\n"
+                + "              FOR XML PATH(''), TYPE).value('.', 'NVARCHAR(MAX)'), 1, 2, '') AS ingredientNames,\n"
+                + "       ROUND(AVG(CAST(r.rating AS FLOAT)), 2) AS avgRating\n"
+                + "FROM Dish d\n"
+                + "LEFT JOIN OrderDetail od ON od.FK_OD_Dish = d.DishID\n"
+                + "LEFT JOIN Review r ON r.FK_Review_OrderDetail = od.ODID\n"
+                + "WHERE d.DishID = ?\n"
+                + "GROUP BY d.DishID, d.DishName, d.image, d.dishDescription, d.stock, d.opCost, d.interestPercentage";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, dishId);
@@ -105,8 +107,8 @@ public class DishDAO extends DBContext {
     public List<Dish> searchDishByName(String searchQuery) {
         List<Dish> dishes = new ArrayList<>();
         String sql = "SELECT d.DishID, d.DishName, d.image, d.DishDescription, d.stock, d.opCost, d.interestPercentage "
-                   + "FROM Dish d "
-                   + "WHERE d.DishName LIKE ?";
+                + "FROM Dish d "
+                + "WHERE d.DishName LIKE ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, "%" + searchQuery + "%");
@@ -147,8 +149,8 @@ public class DishDAO extends DBContext {
     public List<Dish> getDishesByCategory(int catId) {
         List<Dish> dishes = new ArrayList<>();
         String sql = "SELECT d.DishID, d.DishName, d.image, d.DishDescription, d.stock, d.opCost, d.interestPercentage "
-                   + "FROM Dish d "
-                   + "WHERE d.FK_Dish_Category = ?";
+                + "FROM Dish d "
+                + "WHERE d.FK_Dish_Category = ?";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, catId);
