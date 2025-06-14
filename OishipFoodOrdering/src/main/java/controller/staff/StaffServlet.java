@@ -34,10 +34,10 @@ public class StaffServlet extends HttpServlet {
             try {
                 List<model.Order> orders = staffDAO.getPendingOrders();
                 request.setAttribute("orders", orders);
-                request.getRequestDispatcher("/WEB-INF/views/staff/staffDashboard.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/staff/staff_dashboard.jsp").forward(request, response);
             } catch (SQLException e) {
                 request.setAttribute("error", "Error fetching orders: " + e.getMessage());
-                request.getRequestDispatcher("/WEB-INF/views/staff/staffDashboard.jsp").forward(request, response);
+                request.getRequestDispatcher("/WEB-INF/views/staff/staff_dashboard.jsp").forward(request, response);
             }
         } else if (path.equals("/updateOrderStatus")) {
             String orderIdStr = request.getParameter("orderId");

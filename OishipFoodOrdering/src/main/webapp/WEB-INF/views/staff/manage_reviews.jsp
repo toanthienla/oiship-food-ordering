@@ -4,7 +4,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Staff - Manage Orders</title>
+        <title>Staff - Manage Reviews</title>
 
         <!-- Bootstrap 5 CSS & JS -->
         <link rel="stylesheet" href="../css/bootstrap.css" />
@@ -142,8 +142,8 @@
 
             <!-- Content -->
             <div class="content">
-                <h1>Manage Orders</h1>
-                <p>Manage customers orders.</p>
+                <h1>Manage Reviews</h1>
+                <p>Manage customers reviews.</p>
             </div>
         </div>
     </body>
