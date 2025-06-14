@@ -52,13 +52,13 @@
                     <!-- Category Name -->
                     <div class="col-md-6">
                         <label for="catName" class="form-label">New Category Name</label>
-                        <input type="text" class="form-control" id="catName" name="catName" required placeholder="e.g. Fast food">
+                        <input type="text" class="form-control" id="catName" name="catName" required placeholder="Enter category name">
                     </div>
 
                     <!-- Category Description -->
                     <div class="col-12">
                         <label for="catDescription" class="form-label">New Category Description</label>
-                        <textarea class="form-control" id="catDescription" name="catDescription" rows="3" required placeholder="e.g. Quick and affordable meals"></textarea>
+                        <textarea class="form-control" id="catDescription" name="catDescription" rows="3" required placeholder="Describe the category"></textarea>
                     </div>
 
                     <!-- Submit Button -->
@@ -77,7 +77,7 @@
                                  style="cursor: pointer;"
                                  onclick="toggleDescription(this)">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span>${cat.catName}</span>
+                                    <span style="font-weight: 500">${cat.catName}</span>
                                     <div>
                                         <!--Edit button-->
                                         <a href="#" class="btn btn-sm btn-primary me-2"
@@ -136,12 +136,14 @@
 
 
         <script>
-            const params = new URLSearchParams(window.location.search);
-            const success = params.get("success");
-
-            if (success === "false") {
-                alert("Failed to add category. Please try again.");
-            }
+//            const params = new URLSearchParams(window.location.search);
+//            const success = params.get("success");
+//
+//            if (success === "false") {
+//                alert("Failed to add category. Please try again.");
+//            } else if (success === "true") {
+//                alert("Success to add category.");
+//            }
 
             function toggleDescription(item) {
                 const desc = item.querySelector('.cat-description');
@@ -149,18 +151,6 @@
                     desc.style.display = (desc.style.display === 'none' || desc.style.display === '') ? 'block' : 'none';
                 }
             }
-
-            // Optional: Close all descriptions when clicking outside
-            document.addEventListener('click', function (event) {
-                const items = document.querySelectorAll('.list-group-item');
-                items.forEach(i => {
-                    if (!i.contains(event.target)) {
-                        const desc = i.querySelector('.cat-description');
-                        if (desc)
-                            desc.style.display = 'none';
-                    }
-                });
-            });
 
             function handleEditClick(button) {
                 const id = button.getAttribute('data-id');

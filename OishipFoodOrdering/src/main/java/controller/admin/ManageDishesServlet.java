@@ -20,6 +20,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.Part;
 
 import java.io.IOException;
+import java.util.Comparator;
 
 @WebServlet(urlPatterns = {"/admin/manage-dishes"})
 @MultipartConfig
@@ -46,6 +47,8 @@ public class ManageDishesServlet extends HttpServlet {
         }
 
         List<Dish> dishes = dishDAO.getAllDishes();
+        dishes.sort(Comparator.comparing(d -> d.getCategory().getCatName())); // <- after initialization
+
         List<Category> categories = categoryDAO.getAllCategories();
 
         request.setAttribute("dishes", dishes);
@@ -100,7 +103,7 @@ public class ManageDishesServlet extends HttpServlet {
                 e.printStackTrace();
             }
         }
-        
+
         // === Save dish data ===
         DishDAO dishDAO = new DishDAO();
         boolean isSuccess;
