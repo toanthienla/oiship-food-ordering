@@ -1,8 +1,10 @@
 package model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Dish {
+
     private int dishID;
     private String dishName;
     private BigDecimal opCost;
@@ -10,16 +12,21 @@ public class Dish {
     private String image;
     private String dishDescription;
     private int stock;
-    private int categoryId;  
+    private int categoryId;
+    private List<Ingredient> ingredients;
 
-    private BigDecimal totalPrice; 
-private String ingredientNames;
-private Double avgRating;
-private String formattedPrice;
+    private BigDecimal totalPrice;
+    private String ingredientNames;
+    private Double avgRating;
+    private String formattedPrice;
+    private boolean isAvailable;
+    private Category category;
+
     // Constructors
-    public Dish() {}
+    public Dish() {
+    }
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, List<Ingredient> ingredients, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice, boolean isAvailable, Category category) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -28,11 +35,38 @@ private String formattedPrice;
         this.dishDescription = dishDescription;
         this.stock = stock;
         this.categoryId = categoryId;
+        this.ingredients = ingredients;
         this.totalPrice = totalPrice;
         this.ingredientNames = ingredientNames;
         this.avgRating = avgRating;
+        this.formattedPrice = formattedPrice;
+        this.isAvailable = isAvailable;
+        this.category = category;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+    public boolean isIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(List<Ingredient> ingredients) {
+        this.ingredients = ingredients;
+    }
 
     public String getIngredientNames() {
         return ingredientNames;
@@ -50,16 +84,13 @@ private String formattedPrice;
         this.avgRating = avgRating;
     }
 
-  
+    public String getFormattedPrice() {
+        return formattedPrice;
+    }
 
- public String getFormattedPrice() {
-    return formattedPrice;
-}
-
-public void setFormattedPrice(String formattedPrice) {
-    this.formattedPrice = formattedPrice;
-}
-    
+    public void setFormattedPrice(String formattedPrice) {
+        this.formattedPrice = formattedPrice;
+    }
 
     // Getters and Setters
     public int getDishID() {
