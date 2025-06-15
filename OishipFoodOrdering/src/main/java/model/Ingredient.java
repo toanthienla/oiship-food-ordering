@@ -1,26 +1,26 @@
 package model;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 public class Ingredient {
 
     private int ingredientId;
     private String ingredientName;
-    private double unitCost;
+    private BigDecimal unitCost;
     private int fkIngredientAccount;
-    private List<DishIngredient> dishIngredients; // Thêm danh sách DishIngredient
+    private List<DishIngredient> dishIngredients;
 
     public Ingredient() {
     }
 
-    public Ingredient(int ingredientId, String ingredientName, double unitCost, int fkIngredientAccount) {
+    public Ingredient(int ingredientId, String ingredientName, BigDecimal unitCost, int fkIngredientAccount) {
         this.ingredientId = ingredientId;
         this.ingredientName = ingredientName;
         this.unitCost = unitCost;
         this.fkIngredientAccount = fkIngredientAccount;
     }
 
-    // Getters and Setters
     public int getIngredientId() {
         return ingredientId;
     }
@@ -37,11 +37,11 @@ public class Ingredient {
         this.ingredientName = ingredientName;
     }
 
-    public double getUnitCost() {
+    public BigDecimal getUnitCost() {
         return unitCost;
     }
 
-    public void setUnitCost(double unitCost) {
+    public void setUnitCost(BigDecimal unitCost) {
         this.unitCost = unitCost;
     }
 

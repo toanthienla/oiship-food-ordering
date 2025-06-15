@@ -17,6 +17,11 @@
     </properties>
 
     <dependencies>
+        <dependency>
+            <groupId>org.json</groupId>
+            <artifactId>json</artifactId>
+            <version>20231013</version>
+        </dependency>
         <!-- Jakarta EE Full API -->
         <dependency>
             <groupId>jakarta.platform</groupId>
