@@ -154,25 +154,32 @@
                 </div>
             </nav>
             <!-- Profile Content -->
-            <div class="content">
+            <div class="content mt-4">
                 <h2>Change Password</h2>
-                <form method="post" action="${pageContext.request.contextPath}/staff/change-password">
+                <form method="post" action="${pageContext.request.contextPath}/staff/profile/change-password">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                    </div>
                     <div class="mb-3">
                         <label for="newPassword" class="form-label">New Password</label>
                         <input type="password" class="form-control" id="newPassword" name="newPassword" required>
                     </div>
                     <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Confirm Password</label>
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
                         <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Change Password</button>
                     <a href="${pageContext.request.contextPath}/staff/profile" class="btn btn-secondary">Cancel</a>
                 </form>
 
-                <c:if test="${not empty message}">
-                    <div class="alert alert-info mt-3">${message}</div>
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger mt-3">${error}</div>
                 </c:if>
 
+                <c:if test="${not empty message}">
+                    <div class="alert alert-success mt-3">${message}</div>
+                </c:if>
             </div>
 
 

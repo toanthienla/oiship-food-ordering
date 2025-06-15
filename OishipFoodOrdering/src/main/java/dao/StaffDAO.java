@@ -63,6 +63,20 @@ public class StaffDAO extends DBContext {
         return false;
     }
 
+    public boolean changePasswordStaffByEmail(String email, String newPassword) {
+        String sql = "UPDATE Account SET password = ? WHERE email = ?";
+        String hashedPassword = SecurityDAO.hashPassword(newPassword);
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, hashedPassword);
+            ps.setString(2, email);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public List<Order> getPendingOrders() throws SQLException {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT orderID, amount, orderStatus, paymentStatus, orderCreatedAt, orderUpdatedAt, deliveryAddress, deliveryTime "
@@ -123,6 +137,17 @@ public class StaffDAO extends DBContext {
 //        } else {
 //            System.out.println("No staff found for email: " + email);
 //        }
+        StaffDAO staffDAO = new StaffDAO();
+        String email = "staff@example.com";
+        String newPassword = "newpass123";
+
+        boolean result = staffDAO.changePasswordStaffByEmail(email, newPassword);
+
+        if (result) {
+            System.out.println("Password updated successfully for email: " + email);
+        } else {
+            System.out.println("Failed to update password for email: " + email);
+        }
     }
 
 }
