@@ -144,7 +144,7 @@
                     <a class="navbar-brand" href="${pageContext.request.contextPath}/staff/dashboard">Oiship</a>
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-auto">
-                            <li class="wellcome-text">Welcome, <span><c:out value="${userName}" /></span>!</li>
+                            <li class="wellcome-text">Welcome, <span><c:out value="${sessionScope.userName}" /></span>!</li>
                             <li class="nav-item">
                                 <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
                             </li>

@@ -54,6 +54,7 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("role", account.getRole());
         session.setAttribute("userName", account.getFullName());
         session.setAttribute("account", account);
+        session.setAttribute("email", account.getEmail());
 
         // Debug
         System.out.println("Login successful: email=" + email + ", role=" + account.getRole() + ", userName=" + account.getFullName() + ", userId=" + account.getCustomerID());
