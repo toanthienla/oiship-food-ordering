@@ -22,7 +22,6 @@ public class Dish {
     public Dish() {
     }
 
-    // Constructors
     public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, boolean isAvailable, int categoryId, Category category, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice) {
         this.dishID = dishID;
         this.dishName = dishName;
@@ -96,15 +95,13 @@ public class Dish {
         this.stock = stock;
     }
 
-      public boolean isIsAvailable() {
+    public boolean isIsAvailable() {
         return isAvailable;
     }
 
     public void setIsAvailable(boolean isAvailable) {
         this.isAvailable = isAvailable;
     }
-
-   
 
     public int getCategoryId() {
         return categoryId;
@@ -153,6 +150,8 @@ public class Dish {
     public void setFormattedPrice(String formattedPrice) {
         this.formattedPrice = formattedPrice;
     }
+
+   
 
    
    
