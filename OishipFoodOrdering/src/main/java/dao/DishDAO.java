@@ -10,6 +10,80 @@ import model.Ingredient;
 import utils.TotalPriceCalculator;
 
 public class DishDAO extends DBContext {
+    public boolean addDish(Dish dish) {
+        String sql = "INSERT INTO Dish (DishName, opCost, interestPercentage, image, DishDescription, stock, isAvailable, categoryId) "
+                + "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, dish.getDishName());
+            ps.setBigDecimal(2, dish.getOpCost());
+            ps.setBigDecimal(3, dish.getInterestPercentage());
+            ps.setString(4, dish.getImage());
+            ps.setString(5, dish.getDishDescription());
+            ps.setInt(6, dish.getStock());
+            ps.setBoolean(7, dish.isIsAvailable());
+            ps.setInt(8, dish.getCategoryId());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public boolean updateDish(Dish dish) {
+        String sql = "UPDATE Dish SET DishName=?, opCost=?, interestPercentage=?, image=?, DishDescription=?, stock=?, isAvailable=?, categoryId=? "
+                + "WHERE DishID=?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, dish.getDishName());
+            ps.setBigDecimal(2, dish.getOpCost());
+            ps.setBigDecimal(3, dish.getInterestPercentage());
+            ps.setString(4, dish.getImage());
+            ps.setString(5, dish.getDishDescription());
+            ps.setInt(6, dish.getStock());
+            ps.setBoolean(7, dish.isIsAvailable());
+            ps.setInt(8, dish.getCategoryId());
+            ps.setInt(9, dish.getDishID());
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    public Dish getDishById(int id) {
+        String sql = "SELECT * FROM Dish WHERE DishID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new Dish(
+                            rs.getInt("DishID"),
+                            rs.getString("DishName"),
+                            rs.getBigDecimal("opCost"),
+                            rs.getBigDecimal("interestPercentage"),
+                            rs.getString("image"),
+                            rs.getString("DishDescription"),
+                            rs.getInt("stock"),
+                            rs.getBoolean("isAvailable"),
+                            rs.getInt("categoryId")
+                    );
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean deleteDishById(int id) {
+        String sql = "DELETE FROM Dish WHERE DishID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
 
     // Retrieve all dishes
     public List<Dish> getAllDishes() {
@@ -184,4 +258,5 @@ public class DishDAO extends DBContext {
 
         return dishes;
     }
+    
 }

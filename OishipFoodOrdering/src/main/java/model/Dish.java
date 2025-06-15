@@ -13,7 +13,7 @@ public class Dish {
     private String dishDescription;
     private int stock;
     private int categoryId;
-     private Category category;
+    private Category category;
     private BigDecimal totalPrice;
     private String ingredientNames;
     private Double avgRating;
@@ -39,6 +39,48 @@ public class Dish {
         this.avgRating = avgRating;
         this.formattedPrice = formattedPrice;
         this.isAvailable = isAvailable;
+        this.ingredients = ingredients;
+    }
+
+    public Dish(String name, BigDecimal opCost, BigDecimal interestPercentage,
+            String image, String description, int stock, boolean isAvailable, int categoryId) {
+        this.dishName = name;
+        this.opCost = opCost;
+        this.interestPercentage = interestPercentage;
+        this.image = image;
+        this.dishDescription = description;
+        this.stock = stock;
+        this.isAvailable = isAvailable;
+        this.categoryId = categoryId;
+    }
+
+    public Dish(int dishID, String name, BigDecimal opCost, BigDecimal interestPercentage,
+            String image, String description, int stock, boolean isAvailable, int categoryId) {
+        this.dishID = dishID;
+        this.dishName = name;
+        this.opCost = opCost;
+        this.interestPercentage = interestPercentage;
+        this.image = image;
+        this.dishDescription = description;
+        this.stock = stock;
+        this.isAvailable = isAvailable;
+        this.categoryId = categoryId;
+    }
+
+    public Dish(int dishId, String dishName, BigDecimal opCost, BigDecimal interestPercentage,
+            String image, String dishDescription, int stock, int categoryId,
+            BigDecimal totalPrice, String ingredientNames, Double rating, List<Ingredient> ingredients) {
+        this.dishID = dishId;
+        this.dishName = dishName;
+        this.opCost = opCost;
+        this.interestPercentage = interestPercentage;
+        this.image = image;
+        this.dishDescription = dishDescription;
+        this.stock = stock;
+        this.categoryId = categoryId;
+        this.totalPrice = totalPrice;
+        this.ingredientNames = ingredientNames;
+        this.avgRating = avgRating;
         this.ingredients = ingredients;
     }
 
