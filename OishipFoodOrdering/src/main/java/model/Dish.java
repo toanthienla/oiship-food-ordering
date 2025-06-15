@@ -1,5 +1,8 @@
 package model;
-
+/**
+ *
+ * @author Phi Yen
+ */
 import java.math.BigDecimal;
 import java.util.List;
 
@@ -14,7 +17,6 @@ public class Dish {
     private int stock;
     private int categoryId;
     private List<Ingredient> ingredients;
-
     private BigDecimal totalPrice;
     private String ingredientNames;
     private Double avgRating;
