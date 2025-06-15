@@ -30,7 +30,7 @@ public class IngredientDAO extends DBContext {
                 DishIngredient di = new DishIngredient();
                 di.setDishId(rs.getInt("dishID"));
                 di.setIngredientId(rs.getInt("ingredientID"));
-                di.setQuantity(rs.getDouble("quantity")); // double vì trong DB là DECIMAL
+                di.setQuantity(rs.getDouble("quantity"));
 
                 List<DishIngredient> dishIngredients = new ArrayList<>();
                 dishIngredients.add(di);

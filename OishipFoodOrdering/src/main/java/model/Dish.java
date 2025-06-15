@@ -15,19 +15,20 @@ public class Dish {
     private String image;
     private String dishDescription;
     private int stock;
-    private int categoryId;
-    private List<Ingredient> ingredients;
-    private BigDecimal totalPrice;
+     private boolean isAvailable;
+    private int categoryId;  // FK_Dish_Category
+    private Category category;
+    private BigDecimal totalPrice; // thêm trường phụ trợ nếu cần dùng trong truy vấn tính giá bán
     private String ingredientNames;
     private Double avgRating;
     private String formattedPrice;
-    private boolean isAvailable;
-    private Category category;
+    private List<Ingredient> ingredients;
+   
 
     public Dish() {
     }
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, List<Ingredient> ingredients, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice, boolean isAvailable, Category category) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, boolean isAvailable, int categoryId, Category category, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice, List<Ingredient> ingredients) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -35,16 +36,17 @@ public class Dish {
         this.image = image;
         this.dishDescription = dishDescription;
         this.stock = stock;
+        this.isAvailable = isAvailable;
         this.categoryId = categoryId;
-        this.ingredients = ingredients;
+        this.category = category;
         this.totalPrice = totalPrice;
         this.ingredientNames = ingredientNames;
         this.avgRating = avgRating;
         this.formattedPrice = formattedPrice;
-        this.isAvailable = isAvailable;
-        this.category = category;
+        this.ingredients = ingredients;
     }
 
+    
     public int getDishID() {
         return dishID;
     }
