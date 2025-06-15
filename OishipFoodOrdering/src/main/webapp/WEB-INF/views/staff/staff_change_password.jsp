@@ -9,23 +9,20 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Staff - My Profile</title>
+        <title>Staff - Change Password</title>
 
-        <!-- Bootstrap 5 CSS & JS -->
-        <link rel="stylesheet" href="../css/bootstrap.css" />
-        <script src="../js/bootstrap.bundle.js"></script>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-        <!--CSS for Sidebar-->
-        <link rel="stylesheet" href="../css/sidebar.css" />
 
-        <!--JS for Sidebar-->
-        <script src="../js/sidebar.js"></script>
 
+        <!-- Sidebar CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
+
+        <!-- Sidebar JS -->
+        <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
         <!-- Bootstrap Icons -->
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
-            />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
         <style>
             body {
@@ -157,46 +154,39 @@
                 </div>
             </nav>
             <!-- Profile Content -->
-            <div class="container py-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="card shadow">
-                            <div class="card-header bg-primary text-white">
-                                <h4 class="mb-0">Staff Profile</h4>
-                            </div>
-                            <div class="card-body">
-                                <%
-                                    Staff staff = (Staff) request.getAttribute("staff");
-                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                                    if (staff != null) {
-                                %>
-                                <dl class="row">
-                                    <dt class="col-sm-4">Full Name:</dt>
-                                    <dd class="col-sm-8"><%= staff.getFullName() != null ? staff.getFullName() : "N/A"%></dd>
-
-                                    <dt class="col-sm-4">Email:</dt>
-                                    <dd class="col-sm-8"><%= staff.getEmail() != null ? staff.getEmail() : "N/A"%></dd>
-
-                                    <dt class="col-sm-4">Role:</dt>
-                                    <dd class="col-sm-8"><%= staff.getRole() != null ? staff.getRole() : "N/A"%></dd>
-
-                                    <dt class="col-sm-4">Created At:</dt>
-                                    <dd class="col-sm-8"><%= staff.getCreateAt() != null ? dateFormat.format(staff.getCreateAt()) : "N/A"%></dd>
-                                </dl>
-                                <% } else { %>
-                                <div class="alert alert-danger text-center">No staff profile found.</div>
-                                <% }%>
-                                <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-                                    <a href="${pageContext.request.contextPath}/staff/profile/edit-profile" class="btn btn-success">Edit Profile</a>
-                                    <a href="${pageContext.request.contextPath}/staff/profile/change-password" class="btn btn-danger">Change Password</a>
-                                    <a href="${pageContext.request.contextPath}/staff/dashboard" class="btn btn-secondary">Back to Dashboard</a>
-                                </div>
-
-                            </div>
-                        </div>
+            <div class="content mt-4">
+                <h2>Change Password</h2>
+                <form method="post" action="${pageContext.request.contextPath}/staff/profile/change-password">
+                    <div class="mb-3">
+                        <label for="currentPassword" class="form-label">Current Password</label>
+                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
                     </div>
-                </div>
+                    <div class="mb-3">
+                        <label for="newPassword" class="form-label">New Password</label>
+                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                    </div>
+                    <div class="mb-3">
+                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
+                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Change Password</button>
+                    <a href="${pageContext.request.contextPath}/staff/profile" class="btn btn-secondary">Cancel</a>
+                </form>
+
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger mt-3">${error}</div>
+                </c:if>
+
+                <c:if test="${not empty message}">
+                    <div class="alert alert-success mt-3">${message}</div>
+                </c:if>
             </div>
+
+
+
+
+            <!-- JS -->
+            <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
 
     </body>
 </html>
