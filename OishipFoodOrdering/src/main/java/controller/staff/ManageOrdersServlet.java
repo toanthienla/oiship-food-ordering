@@ -4,8 +4,8 @@ package controller.staff;
  * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
  * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
  */
-
 import controller.admin.*;
+import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,6 +13,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import model.Order;
 
 /**
  *
@@ -59,7 +61,16 @@ public class ManageOrdersServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Gọi DAO để lấy danh sách đơn hàng
+        OrderDAO orderDAO = new OrderDAO();
+        List<Order> orderList = orderDAO.getAllOrders();
+
+        // Đưa dữ liệu vào request scope
+        request.setAttribute("orders", orderList);
+
+        // Chuyển tiếp sang JSP để hiển thị
         request.getRequestDispatcher("/WEB-INF/views/staff/manage_orders.jsp").forward(request, response);
+
     }
 
     /**

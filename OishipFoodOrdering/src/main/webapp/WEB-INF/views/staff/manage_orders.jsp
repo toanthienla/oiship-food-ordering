@@ -153,9 +153,57 @@
 
             <!-- Content -->
             <div class="content">
-                <h1>Manage Orders</h1>
-                <p>Manage customers orders.</p>
+                <h2>Manage Orders</h2>
+
+                <table border="1" cellpadding="10" cellspacing="0">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Amount</th>
+                            <th>Status</th>
+                            <th>Payment</th>
+                            <th>Created At</th>
+                            <th>Updated At</th>
+                            <th>Voucher ID</th>
+                            <th>Customer ID</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="order" items="${orders}">
+                            <tr>
+                                <td>${order.orderID}</td>
+                                <td>${order.amount}</td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${order.orderStatus == 0}">Pending</c:when>
+                                        <c:when test="${order.orderStatus == 1}">Confirmed</c:when>
+                                        <c:when test="${order.orderStatus == 2}">Preparing</c:when>
+                                        <c:when test="${order.orderStatus == 3}">Out for Delivery</c:when>
+                                        <c:when test="${order.orderStatus == 4}">Delivered</c:when>
+                                        <c:when test="${order.orderStatus == 5}">Cancelled</c:when>
+                                        <c:when test="${order.orderStatus == 6}">Failed</c:when>
+                                        <c:otherwise>Unknown</c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>
+                                    <c:choose>
+                                        <c:when test="${order.paymentStatus == 0}">Unpaid</c:when>
+                                        <c:when test="${order.paymentStatus == 1}">Paid</c:when>
+                                        <c:when test="${order.paymentStatus == 2}">Refunded</c:when>
+                                        <c:otherwise>Unknown</c:otherwise>
+                                    </c:choose>
+                                </td>
+                                <td>${order.orderCreatedAt}</td>
+                                <td>${order.orderUpdatedAt}</td>
+                                <td>${order.voucherID}</td>
+                                <td>${order.customerID}</td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
             </div>
+
+
         </div>
     </body>
 </html>

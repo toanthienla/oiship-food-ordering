@@ -1,38 +1,20 @@
 package model;
 
-import java.sql.Timestamp;
+import java.math.BigDecimal;
+import java.util.Date;
 
 public class Order {
 
     private int orderID;
-    private double amount;
+    private BigDecimal amount;
     private int orderStatus;
     private int paymentStatus;
-    private Timestamp orderCreatedAt;
-    private Timestamp orderUpdatedAt;
-    private String deliveryAddress;
-    private Timestamp deliveryTime;
-    private Integer fkOrderVoucher; // Sử dụng Integer để cho phép null
-    private Integer fkOrderCustomer; // Sử dụng Integer để cho phép null
-    private Integer fkOrderStaff;    // Sử dụng Integer để cho phép null
+    private Date orderCreatedAt;
+    private Date orderUpdatedAt;
+    private int voucherID;
+    private int customerID;
 
-    public Order(int orderID, double amount, int orderStatus, int paymentStatus, Timestamp orderCreatedAt,
-            Timestamp orderUpdatedAt, String deliveryAddress, Timestamp deliveryTime,
-            Integer fkOrderVoucher, Integer fkOrderCustomer, Integer fkOrderStaff) {
-        this.orderID = orderID;
-        this.amount = amount;
-        this.orderStatus = orderStatus;
-        this.paymentStatus = paymentStatus;
-        this.orderCreatedAt = orderCreatedAt;
-        this.orderUpdatedAt = orderUpdatedAt;
-        this.deliveryAddress = deliveryAddress;
-        this.deliveryTime = deliveryTime;
-        this.fkOrderVoucher = fkOrderVoucher;
-        this.fkOrderCustomer = fkOrderCustomer;
-        this.fkOrderStaff = fkOrderStaff;
-    }
-
-    // Getters and Setters
+    // Getters and setters
     public int getOrderID() {
         return orderID;
     }
@@ -41,11 +23,11 @@ public class Order {
         this.orderID = orderID;
     }
 
-    public double getAmount() {
+    public BigDecimal getAmount() {
         return amount;
     }
 
-    public void setAmount(double amount) {
+    public void setAmount(BigDecimal amount) {
         this.amount = amount;
     }
 
@@ -65,59 +47,35 @@ public class Order {
         this.paymentStatus = paymentStatus;
     }
 
-    public Timestamp getOrderCreatedAt() {
+    public Date getOrderCreatedAt() {
         return orderCreatedAt;
     }
 
-    public void setOrderCreatedAt(Timestamp orderCreatedAt) {
+    public void setOrderCreatedAt(Date orderCreatedAt) {
         this.orderCreatedAt = orderCreatedAt;
     }
 
-    public Timestamp getOrderUpdatedAt() {
+    public Date getOrderUpdatedAt() {
         return orderUpdatedAt;
     }
 
-    public void setOrderUpdatedAt(Timestamp orderUpdatedAt) {
+    public void setOrderUpdatedAt(Date orderUpdatedAt) {
         this.orderUpdatedAt = orderUpdatedAt;
     }
 
-    public String getDeliveryAddress() {
-        return deliveryAddress;
+    public int getVoucherID() {
+        return voucherID;
     }
 
-    public void setDeliveryAddress(String deliveryAddress) {
-        this.deliveryAddress = deliveryAddress;
+    public void setVoucherID(int voucherID) {
+        this.voucherID = voucherID;
     }
 
-    public Timestamp getDeliveryTime() {
-        return deliveryTime;
+    public int getCustomerID() {
+        return customerID;
     }
 
-    public void setDeliveryTime(Timestamp deliveryTime) {
-        this.deliveryTime = deliveryTime;
-    }
-
-    public Integer getFkOrderVoucher() {
-        return fkOrderVoucher;
-    }
-
-    public void setFkOrderVoucher(Integer fkOrderVoucher) {
-        this.fkOrderVoucher = fkOrderVoucher;
-    }
-
-    public Integer getFkOrderCustomer() {
-        return fkOrderCustomer;
-    }
-
-    public void setFkOrderCustomer(Integer fkOrderCustomer) {
-        this.fkOrderCustomer = fkOrderCustomer;
-    }
-
-    public Integer getFkOrderStaff() {
-        return fkOrderStaff;
-    }
-
-    public void setFkOrderStaff(Integer fkOrderStaff) {
-        this.fkOrderStaff = fkOrderStaff;
+    public void setCustomerID(int customerID) {
+        this.customerID = customerID;
     }
 }
