@@ -1,3 +1,6 @@
+<%@page import="java.util.List"%>
+<%@page import="model.Category"%>
+<%@page import="model.Dish"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 <!DOCTYPE html>
@@ -219,16 +222,42 @@
                 }
             }
         </style>
+          <%-- style category --%>
+        <style>
+            .menu-section .btn {
+                border-radius: 20px;
+                padding: 8px 20px;
+                font-weight: 500;
+                transition: all 0.2s ease;
+                white-space: nowrap;
+            }
+
+            .menu-section .btn.active,
+            .menu-section .btn:hover {
+                background-color: #ff6200;
+                color: #fff;
+                box-shadow: 0 3px 8px rgba(255, 98, 0, 0.3);
+            }
+
+            .menu-section .d-flex::-webkit-scrollbar {
+                display: none;
+            }
+
+            .menu-section .d-flex {
+                -ms-overflow-style: none;
+                scrollbar-width: none;
+            }
+        </style>
     </head>
     <body>
-        <div class="sidebar">
+         <div class="sidebar">
             <div class="text-center mb-4">
                 <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
                 <h5 class="mt-2 text-orange">OISHIP</h5>
             </div>
-            <a href="#" class="active"><i class="fas fa-home me-2"></i> Home</a>
+            <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
             <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
-            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dish</a>
+            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
             <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
@@ -238,8 +267,8 @@
 
         <div class="main-content">
             <nav class="navbar navbar-light bg-light p-2 mb-3">
-                <form class="d-flex search-bar">
-                    <input class="form-control me-2" type="search" placeholder="Tìm kiếm món ăn..." aria-label="Search" />
+                <form method="POST" action="${pageContext.request.contextPath}/customer/search-dish" class="d-flex search-bar" role="search">
+                    <input class="form-control me-2" type="search-dish" name="searchQuery" placeholder="Search for dishes..." aria-label="Search" />
                     <button class="btn btn-outline-success" type="submit">Find</button>
                 </form>
                 <div class="d-flex align-items-center">
@@ -262,96 +291,94 @@
                 </div>
             </nav>
 
+            
             <div class="hero-section">
                 <div class="content">
-                    <h1>Giao món ngon tận nơi chỉ trong 30 phút!</h1>
-                    <p>Khám phá hàng trăm món ăn Việt Nam và quốc tế với đội ngũ giao hàng tận nơi nhanh chóng, đảm bảo chất lượng.</p>
-                    <button class="btn btn-custom me-2">Đặt ngay</button>
-                    <button class="btn btn-outline-custom me-2">Xem thực đơn</button>
-                    <button class="btn btn-outline-custom">Tải ứng dụng</button>
+                    <h1>Delicious meals delivered in just 30 minutes!</h1>
+                    <p>Discover hundreds of Vietnamese and international dishes with fast, reliable delivery service.</p>
+                    <button class="btn btn-custom me-2">Order Now</button>
+                    <button class="btn btn-outline-custom me-2">View Menu</button>
+                    <button class="btn btn-outline-custom">Download App</button>
                 </div>
             </div>
 
-            <!-- Menu Section -->
+             <!-- Menu Section -->
             <div id="menu" class="menu-section">
                 <h2 class="mb-4">MENU</h2>
-                <div class="btn-group" role="group" aria-label="Menu categories">
-                    <button type="button" class="btn btn-outline-primary menu-btn active" data-category="all">Tất cả</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="pho">Phở</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="com">Cơm</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="banhmi">Bánh mì</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="hai-san">Hải sản</button>
-                    <button type="button" class="btn btn-outline-primary menu-btn" data-category="do-uong">Đồ uống</button>
+                <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
+                    <form action="home/dish" method="post">
+                        <input type="hidden" name="catId" value="all">
+                        <a href="#"
+                           class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
+                            All
+                        </a>
+                    </form>
+
+                    <%
+                        List<Category> categories = (List<Category>) request.getAttribute("categories");
+                        if (categories != null) {
+                            for (model.Category cat : categories) {
+                    %>
+                    <form action="home/dish" method="post">
+                        <input type="hidden" name="catId" value="<%= cat.getCatID()%>">
+                        <button type="submit" class="btn btn-outline-primary menu-btn">
+                            <%= cat.getCatName()%>
+                        </button>
+                    </form>
+                    <%
+                            }
+                        }
+                    %>
                 </div>
             </div>
 
-            <!-- Dishes Section -->
+             <!-- Dishes Section -->
             <div id="dishes" class="dish-section">
                 <h2 class="mb-4">Trending Food</h2>
                 <div class="row">
-                    <div class="col-md-4 mb-3">
-                        <div class="card dish-card">
-                            <img src="https://via.placeholder.com/300x200" alt="Phở Bò" class="card-img-top">
-                            <div class="card-body">
-                                <h5 class="card-title">Phở Bò</h5>
-                                <p class="card-text">Giá: 50.000 VNĐ</p>
-                                <button class="btn btn-custom w-100">Đặt ngay</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card dish-card">
-                            <img src="https://via.placeholder.com/300x200" alt="Cơm Gà" class="card-img-top">
-                            <div class="card-body">
-                                <h5 class="card-title">Cơm Gà</h5>
-                                <p class="card-text">Giá: 40.000 VNĐ</p>
-                                <button class="btn btn-custom w-100">Đặt ngay</button>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="col-md-4 mb-3">
-                        <div class="card dish-card">
-                            <img src="https://via.placeholder.com/300x200" alt="Bánh Mì" class="card-img-top">
-                            <div class="card-body">
-                                <h5 class="card-title">Bánh Mì Đặc Biệt</h5>
-                                <p class="card-text">Giá: 30.000 VNĐ</p>
-                                <button class="btn btn-custom w-100">Đặt ngay</button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="text-end">
-                    <a href="menu.jsp" class="btn btn-outline-custom">Xem tất cả món</a>
-                </div>
-            </div>
+                    <%
+                        List<Dish> menuItems = (List<Dish>) request.getAttribute("menuItems");
+                        if (menuItems != null && !menuItems.isEmpty()) {
+                            for (Dish menuItem : menuItems) {
+                                String imageUrl = (menuItem.getImage() != null && !menuItem.getImage().isEmpty())
+                                        ? menuItem.getImage()
+                                        : "https://via.placeholder.com/300x200";
+                    %>
 
-            <!-- Contact Section -->
-            <div id="contact" class="contact-section">
-                <h2 class="mb-4">Contact</h2>
-                <p>Chúng tôi luôn sẵn sàng hỗ trợ bạn! Hãy liên hệ qua thông tin bên dưới hoặc để lại tin nhắn.</p>
-                <div class="row">
-                    <div class="col-md-6">
-                        <p><i class="fas fa-map-marker-alt"></i> Địa chỉ: 27 Huỳnh Phúc Thọ, Quận 1, TP. HCM</p>
-                        <p><i class="fas fa-phone"></i> Hotline: 0909 123 456</p>
-                        <p><i class="fas fa-envelope"></i> Email: support@oiship.com</p>
-                    </div>
-                    <div class="col-md-6">
-                        <form class="contact-form">
-                            <div class="mb-3">
-                                <input type="text" class="form-control" placeholder="Họ và tên" required>
-                            </div>
-                            <div class="mb-3">
-                                <input type="email" class="form-control" placeholder="Email" required>
-                            </div>
-                            <div class="mb-3">
-                                <textarea class="form-control" rows="3" placeholder="Tin nhắn" required></textarea>
-                            </div>
-                            <button type="submit" class="btn btn-custom">Gửi tin nhắn</button>
+                    <div class="col-md-4 mb-3">
+                        <form action="home/dish" method="post">
+                            <input type="hidden" name="dishId" value="<%= menuItem.getDishID()%>">
+                            <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
+                                <div class="card dish-card">
+                                    <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
+                                    <div class="card-body">
+                                        <h5 class="card-title"><%= menuItem.getDishName()%></h5>
+                                        <p class="card-text">Price: <%= menuItem.getFormattedPrice()%>đ</p>
+                                    </div>
+                                </div>
+                                <div class="mt-1">
+                                    <a href="addToCart?dishId=<%= menuItem.getDishID()%>" class="btn btn-custom w-100" type="button">
+                                        Add Cart
+                                    </a>
+                                </div>
+                            </button>
                         </form>
                     </div>
+                    <%
+                        }
+                    } else {
+                    %>
+                    <p class="text-muted">No dishes available to display.</p>
+                    <%
+                        }
+                    %>
+                </div>
+                <div class="text-end">
+                    <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
                 </div>
             </div>
         </div>
+            
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>

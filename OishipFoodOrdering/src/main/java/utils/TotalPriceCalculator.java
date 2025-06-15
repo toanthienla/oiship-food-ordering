@@ -5,30 +5,33 @@ import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import model.DishIngredient;
 import model.Ingredient;
 
 public class TotalPriceCalculator {
 
-    // Tính tổng chi phí nguyên liệu 
-    public static BigDecimal calculateIngredientCost(List<Ingredient> ingredients) {
-        if (ingredients == null || ingredients.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
+    // Calculate total ingredient cost
+   public static BigDecimal calculateIngredientCost(List<Ingredient> ingredients) {
+    if (ingredients == null || ingredients.isEmpty()) {
+        return BigDecimal.ZERO;
+    }
 
-        BigDecimal totalCost = BigDecimal.ZERO;
-        for (Ingredient ing : ingredients) {
-            if (ing.getUnitCost() != null) {
-                BigDecimal quantity = BigDecimal.valueOf(ing.getQuantity());
-                BigDecimal cost = ing.getUnitCost().multiply(quantity);
+    BigDecimal totalCost = BigDecimal.ZERO;
+
+    for (Ingredient ingredient : ingredients) {
+        if (ingredient.getUnitCost() != null && ingredient.getDishIngredients() != null) {
+            for (DishIngredient di : ingredient.getDishIngredients()) {
+                BigDecimal quantity = BigDecimal.valueOf(di.getQuantity());
+                BigDecimal cost = ingredient.getUnitCost().multiply(quantity);
                 totalCost = totalCost.add(cost);
             }
         }
-        return totalCost;
     }
 
-    
-    
-    // Tính tổng giá bán từ các chi phí
+    return totalCost;
+}
+
+    // Calculate total selling price based on costs
     public static BigDecimal calculateTotalPrice(BigDecimal opCost, BigDecimal interestPercentage, BigDecimal ingredientCost) {
         if (opCost == null) {
             opCost = BigDecimal.ZERO;
@@ -40,16 +43,15 @@ public class TotalPriceCalculator {
             ingredientCost = BigDecimal.ZERO;
         }
 
-        
         BigDecimal total = ingredientCost.add(opCost);
         BigDecimal interest = BigDecimal.ONE.add(interestPercentage.divide(new BigDecimal("100")));
         BigDecimal result = total.multiply(interest);
 
-       
+        // Round up to the nearest 1000 VND
         return result.divide(new BigDecimal("1000"), 0, RoundingMode.UP).multiply(new BigDecimal("1000"));
     }
 
-  
+    // Format price to VND currency string
     public static String formatVND(BigDecimal amount) {
         if (amount == null) {
             return "0";

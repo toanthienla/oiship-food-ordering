@@ -1,6 +1,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Dish {
 
@@ -11,22 +12,19 @@ public class Dish {
     private String image;
     private String dishDescription;
     private int stock;
-    private boolean isAvailable;
-    private int categoryId;  // FK_Dish_Category
-    private Category category;
-
-    private BigDecimal totalPrice; // thêm trường phụ trợ nếu cần dùng trong truy vấn tính giá bán
+    private int categoryId;
+     private Category category;
+    private BigDecimal totalPrice;
     private String ingredientNames;
     private Double avgRating;
     private String formattedPrice;
+    private boolean isAvailable;
+    private List<Ingredient> ingredients;
 
-    // Constructors
     public Dish() {
     }
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
-                String dishDescription, int stock, int categoryId, BigDecimal totalPrice,
-                String ingredientNames, Double avgRating) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, Category category, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice, boolean isAvailable, List<Ingredient> ingredients) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -35,39 +33,14 @@ public class Dish {
         this.dishDescription = dishDescription;
         this.stock = stock;
         this.categoryId = categoryId;
+        this.category = category;
         this.totalPrice = totalPrice;
         this.ingredientNames = ingredientNames;
         this.avgRating = avgRating;
-    }
-
-    // Constructor for update (with ID)
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
-                String dishDescription, int stock, boolean isAvailable, int categoryId) {
-        this.dishID = dishID;
-        this.dishName = dishName;
-        this.opCost = opCost;
-        this.interestPercentage = interestPercentage;
-        this.image = image;
-        this.dishDescription = dishDescription;
-        this.stock = stock;
+        this.formattedPrice = formattedPrice;
         this.isAvailable = isAvailable;
-        this.categoryId = categoryId;
+        this.ingredients = ingredients;
     }
-
-    // Constructor for add (no ID)
-    public Dish(String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
-                String dishDescription, int stock, boolean isAvailable, int categoryId) {
-        this.dishName = dishName;
-        this.opCost = opCost;
-        this.interestPercentage = interestPercentage;
-        this.image = image;
-        this.dishDescription = dishDescription;
-        this.stock = stock;
-        this.isAvailable = isAvailable;
-        this.categoryId = categoryId;
-    }
-
-    // Getters and Setters
 
     public int getDishID() {
         return dishID;
@@ -125,28 +98,20 @@ public class Dish {
         this.stock = stock;
     }
 
-    public boolean isAvailable() {
-        return isAvailable;
-    }
-
-    public void setAvailable(boolean available) {
-        this.isAvailable = available;
-    }
-
-    public boolean isIsAvailable() {
-        return isAvailable;
-    }
-
-    public void setIsAvailable(boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
-
     public int getCategoryId() {
         return categoryId;
     }
 
     public void setCategoryId(int categoryId) {
         this.categoryId = categoryId;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
     }
 
     public BigDecimal getTotalPrice() {
@@ -181,12 +146,20 @@ public class Dish {
         this.formattedPrice = formattedPrice;
     }
 
-    public Category getCategory() {
-        return category;
+    public boolean isIsAvailable() {
+        return isAvailable;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    public List<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(List<Ingredient> ingredients) {
+        this.ingredients = ingredients;
     }
 
 }
