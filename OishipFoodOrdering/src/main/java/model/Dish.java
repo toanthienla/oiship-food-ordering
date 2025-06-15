@@ -21,7 +21,7 @@ public class Dish {
     public Dish() {
     }
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -33,7 +33,10 @@ public class Dish {
         this.totalPrice = totalPrice;
         this.ingredientNames = ingredientNames;
         this.avgRating = avgRating;
+        this.formattedPrice = formattedPrice;
     }
+
+   
 
     public String getIngredientNames() {
         return ingredientNames;
