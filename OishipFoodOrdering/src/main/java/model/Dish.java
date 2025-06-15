@@ -13,18 +13,18 @@ public class Dish {
     private String dishDescription;
     private int stock;
     private int categoryId;
+     private Category category;
     private BigDecimal totalPrice;
     private String ingredientNames;
     private Double avgRating;
     private String formattedPrice;
-    private List<Ingredient> ingredients;
     private boolean isAvailable;
-    private Category category;
+    private List<Ingredient> ingredients;
 
     public Dish() {
     }
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice, List<Ingredient> ingredients, boolean isAvailable, Category category) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, Category category, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice, boolean isAvailable, List<Ingredient> ingredients) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -33,13 +33,13 @@ public class Dish {
         this.dishDescription = dishDescription;
         this.stock = stock;
         this.categoryId = categoryId;
+        this.category = category;
         this.totalPrice = totalPrice;
         this.ingredientNames = ingredientNames;
         this.avgRating = avgRating;
         this.formattedPrice = formattedPrice;
-        this.ingredients = ingredients;
         this.isAvailable = isAvailable;
-        this.category = category;
+        this.ingredients = ingredients;
     }
 
     public int getDishID() {
@@ -106,6 +106,14 @@ public class Dish {
         this.categoryId = categoryId;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
     public BigDecimal getTotalPrice() {
         return totalPrice;
     }
@@ -138,14 +146,6 @@ public class Dish {
         this.formattedPrice = formattedPrice;
     }
 
-    public List<Ingredient> getIngredients() {
-        return ingredients;
-    }
-
-    public void setIngredients(List<Ingredient> ingredients) {
-        this.ingredients = ingredients;
-    }
-
     public boolean isIsAvailable() {
         return isAvailable;
     }
@@ -154,13 +154,12 @@ public class Dish {
         this.isAvailable = isAvailable;
     }
 
-    public Category getCategory() {
-        return category;
+    public List<Ingredient> getIngredients() {
+        return ingredients;
     }
 
-    public void setCategory(Category category) {
-        this.category = category;
+    public void setIngredients(List<Ingredient> ingredients) {
+        this.ingredients = ingredients;
     }
 
-  
 }
