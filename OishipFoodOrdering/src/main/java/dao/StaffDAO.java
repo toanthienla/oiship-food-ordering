@@ -19,16 +19,15 @@ public class StaffDAO extends DBContext {
         super();
     }
 
-        public Staff getStaffByEmail(String email) {
+    public Staff getStaffByEmail(String email) {
         LOGGER.info("Attempting to retrieve staff with email: " + email);
         if (email == null || email.trim().isEmpty()) {
             LOGGER.warning("Invalid email: " + email);
             return null;
         }
-        String sql = "SELECT accountID AS staffID, fullName, email, [password], role, createAt " +
-                     "FROM Account WHERE email = ?";
-        try (Connection conn = getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        String sql = "SELECT accountID AS staffID, fullName, email, [password], role, createAt "
+                + "FROM Account WHERE email = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setString(1, email);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -50,6 +49,18 @@ public class StaffDAO extends DBContext {
             LOGGER.log(Level.SEVERE, "Error retrieving staff by email: " + e.getMessage(), e);
         }
         return null;
+    }
+
+    public boolean editStaffNameByEmail(String email, String newName) {
+        String sql = "UPDATE Account SET fullName = ? WHERE email = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, newName);
+            ps.setString(2, email);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public List<Order> getPendingOrders() throws SQLException {
@@ -87,24 +98,31 @@ public class StaffDAO extends DBContext {
         }
     }
 
-        public static void main(String[] args) {
-        
+    public static void main(String[] args) {
+
 //        StaffDAO staffDAO = new StaffDAO();
+//
 //        String email = "staff@example.com";
+//        String newName = "Han Nguyen";
+//
+//        boolean updated = staffDAO.editStaffNameByEmail(email, newName);
+//        if (updated) {
+//            System.out.println("Name updated successfully.");
+//        } else {
+//            System.out.println("Failed to update name.");
+//        }
+//
+//        // Confirm change
 //        Staff staff = staffDAO.getStaffByEmail(email);
 //        if (staff != null) {
-//            System.out.println("Staff found:");
-//            System.out.println("Account ID: " + staff.getAccountID());
+//            System.out.println("Updated Staff Info:");
 //            System.out.println("Full Name: " + staff.getFullName());
 //            System.out.println("Email: " + staff.getEmail());
 //            System.out.println("Role: " + staff.getRole());
 //            System.out.println("Created At: " + staff.getCreateAt());
-//            System.out.println("ToString: " + staff.toString());
 //        } else {
 //            System.out.println("No staff found for email: " + email);
 //        }
     }
 
 }
-
-
