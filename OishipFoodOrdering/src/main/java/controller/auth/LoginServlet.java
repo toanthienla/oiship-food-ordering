@@ -6,6 +6,7 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Customer;
+import model.Staff;
 
 import java.io.IOException;
 
@@ -55,6 +56,7 @@ public class LoginServlet extends HttpServlet {
         session.setAttribute("userName", account.getFullName());
         session.setAttribute("account", account);
         session.setAttribute("email", account.getEmail());
+        
 
         // Debug
         System.out.println("Login successful: email=" + email + ", role=" + account.getRole() + ", userName=" + account.getFullName() + ", userId=" + account.getCustomerID());

@@ -37,7 +37,7 @@ public class ReviewDAO extends DBContext {
             r.setComment(rs.getString("comment"));
             r.setRating(rs.getInt("rating"));
             r.setReviewCreatedAt(rs.getTimestamp("reviewCreatedAt"));
-            r.setCustomerName(rs.getString("customerName")); // cần thêm field này trong model Review
+            r.setCustomerName(rs.getString("customerName")); 
             reviews.add(r);
         }
     } catch (SQLException e) {

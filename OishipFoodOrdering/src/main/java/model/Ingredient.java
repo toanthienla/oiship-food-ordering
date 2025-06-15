@@ -4,7 +4,6 @@ package model;
 import java.math.BigDecimal;
 import java.util.List;
 
-
 public class Ingredient {
     
     private int ingredientId;
@@ -14,6 +13,7 @@ public class Ingredient {
     private List<DishIngredient> dishIngredients; 
     private int dishId;    
     private int accountID; 
+    
     public Ingredient() {
     }
 

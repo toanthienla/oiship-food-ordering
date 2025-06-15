@@ -1,6 +1,5 @@
 package dao;
 
-
 import model.Ingredient;
 import model.Dish;
 import model.DishIngredient;
@@ -8,10 +7,11 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.math.BigDecimal;
+import model.DishIngredient;
+import model.Ingredient;
 import utils.DBContext;
 
 public class IngredientDAO extends DBContext {
-
     private static final int DEFAULT_ACCOUNT_ID = 1; // Default to admin account ID
     private static final int DEFAULT_DISH_CATEGORY_ID = 1; // Default category, adjust as needed
 
@@ -508,6 +508,4 @@ public class IngredientDAO extends DBContext {
     }
     return ingredients;
 }
-
-  
 }

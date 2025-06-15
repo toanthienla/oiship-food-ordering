@@ -9,23 +9,21 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Staff - My Profile</title>
+        <title>Staff - Edit Profile</title>
 
-        <!-- Bootstrap 5 CSS & JS -->
-        <link rel="stylesheet" href="../css/bootstrap.css" />
-        <script src="../js/bootstrap.bundle.js"></script>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-        <!--CSS for Sidebar-->
-        <link rel="stylesheet" href="../css/sidebar.css" />
 
-        <!--JS for Sidebar-->
-        <script src="../js/sidebar.js"></script>
 
+        <!-- Sidebar CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
+
+        <!-- Sidebar JS -->
+        <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
         <!-- Bootstrap Icons -->
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
-            />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
 
         <style>
             body {
@@ -157,46 +155,40 @@
                 </div>
             </nav>
             <!-- Profile Content -->
-            <div class="container py-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="card shadow">
-                            <div class="card-header bg-primary text-white">
-                                <h4 class="mb-0">Staff Profile</h4>
-                            </div>
-                            <div class="card-body">
-                                <%
-                                    Staff staff = (Staff) request.getAttribute("staff");
-                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                                    if (staff != null) {
-                                %>
-                                <dl class="row">
-                                    <dt class="col-sm-4">Full Name:</dt>
-                                    <dd class="col-sm-8"><%= staff.getFullName() != null ? staff.getFullName() : "N/A"%></dd>
 
-                                    <dt class="col-sm-4">Email:</dt>
-                                    <dd class="col-sm-8"><%= staff.getEmail() != null ? staff.getEmail() : "N/A"%></dd>
+            <div class="content mt-4">
+                <h2 class="mb-4">Edit Your Name</h2>
 
-                                    <dt class="col-sm-4">Role:</dt>
-                                    <dd class="col-sm-8"><%= staff.getRole() != null ? staff.getRole() : "N/A"%></dd>
-
-                                    <dt class="col-sm-4">Created At:</dt>
-                                    <dd class="col-sm-8"><%= staff.getCreateAt() != null ? dateFormat.format(staff.getCreateAt()) : "N/A"%></dd>
-                                </dl>
-                                <% } else { %>
-                                <div class="alert alert-danger text-center">No staff profile found.</div>
-                                <% }%>
-                                <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-                                    <a href="${pageContext.request.contextPath}/staff/profile/edit-profile" class="btn btn-success">Edit Profile</a>
-                                    <a href="${pageContext.request.contextPath}/staff/profile/change-password" class="btn btn-danger">Change Password</a>
-                                    <a href="${pageContext.request.contextPath}/staff/dashboard" class="btn btn-secondary">Back to Dashboard</a>
-                                </div>
-
-                            </div>
-                        </div>
+                <form method="post" action="${pageContext.request.contextPath}/staff/profile/edit-profile">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text"
+                               class="form-control"
+                               id="fullName"
+                               name="fullName"
+                               value="${sessionScope.userName}"
+                               required>
                     </div>
-                </div>
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Update Name</button>
+                        <a href="${pageContext.request.contextPath}/staff/profile" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+
+                <c:if test="${not empty message}">
+                    <div class="alert alert-info mt-3">${message}</div>
+                </c:if>
+
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger mt-3">${error}</div>
+                </c:if>
             </div>
 
+
+
+
+            <!-- JS -->
+            <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
     </body>
 </html>
