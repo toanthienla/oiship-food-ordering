@@ -96,13 +96,15 @@ public class Dish {
         this.stock = stock;
     }
 
-    public boolean isIsAvailable() {
+      public boolean isIsAvailable() {
         return isAvailable;
     }
 
     public void setIsAvailable(boolean isAvailable) {
         this.isAvailable = isAvailable;
     }
+
+   
 
     public int getCategoryId() {
         return categoryId;
