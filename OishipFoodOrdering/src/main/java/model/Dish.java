@@ -1,6 +1,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 public class Dish {
 
@@ -16,12 +17,14 @@ public class Dish {
     private String ingredientNames;
     private Double avgRating;
     private String formattedPrice;
+    private List<Ingredient> ingredients;
+    private boolean isAvailable;
+    private Category category;
 
-    // Constructors
     public Dish() {
     }
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice, List<Ingredient> ingredients, boolean isAvailable, Category category) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -34,27 +37,11 @@ public class Dish {
         this.ingredientNames = ingredientNames;
         this.avgRating = avgRating;
         this.formattedPrice = formattedPrice;
+        this.ingredients = ingredients;
+        this.isAvailable = isAvailable;
+        this.category = category;
     }
 
-   
-
-    public String getIngredientNames() {
-        return ingredientNames;
-    }
-
-    public void setIngredientNames(String ingredientNames) {
-        this.ingredientNames = ingredientNames;
-    }
-
-    public Double getAvgRating() {
-        return avgRating;
-    }
-
-    public void setAvgRating(Double avgRating) {
-        this.avgRating = avgRating;
-    }
-
-    // Getters and Setters
     public int getDishID() {
         return dishID;
     }
@@ -127,6 +114,22 @@ public class Dish {
         this.totalPrice = totalPrice;
     }
 
+    public String getIngredientNames() {
+        return ingredientNames;
+    }
+
+    public void setIngredientNames(String ingredientNames) {
+        this.ingredientNames = ingredientNames;
+    }
+
+    public Double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(Double avgRating) {
+        this.avgRating = avgRating;
+    }
+
     public String getFormattedPrice() {
         return formattedPrice;
     }
@@ -134,4 +137,30 @@ public class Dish {
     public void setFormattedPrice(String formattedPrice) {
         this.formattedPrice = formattedPrice;
     }
+
+    public List<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(List<Ingredient> ingredients) {
+        this.ingredients = ingredients;
+    }
+
+    public boolean isIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+  
 }
