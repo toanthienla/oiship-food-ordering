@@ -22,7 +22,6 @@ public class Dish {
     private boolean isAvailable;
     private Category category;
 
-    // Constructors
     public Dish() {
     }
 
@@ -44,55 +43,6 @@ public class Dish {
         this.category = category;
     }
 
-    public Category getCategory() {
-        return category;
-    }
-
-    public void setCategory(Category category) {
-        this.category = category;
-    }
-
-    public boolean isIsAvailable() {
-        return isAvailable;
-    }
-
-    public void setIsAvailable(boolean isAvailable) {
-        this.isAvailable = isAvailable;
-    }
-
-    public List<Ingredient> getIngredients() {
-        return ingredients;
-    }
-
-    public void setIngredients(List<Ingredient> ingredients) {
-        this.ingredients = ingredients;
-    }
-
-    public String getIngredientNames() {
-        return ingredientNames;
-    }
-
-    public void setIngredientNames(String ingredientNames) {
-        this.ingredientNames = ingredientNames;
-    }
-
-    public Double getAvgRating() {
-        return avgRating;
-    }
-
-    public void setAvgRating(Double avgRating) {
-        this.avgRating = avgRating;
-    }
-
-    public String getFormattedPrice() {
-        return formattedPrice;
-    }
-
-    public void setFormattedPrice(String formattedPrice) {
-        this.formattedPrice = formattedPrice;
-    }
-
-    // Getters and Setters
     public int getDishID() {
         return dishID;
     }
@@ -157,6 +107,14 @@ public class Dish {
         this.categoryId = categoryId;
     }
 
+    public List<Ingredient> getIngredients() {
+        return ingredients;
+    }
+
+    public void setIngredients(List<Ingredient> ingredients) {
+        this.ingredients = ingredients;
+    }
+
     public BigDecimal getTotalPrice() {
         return totalPrice;
     }
@@ -164,4 +122,46 @@ public class Dish {
     public void setTotalPrice(BigDecimal totalPrice) {
         this.totalPrice = totalPrice;
     }
+
+    public String getIngredientNames() {
+        return ingredientNames;
+    }
+
+    public void setIngredientNames(String ingredientNames) {
+        this.ingredientNames = ingredientNames;
+    }
+
+    public Double getAvgRating() {
+        return avgRating;
+    }
+
+    public void setAvgRating(Double avgRating) {
+        this.avgRating = avgRating;
+    }
+
+    public String getFormattedPrice() {
+        return formattedPrice;
+    }
+
+    public void setFormattedPrice(String formattedPrice) {
+        this.formattedPrice = formattedPrice;
+    }
+
+    public boolean isIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
+   
 }
