@@ -20,6 +20,7 @@ CREATE TABLE Account (
 	email NVARCHAR(100) UNIQUE,
 	[password] NVARCHAR(255),
 	role NVARCHAR(20) CHECK (role IN ('admin', 'staff', 'customer')),
+    status INT DEFAULT 1, -- 1 active, 0 inactive, -1 banned,
 	createAt DATETIME DEFAULT GETDATE()
 );
 
@@ -28,7 +29,6 @@ CREATE TABLE Customer (
     customerID INT PRIMARY KEY, -- accountID
     phone NVARCHAR(15),
     address NVARCHAR(255),
-    status INT DEFAULT 1, -- 1 active, 0 inactive, -1 banned
     FOREIGN KEY (customerID) REFERENCES Account(accountID)
 
 );
