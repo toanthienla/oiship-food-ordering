@@ -6,7 +6,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Staff - Manage Orders</title>
+        <title>Staff - Manage Reviews</title>
 
         <!-- Bootstrap 5 CSS & JS -->
         <link rel="stylesheet" href="../css/bootstrap.css" />
@@ -136,6 +136,7 @@
         <!-- Sidebar -->
         <jsp:include page="staff_sidebar.jsp" />
 
+        <!-- Main Section -->
         <div class="main">
             <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
                 <div class="container-fluid">
@@ -153,8 +154,8 @@
 
             <!-- Content -->
             <div class="content">
-                <h1>Manage Orders</h1>
-                <p>Manage customers orders.</p>
+                <h1>Manage Reviews</h1>
+                <p>Manage customers reviews.</p>
             </div>
         </div>
     </body>

@@ -1,12 +1,15 @@
+
+<%@page import="model.Staff"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Staff - Manage Orders</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Staff - My Profile</title>
 
         <!-- Bootstrap 5 CSS & JS -->
         <link rel="stylesheet" href="../css/bootstrap.css" />
@@ -19,12 +22,15 @@
         <script src="../js/sidebar.js"></script>
 
         <!-- Bootstrap Icons -->
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+        <link
+            rel="stylesheet"
+            href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
+            />
 
         <style>
             body {
                 margin: 0;
-                font-family: 'Segoe UI', sans-serif;
+                font-family: "Segoe UI", sans-serif;
                 background-color: white;
                 display: flex;
                 min-height: 100vh;
@@ -150,12 +156,31 @@
                     </div>
                 </div>
             </nav>
-
-            <!-- Content -->
-            <div class="content">
-                <h1>Manage Orders</h1>
-                <p>Manage customers orders.</p>
+            <!--div.content-->
+            <%
+                Staff staff = (Staff) request.getAttribute("staff");
+                SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                if (staff != null) {
+            %>
+            <div class="profile-field">
+                <label>Full Name:</label>
+                <p><%= staff.getFullName() != null ? staff.getFullName() : "N/A"%></p>
             </div>
+            <div class="profile-field">
+                <label>Email:</label>
+                <p><%= staff.getEmail() != null ? staff.getEmail() : "N/A"%></p>
+            </div>
+            <div class="profile-field">
+                <label>Role:</label>
+                <p><%= staff.getRole() != null ? staff.getRole() : "N/A"%></p>
+            </div>
+            <div class="profile-field">
+                <label>Created At:</label>
+                <p><%= staff.getCreateAt() != null ? dateFormat.format(staff.getCreateAt()) : "N/A"%></p>
+            </div>
+            <% } else { %>
+            <div class="alert alert-danger text-center">No staff profile found.</div>
+            <% }%>
         </div>
     </body>
 </html>

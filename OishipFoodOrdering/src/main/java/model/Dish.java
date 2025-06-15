@@ -13,17 +13,18 @@ public class Dish {
     private String dishDescription;
     private int stock;
     private int categoryId;
+     private Category category;
     private BigDecimal totalPrice;
-    private String ingredientNames; // Danh sách tên nguyên liệu (dùng để hiển thị)
+    private String ingredientNames;
     private Double avgRating;
-    private List<Ingredient> ingredients; // Danh sách nguyên liệu liên quan qua DishIngredient
+    private String formattedPrice;
+    private boolean isAvailable;
+    private List<Ingredient> ingredients;
 
     public Dish() {
     }
 
-    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image,
-            String dishDescription, int stock, int categoryId, BigDecimal totalPrice, String ingredientNames,
-            Double avgRating, List<Ingredient> ingredients) {
+    public Dish(int dishID, String dishName, BigDecimal opCost, BigDecimal interestPercentage, String image, String dishDescription, int stock, int categoryId, Category category, BigDecimal totalPrice, String ingredientNames, Double avgRating, String formattedPrice, boolean isAvailable, List<Ingredient> ingredients) {
         this.dishID = dishID;
         this.dishName = dishName;
         this.opCost = opCost;
@@ -32,13 +33,15 @@ public class Dish {
         this.dishDescription = dishDescription;
         this.stock = stock;
         this.categoryId = categoryId;
+        this.category = category;
         this.totalPrice = totalPrice;
         this.ingredientNames = ingredientNames;
         this.avgRating = avgRating;
+        this.formattedPrice = formattedPrice;
+        this.isAvailable = isAvailable;
         this.ingredients = ingredients;
     }
 
-    // Getters and Setters
     public int getDishID() {
         return dishID;
     }
@@ -103,6 +106,14 @@ public class Dish {
         this.categoryId = categoryId;
     }
 
+    public Category getCategory() {
+        return category;
+    }
+
+    public void setCategory(Category category) {
+        this.category = category;
+    }
+
     public BigDecimal getTotalPrice() {
         return totalPrice;
     }
@@ -127,6 +138,22 @@ public class Dish {
         this.avgRating = avgRating;
     }
 
+    public String getFormattedPrice() {
+        return formattedPrice;
+    }
+
+    public void setFormattedPrice(String formattedPrice) {
+        this.formattedPrice = formattedPrice;
+    }
+
+    public boolean isIsAvailable() {
+        return isAvailable;
+    }
+
+    public void setIsAvailable(boolean isAvailable) {
+        this.isAvailable = isAvailable;
+    }
+
     public List<Ingredient> getIngredients() {
         return ingredients;
     }
@@ -134,4 +161,5 @@ public class Dish {
     public void setIngredients(List<Ingredient> ingredients) {
         this.ingredients = ingredients;
     }
+
 }

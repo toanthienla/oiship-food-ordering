@@ -1,26 +1,24 @@
 package model;
 
 // Lớp cha Account
-class Account {
+public class Account {
     private int accountID;
     private String fullName;
     private String email;
     private String password;
     private String role;
     private java.util.Date createAt;
-    private int status; // 1: Active, 0: Inactive, -1: Banned
 
     public Account() {
     }
 
-    public Account(int accountID, String fullName, String email, String password, String role, java.util.Date createAt, int status) {
+    public Account(int accountID, String fullName, String email, String password, String role, java.util.Date createAt) {
         this.accountID = accountID;
         this.fullName = fullName;
         this.email = email;
         this.password = password;
         this.role = role;
         this.createAt = createAt;
-        this.status = status;
     }
 
     // Getters and Setters
@@ -72,11 +70,4 @@ class Account {
         this.createAt = createAt;
     }
 
-    public int getStatus() {
-        return status;
-    }
-
-    public void setStatus(int status) {
-        this.status = status;
-    }
 }

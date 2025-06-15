@@ -1,26 +1,19 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
+
 package model;
 
 import java.math.BigDecimal;
 import java.util.List;
 
-/**
- *
- * @author Phi Yen
- */
+
 public class Ingredient {
     
     private int ingredientId;
     private String ingredientName;
     private BigDecimal unitCost;
     private int fkIngredientAccount;
-    private List<DishIngredient> dishIngredients; // Thêm danh sách DishIngredient
+    private List<DishIngredient> dishIngredients; 
     private int dishId;    
     private int accountID; 
-    
     public Ingredient() {
     }
 

@@ -195,9 +195,9 @@
                 <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
                 <h5 class="mt-2 text-orange">OISHIP</h5>
             </div>
-            <a href="#" class="active"><i class="fas fa-home me-2"></i> Home</a>
+            <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
             <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
-            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dish</a>
+            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
             <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
@@ -257,9 +257,9 @@
             <div id="menu" class="menu-section">
                 <h2 class="mb-4">MENU</h2>
                 <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
-                    <form action="guest/dish" method="post">
+                    <form action="home/dish" method="post">
                         <input type="hidden" name="catId" value="all">
-                        <a href="guest/dish"
+                        <a href="#"
                            class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
                             All
                         </a>
@@ -270,7 +270,7 @@
                         if (categories != null) {
                             for (model.Category cat : categories) {
                     %>
-                    <form action="guest/dish" method="post">
+                    <form action="home/dish" method="post">
                         <input type="hidden" name="catId" value="<%= cat.getCatID()%>">
                         <button type="submit" class="btn btn-outline-primary menu-btn">
                             <%= cat.getCatName()%>
@@ -297,19 +297,19 @@
                     %>
 
                     <div class="col-md-4 mb-3">
-                        <form action="guest/dish" method="post">
+                        <form action="home/dish" method="post">
                             <input type="hidden" name="dishId" value="<%= menuItem.getDishID()%>">
                             <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
                                 <div class="card dish-card">
                                     <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
                                     <div class="card-body">
                                         <h5 class="card-title"><%= menuItem.getDishName()%></h5>
-                                        <p class="card-text">Price: <%= menuItem.getTotalPrice().intValue()%>đ</p>
+                                        <p class="card-text">Price: <%= menuItem.getFormattedPrice()%>đ</p>
                                     </div>
                                 </div>
                                 <div class="mt-1">
                                     <a href="addToCart?dishId=<%= menuItem.getDishID()%>" class="btn btn-custom w-100" type="button">
-                                        Order
+                                        Add Cart
                                     </a>
                                 </div>
                             </button>
