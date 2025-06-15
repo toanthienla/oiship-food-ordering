@@ -1,19 +1,17 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package model;
 
-/**
- *
- * @author Phi Yen
- */
 public class Category {
-     private int catID;
+
+    private int catID;
     private String catName;
     private String catDescription;
 
     public Category() {
+    }
+
+    public Category(String catName, String catDescription) {
+        this.catName = catName;
+        this.catDescription = catDescription;
     }
 
     public Category(int catID, String catName, String catDescription) {
@@ -22,6 +20,7 @@ public class Category {
         this.catDescription = catDescription;
     }
 
+    // Getters and setters
     public int getCatID() {
         return catID;
     }
@@ -45,5 +44,4 @@ public class Category {
     public void setCatDescription(String catDescription) {
         this.catDescription = catDescription;
     }
-    
 }

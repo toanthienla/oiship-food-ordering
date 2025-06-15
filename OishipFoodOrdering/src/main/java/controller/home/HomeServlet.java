@@ -69,7 +69,7 @@ public class HomeServlet extends HttpServlet {
 
         // Redirect based on role
         if ("staff".equalsIgnoreCase(role)) {
-            response.sendRedirect(request.getContextPath() + "/staff"); // Redirect to a generic staff page
+            response.sendRedirect(request.getContextPath() + "/staff/dashboard"); // Redirect to a generic staff page
         } else {
             response.sendRedirect(request.getContextPath() + "/customer");
         }

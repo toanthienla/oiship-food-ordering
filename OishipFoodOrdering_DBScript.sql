@@ -1,4 +1,4 @@
-USE master
+﻿USE master
 GO
 
 IF EXISTS (SELECT name FROM sys.databases WHERE name = N'Oiship')
@@ -20,6 +20,7 @@ CREATE TABLE Account (
 	email NVARCHAR(100) UNIQUE,
 	[password] NVARCHAR(255),
 	role NVARCHAR(20) CHECK (role IN ('admin', 'staff', 'customer')),
+    status INT DEFAULT 1, -- 1 active, 0 inactive, -1 banned,
 	createAt DATETIME DEFAULT GETDATE()
 );
 
@@ -28,7 +29,6 @@ CREATE TABLE Customer (
     customerID INT PRIMARY KEY, -- accountID
     phone NVARCHAR(15),
     address NVARCHAR(255),
-    status INT DEFAULT 1, -- 1 active, 0 inactive, -1 banned
     FOREIGN KEY (customerID) REFERENCES Account(accountID)
 
 );
@@ -43,31 +43,29 @@ CREATE TABLE Category (
 -- Dish table
 CREATE TABLE Dish (
     DishID INT IDENTITY(1,1) PRIMARY KEY,
-	DishName NVARCHAR(255),
-	opCost DECIMAL(10,2),
-	interestPercentage DECIMAL(10,2),
-	[image] NVARCHAR(255),
-	DishDescription NVARCHAR(255),
-	stock INT,
-	isAvailable BIT DEFAULT 0,  -- 1 = available, 0 = not available
-	FK_Dish_Category INT FOREIGN KEY REFERENCES Category(catID)
+    DishName NVARCHAR(255),
+    opCost DECIMAL(10,2),
+    interestPercentage DECIMAL(10,2),
+    [image] NVARCHAR(255),
+    DishDescription NVARCHAR(255),
+    stock INT, -- Represents the number of ready-to-sell dishes
+    isAvailable BIT DEFAULT 0, -- 1 = available, 0 = not available
+    FK_Dish_Category INT FOREIGN KEY REFERENCES Category(catID)
 );
 
 -- Ingredient table
 CREATE TABLE Ingredient (
-	ingredientID INT IDENTITY(1,1) PRIMARY KEY,
-	name NVARCHAR(255),
-	quantity INT,
-	unitCost DECIMAL(10,2),
-	FK_Ingredient_Dish INT FOREIGN KEY REFERENCES Dish(DishID),
-	FK_Voucher_Account INT FOREIGN KEY REFERENCES Account(accountID)
+    ingredientID INT IDENTITY(1,1) PRIMARY KEY,
+    name NVARCHAR(255),
+    unitCost DECIMAL(10,2), -- (vnđ/kg)
+    FK_Ingredient_Account INT FOREIGN KEY REFERENCES Account(accountID)
 );
 
 -- Dish - Ingredient (n-n)
 CREATE TABLE DishIngredient (
     dishID INT FOREIGN KEY REFERENCES Dish(DishID),
     ingredientID INT FOREIGN KEY REFERENCES Ingredient(ingredientID),
-    quantity DECIMAL(10,2),
+    quantity DECIMAL(10,2), -- Represents the quantity of this ingredient used in this specific dish (kg)
     PRIMARY KEY (dishID, ingredientID)
 );
 
