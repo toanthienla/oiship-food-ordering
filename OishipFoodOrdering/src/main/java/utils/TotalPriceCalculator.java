@@ -5,26 +5,31 @@ import java.math.RoundingMode;
 import java.text.NumberFormat;
 import java.util.List;
 import java.util.Locale;
+import model.DishIngredient;
 import model.Ingredient;
 
 public class TotalPriceCalculator {
 
     // Calculate total ingredient cost
-    public static BigDecimal calculateIngredientCost(List<Ingredient> ingredients) {
-        if (ingredients == null || ingredients.isEmpty()) {
-            return BigDecimal.ZERO;
-        }
+   public static BigDecimal calculateIngredientCost(List<Ingredient> ingredients) {
+    if (ingredients == null || ingredients.isEmpty()) {
+        return BigDecimal.ZERO;
+    }
 
-        BigDecimal totalCost = BigDecimal.ZERO;
-        for (Ingredient ing : ingredients) {
-            if (ing.getUnitCost() != null) {
-                BigDecimal quantity = BigDecimal.valueOf(ing.getQuantity());
-                BigDecimal cost = ing.getUnitCost().multiply(quantity);
+    BigDecimal totalCost = BigDecimal.ZERO;
+
+    for (Ingredient ingredient : ingredients) {
+        if (ingredient.getUnitCost() != null && ingredient.getDishIngredients() != null) {
+            for (DishIngredient di : ingredient.getDishIngredients()) {
+                BigDecimal quantity = BigDecimal.valueOf(di.getQuantity());
+                BigDecimal cost = ingredient.getUnitCost().multiply(quantity);
                 totalCost = totalCost.add(cost);
             }
         }
-        return totalCost;
     }
+
+    return totalCost;
+}
 
     // Calculate total selling price based on costs
     public static BigDecimal calculateTotalPrice(BigDecimal opCost, BigDecimal interestPercentage, BigDecimal ingredientCost) {

@@ -5,6 +5,7 @@
 package model;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 /**
  *
@@ -12,50 +13,41 @@ import java.math.BigDecimal;
  */
 public class Ingredient {
     
-    private int ingredientID;
-    private String name;
-    private int quantity;
+    private int ingredientId;
+    private String ingredientName;
     private BigDecimal unitCost;
+    private int fkIngredientAccount;
+    private List<DishIngredient> dishIngredients; // Thêm danh sách DishIngredient
     private int dishId;    
-    private int accountID;  
+    private int accountID; 
 
     public Ingredient() {
     }
 
-    public Ingredient(int ingredientID, String name, int quantity, BigDecimal unitCost, int dishId, int accountID) {
-        this.ingredientID = ingredientID;
-        this.name = name;
-        this.quantity = quantity;
+    public Ingredient(int ingredientId, String ingredientName, BigDecimal unitCost, int fkIngredientAccount, List<DishIngredient> dishIngredients, int dishId, int accountID) {
+        this.ingredientId = ingredientId;
+        this.ingredientName = ingredientName;
         this.unitCost = unitCost;
+        this.fkIngredientAccount = fkIngredientAccount;
+        this.dishIngredients = dishIngredients;
         this.dishId = dishId;
         this.accountID = accountID;
     }
 
-
-    
-
-    public int getIngredientID() {
-        return ingredientID;
+    public int getIngredientId() {
+        return ingredientId;
     }
 
-    public void setIngredientID(int ingredientID) {
-        this.ingredientID = ingredientID;
+    public void setIngredientId(int ingredientId) {
+        this.ingredientId = ingredientId;
     }
 
-    public String getName() {
-        return name;
+    public String getIngredientName() {
+        return ingredientName;
     }
 
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getQuantity() {
-        return quantity;
-    }
-
-    public void setQuantity(int quantity) {
-        this.quantity = quantity;
+    public void setIngredientName(String ingredientName) {
+        this.ingredientName = ingredientName;
     }
 
     public BigDecimal getUnitCost() {
@@ -64,6 +56,22 @@ public class Ingredient {
 
     public void setUnitCost(BigDecimal unitCost) {
         this.unitCost = unitCost;
+    }
+
+    public int getFkIngredientAccount() {
+        return fkIngredientAccount;
+    }
+
+    public void setFkIngredientAccount(int fkIngredientAccount) {
+        this.fkIngredientAccount = fkIngredientAccount;
+    }
+
+    public List<DishIngredient> getDishIngredients() {
+        return dishIngredients;
+    }
+
+    public void setDishIngredients(List<DishIngredient> dishIngredients) {
+        this.dishIngredients = dishIngredients;
     }
 
     public int getDishId() {
