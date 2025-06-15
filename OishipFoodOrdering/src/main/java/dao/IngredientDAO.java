@@ -26,21 +26,28 @@ public class IngredientDAO extends DBContext {
     public List<Ingredient> getAllIngredients() {
         List<Ingredient> ingredients = new ArrayList<>();
         String sql = "SELECT ingredientID, name, unitCost, FK_Ingredient_Account FROM Ingredient";
+        if (conn == null) {
+            System.err.println("Database connection is null in getAllIngredients.");
+            return ingredients;
+        }
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
+                int ingredientId = rs.getInt("ingredientID");
                 Ingredient ingredient = new Ingredient(
-                        rs.getInt("ingredientID"),
+                        ingredientId,
                         rs.getString("name"),
-                        rs.getBigDecimal("unitCost"), // Reverted to getBigDecimal
-                        rs.getInt("FK_Ingredient_Account")
+                        rs.getBigDecimal("unitCost"),
+                        rs.getInt("FK_Ingredient_Account"),
+                        getDishIngredientsByIngredientId(ingredientId), // Populate dishIngredients
+                        0, // Default dishId to 0 if no direct dish association
+                        rs.getInt("FK_Ingredient_Account") // Set accountID to match fkIngredientAccount
                 );
-                ingredient.setDishIngredients(getDishIngredientsByIngredientId(ingredient.getIngredientId()));
                 ingredients.add(ingredient);
             }
             System.out.println("Fetched " + ingredients.size() + " ingredients.");
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error fetching ingredients: " + e.getMessage());
+            System.err.println("Error fetching ingredients: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return ingredients;
     }
@@ -54,6 +61,10 @@ public class IngredientDAO extends DBContext {
                 + "LEFT JOIN Review r ON od.ODID = r.FK_Review_OrderDetail "
                 + "GROUP BY d.DishID, d.DishName, d.opCost, d.interestPercentage, d.[image], d.DishDescription, d.stock, d.FK_Dish_Category "
                 + "ORDER BY d.DishID ASC";
+        if (conn == null) {
+            System.err.println("Database connection is null in getAllDishes.");
+            return dishes;
+        }
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 int dishId = rs.getInt("DishID");
@@ -82,7 +93,7 @@ public class IngredientDAO extends DBContext {
             System.out.println("Fetched " + dishes.size() + " dishes.");
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error fetching dishes: " + e.getMessage());
+            System.err.println("Error fetching dishes: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return dishes;
     }
@@ -90,6 +101,10 @@ public class IngredientDAO extends DBContext {
     private String getIngredientNamesByDishId(int dishId) {
         StringBuilder ingredientNames = new StringBuilder();
         String sql = "SELECT i.name FROM Ingredient i JOIN DishIngredient di ON i.ingredientID = di.ingredientID WHERE di.dishID = ?";
+        if (conn == null) {
+            System.err.println("Database connection is null in getIngredientNamesByDishId for dish ID " + dishId);
+            return null;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, dishId);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -102,7 +117,7 @@ public class IngredientDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error fetching ingredient names for dish ID " + dishId + ": " + e.getMessage());
+            System.err.println("Error fetching ingredient names for dish ID " + dishId + ": " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return ingredientNames.length() > 0 ? ingredientNames.toString() : null;
     }
@@ -111,6 +126,10 @@ public class IngredientDAO extends DBContext {
         List<Ingredient> ingredients = new ArrayList<>();
         String sql = "SELECT i.ingredientID, i.name, i.unitCost, i.FK_Ingredient_Account, di.quantity "
                 + "FROM Ingredient i JOIN DishIngredient di ON i.ingredientID = di.ingredientID WHERE di.dishID = ?";
+        if (conn == null) {
+            System.err.println("Database connection is null in getListIngredientsByDishId for dish ID " + dishId);
+            return ingredients;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, dishId);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -118,25 +137,31 @@ public class IngredientDAO extends DBContext {
                     Ingredient ingredient = new Ingredient(
                             rs.getInt("ingredientID"),
                             rs.getString("name"),
-                            rs.getBigDecimal("unitCost"), // Reverted to getBigDecimal
-                            rs.getInt("FK_Ingredient_Account")
+                            rs.getBigDecimal("unitCost"),
+                            rs.getInt("FK_Ingredient_Account"),
+                            List.of(new DishIngredient(dishId, rs.getInt("ingredientID"), rs.getDouble("quantity"))), // Set dishIngredients
+                            dishId, // Set dishId from the query context
+                            rs.getInt("FK_Ingredient_Account") // Set accountID to match fkIngredientAccount
                     );
-                    ingredient.setDishIngredients(List.of(new DishIngredient(dishId, rs.getInt("ingredientID"), rs.getDouble("quantity"))));
                     ingredients.add(ingredient);
                 }
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error fetching ingredients for dish ID " + dishId + ": " + e.getMessage());
+            System.err.println("Error fetching ingredients for dish ID " + dishId + ": " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return ingredients;
     }
 
     public void addIngredient(Ingredient ingredient, Integer dishId, Double quantity) {
         String sql = "INSERT INTO Ingredient (name, unitCost, FK_Ingredient_Account) VALUES (?, ?, ?)";
+        if (conn == null) {
+            System.err.println("Database connection is null in addIngredient.");
+            return;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, ingredient.getIngredientName());
-            pstmt.setBigDecimal(2, new BigDecimal(ingredient.getUnitCost().toString())); // Reverted to setBigDecimal, converting from double if needed
+            pstmt.setBigDecimal(2, ingredient.getUnitCost());
             pstmt.setInt(3, DEFAULT_ACCOUNT_ID);
             int rowsAffected = pstmt.executeUpdate();
             if (rowsAffected > 0) {
@@ -146,7 +171,10 @@ public class IngredientDAO extends DBContext {
                         ingredient.setIngredientId(ingredientId);
                         if (dishId != null && quantity != null) {
                             addDishIngredient(dishId, ingredientId, quantity);
+                            ingredient.setDishId(dishId); // Update dishId after adding relationship
+                            ingredient.setDishIngredients(List.of(new DishIngredient(dishId, ingredientId, quantity)));
                         }
+                        ingredient.setAccountID(DEFAULT_ACCOUNT_ID); // Set accountID
                     }
                 }
                 System.out.println("Added ingredient: " + ingredient.getIngredientName() + " (ID: " + ingredient.getIngredientId() + ")");
@@ -155,15 +183,19 @@ public class IngredientDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error adding ingredient: " + e.getMessage());
+            System.err.println("Error adding ingredient: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
     }
 
     public void updateIngredient(Ingredient ingredient, Integer dishId, Double quantity) {
         String sql = "UPDATE Ingredient SET name = ?, unitCost = ?, FK_Ingredient_Account = ? WHERE ingredientID = ?";
+        if (conn == null) {
+            System.err.println("Database connection is null in updateIngredient.");
+            return;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setString(1, ingredient.getIngredientName());
-            pstmt.setBigDecimal(2, new BigDecimal(ingredient.getUnitCost().toString())); // Reverted to setBigDecimal
+            pstmt.setBigDecimal(2, ingredient.getUnitCost());
             pstmt.setInt(3, DEFAULT_ACCOUNT_ID);
             pstmt.setInt(4, ingredient.getIngredientId());
             int rowsAffected = pstmt.executeUpdate();
@@ -176,15 +208,20 @@ public class IngredientDAO extends DBContext {
                     } else {
                         addDishIngredient(dishId, ingredient.getIngredientId(), quantity);
                     }
+                    ingredient.setDishId(dishId); // Update dishId
+                    ingredient.setDishIngredients(List.of(new DishIngredient(dishId, ingredient.getIngredientId(), quantity)));
                 } else if (dishId != null) {
                     deleteDishIngredient(dishId, ingredient.getIngredientId());
+                    ingredient.setDishId(0); // Reset dishId if no relationship
+                    ingredient.setDishIngredients(null);
                 }
+                ingredient.setAccountID(DEFAULT_ACCOUNT_ID); // Update accountID
             } else {
                 System.err.println("No rows updated for ingredient ID: " + ingredient.getIngredientId());
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error updating ingredient: " + e.getMessage());
+            System.err.println("Error updating ingredient: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
     }
 
@@ -195,6 +232,10 @@ public class IngredientDAO extends DBContext {
     public boolean deleteIngredients(List<Integer> ingredientIds) {
         if (ingredientIds == null || ingredientIds.isEmpty()) {
             System.err.println("No ingredient IDs provided for deletion.");
+            return false;
+        }
+        if (conn == null) {
+            System.err.println("Database connection is null in deleteIngredients.");
             return false;
         }
 
@@ -231,9 +272,9 @@ public class IngredientDAO extends DBContext {
         } catch (SQLException e) {
             try {
                 conn.rollback(); // Rollback on error
-                System.err.println("Error deleting ingredients: " + e.getMessage() + ". Check for additional foreign key constraints.");
+                System.err.println("Error deleting ingredients: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + "). Check for additional foreign key constraints.");
             } catch (SQLException rollbackEx) {
-                System.err.println("Rollback failed: " + rollbackEx.getMessage());
+                System.err.println("Rollback failed: " + rollbackEx.getMessage() + " (SQLState: " + rollbackEx.getSQLState() + ", Error Code: " + rollbackEx.getErrorCode() + ")");
             }
             e.printStackTrace();
             return false;
@@ -241,13 +282,17 @@ public class IngredientDAO extends DBContext {
             try {
                 conn.setAutoCommit(true); // Reset auto-commit
             } catch (SQLException e) {
-                System.err.println("Failed to reset auto-commit: " + e.getMessage());
+                System.err.println("Failed to reset auto-commit: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
             }
         }
     }
 
     public void addDishIngredient(int dishId, int ingredientId, double quantity) {
         String sql = "INSERT INTO DishIngredient (dishID, ingredientID, quantity) VALUES (?, ?, ?)";
+        if (conn == null) {
+            System.err.println("Database connection is null in addDishIngredient.");
+            return;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, dishId);
             pstmt.setInt(2, ingredientId);
@@ -260,13 +305,17 @@ public class IngredientDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error adding DishIngredient relation: " + e.getMessage());
+            System.err.println("Error adding DishIngredient relation: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
     }
 
     public List<DishIngredient> getDishIngredientsByIngredientId(int ingredientId) {
         List<DishIngredient> dishIngredients = new ArrayList<>();
         String sql = "SELECT dishID, ingredientID, quantity FROM DishIngredient WHERE ingredientID = ?";
+        if (conn == null) {
+            System.err.println("Database connection is null in getDishIngredientsByIngredientId for ingredient ID " + ingredientId);
+            return dishIngredients;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, ingredientId);
             try (ResultSet rs = pstmt.executeQuery()) {
@@ -281,13 +330,17 @@ public class IngredientDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error fetching dish ingredients for ingredient ID " + ingredientId + ": " + e.getMessage());
+            System.err.println("Error fetching dish ingredients for ingredient ID " + ingredientId + ": " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return dishIngredients;
     }
 
     public DishIngredient getDishIngredient(int dishId, int ingredientId) {
         String sql = "SELECT dishID, ingredientID, quantity FROM DishIngredient WHERE dishID = ? AND ingredientID = ?";
+        if (conn == null) {
+            System.err.println("Database connection is null in getDishIngredient for dish ID " + dishId + " and ingredient ID " + ingredientId);
+            return null;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, dishId);
             pstmt.setInt(2, ingredientId);
@@ -302,13 +355,17 @@ public class IngredientDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error fetching dish ingredient for dish ID " + dishId + " and ingredient ID " + ingredientId + ": " + e.getMessage());
+            System.err.println("Error fetching dish ingredient for dish ID " + dishId + " and ingredient ID " + ingredientId + ": " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return null;
     }
 
     public void updateDishIngredient(DishIngredient dishIngredient) {
         String sql = "UPDATE DishIngredient SET quantity = ? WHERE dishID = ? AND ingredientID = ?";
+        if (conn == null) {
+            System.err.println("Database connection is null in updateDishIngredient.");
+            return;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setDouble(1, dishIngredient.getQuantity());
             pstmt.setInt(2, dishIngredient.getDishId());
@@ -321,12 +378,16 @@ public class IngredientDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error updating DishIngredient: " + e.getMessage());
+            System.err.println("Error updating DishIngredient: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
     }
 
     public boolean deleteDishIngredient(int dishId, int ingredientId) {
         String sql = "DELETE FROM DishIngredient WHERE dishID = ? AND ingredientID = ?";
+        if (conn == null) {
+            System.err.println("Database connection is null in deleteDishIngredient.");
+            return false;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql)) {
             pstmt.setInt(1, dishId);
             pstmt.setInt(2, ingredientId);
@@ -340,7 +401,7 @@ public class IngredientDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error deleting DishIngredient: " + e.getMessage());
+            System.err.println("Error deleting DishIngredient: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
             return false;
         }
     }
@@ -348,6 +409,10 @@ public class IngredientDAO extends DBContext {
     public List<String> getIngredientNames() {
         List<String> names = new ArrayList<>();
         String sql = "SELECT DISTINCT name FROM Ingredient";
+        if (conn == null) {
+            System.err.println("Database connection is null in getIngredientNames.");
+            return names;
+        }
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 names.add(rs.getString("name"));
@@ -355,7 +420,7 @@ public class IngredientDAO extends DBContext {
             System.out.println("Fetched " + names.size() + " ingredient names for autocomplete.");
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error fetching ingredient names: " + e.getMessage());
+            System.err.println("Error fetching ingredient names: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return names;
     }
@@ -363,6 +428,10 @@ public class IngredientDAO extends DBContext {
     public List<String> getDishNames() {
         List<String> names = new ArrayList<>();
         String sql = "SELECT DISTINCT DishName FROM Dish";
+        if (conn == null) {
+            System.err.println("Database connection is null in getDishNames.");
+            return names;
+        }
         try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
             while (rs.next()) {
                 names.add(rs.getString("DishName"));
@@ -370,13 +439,17 @@ public class IngredientDAO extends DBContext {
             System.out.println("Fetched " + names.size() + " dish names for autocomplete.");
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error fetching dish names: " + e.getMessage());
+            System.err.println("Error fetching dish names: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return names;
     }
 
     public int addDish(String dishName) {
         String sql = "INSERT INTO Dish (DishName, opCost, interestPercentage, FK_Dish_Category) VALUES (?, 0, 0, ?)";
+        if (conn == null) {
+            System.err.println("Database connection is null in addDish.");
+            return -1;
+        }
         try (PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             pstmt.setString(1, dishName);
             pstmt.setInt(2, DEFAULT_DISH_CATEGORY_ID);
@@ -394,7 +467,7 @@ public class IngredientDAO extends DBContext {
             }
         } catch (SQLException e) {
             e.printStackTrace();
-            System.err.println("Error adding dish: " + e.getMessage());
+            System.err.println("Error adding dish: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
         }
         return -1; // Indicate failure
     }
