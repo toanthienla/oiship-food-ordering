@@ -7,6 +7,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import model.Dish;
+import model.OrderDetail;
 
 public class OrderDAO extends DBContext {
 
@@ -39,6 +41,8 @@ public class OrderDAO extends DBContext {
 
         return orders;
     }
+
+    
 
     public static void main(String[] args) {
 //        OrderDAO dao = new OrderDAO();
