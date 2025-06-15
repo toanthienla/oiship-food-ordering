@@ -1,30 +1,34 @@
+
+<%@page import="model.Staff"%>
+<%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
     <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Staff - Manage Orders</title>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Staff Manage Orders - Order Detail</title>
 
-        <!-- Bootstrap 5 CSS & JS -->
-        <link rel="stylesheet" href="../css/bootstrap.css" />
-        <script src="../js/bootstrap.bundle.js"></script>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-        <!--CSS for Sidebar-->
-        <link rel="stylesheet" href="../css/sidebar.css" />
 
-        <!--JS for Sidebar-->
-        <script src="../js/sidebar.js"></script>
 
+        <!-- Sidebar CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
+
+        <!-- Sidebar JS -->
+        <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
 
         <style>
             body {
                 margin: 0;
-                font-family: 'Segoe UI', sans-serif;
+                font-family: "Segoe UI", sans-serif;
                 background-color: white;
                 display: flex;
                 min-height: 100vh;
@@ -150,66 +154,16 @@
                     </div>
                 </div>
             </nav>
+            <!-- Profile Content -->
 
-            <!-- Content -->
-            <div class="content">
-                <h2>Manage Orders</h2>
-
-                <table border="1" cellpadding="10" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Payment</th>
-                            <th>Created At</th>
-                            <th>Updated At</th>
-                            <th>Voucher ID</th>
-                            <th>Customer ID</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="order" items="${orders}">
-                            <tr>
-                                <td>${order.orderID}</td>
-                                <td>${order.amount}</td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${order.orderStatus == 0}">Pending</c:when>
-                                        <c:when test="${order.orderStatus == 1}">Confirmed</c:when>
-                                        <c:when test="${order.orderStatus == 2}">Preparing</c:when>
-                                        <c:when test="${order.orderStatus == 3}">Out for Delivery</c:when>
-                                        <c:when test="${order.orderStatus == 4}">Delivered</c:when>
-                                        <c:when test="${order.orderStatus == 5}">Cancelled</c:when>
-                                        <c:when test="${order.orderStatus == 6}">Failed</c:when>
-                                        <c:otherwise>Unknown</c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${order.paymentStatus == 0}">Unpaid</c:when>
-                                        <c:when test="${order.paymentStatus == 1}">Paid</c:when>
-                                        <c:when test="${order.paymentStatus == 2}">Refunded</c:when>
-                                        <c:otherwise>Unknown</c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>${order.orderCreatedAt}</td>
-                                <td>${order.orderUpdatedAt}</td>
-                                <td>${order.voucherID}</td>
-                                <td>${order.customerID}</td>
-                                <td>
-                                    <a href="${pageContext.request.contextPath}/staff/manage-orders/order-detail?orderID=${order.orderID}">
-                                        <button>Detail</button>
-                                    </a>
-                                </td>
-                            </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
+            <div class="content mt-4">
+                <h1>Order tail- khó , tính giá từ nguyên liệu không lưu vào db</h1>
             </div>
 
-
         </div>
+
+
+        <!-- JS -->
+        <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
     </body>
 </html>
