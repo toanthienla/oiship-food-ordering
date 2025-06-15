@@ -47,9 +47,10 @@ public class ManageDishesServlet extends HttpServlet {
         }
 
         List<Dish> dishes = dishDAO.getAllDishes();
-        dishes.sort(Comparator.comparing(d -> d.getCategory().getCatName())); // <- after initialization
+        dishes.sort(Comparator.comparing(d -> d.getCategory().getCatName())); // Sort dishes by category name
 
         List<Category> categories = categoryDAO.getAllCategories();
+        categories.sort(Comparator.comparing(Category::getCatName)); // Sort categories alphabetically by name
 
         request.setAttribute("dishes", dishes);
         request.setAttribute("categories", categories);

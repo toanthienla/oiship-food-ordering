@@ -195,6 +195,3 @@ CREATE TABLE Contact (
 	FK_Contact_Customer INT FOREIGN KEY REFERENCES Customer(customerID)
 );
 
--- Triggers for notifications:
--- Comming soon...
-

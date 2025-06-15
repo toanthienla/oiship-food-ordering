@@ -116,6 +116,7 @@
                             <div class="d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
                                 <label class="me-2 fw-semibold mb-0">Filter by Category:</label>
                                 <select id="categoryFilter" class="form-select w-auto">
+                                    <option value="all">All</option> 
                                     <c:forEach var="cat" items="${categories}">
                                         <option value="${cat.catName}">${cat.catName}</option>
                                     </c:forEach>
@@ -126,10 +127,18 @@
 
                     <ul class="list-group list-group-flush" id="dishList">
                         <c:set var="prevCat" value="" />
+                        <% int index = 1;%>
                         <c:forEach var="dish" items="${dishes}">
                             <li class="list-group-item list-group-item-action dish-item" data-category="${dish.category.catName}" style="cursor: pointer;" onclick="toggleDescription(this)">
                                 <div class="d-flex justify-content-between align-items-center">
-                                    <span style="font-weight: 500">${dish.dishName}</span>
+                                    <span style="font-weight: 400">
+                                        <span class="me-1" style="font-weight: 400;"><%= index++%>.</span>
+                                        ${dish.dishName}
+                                        (Available: 
+                                        <span class="${dish.isAvailable ? 'text-success' : 'text-danger'}">
+                                            ${dish.isAvailable ? 'Yes' : 'No'})
+                                        </span>
+                                    </span>
                                     <div>
                                         <a href="#" class="btn btn-sm btn-primary me-2"
                                            onclick="handleEditDish(this); event.stopPropagation();"
@@ -151,15 +160,20 @@
                                         </a>
                                     </div>
                                 </div>
-                                <div class="cat-description mt-2 text-muted" style="display: none;">
-                                    <hr class="my-2" />
-                                    <div class="d-flex align-items-start gap-3 flex-wrap">
-                                        <img src="${dish.image}" alt="${dish.dishName}" style="height: 70px; border-radius: 2px;" />
+
+                                <!-- Description Section -->
+                                <div class="cat-description text-muted" style="display: none; margin-left: 20px; margin-top: 5px">
+                                    <div class="d-flex align-items-center gap-3 flex-wrap">
+                                        <img src="${dish.image}" alt="${dish.dishName}" style="height: 160px; border-radius: 1.5px;" />
                                         <div>
+                                            <div style="font-weight: 400">Total price: ...</div>
+                                            <div style="font-weight: 400">Ingredient price: ...</div>
                                             <div style="font-weight: 400">
+                                            <div style="font-weight: 400">Net profit: ...</div>
                                                 Cost: <fmt:formatNumber value="${dish.opCost}" type="number" groupingUsed="true" />đ
                                             </div>
                                             <div style="font-weight: 400">Interest: ${dish.interestPercentage}%</div>
+                                            <div style="font-weight: 400">Stock: ${dish.stock}</div>
                                             <div style="font-weight: 400">Description: ${dish.dishDescription}</div>
                                         </div>
                                     </div>
@@ -291,25 +305,30 @@
                 }
 
                 // Filter logic
-                document.addEventListener('DOMContentLoaded', function () {
-                    document.getElementById('categoryFilter').dispatchEvent(new Event('change'));
-                })
-                document.getElementById('categoryFilter').addEventListener('change', function () {
-                    const selectedCategory = this.value;
-                    const allDishes = document.querySelectorAll('.dish-item');
+                document.addEventListener('DOMContentLoaded', () => {
+                    const filterSelect = document.getElementById('categoryFilter');
+                    const dishes = document.querySelectorAll('.dish-item');
                     const headers = document.querySelectorAll('.category-header');
 
-                    allDishes.forEach(dish => {
-                        dish.style.display = (dish.dataset.category === selectedCategory) ? 'block' : 'none';
-                    });
+                    const filterDishes = () => {
+                        const selected = filterSelect.value;
 
-                    headers.forEach(header => {
-                        const category = header.dataset.category;
-                        const hasVisibleDish = [...allDishes].some(dish =>
-                            dish.dataset.category === category && dish.style.display !== 'none'
-                        );
-                        header.style.display = hasVisibleDish ? 'block' : 'none';
-                    });
+                        dishes.forEach(dish => {
+                            const match = selected === 'all' || dish.dataset.category === selected;
+                            dish.style.display = match ? 'block' : 'none';
+                        });
+
+                        headers.forEach(header => {
+                            const category = header.dataset.category;
+                            const hasVisible = Array.from(dishes).some(dish =>
+                                dish.dataset.category === category && dish.style.display !== 'none'
+                            );
+                            header.style.display = hasVisible ? 'block' : 'none';
+                        });
+                    };
+
+                    filterSelect.addEventListener('change', filterDishes);
+                    filterDishes(); // Run on page load
                 });
             </script>
     </body>
