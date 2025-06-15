@@ -5,7 +5,7 @@
         <div class="brand">
             <i class="bi bi-x-lg close-btn" id="closeSidebar"></i>
         </div>
-        <a class="nav-link" href="manage-order"><i class="bi bi-receipt-cutoff"></i>Orders</a>
+        <a class="nav-link" href="manage-orders"><i class="bi bi-receipt-cutoff"></i>Orders</a>
         <a class="nav-link" href="manage-reviews"><i class="bi bi-chat-dots"></i>Reviews</a>
         <a class="nav-link" href="manage-dishes"><i class="bi bi-card-list"></i>Dishes</a>
         <a class="nav-link" href="manage-ingredients"><i class="bi bi-basket"></i>Ingredients</a>
