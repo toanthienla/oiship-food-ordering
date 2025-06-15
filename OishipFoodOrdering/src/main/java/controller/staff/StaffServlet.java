@@ -13,6 +13,7 @@ import java.util.List;
 
 @WebServlet("/staff/*")
 public class StaffServlet extends HttpServlet {
+
     private StaffDAO staffDAO;
 
     @Override
@@ -29,32 +30,7 @@ public class StaffServlet extends HttpServlet {
             return;
         }
 
-        String path = request.getPathInfo();
-        if (path == null || path.equals("/dashboard")) {
-            try {
-                List<model.Order> orders = staffDAO.getPendingOrders();
-                request.setAttribute("orders", orders);
-                request.getRequestDispatcher("/WEB-INF/views/staff/staff_dashboard.jsp").forward(request, response);
-            } catch (SQLException e) {
-                request.setAttribute("error", "Error fetching orders: " + e.getMessage());
-                request.getRequestDispatcher("/WEB-INF/views/staff/staff_dashboard.jsp").forward(request, response);
-            }
-        } else if (path.equals("/updateOrderStatus")) {
-            String orderIdStr = request.getParameter("orderId");
-            String statusStr = request.getParameter("status");
-            if (orderIdStr != null && statusStr != null) {
-                try {
-                    int orderId = Integer.parseInt(orderIdStr);
-                    int status = Integer.parseInt(statusStr);
-                    HttpSession sessionStaff = request.getSession();
-                    int staffId = (int) sessionStaff.getAttribute("accountID"); // Lấy accountID của Staff
-                    staffDAO.updateOrderStatus(orderId, status, staffId);
-                    response.sendRedirect(request.getContextPath() + "/staff/dashboard");
-                } catch (NumberFormatException | SQLException e) {
-                    response.sendRedirect(request.getContextPath() + "/staff/dashboard?error=Invalid input");
-                }
-            }
-        }
+        request.getRequestDispatcher("/WEB-INF/views/staff/staff_dashboard.jsp").forward(request, response);
     }
 
     @Override
