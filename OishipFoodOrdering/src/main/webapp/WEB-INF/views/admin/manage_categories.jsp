@@ -70,35 +70,25 @@
                 <!-- Category List -->
                 <div class="mt-5">
                     <h4>Existing Categories</h4>
-                    <ul class="list-group mt-3">
-                        <% List<model.Category> categories = (List<model.Category>) request.getAttribute("categories");%>
+                    <ul class="list-group mt-3 list-group-flush">
+                        <% List<model.Category> categories = (List<model.Category>) request.getAttribute("categories"); %>
+                        <% int index = 1;%>
                         <c:forEach var="cat" items="${categories}">
-                            <div class="list-group-item list-group-item-action"
-                                 style="cursor: pointer;"
-                                 onclick="toggleDescription(this)">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span style="font-weight: 500">${cat.catName}</span>
-                                    <div>
-                                        <!--Edit button-->
-                                        <a href="#" class="btn btn-sm btn-primary me-2"
-                                           data-id="${cat.catID}"
-                                           data-name="${cat.catName}"
-                                           data-description="${cat.catDescription}"
-                                           onclick="handleEditClick(this); event.stopPropagation();">
-                                            Edit
-                                        </a>
-                                        <!--Delete button-->
-                                        <a href="manage-categories?action=delete&id=${cat.catID}" 
-                                           class="btn btn-sm btn-danger" 
-                                           onclick="return confirmDelete(event);">
-                                            Delete
-                                        </a>
+                            <div class="list-group-item list-group-item-action d-flex align-items-center" style="cursor: pointer;" onclick="toggleDescription(this)">
+                                <div class="flex-grow-1">
+                                    <div class="d-flex justify-content-between align-items-center">
+                                        <span style="font-weight: 400">
+                                            <span class="me-1" style="font-weight: 400;"><%= index++%>.</span>
+                                            ${cat.catName}
+                                        </span>
+                                        <div>
+                                            <a href="#" class="btn btn-sm btn-primary me-2" data-id="${cat.catID}" data-name="${cat.catName}" data-description="${cat.catDescription}" onclick="handleEditClick(this); event.stopPropagation();">Edit</a>
+                                            <a href="manage-categories?action=delete&id=${cat.catID}" class="btn btn-sm btn-danger" onclick="return confirmDelete(event);">Delete</a>
+                                        </div>
                                     </div>
-                                </div>
-
-                                <div class="cat-description mt-1 text-muted" style="display: none;">
-                                    <hr class="my-1" />
-                                    Description: ${cat.catDescription}
+                                    <div class="cat-description text-muted" style="display: none; margin-top: -5px; margin-left: 20px">
+                                        Description: ${cat.catDescription}
+                                    </div>
                                 </div>
                             </div>
                         </c:forEach>
