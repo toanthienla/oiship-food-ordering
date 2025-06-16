@@ -106,13 +106,22 @@
                     </div>
                 </form>
 
-                <!-- Filter Dropdown -->
+                <!-- Alert placeholder -->
+                <div id="actionAlert" class="alert mt-3 d-none" role="alert"></div>
+
+                <!-- Dish Filter and Table -->
                 <div class="mt-5">
                     <div class="row mb-3">
-                        <div class="col-md-6">
+                        <div class="col-md-12">
                             <h4>Existing Dishes by Category</h4>
                         </div>
-                        <div class="col-md-6">
+                        <div class="col-md-6 mt-3">
+                            <div class="d-flex align-items-center">
+                                <label class="me-2 fw-semibold mb-0">Search Dish:</label>
+                                <input type="text" id="dishSearch" class="form-control w-auto" placeholder="Enter dish name..." />
+                            </div>
+                        </div>
+                        <div class="col-md-6 mt-3">
                             <div class="d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
                                 <label class="me-2 fw-semibold mb-0">Filter by Category:</label>
                                 <select id="categoryFilter" class="form-select w-auto">
@@ -125,62 +134,82 @@
                         </div>
                     </div>
 
-                    <ul class="list-group list-group-flush" id="dishList">
-                        <c:set var="prevCat" value="" />
-                        <% int index = 1;%>
-                        <c:forEach var="dish" items="${dishes}">
-                            <li class="list-group-item list-group-item-action dish-item" data-category="${dish.category.catName}" style="cursor: pointer;" onclick="toggleDescription(this)">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span style="font-weight: 400">
-                                        <span class="me-1" style="font-weight: 400;"><%= index++%>.</span>
-                                        ${dish.dishName}
-                                        (Available: 
-                                        <span class="${dish.isAvailable ? 'text-success' : 'text-danger'}">
-                                            ${dish.isAvailable ? 'Yes' : 'No'})
-                                        </span>
-                                    </span>
-                                    <div>
-                                        <a href="#" class="btn btn-sm btn-primary me-2"
-                                           onclick="handleEditDish(this); event.stopPropagation();"
-                                           data-id="${dish.dishID}"
-                                           data-name="${dish.dishName}"
-                                           data-cost="${dish.opCost}"
-                                           data-interest="${dish.interestPercentage}"
-                                           data-description="${dish.dishDescription}"
-                                           data-stock="${dish.stock}"
-                                           data-available="${dish.isAvailable}"
-                                           data-image="${dish.image}"
-                                           data-category="${dish.category.catID}">
-                                            Edit
-                                        </a>
-                                        <a href="manage-dishes?action=delete&id=${dish.dishID}"
-                                           class="btn btn-sm btn-danger"
-                                           onclick="return confirmDelete(event);">
-                                            Delete
-                                        </a>
-                                    </div>
-                                </div>
+                    <% int index = 1;%>
+                    <div class="table-responsive">
+                        <table class="table table-bordered table-hover align-middle" id="dishTable">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Dish Name</th>
+                                    <th>Category</th>
+                                    <th>Total price</th>
+                                    <th>Available</th>
+                                    <th>Stock</th>
+                                    <!--<th>Op Cost (đ)</th>-->
+                                    <!--<th>Interest (%)</th>-->
+                                    <th>Description</th>
+                                    <th>Image</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="dish" items="${dishes}">
+                                    <tr data-category="${dish.category.catName}">
+                                        <td><%= index++%></td>
+                                        <td>${dish.dishName}</td>
+                                        <td>${dish.category.catName}</td>
+                                        <td>...</td>
+                                        <td>
+                                            <span class="${dish.isAvailable ? 'text-success' : 'text-danger'}">
+                                                ${dish.isAvailable ? 'Yes' : 'No'}
+                                            </span>
+                                        </td>
+                                        <td>${dish.stock}</td>
+                                        <!--<td><fmt:formatNumber value="${dish.opCost}" type="number" groupingUsed="true" /></td>-->
+                                        <!--<td>${dish.interestPercentage}</td>-->
+                                        <td style="max-width: 200px;">${dish.dishDescription}</td>
+                                        <td class="align-middle">
+                                            <img src="${dish.image}" alt="${dish.dishName}" class="img-fluid" style="max-height: 80px; object-fit: cover; border-radius: 1px" />
+                                        </td>
+                                        <td class="text-center">
+                                            <div class="d-flex flex-column gap-1 align-items-center">
+                                                <!-- Row 1: Edit and Delete side by side -->
+                                                <div class="d-flex gap-1 w-100 justify-content-center">
+                                                    <button class="btn btn-sm btn-primary w-50"
+                                                            onclick="handleEditDish(this); event.stopPropagation();"
+                                                            data-id="${dish.dishID}"
+                                                            data-name="${dish.dishName}"
+                                                            data-cost="${dish.opCost}"
+                                                            data-interest="${dish.interestPercentage}"
+                                                            data-description="${dish.dishDescription}"
+                                                            data-stock="${dish.stock}"
+                                                            data-available="${dish.isAvailable}"
+                                                            data-image="${dish.image}"
+                                                            data-category="${dish.category.catID}">
+                                                        Edit
+                                                    </button>
+                                                    <a href="manage-dishes?action=delete&id=${dish.dishID}"
+                                                       class="btn btn-sm btn-danger w-50"
+                                                       onclick="return confirmDelete(event);">
+                                                        Delete
+                                                    </a>
+                                                </div>
 
-                                <!-- Description Section -->
-                                <div class="cat-description text-muted" style="display: none; margin-left: 20px; margin-top: 5px">
-                                    <div class="d-flex align-items-center gap-3 flex-wrap">
-                                        <img src="${dish.image}" alt="${dish.dishName}" style="height: 160px; border-radius: 1.5px;" />
-                                        <div>
-                                            <div style="font-weight: 400">Total price: ...</div>
-                                            <div style="font-weight: 400">Ingredient price: ...</div>
-                                            <div style="font-weight: 400">
-                                            <div style="font-weight: 400">Net profit: ...</div>
-                                                Cost: <fmt:formatNumber value="${dish.opCost}" type="number" groupingUsed="true" />đ
+                                                <!-- Row 2: Cost Detail full width -->
+                                                <button class="btn btn-sm btn-secondary w-100"
+                                                        onclick="showDishDetail(this); event.stopPropagation();"
+                                                        data-id="${dish.dishID}"
+                                                        data-cost="${dish.opCost}"
+                                                        data-interest="${dish.interestPercentage}">
+                                                    Cost Detail
+                                                </button>
                                             </div>
-                                            <div style="font-weight: 400">Interest: ${dish.interestPercentage}%</div>
-                                            <div style="font-weight: 400">Stock: ${dish.stock}</div>
-                                            <div style="font-weight: 400">Description: ${dish.dishDescription}</div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </li>
-                        </c:forEach>
-                    </ul>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
 
@@ -265,14 +294,54 @@
 
             <!-- JavaScript -->
             <script>
-//                const params = new URLSearchParams(window.location.search);
-//                const success = params.get("success");
-//
-//                if (success === "false") {
-//                    alert("Failed to add category. Please try again.");
-//                } else if (success === "true") {
-//                    alert("Success to add dish.");
-//                }
+                function getParam(name) {
+                    const urlParams = new URLSearchParams(window.location.search);
+                    return urlParams.get(name);
+                }
+
+                window.addEventListener("DOMContentLoaded", () => {
+                    const success = getParam("success");
+                    const alertBox = document.getElementById("actionAlert");
+
+                    if (success) {
+                        let message = "";
+                        let alertClass = "";
+
+                        switch (success) {
+                            case "add":
+                                message = '<i class="bi bi-check-circle-fill me-2"></i>Dish added successfully!';
+                                alertClass = "alert-success";
+                                break;
+                            case "false":
+                                message = '<i class="bi bi-x-circle-fill me-2"></i>Failed to process dish. Please try again.';
+                                alertClass = "alert-danger";
+                                break;
+                            case "delete":
+                                message = '<i class="bi bi-trash-fill me-2"></i>Dish deleted successfully.';
+                                alertClass = "alert-success";
+                                break;
+                            case "edit":
+                                message = '<i class="bi bi-pencil-square me-2"></i>Dish updated successfully.';
+                                alertClass = "alert-success";
+                                break;
+                            default:
+                                message = '<i class="bi bi-info-circle-fill me-2"></i>Unknown status.';
+                                alertClass = "alert-secondary";
+                        }
+
+                        alertBox.innerHTML = message;
+                        alertBox.classList.remove("d-none");
+                        alertBox.classList.add("alert", alertClass, "mt-3");
+                        alertBox.setAttribute("role", "alert");
+
+                        // Clean the URL after displaying the alert
+                        if (window.history.replaceState) {
+                            const url = new URL(window.location);
+                            url.searchParams.delete("success");
+                            window.history.replaceState({}, document.title, url.pathname);
+                        }
+                    }
+                });
 
                 function toggleDescription(item) {
                     const desc = item.querySelector('.cat-description');
@@ -305,31 +374,82 @@
                 }
 
                 // Filter logic
-                document.addEventListener('DOMContentLoaded', () => {
-                    const filterSelect = document.getElementById('categoryFilter');
-                    const dishes = document.querySelectorAll('.dish-item');
-                    const headers = document.querySelectorAll('.category-header');
+                document.getElementById("categoryFilter").addEventListener("change", function () {
+                    const selectedCategory = this.value;
+                    const rows = document.querySelectorAll("#dishTable tbody tr");
 
-                    const filterDishes = () => {
-                        const selected = filterSelect.value;
-
-                        dishes.forEach(dish => {
-                            const match = selected === 'all' || dish.dataset.category === selected;
-                            dish.style.display = match ? 'block' : 'none';
-                        });
-
-                        headers.forEach(header => {
-                            const category = header.dataset.category;
-                            const hasVisible = Array.from(dishes).some(dish =>
-                                dish.dataset.category === category && dish.style.display !== 'none'
-                            );
-                            header.style.display = hasVisible ? 'block' : 'none';
-                        });
-                    };
-
-                    filterSelect.addEventListener('change', filterDishes);
-                    filterDishes(); // Run on page load
+                    rows.forEach(row => {
+                        const rowCategory = row.getAttribute("data-category");
+                        if (selectedCategory === "all" || rowCategory === selectedCategory) {
+                            row.style.display = "";
+                        } else {
+                            row.style.display = "none";
+                        }
+                    });
                 });
+
+                // Search logic
+                const categoryFilter = document.getElementById("categoryFilter");
+                const searchInput = document.getElementById("dishSearch");
+                function removeVietnameseTones(str) {
+                    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
+                }
+
+                function filterDishes() {
+                    const selectedCategory = categoryFilter.value.toLowerCase();
+                    const searchKeyword = removeVietnameseTones(searchInput.value.trim().toLowerCase());
+
+                    const rows = document.querySelectorAll("#dishTable tbody tr");
+
+                    rows.forEach(row => {
+                        const category = row.getAttribute("data-category")?.toLowerCase() || "";
+                        const dishName = row.cells[1].textContent.toLowerCase();
+                        const normalizedDishName = removeVietnameseTones(dishName);
+
+                        const matchesCategory = selectedCategory === "all" || category === selectedCategory;
+                        const matchesSearch = normalizedDishName.includes(searchKeyword);
+
+                        row.style.display = matchesCategory && matchesSearch ? "" : "none";
+                    });
+                }
+
+                categoryFilter.addEventListener("change", filterDishes);
+                searchInput.addEventListener("input", filterDishes);
+
+                function showDishDetail(button) {
+                    const mainRow = button.closest('tr');
+                    const nextRow = mainRow.nextElementSibling;
+
+                    // If next row is already the detail row, toggle (remove it)
+                    if (nextRow && nextRow.classList.contains('dish-detail-row')) {
+                        nextRow.remove();
+                        return;
+                    }
+
+                    // Remove other existing detail rows
+                    document.querySelectorAll('.dish-detail-row').forEach(row => row.remove());
+
+                    // Get data
+                    const opCost = Number(button.getAttribute("data-cost") || 0).toLocaleString('vi-VN');
+                    const interest = button.getAttribute("data-interest") || "0";
+
+                    // Create new row
+                    const newRow = document.createElement('tr');
+                    newRow.classList.add('dish-detail-row');
+                    newRow.innerHTML =
+                            '<td colspan="10">' +
+                            '<div class="p-3 bg-light border">' +
+                            '<h6 class="mb-2 fw-semibold">Dish Cost Details</h6>' +
+                            '<div><span class="fw-normal">Operation Cost:</span> ' + opCost + ' VND</div>' +
+                            '<div><span class="fw-normal">Ingredient Price:</span> ' + `...` + ' VND</div>' +
+                            '<div><span class="fw-normal">Interest Percentage:</span> ' + interest + ' %</div>' +
+                            '<div><span class="fw-normal">Net Profit:</span> ' + `...` + ' VND</div>' +
+                            '</div>' +
+                            '</td>';
+
+                    // Insert new detail row
+                    mainRow.parentNode.insertBefore(newRow, mainRow.nextSibling);
+                }
             </script>
     </body>
 </html>

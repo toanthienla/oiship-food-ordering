@@ -7,6 +7,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
+import dao.DishDAO;
 
 public class CategoryDAO extends DBContext {
 
@@ -74,14 +75,54 @@ public class CategoryDAO extends DBContext {
         return false;
     }
 
-    public boolean deleteCategoryById(int id) {
-        String sql = "DELETE FROM Category WHERE catID = ?";
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, id);
-            return ps.executeUpdate() > 0;
+    public boolean deleteCategoryById(int catId) {
+        String getDishIdsSql = "SELECT DishID FROM Dish WHERE FK_Dish_Category = ?";
+        String deleteCategorySql = "DELETE FROM Category WHERE catID = ?";
+        DishDAO dishDAO = new DishDAO();
+
+        try {
+            conn.setAutoCommit(false); // Start transaction
+
+            // Step 1: Get all dish IDs in this category
+            try (PreparedStatement ps = conn.prepareStatement(getDishIdsSql)) {
+                ps.setInt(1, catId);
+                try (ResultSet rs = ps.executeQuery()) {
+                    while (rs.next()) {
+                        int dishId = rs.getInt("DishID");
+                        // Reuse existing method
+                        if (!dishDAO.deleteDishById(dishId)) {
+                            conn.rollback();
+                            return false;
+                        }
+                    }
+                }
+            }
+
+            // Step 2: Delete the category itself
+            int affectedRows;
+            try (PreparedStatement ps2 = conn.prepareStatement(deleteCategorySql)) {
+                ps2.setInt(1, catId);
+                affectedRows = ps2.executeUpdate();
+            }
+
+            conn.commit(); // Commit if everything is successful
+            return affectedRows > 0;
+
         } catch (Exception e) {
             e.printStackTrace();
+            try {
+                conn.rollback(); // Rollback on failure
+            } catch (Exception rollbackEx) {
+                rollbackEx.printStackTrace();
+            }
+        } finally {
+            try {
+                conn.setAutoCommit(true);
+            } catch (Exception ex) {
+                ex.printStackTrace();
+            }
         }
+
         return false;
     }
 }

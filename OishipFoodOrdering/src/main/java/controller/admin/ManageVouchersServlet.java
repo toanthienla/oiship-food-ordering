@@ -36,22 +36,20 @@ public class ManageVouchersServlet extends HttpServlet {
             throws ServletException, IOException {
 
         request.setCharacterEncoding("UTF-8");
-
         String action = request.getParameter("action");
 
         try {
             if ("add".equals(action)) {
                 String code = request.getParameter("code");
-                String description = request.getParameter("voucherDescription");
+                String description = request.getParameter("description");
 
-                // Safe BigDecimal parsing
                 String discountStr = request.getParameter("discount");
                 BigDecimal discount = (discountStr != null && !discountStr.isEmpty()) ? new BigDecimal(discountStr) : BigDecimal.ZERO;
 
-                String maxDiscountStr = request.getParameter("maxDiscountValue");
+                String maxDiscountStr = request.getParameter("maxDiscount");
                 BigDecimal maxDiscount = (maxDiscountStr != null && !maxDiscountStr.isEmpty()) ? new BigDecimal(maxDiscountStr) : BigDecimal.ZERO;
 
-                String minOrderStr = request.getParameter("minOrderValue");
+                String minOrderStr = request.getParameter("minOrder");
                 BigDecimal minOrder = (minOrderStr != null && !minOrderStr.isEmpty()) ? new BigDecimal(minOrderStr) : BigDecimal.ZERO;
 
                 String startDateStr = request.getParameter("startDate");
@@ -68,18 +66,22 @@ public class ManageVouchersServlet extends HttpServlet {
                 HttpSession session = request.getSession();
                 Integer accountID = (Integer) session.getAttribute("userId");
                 if (accountID == null) {
-                    accountID = 1; // fallback user
+                    accountID = 1;
                 }
 
                 Voucher v = new Voucher(0, code, description, discount, maxDiscount, minOrder,
                         start, end, usageLimit, 0, active, accountID);
 
                 voucherDAO.addVoucher(v);
-                request.setAttribute("message", "Voucher added successfully!");
+                response.sendRedirect("manage-vouchers?success=add");
+                return;
+
             } else if ("delete".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 voucherDAO.deleteVoucher(id);
-                request.setAttribute("message", "Voucher deleted successfully!");
+                response.sendRedirect("manage-vouchers?success=delete");
+                return;
+
             } else if ("edit".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("voucherID"));
                 String code = request.getParameter("code");
@@ -106,27 +108,25 @@ public class ManageVouchersServlet extends HttpServlet {
                 String activeStr = request.getParameter("active");
                 boolean active = "1".equals(activeStr);
 
-                int usedCount = voucherDAO.getUsedCountByVoucherId(id); // fetch from DB
+                int usedCount = voucherDAO.getUsedCountByVoucherId(id);
 
                 HttpSession session = request.getSession();
                 Integer accountID = (Integer) session.getAttribute("userId");
                 if (accountID == null) {
-                    accountID = 1; // fallback
+                    accountID = 1;
                 }
 
                 Voucher updatedVoucher = new Voucher(id, code, description, discount, maxDiscount, minOrder,
                         start, end, usageLimit, usedCount, active, accountID);
 
                 voucherDAO.updateVoucher(updatedVoucher);
-                request.setAttribute("message", "Voucher updated successfully!");
+                response.sendRedirect("manage-vouchers?success=edit");
+                return;
             }
+
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "An error occurred while processing the request.");
+            response.sendRedirect("manage-vouchers?success=false");
         }
-
-        List<Voucher> vouchers = voucherDAO.getAllVouchers();
-        request.setAttribute("vouchers", vouchers);
-        request.getRequestDispatcher("/WEB-INF/views/admin/manage_vouchers.jsp").forward(request, response);
     }
 }
