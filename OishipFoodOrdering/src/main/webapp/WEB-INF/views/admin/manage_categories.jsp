@@ -67,32 +67,59 @@
                     </div>
                 </form>
 
-                <!-- Category List -->
+                <!-- Alert placeholder -->
+                <div id="actionAlert" class="alert mt-3 d-none" role="alert"></div>
+
+                <!-- Category Table -->
                 <div class="mt-5">
                     <h4>Existing Categories</h4>
-                    <ul class="list-group mt-3 list-group-flush">
-                        <% List<model.Category> categories = (List<model.Category>) request.getAttribute("categories"); %>
-                        <% int index = 1;%>
-                        <c:forEach var="cat" items="${categories}">
-                            <div class="list-group-item list-group-item-action d-flex align-items-center" style="cursor: pointer;" onclick="toggleDescription(this)">
-                                <div class="flex-grow-1">
-                                    <div class="d-flex justify-content-between align-items-center">
-                                        <span style="font-weight: 400">
-                                            <span class="me-1" style="font-weight: 400;"><%= index++%>.</span>
-                                            ${cat.catName}
-                                        </span>
-                                        <div>
-                                            <a href="#" class="btn btn-sm btn-primary me-2" data-id="${cat.catID}" data-name="${cat.catName}" data-description="${cat.catDescription}" onclick="handleEditClick(this); event.stopPropagation();">Edit</a>
-                                            <a href="manage-categories?action=delete&id=${cat.catID}" class="btn btn-sm btn-danger" onclick="return confirmDelete(event);">Delete</a>
-                                        </div>
-                                    </div>
-                                    <div class="cat-description text-muted" style="display: none; margin-top: -5px; margin-left: 20px">
-                                        Description: ${cat.catDescription}
-                                    </div>
-                                </div>
-                            </div>
-                        </c:forEach>
-                    </ul>
+                    <div class="col-md-6 mt-3">
+                        <div class="d-flex align-items-center">
+                            <label class="me-2 fw-semibold mb-0">Search Category:</label>
+                            <input type="text" id="categorySearch" class="form-control w-auto" placeholder="Enter category name..." />
+                        </div>
+                    </div>
+                    <% List<model.Category> categories = (List<model.Category>) request.getAttribute("categories"); %>
+                    <% int index = 1;%>
+                    <div class="table-responsive mt-3">
+                        <table class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Category Name</th>
+                                    <th>Description</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="cat" items="${categories}">
+                                    <tr>
+                                        <td><%= index++%></td>
+                                        <td>${cat.catName}</td>
+                                        <td>${cat.catDescription}</td>
+                                        <td class="text-center">
+                                            <div class="d-flex flex-wrap justify-content-center gap-2">
+                                                <button type="button"
+                                                        class="btn btn-sm btn-primary px-3"
+                                                        data-id="${cat.catID}"
+                                                        data-name="${cat.catName}"
+                                                        data-description="${cat.catDescription}"
+                                                        onclick="handleEditClick(this);">
+                                                    Edit
+                                                </button>
+
+                                                <a href="manage-categories?action=delete&id=${cat.catID}"
+                                                   class="btn btn-sm btn-danger px-3"
+                                                   onclick="return confirmDelete(event);">
+                                                    Delete
+                                                </a>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -126,14 +153,54 @@
 
 
         <script>
-//            const params = new URLSearchParams(window.location.search);
-//            const success = params.get("success");
-//
-//            if (success === "false") {
-//                alert("Failed to add category. Please try again.");
-//            } else if (success === "true") {
-//                alert("Success to add category.");
-//            }
+            function getParam(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+            window.addEventListener("DOMContentLoaded", () => {
+                const success = getParam("success");
+                const alertBox = document.getElementById("actionAlert");
+
+                if (success) {
+                    let message = "";
+                    let alertClass = "";
+
+                    switch (success) {
+                        case "add":
+                            message = '<i class="bi bi-check-circle-fill me-2"></i>Category added successfully!';
+                            alertClass = "alert-success";
+                            break;
+                        case "false":
+                            message = '<i class="bi bi-x-circle-fill me-2"></i>Failed to process category. Please try again.';
+                            alertClass = "alert-danger";
+                            break;
+                        case "delete":
+                            message = '<i class="bi bi-trash-fill me-2"></i>Category deleted successfully.';
+                            alertClass = "alert-success";
+                            break;
+                        case "edit":
+                            message = '<i class="bi bi-pencil-square me-2"></i>Category updated successfully.';
+                            alertClass = "alert-success";
+                            break;
+                        default:
+                            message = '<i class="bi bi-info-circle-fill me-2"></i>Unknown status.';
+                            alertClass = "alert-secondary";
+                    }
+
+                    alertBox.innerHTML = message;
+                    alertBox.classList.remove("d-none");
+                    alertBox.classList.add("alert", alertClass, "mt-3");
+                    alertBox.setAttribute("role", "alert");
+
+                    // Clean URL
+                    if (window.history.replaceState) {
+                        const url = new URL(window.location);
+                        url.searchParams.delete("success");
+                        window.history.replaceState({}, document.title, url.pathname);
+                    }
+                }
+            });
 
             function toggleDescription(item) {
                 const desc = item.querySelector('.cat-description');
@@ -156,13 +223,37 @@
             }
 
             function confirmDelete(event) {
-                const confirmed = confirm("Are you sure you want to delete this category?");
+                const warningMessage = "Are you sure you want to delete this category?\n\n⚠ All dishes under this category will also be permanently deleted.";
+                const confirmed = confirm(warningMessage);
+
                 if (!confirmed) {
-                    event.preventDefault(); // Stop the link if user cancels
+                    event.preventDefault();
                     return false;
                 }
-                return true; // Allow link to proceed if confirmed
+                return true;
             }
+
+            // Search filter for categories
+            const categorySearchInput = document.getElementById("categorySearch");
+
+            function removeVietnameseTones(str) {
+                return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
+            }
+
+            categorySearchInput.addEventListener("input", function () {
+                const searchKeyword = removeVietnameseTones(this.value.trim().toLowerCase());
+
+                const rows = document.querySelectorAll("table tbody tr");
+
+                rows.forEach(row => {
+                    const categoryName = row.cells[1].textContent.trim().toLowerCase(); // 2nd cell = Category Name
+                    const normalizedCategoryName = removeVietnameseTones(categoryName);
+
+                    const matchesSearch = normalizedCategoryName.includes(searchKeyword);
+
+                    row.style.display = matchesSearch ? "" : "none";
+                });
+            });
         </script>
     </body>
 </html>

@@ -94,57 +94,90 @@
                     </div>
                 </form>
 
+                <!-- Alert placeholder -->
+                <div id="actionAlert" class="alert mt-3 d-none" role="alert"></div>
+
                 <!-- Existing Vouchers -->
+                <!-- Voucher Table -->
                 <div class="mt-5">
                     <h4>Existing Vouchers</h4>
-                    <ul class="list-group mt-3 list-group-flush">
-                        <% List<model.Voucher> vouchers = (List<model.Voucher>) request.getAttribute("vouchers");%>
-                        <% int index = 1;%>
-                        <c:forEach var="v" items="${vouchers}">
-                            <div class="list-group-item list-group-item-action"
-                                 style="cursor: pointer;" onclick="toggleDescription(this)">
-                                <div class="d-flex justify-content-between align-items-center">
-                                    <span style="font-weight: 400">
-                                        <span class="me-1" style="font-weight: 400;"><%= index++%>.</span>
-                                        ${v.code}
-                                        (Available: 
-                                        <span class="${v.active ? 'text-success' : 'text-danger'}">
-                                            ${v.active ? 'Yes' : 'No'})
-                                        </span>
-                                    </span>
-                                    <div>
-                                        <!-- Edit Button -->
-                                        <a href="#" class="btn btn-sm btn-primary me-2"
-                                           data-id="${v.voucherID}"
-                                           data-code="${v.code}"
-                                           data-description="${v.voucherDescription}"
-                                           data-discount="${v.discount}"
-                                           data-max="${v.maxDiscountValue}"
-                                           data-min="${v.minOrderValue}"
-                                           data-start="${v.startDate}"
-                                           data-end="${v.endDate}"
-                                           data-usage="${v.usageLimit}"
-                                           data-active="${v.active ? 1 : 0}"
-                                           onclick="handleEditClick(this); event.stopPropagation();">
-                                            Edit
-                                        </a>
-                                        <!-- Delete Button -->
-                                        <form action="manage-vouchers" method="post" style="display:inline;" onsubmit="return confirmDelete(event);">
-                                            <input type="hidden" name="action" value="delete" />
-                                            <input type="hidden" name="id" value="${v.voucherID}" />
-                                            <button type="submit" class="btn btn-sm btn-danger">Delete</button>
-                                        </form>
-                                    </div>
-                                </div>
-                                <div class="cat-description text-muted" style="display: none; margin-top: -5px; margin-left: 20px">
-                                    Description: ${v.voucherDescription}<br />
-                                    Discount: ${v.discount}% | Max: ${v.maxDiscountValue} | Min Order: ${v.minOrderValue}<br />
-                                    Start: ${v.startDate} | End: ${v.endDate}<br />
-                                    Limit: ${v.usageLimit}, Used: ${v.usedCount}
-                                </div>
-                            </div>
-                        </c:forEach>
-                    </ul>
+                    <div class="col-md-6 mt-3">
+                        <div class="d-flex align-items-center">
+                            <label class="me-2 fw-semibold mb-0">Search Voucher:</label>
+                            <input type="text" id="voucherSearch" class="form-control w-auto" placeholder="Enter voucher code..." />
+                        </div>
+                    </div>
+                    <% List<model.Voucher> vouchers = (List<model.Voucher>) request.getAttribute("vouchers"); %>
+                    <% int index = 1;%>
+
+                    <div class="table-responsive mt-3">
+                        <table id="voucherTable" class="table table-bordered table-hover align-middle">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>#</th>
+                                    <th>Code</th>
+                                    <th>Description</th>
+                                    <th>Available</th>
+                                    <th>Discount (%)</th>
+                                    <th>Used / Limit</th>
+                                    <th class="text-center">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="v" items="${vouchers}">
+                                    <tr>
+                                        <td><%= index++%></td>
+                                        <td>${v.code}</td>
+                                        <td>${v.voucherDescription}</td>
+                                        <td>
+                                            <span class="${v.active ? 'text-success' : 'text-danger'}">
+                                                ${v.active ? 'Yes' : 'No'}
+                                            </span>
+                                        </td>
+                                        <td>${v.discount}</td>
+                                        <td>${v.usedCount} / ${v.usageLimit}</td>
+                                        <td class="text-center">
+                                            <div class="d-flex flex-column gap-1 align-items-center">
+                                                <!-- Row 1: Edit and Delete side by side -->
+                                                <div class="d-flex gap-1 w-100 justify-content-center">
+                                                    <button class="btn btn-sm btn-primary w-50"
+                                                       data-id="${v.voucherID}"
+                                                       data-code="${v.code}"
+                                                       data-description="${v.voucherDescription}"
+                                                       data-discount="${v.discount}"
+                                                       data-max="${v.maxDiscountValue}"
+                                                       data-min="${v.minOrderValue}"
+                                                       data-start="${v.startDate}"
+                                                       data-end="${v.endDate}"
+                                                       data-usage="${v.usageLimit}"
+                                                       data-active="${v.active ? 1 : 0}"
+                                                       onclick="handleEditClick(this); event.stopPropagation();">
+                                                        Edit
+                                                    </button>
+
+                                                    <form action="manage-vouchers" method="post" class="w-50" onsubmit="return confirmDelete(event);">
+                                                        <input type="hidden" name="action" value="delete" />
+                                                        <input type="hidden" name="id" value="${v.voucherID}" />
+                                                        <button type="submit" class="btn btn-sm btn-danger w-100">Delete</button>
+                                                    </form>
+                                                </div>
+
+                                                <!-- Row 2: Voucher Terms full width -->
+                                                <button class="btn btn-sm btn-secondary w-100"
+                                                        onclick="showVoucherTerms(this); event.stopPropagation();"
+                                                        data-min="${v.minOrderValue}"
+                                                        data-max="${v.maxDiscountValue}"
+                                                        data-start="${v.startDate}"
+                                                        data-end="${v.endDate}">
+                                                    Voucher Terms
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
@@ -187,6 +220,55 @@
 
         <!-- JavaScript -->
         <script>
+            function getParam(name) {
+                const urlParams = new URLSearchParams(window.location.search);
+                return urlParams.get(name);
+            }
+
+            window.addEventListener("DOMContentLoaded", () => {
+                const success = getParam("success");
+                const alertBox = document.getElementById("actionAlert");
+
+                if (success) {
+                    let message = "";
+                    let alertClass = "";
+
+                    switch (success) {
+                        case "add":
+                            message = '<i class="bi bi-check-circle-fill me-2"></i>Voucher added successfully!';
+                            alertClass = "alert-success";
+                            break;
+                        case "false":
+                            message = '<i class="bi bi-x-circle-fill me-2"></i>Failed to process voucher. Please try again.';
+                            alertClass = "alert-danger";
+                            break;
+                        case "delete":
+                            message = '<i class="bi bi-trash-fill me-2"></i>Voucher deleted successfully.';
+                            alertClass = "alert-success";
+                            break;
+                        case "edit":
+                            message = '<i class="bi bi-pencil-square me-2"></i>Voucher updated successfully.';
+                            alertClass = "alert-success";
+                            break;
+                        default:
+                            message = '<i class="bi bi-info-circle-fill me-2"></i>Unknown status.';
+                            alertClass = "alert-secondary";
+                    }
+
+                    alertBox.innerHTML = message;
+                    alertBox.classList.remove("d-none");
+                    alertBox.classList.add("alert", alertClass, "mt-3");
+                    alertBox.setAttribute("role", "alert");
+
+                    // Clean the URL after displaying the alert
+                    if (window.history.replaceState) {
+                        const url = new URL(window.location);
+                        url.searchParams.delete("success");
+                        window.history.replaceState({}, document.title, url.pathname);
+                    }
+                }
+            });
+
             function toggleDescription(item) {
                 const desc = item.querySelector('.cat-description');
                 if (desc) {
@@ -218,6 +300,70 @@
                 }
                 return true;
             }
+
+            function showVoucherTerms(button) {
+                const mainRow = button.closest('tr');
+                const nextRow = mainRow.nextElementSibling;
+
+                // Toggle if same button clicked again
+                if (nextRow && nextRow.classList.contains('voucher-detail-row')) {
+                    nextRow.remove();
+                    return;
+                }
+
+                // Remove any open detail rows
+                document.querySelectorAll('.voucher-detail-row').forEach(row => row.remove());
+
+                const formatDate = (dateString) => {
+                    if (!dateString)
+                        return 'N/A';
+                    const date = new Date(dateString);
+                    if (isNaN(date))
+                        return 'N/A';
+                    return new Intl.DateTimeFormat('vi-VN').format(date);
+                };
+
+                // Get data
+                const min = Number(button.getAttribute("data-min") || 0).toLocaleString('vi-VN');
+                const max = Number(button.getAttribute("data-max") || 0).toLocaleString('vi-VN');
+                const start = formatDate(button.getAttribute("data-start") || 'N/A');
+                const end = formatDate(button.getAttribute("data-end") || 'N/A');
+
+                // Create detail row
+                const detailRow = document.createElement('tr');
+                detailRow.className = 'voucher-detail-row';
+                detailRow.innerHTML =
+                        '<td colspan="10">' +
+                        '<div class="p-3 bg-light border">' +
+                        '<h6 class="mb-2 fw-semibold">Voucher Terms</h6>' +
+                        '<div><span class="fw-normal">Minimum Order Value:</span> ' + min + ' VND</div>' +
+                        '<div><span class="fw-normal">Maximum Discount Value:</span> ' + max + ' VND</div>' +
+                        '<div><span class="fw-normal">Start Date:</span> ' + start + '</div>' +
+                        '<div><span class="fw-normal">End Date:</span> ' + end + '</div>' +
+                        '</div>' +
+                        '</td>';
+
+                // Insert after current row
+                mainRow.parentNode.insertBefore(detailRow, mainRow.nextSibling);
+            }
+
+            function removeVietnameseTones(str) {
+                return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "").replace(/đ/g, "d").replace(/Đ/g, "D");
+            }
+
+            document.getElementById("voucherSearch").addEventListener("input", function () {
+                const searchKeyword = removeVietnameseTones(this.value.trim().toLowerCase());
+
+                const rows = document.querySelectorAll("#voucherTable tbody tr");
+
+                rows.forEach(row => {
+                    const codeCell = row.cells[1]?.textContent.trim().toLowerCase() || ""; // Voucher code column
+                    const normalizedCode = removeVietnameseTones(codeCell);
+                    const matches = normalizedCode.includes(searchKeyword);
+                    row.style.display = matches ? "" : "none";
+                });
+            });
+
         </script>
     </body>
 </html>

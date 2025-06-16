@@ -28,7 +28,7 @@ public class ManageCategoriesServlet extends HttpServlet {
             switch (action) {
                 case "delete":
                     boolean deleted = dao.deleteCategoryById(id);
-                    response.sendRedirect("manage-categories?success=" + deleted);
+                    response.sendRedirect("manage-categories?success=" + (deleted ? "delete" : "false"));
                     return;
             }
         }
@@ -49,20 +49,19 @@ public class ManageCategoriesServlet extends HttpServlet {
 
         CategoryDAO dao = new CategoryDAO();
 
-        boolean isSuccess;
+        String status;
 
         if (catIDStr != null && !catIDStr.isEmpty()) {
             // Update existing category
             int catID = Integer.parseInt(catIDStr);
             Category updated = new Category(catID, catName, catDescription);
-            isSuccess = dao.updateCategory(updated);
+            status = dao.updateCategory(updated) ? "edit" : "false";
         } else {
             // Add new category
             Category newCat = new Category(catName, catDescription);
-            isSuccess = dao.addCategory(newCat);
+            status = dao.addCategory(newCat) ? "add" : "false";
         }
 
-        response.sendRedirect("manage-categories?success=" + isSuccess);
+        response.sendRedirect("manage-categories?success=" + status);
     }
-
 }

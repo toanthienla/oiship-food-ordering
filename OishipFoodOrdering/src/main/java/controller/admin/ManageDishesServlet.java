@@ -41,7 +41,7 @@ public class ManageDishesServlet extends HttpServlet {
 
             if ("delete".equals(action)) {
                 boolean deleted = dishDAO.deleteDishById(dishID);
-                response.sendRedirect("manage-dishes?success=" + deleted);
+                response.sendRedirect("manage-dishes?success=" + (deleted ? "delete" : "false"));
                 return;
             }
         }
@@ -123,7 +123,10 @@ public class ManageDishesServlet extends HttpServlet {
                 }
 
                 Dish updatedDish = new Dish(dishID, name, opCost, interest, imageUrl, description, stock, isAvailable, categoryID);
-                isSuccess = dishDAO.updateDish(updatedDish);
+                boolean updated = dishDAO.updateDish(updatedDish);
+                response.sendRedirect("manage-dishes?success=" + (updated ? "edit" : "false"));
+                return;
+
             } catch (NumberFormatException e) {
                 e.printStackTrace();
                 response.sendRedirect("manage-dishes?success=false&error=invalid-dish-id");
@@ -131,10 +134,9 @@ public class ManageDishesServlet extends HttpServlet {
             }
         } else {
             Dish newDish = new Dish(name, opCost, interest, imageUrl, description, stock, isAvailable, categoryID);
-            isSuccess = dishDAO.addDish(newDish);
+            boolean added = dishDAO.addDish(newDish);
+            response.sendRedirect("manage-dishes?success=" + (added ? "add" : "false"));
+            return;
         }
-
-        // === Redirect ===
-        response.sendRedirect("manage-dishes?success=" + isSuccess);
     }
 }
