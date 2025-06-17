@@ -1,6 +1,8 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -154,9 +156,51 @@
 
             <!-- Content -->
             <div class="content">
-                <h1>Manage Reviews</h1>
-                <p>Manage customers reviews.</p>
+                <div class="container-fluid">
+                    <h2 class="mb-4">Customer Reviews</h2>
+
+                    <c:if test="${empty reviews}">
+                        <div class="alert alert-info">No reviews available.</div>
+                    </c:if>
+
+                    <c:if test="${not empty reviews}">
+                        <div class="table-responsive">
+                            <table class="table table-hover table-bordered align-middle">
+                                <thead class="table-dark">
+                                    <tr>
+                                        <th>#</th>
+                                        <th>Customer</th>
+                                        <th>Dish</th>
+                                        <th>Rating</th>
+                                        <th>Comment</th>
+                                        <th>Date</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <c:forEach var="review" items="${reviews}" varStatus="loop">
+                                        <tr>
+                                            <td>${loop.index + 1}</td>
+                                            <td>${review.customerName}</td>
+                                            <td>${review.dishName}</td>
+                                            <td>${review.rating} ★</td>
+                                            <td>${review.comment}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${not empty review.reviewCreatedAt}">
+                                                        <fmt:formatDate value="${review.reviewCreatedAt}" pattern="yyyy-MM-dd HH:mm" />
+                                                    </c:when>
+                                                    <c:otherwise>N/A</c:otherwise>
+                                                </c:choose>
+                                            </td>
+                                        </tr>
+                                    </c:forEach>
+                                </tbody>
+                            </table>
+                        </div>
+                    </c:if>
+                </div>
+
+
             </div>
-        </div>
     </body>
 </html>
