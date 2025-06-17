@@ -43,7 +43,7 @@ public class CustomerServlet extends HttpServlet {
             e.printStackTrace();
         }
 
-        int userId = (int) session.getAttribute("userId");
+       // int userId = (int) session.getAttribute("userId");
         AccountDAO dao = new AccountDAO();
 
         // Get customer information using email stored in session
