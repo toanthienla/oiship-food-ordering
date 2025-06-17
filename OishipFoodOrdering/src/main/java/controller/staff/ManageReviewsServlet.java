@@ -61,9 +61,22 @@ public class ManageReviewsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+                String action = request.getParameter("action");
         ManageReviewsDAO dao = new ManageReviewsDAO();
-        List<Review> reviews = dao.getAllReviews();
-        request.setAttribute("reviews", reviews);
+
+        // Nếu là hành động xóa
+        if ("delete".equals(action)) {
+            try {
+                int reviewID = Integer.parseInt(request.getParameter("reviewID"));
+                dao.deleteReviewById(reviewID);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        // Load lại danh sách reviews (kể cả sau khi xóa)
+        List<Review> list = dao.getAllReviews();
+        request.setAttribute("reviews", list);
         request.getRequestDispatcher("/WEB-INF/views/staff/manage_reviews.jsp").forward(request, response);
     }
 
@@ -78,7 +91,7 @@ public class ManageReviewsServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        doGet(request, response);
     }
 
     /**

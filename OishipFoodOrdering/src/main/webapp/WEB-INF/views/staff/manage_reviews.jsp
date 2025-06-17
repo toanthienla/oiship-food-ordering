@@ -155,52 +155,45 @@
             </nav>
 
             <!-- Content -->
-            <div class="content">
-                <div class="container-fluid">
-                    <h2 class="mb-4">Customer Reviews</h2>
+            <div class="container mt-5">
+                <h2 class="mb-4">Manage Reviews</h2>
 
-                    <c:if test="${empty reviews}">
-                        <div class="alert alert-info">No reviews available.</div>
-                    </c:if>
-
-                    <c:if test="${not empty reviews}">
-                        <div class="table-responsive">
-                            <table class="table table-hover table-bordered align-middle">
-                                <thead class="table-dark">
-                                    <tr>
-                                        <th>#</th>
-                                        <th>Customer</th>
-                                        <th>Dish</th>
-                                        <th>Rating</th>
-                                        <th>Comment</th>
-                                        <th>Date</th>
-                                    </tr>
-                                </thead>
-                                <tbody>
-                                    <c:forEach var="review" items="${reviews}" varStatus="loop">
-                                        <tr>
-                                            <td>${loop.index + 1}</td>
-                                            <td>${review.customerName}</td>
-                                            <td>${review.dishName}</td>
-                                            <td>${review.rating} ★</td>
-                                            <td>${review.comment}</td>
-                                            <td>
-                                                <c:choose>
-                                                    <c:when test="${not empty review.reviewCreatedAt}">
-                                                        <fmt:formatDate value="${review.reviewCreatedAt}" pattern="yyyy-MM-dd HH:mm" />
-                                                    </c:when>
-                                                    <c:otherwise>N/A</c:otherwise>
-                                                </c:choose>
-                                            </td>
-                                        </tr>
-                                    </c:forEach>
-                                </tbody>
-                            </table>
-                        </div>
-                    </c:if>
-                </div>
-
-
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="r" items="${reviews}">
+                            <tr>
+                                <td>${r.reviewID}</td>
+                                <td>${r.customerName}</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">${r.rating} ★</span>
+                                </td>
+                                <td>${r.comment}</td>
+                                <td><small>${r.reviewCreatedAt}</small></td>
+                                <td>
+                                    <a href="manage-reviews?action=delete&reviewID=${r.reviewID}"
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?');">
+                                        🗑 Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
             </div>
+
+
+
+        </div>
     </body>
 </html>
