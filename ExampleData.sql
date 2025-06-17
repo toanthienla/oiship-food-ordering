@@ -14,6 +14,19 @@ INSERT INTO Account (accountID, fullName, email, [password], role)
 VALUES 
     (2, N'Staff User', 'staff@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', 'staff');
 
+-- Insert Customer
+INSERT INTO Account (fullName, email, [password], role)
+VALUES 
+    (N'Customer One', 'customer1@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer'),
+    (N'Customer Two', 'customer2@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer'),
+    (N'Customer Three', 'customer3@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer');
+INSERT INTO Customer (customerID, status, phone, address)
+VALUES 
+    (3, 1, '0909123123', N'123 Main Street, Hanoi'),
+    (4, 1, '0912345678', N'456 Le Loi, Da Nang'),
+    (5, 1, '0987654321', N'789 Nguyen Hue, HCMC');
+
+
 -- Disable IDENTITY_INSERT for Account
 SET IDENTITY_INSERT Account OFF;
 
@@ -267,18 +280,27 @@ VALUES
     (16, 61, 0.2);  -- Chả trứng
 
 -- Insert Vouchers (without FK_Voucher_Account, sẽ thêm sau nếu cần)
-INSERT INTO Voucher (code, voucherDescription, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, active)
+INSERT INTO Voucher (code, voucherDescription, discountType, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, active)
 VALUES 
-    ('SELLER10', N'Giảm 10% cho đơn từ 100k', 10.0, 30000, 100000, GETDATE(), DATEADD(DAY, 30, GETDATE()), 100, 1),
-    ('SELLER20K', N'Giảm 20K cho đơn từ 150k', 20000, 20000, 150000, GETDATE(), DATEADD(DAY, 30, GETDATE()), 50, 1),
-    ('FREESHIP', N'Miễn phí ship cho đơn từ 80k', 15000, 15000, 80000, GETDATE(), DATEADD(DAY, 15, GETDATE()), 200, 1),
-    ('COMBO50', N'Giảm 50K cho đơn combo từ 250k', 50000, 50000, 250000, GETDATE(), DATEADD(DAY, 20, GETDATE()), 30, 1),
-    ('THAI15', N'Giảm 15% cho món Thái', 15.0, 40000, 120000, GETDATE(), DATEADD(DAY, 25, GETDATE()), 70, 1),
-    ('COFFEELOVER', N'Giảm 25K cho đơn cà phê từ 100k', 25000, 25000, 100000, GETDATE(), DATEADD(DAY, 10, GETDATE()), 80, 1),
-    ('NOODLE10', N'Giảm 10% cho các món mì - đơn từ 90k', 10.0, 20000, 90000, GETDATE(), DATEADD(DAY, 20, GETDATE()), 60, 1),
-    ('OISHIPWEEKEND', N'Cuối tuần rộn ràng - giảm 30K đơn từ 200k', 30000, 30000, 200000, GETDATE(), DATEADD(DAY, 5, GETDATE()), 40, 1),
-    ('LUNCHDEAL', N'Ưu đãi bữa trưa - giảm 20K đơn từ 120k', 20000, 20000, 120000, GETDATE(), DATEADD(DAY, 14, GETDATE()), 100, 1),
-    ('NEWUSER', N'Dành cho khách mới - giảm 15% tối đa 50K', 15.0, 50000, 0, GETDATE(), DATEADD(DAY, 30, GETDATE()), 150, 1);
+    ('SELLER10', N'Giảm 10% cho đơn từ 100k', '%', 10.0, 30000, 100000, GETDATE(), DATEADD(DAY, 30, GETDATE()), 100, 1),
+    ('SELLER20K', N'Giảm 20K cho đơn từ 150k', 'VND', 20000, 20000, 150000, GETDATE(), DATEADD(DAY, 30, GETDATE()), 50, 1),
+    ('FREESHIP', N'Miễn phí ship cho đơn từ 80k', 'VND', 15000, 15000, 80000, GETDATE(), DATEADD(DAY, 15, GETDATE()), 200, 1),
+    ('COMBO50', N'Giảm 50K cho đơn combo từ 250k', 'VND', 50000, 50000, 250000, GETDATE(), DATEADD(DAY, 20, GETDATE()), 30, 1),
+    ('THAI15', N'Giảm 15% cho món Thái', '%', 15.0, 40000, 120000, GETDATE(), DATEADD(DAY, 25, GETDATE()), 70, 1),
+    ('COFFEELOVER', N'Giảm 25K cho đơn cà phê từ 100k', 'VND', 25000, 25000, 100000, GETDATE(), DATEADD(DAY, 10, GETDATE()), 80, 1),
+    ('NOODLE10', N'Giảm 10% cho các món mì - đơn từ 90k', '%', 10.0, 20000, 90000, GETDATE(), DATEADD(DAY, 20, GETDATE()), 60, 1),
+    ('OISHIPWEEKEND', N'Cuối tuần rộn ràng - giảm 30K đơn từ 200k', 'VND', 30000, 30000, 200000, GETDATE(), DATEADD(DAY, 5, GETDATE()), 40, 1),
+    ('LUNCHDEAL', N'Ưu đãi bữa trưa - giảm 20K đơn từ 120k', 'VND', 20000, 20000, 120000, GETDATE(), DATEADD(DAY, 14, GETDATE()), 100, 1),
+    ('NEWUSER', N'Dành cho khách mới - giảm 15% tối đa 50K', '%', 15.0, 50000, 0, GETDATE(), DATEADD(DAY, 30, GETDATE()), 150, 1);
+
+-- Insert Notifications
+INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
+VALUES 
+('System Maintenance', 'The system will be down for maintenance from 10 PM to 12 AM.', 1),
+('New Feature Released', 'We have added a new dashboard analytics tool. Check it out!', 1),
+('Voucher Update', 'A new voucher worth 50K VND has been added to your account.', 1),
+('Holiday Announcement', 'We will be closed for Tet holiday from Feb 8 to Feb 14.', 1),
+('Security Reminder', 'Please update your password every 90 days to keep your account secure.', 1);
 
 -- Optional: Verify data
 SELECT accountID, fullName, email, [password], role, createAt
