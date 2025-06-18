@@ -42,7 +42,43 @@ public class OrderDAO extends DBContext {
         return orders;
     }
 
-    
+    //này dùng cho order detail, cẩn thận nhầm ODID và orderID nhé
+    public List<OrderDetail> getOrderDetailsByOrderID(int orderID) {
+        List<OrderDetail> list = new ArrayList<>();
+
+        String sql = "SELECT od.ODID, od.quantity, "
+                + "d.DishID, d.DishName, d.DishDescription, "
+                + "o.orderStatus, o.orderCreatedAt, "
+                + "c.customerID, a.fullName AS customerName "
+                + "FROM OrderDetail od "
+                + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+                + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
+                + "JOIN Customer c ON o.FK_Order_Customer = c.customerID "
+                + "JOIN Account a ON c.customerID = a.accountID "
+                + "WHERE o.orderID = ?";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    OrderDetail detail = new OrderDetail();
+                    detail.setODID(rs.getInt("ODID"));
+                    detail.setQuantity(rs.getInt("quantity"));
+                    detail.setDishName(rs.getString("DishName"));
+                    detail.setDishDescription(rs.getString("DishDescription"));
+                    detail.setOrderStatus(rs.getInt("orderStatus"));
+                    detail.setCreateAt(rs.getTimestamp("orderCreatedAt"));
+                    detail.setCustomerName(rs.getString("customerName"));
+                    detail.setOrderId(orderID);
+                    list.add(detail);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
 
     public static void main(String[] args) {
 //        OrderDAO dao = new OrderDAO();
@@ -63,5 +99,26 @@ public class OrderDAO extends DBContext {
 //                System.out.println("-----------");
 //            }
 //        }
+
+        OrderDAO dao = new OrderDAO();
+        int testOrderID = 1; // thay số này bằng orderID bạn muốn test (phải có trong DB)
+
+        List<OrderDetail> details = dao.getOrderDetailsByOrderID(testOrderID);
+
+        if (details.isEmpty()) {
+            System.out.println("Không có dữ liệu cho orderID = " + testOrderID);
+        } else {
+            for (OrderDetail detail : details) {
+                System.out.println("ODID: " + detail.getODID());
+                System.out.println("Dish Name: " + detail.getDishName());
+                System.out.println("Quantity: " + detail.getQuantity());
+                System.out.println("Description: " + detail.getDishDescription());
+                System.out.println("Order Status: " + detail.getOrderStatus());
+                System.out.println("Customer Name: " + detail.getCustomerName());
+                System.out.println("Created At: " + detail.getCreateAt());
+                System.out.println("-----------------------------");
+            }
+        }
     }
+
 }

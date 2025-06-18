@@ -14,7 +14,7 @@
     </div>
 
     <div class="text-center p-3">
-        <img src="../images/logo_2.png" alt="Oiship Logo" style="max-width: 120px; height: auto;">
+        <img src="${pageContext.request.contextPath}/images/logo_2.png" alt="Oiship Logo" style="max-width: 120px; height: auto;">
         <p style="font-weight: 500" class="">Staff</p>
     </div>
 </div>

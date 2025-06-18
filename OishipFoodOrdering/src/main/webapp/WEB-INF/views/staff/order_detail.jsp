@@ -3,6 +3,7 @@
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+<%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
 <!DOCTYPE html>
 <html>
@@ -154,11 +155,86 @@
                     </div>
                 </div>
             </nav>
-            <!-- Profile Content -->
+            <!--Content -->
+            <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+            <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
-            <div class="content mt-4">
-                <h1>Order tail- khó , tính giá từ nguyên liệu không lưu vào db</h1>
+            <!--Content -->
+            <div class="content container mt-4">
+                <h2>Order Details</h2>
+
+                <c:if test="${empty orderDetails}">
+                    <div class="alert alert-info">No details available for this order.</div>
+                </c:if>
+
+                <c:if test="${not empty orderDetails}">
+                    <!-- THÔNG TIN CHUNG CỦA ĐƠN HÀNG -->
+                    <div class="border rounded p-3 mb-4 bg-light">
+                        <p><strong>Customer:</strong> ${orderDetails[0].customerName}</p>
+                        <p><strong>Order Created At:</strong>
+                            <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
+                        </p>
+                        <p><strong>Status:</strong>
+                            <c:choose>
+                                <c:when test="${orderDetails[0].orderStatus == 0}">Pending</c:when>
+                                <c:when test="${orderDetails[0].orderStatus == 1}">Confirmed</c:when>
+                                <c:when test="${orderDetails[0].orderStatus == 2}">Preparing</c:when>
+                                <c:when test="${orderDetails[0].orderStatus == 3}">Out for Delivery</c:when>
+                                <c:when test="${orderDetails[0].orderStatus == 4}">Delivered</c:when>
+                                <c:when test="${orderDetails[0].orderStatus == 5}">Cancelled</c:when>
+                                <c:when test="${orderDetails[0].orderStatus == 6}">Failed</c:when>
+                                <c:otherwise>Unknown</c:otherwise>
+                            </c:choose>
+                        </p>
+                    </div>
+
+                    <!-- BẢNG CHI TIẾT MÓN ĂN -->
+                    <table class="table table-bordered table-hover">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Dish</th>
+                                <th>Image</th>
+                                <th>Description</th>
+                                <th>Quantity</th>
+                                <th>Cost (VNĐ)</th>
+
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:set var="totalCost" value="0" />
+                            <c:forEach var="detail" items="${orderDetails}">
+                                <tr>
+                                    <td>${detail.dishName}</td>
+                                    <td>
+                                        <img src="https://placehold.co/80x60"/>
+                                    </td>
+                                    <td>${detail.dishDescription}</td>
+                                    <td>${detail.quantity}</td>
+                                    <td>
+                                        ... VNĐ
+                                    </td>
+
+                                </tr>
+
+                            </c:forEach>
+                        </tbody>
+                    </table>
+
+                    <!-- TỔNG TIỀN + NÚT UPDATE -->
+                    <div class="d-flex justify-content-between align-items-center mt-3">
+                        <h5>
+                            Total Cost: 
+                            ... VNĐ
+                        </h5>
+                        <a class="btn btn-success"
+                           href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${orderDetails[0].orderId}">
+                            Update Order Status
+                        </a>
+                    </div>
+                </c:if>
             </div>
+
+
 
         </div>
 
