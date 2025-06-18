@@ -22,9 +22,10 @@ public class ManageReviewsDAO extends DBContext {
     public List<Review> getAllReviews() {
         List<Review> list = new ArrayList<>();
         String sql = "SELECT r.reviewID, r.rating, r.comment, r.reviewCreatedAt, "
-                + "d.dishName, c.fullName "
+                + "o.orderID, d.dishName, c.fullName "
                 + "FROM Review r "
                 + "JOIN OrderDetail od ON r.FK_Review_OrderDetail = od.ODID "
+                + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
                 + "JOIN Dish d ON od.FK_OD_Dish = d.dishID "
                 + "JOIN Customer cu ON r.FK_Review_Customer = cu.customerID "
                 + "JOIN Account c ON cu.customerID = c.accountID";
@@ -38,6 +39,7 @@ public class ManageReviewsDAO extends DBContext {
                     review.setComment(rs.getString("comment"));
                     review.setReviewCreatedAt(rs.getTimestamp("reviewCreatedAt"));
                     review.setCustomerName(rs.getString("fullName"));
+                    review.setOrderId(rs.getInt("orderID"));
                     review.setDishName(rs.getString("dishName"));
                     list.add(review);
                 }
@@ -61,32 +63,33 @@ public class ManageReviewsDAO extends DBContext {
     }
 
     public static void main(String[] args) {
-//        ManageReviewsDAO dao = new ManageReviewsDAO();
-//        List<Review> reviews = dao.getAllReviews();
-//
-//        if (reviews.isEmpty()) {
-//            System.out.println("Không có đánh giá nào.");
-//        } else {
-//            for (Review r : reviews) {
-//                System.out.println("Review ID: " + r.getReviewID());
-//                System.out.println("Rating: " + r.getRating());
-//                System.out.println("Comment: " + r.getComment());
-//                System.out.println("Created At: " + r.getReviewCreatedAt());
-//                System.out.println("Customer Name: " + r.getCustomerName());
-//                System.out.println("Dish Name: " + r.getDishName());
-//                System.out.println("------------------------------");
-//            }
-//        }
-
         ManageReviewsDAO dao = new ManageReviewsDAO();
-        int reviewIdToDelete = 3; // Thay ID này bằng ID của review bạn muốn xóa
+        List<Review> reviews = dao.getAllReviews();
 
-        boolean deleted = dao.deleteReviewById(reviewIdToDelete);
-        if (deleted) {
-            System.out.println("Review với ID " + reviewIdToDelete + " đã được xóa thành công.");
+        if (reviews.isEmpty()) {
+            System.out.println("No reviews found.");
         } else {
-            System.out.println("Không thể xóa review với ID " + reviewIdToDelete + ".");
+            for (Review r : reviews) {
+                System.out.println("Review ID: " + r.getReviewID());
+                System.out.println("Order ID: " + r.getOrderId());
+                System.out.println("Customer: " + r.getCustomerName());
+                System.out.println("Dish: " + r.getDishName());
+                System.out.println("Rating: " + r.getRating());
+                System.out.println("Comment: " + r.getComment());
+                System.out.println("Date: " + r.getReviewCreatedAt());
+                System.out.println("----------------------------");
+            }
         }
-    }
 
+//        ManageReviewsDAO dao = new ManageReviewsDAO();
+//        int reviewIdToDelete = 3; // Thay ID này bằng ID của review bạn muốn xóa
+//
+//        boolean deleted = dao.deleteReviewById(reviewIdToDelete);
+//        if (deleted) {
+//            System.out.println("Review với ID " + reviewIdToDelete + " đã được xóa thành công.");
+//        } else {
+//            System.out.println("Không thể xóa review với ID " + reviewIdToDelete + ".");
+//        }
+//    }
+    }
 }
