@@ -1,32 +1,35 @@
 ﻿USE Oiship;
 GO
 
--- Insert Admin and Staff into Account
--- Enable IDENTITY_INSERT for Account
+-- Enable IDENTITY_INSERT for Account to manually assign accountID
 SET IDENTITY_INSERT Account ON;
 
 -- Insert Admin
-INSERT INTO Account (accountID, fullName, email, [password], role)
+INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
 VALUES 
-    (1, N'Admin', 'oiship.team@gmail.com', '$2a$12$idmLQWYZMvm/xdTYIq5CEO3PulVWC2U4Eivgns3pMhJ3Bsw74hQO2', 'admin');
+(1, N'Admin', 'oiship.team@gmail.com', '$2a$12$idmLQWYZMvm/xdTYIq5CEO3PulVWC2U4Eivgns3pMhJ3Bsw74hQO2', 'admin', 1, GETDATE());
+
 -- Insert Staff
-INSERT INTO Account (accountID, fullName, email, [password], role)
+INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
 VALUES 
-    (2, N'Staff User', 'staff@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', 'staff');
+(2, N'Staff User', 'staff@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', 'staff', 1, GETDATE());
 
--- Insert Customer
-INSERT INTO Account (accountID, fullName, email, [password], role)
+-- Insert Customers
+INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
 VALUES 
-    (3, N'Customer One', 'customer1@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer'),
-    (4, N'Customer Two', 'customer2@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer'),
-    (5, N'Customer Three', 'customer3@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer');
+(3, N'Customer One', 'customer1@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer', 1, GETDATE()),
+(4, N'Customer Two', 'customer2@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer', 1, GETDATE()),
+(5, N'Customer Three', 'customer3@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer', 1, GETDATE());
 
-INSERT INTO Customer (customerID, status, phone, address)
+-- Disable IDENTITY_INSERT now that manual insert is done
+SET IDENTITY_INSERT Account OFF;
+
+-- Insert Customer details (only for 'customer' role accounts)
+INSERT INTO Customer (customerID, phone, address)
 VALUES 
-    (3, 1, '0909123123', N'123 Main Street, Hanoi'),
-    (4, 1, '0912345678', N'456 Le Loi, Da Nang'),
-    (5, 1, '0987654321', N'789 Nguyen Hue, HCMC');
-
+(3, '0909123123', N'123 Main Street, Hanoi'),
+(4, '0912345678', N'456 Le Loi, Da Nang'),
+(5, '0987654321', N'789 Nguyen Hue, HCMC');
 
 -- Disable IDENTITY_INSERT for Account
 SET IDENTITY_INSERT Account OFF;
