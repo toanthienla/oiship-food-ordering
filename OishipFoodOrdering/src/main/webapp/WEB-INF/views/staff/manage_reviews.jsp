@@ -161,7 +161,7 @@
                 <table class="table table-striped table-bordered align-middle">
                     <thead class="table-dark">
                         <tr>
-                            <th>ID</th>
+                            <th>#</th>
                             <th>Order ID</th>
                             <th>Dish</th>
                             <th>Customer</th>
@@ -175,7 +175,7 @@
                         <c:forEach var="r" items="${reviews}">
                             <tr>
                                 <td>${r.reviewID}</td>
-                                <td>#${r.orderId}</td>
+                                <td>${r.orderId}</td>
                                 <td>${r.dishName}</td>
                                 <td>${r.customerName}</td>
                                 <td>
