@@ -6,6 +6,7 @@ import dao.GoogleOAuthDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
+import model.Account;
 import model.Customer;
 import model.GoogleAccount;
 import dao.SecurityDAO;
@@ -44,13 +45,13 @@ public class GoogleRegisterServlet extends HttpServlet {
             String email = googleAccount.getEmail();
             String fullName = googleAccount.getName();
 
-            Customer existingAccount = accountDAO.getCustomerByEmail(email);
+            Account existingAccount = accountDAO.findByEmail(email); // Use findByEmail
 
             HttpSession session = request.getSession();
 
             if (existingAccount != null) {
                 if (existingAccount.getStatus() == 1) {
-                    session.setAttribute("userId", existingAccount.getCustomerID());
+                    session.setAttribute("userId", existingAccount.getAccountID());
                     session.setAttribute("role", existingAccount.getRole().toLowerCase());
                     session.setAttribute("userName", fullName);
                     response.sendRedirect("home");
@@ -111,7 +112,7 @@ public class GoogleRegisterServlet extends HttpServlet {
         AccountDAO accountDAO = new AccountDAO();
         try {
             // Kiểm tra email hoặc phone đã tồn tại
-            if (accountDAO.getCustomerByEmail(email) != null || accountDAO.isEmailOrPhoneExists(email, phone)) {
+            if (accountDAO.findByEmail(email) != null || accountDAO.isEmailOrPhoneExists(email, phone)) {
                 request.setAttribute("emailPhoneError", "Email or phone already exists.");
                 request.getRequestDispatcher("/WEB-INF/views/auth/complete_google_register.jsp").forward(request, response);
                 return;
@@ -119,31 +120,22 @@ public class GoogleRegisterServlet extends HttpServlet {
 
             String hashedPassword = SecurityDAO.hashPassword(password);
 
-            Customer newCustomer = new Customer(
-                    0, fullName, email, hashedPassword, "customer", new Timestamp(System.currentTimeMillis()),
-                    1, phone, address
-            );
+            Customer newCustomer = new Customer(0, phone, address);
 
-            int accountId = accountDAO.insertAccount(newCustomer);
-            if (accountId > 0) {
-                newCustomer.setCustomerID(accountId);
-                CustomerDAO customerDAO = new CustomerDAO();
-                if (customerDAO.insertCustomer(newCustomer)) {
-                    session.removeAttribute("regFullName");
-                    session.removeAttribute("regEmail");
-                    session.removeAttribute("regPhone");
-                    session.removeAttribute("regAddress");
-                    session.setAttribute("userId", accountId);
-                    session.setAttribute("role", "customer");
-                    session.setAttribute("userName", fullName);
-                    LOGGER.info("Account created: userId=" + accountId + ", email=" + email);
-                    response.sendRedirect("home");
-                } else {
-                    request.setAttribute("errorMessage", "Failed to register customer details.");
-                    request.getRequestDispatcher("/WEB-INF/views/auth/complete_google_register.jsp").forward(request, response);
-                }
+            CustomerDAO customerDAO = new CustomerDAO();
+            if (customerDAO.insertCustomer(newCustomer, fullName, email, hashedPassword)) {
+                int accountId = newCustomer.getCustomerID();
+                session.removeAttribute("regFullName");
+                session.removeAttribute("regEmail");
+                session.removeAttribute("regPhone");
+                session.removeAttribute("regAddress");
+                session.setAttribute("userId", accountId);
+                session.setAttribute("role", "customer");
+                session.setAttribute("userName", fullName);
+                LOGGER.info("Account created: userId=" + accountId + ", email=" + email);
+                response.sendRedirect("home");
             } else {
-                request.setAttribute("errorMessage", "Failed to create account. Please try again.");
+                request.setAttribute("errorMessage", "Failed to register customer details.");
                 request.getRequestDispatcher("/WEB-INF/views/auth/complete_google_register.jsp").forward(request, response);
             }
         } catch (Exception e) {

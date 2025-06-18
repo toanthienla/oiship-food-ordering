@@ -1,23 +1,27 @@
 package model;
 
-// Lớp cha Account
+import java.sql.Timestamp;
+
 public class Account {
+
     private int accountID;
     private String fullName;
     private String email;
     private String password;
-    private String role;
-    private java.util.Date createAt;
+    private int status; // 1 = active, 0 = inactive, -1 = banned
+    private String role; // 'admin', 'staff', 'customer'
+    private Timestamp createAt;
 
     public Account() {
     }
 
-    public Account(int accountID, String fullName, String email, String password, String role, java.util.Date createAt) {
+    public Account(int accountID, String fullName, String email, String password, int status, String role, Timestamp createAt) {
         this.accountID = accountID;
         this.fullName = fullName;
         this.email = email;
         this.password = password;
-        this.role = role;
+        setStatus(status); // Use setter to enforce constraints
+        setRole(role);     // Use setter to enforce constraints
         this.createAt = createAt;
     }
 
@@ -35,6 +39,9 @@ public class Account {
     }
 
     public void setFullName(String fullName) {
+        if (fullName != null && fullName.length() > 255) {
+            throw new IllegalArgumentException("Full name must not exceed 255 characters");
+        }
         this.fullName = fullName;
     }
 
@@ -43,6 +50,9 @@ public class Account {
     }
 
     public void setEmail(String email) {
+        if (email != null && email.length() > 100) {
+            throw new IllegalArgumentException("Email must not exceed 100 characters");
+        }
         this.email = email;
     }
 
@@ -51,7 +61,21 @@ public class Account {
     }
 
     public void setPassword(String password) {
+        if (password != null && password.length() > 255) {
+            throw new IllegalArgumentException("Password must not exceed 255 characters");
+        }
         this.password = password;
+    }
+
+    public int getStatus() {
+        return status;
+    }
+
+    public void setStatus(int status) {
+        if (status != 1 && status != 0 && status != -1) {
+            throw new IllegalArgumentException("Status must be 1 (active), 0 (inactive), or -1 (banned)");
+        }
+        this.status = status;
     }
 
     public String getRole() {
@@ -59,15 +83,17 @@ public class Account {
     }
 
     public void setRole(String role) {
+        if (role != null && !role.equals("admin") && !role.equals("staff") && !role.equals("customer")) {
+            throw new IllegalArgumentException("Role must be 'admin', 'staff', or 'customer'");
+        }
         this.role = role;
     }
 
-    public java.util.Date getCreateAt() {
+    public Timestamp getCreateAt() {
         return createAt;
     }
 
-    public void setCreateAt(java.util.Date createAt) {
+    public void setCreateAt(Timestamp createAt) {
         this.createAt = createAt;
     }
-
 }
