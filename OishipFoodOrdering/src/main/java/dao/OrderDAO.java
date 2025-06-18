@@ -89,6 +89,40 @@ public class OrderDAO extends DBContext {
         return list;
     }
 
+    public int getOrderStatusByOrderId(int orderID) {
+        String sql = "SELECT orderStatus FROM [Order] WHERE orderID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, orderID);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                return rs.getInt("orderStatus");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return -1; // Trả về -1 nếu không tìm thấy
+    }
+
+    public boolean updateStatusOrderByOrderId(int orderId, int newStatus) {
+        String sql = "UPDATE [Order] SET orderStatus = ?, orderUpdatedAt = GETDATE() WHERE orderID = ?";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, newStatus);
+            ps.setInt(2, orderId);
+
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
     public static void main(String[] args) {
         //        OrderDAO dao = new OrderDAO();
         //        List<Order> orders = dao.getAllOrders();
@@ -129,17 +163,40 @@ public class OrderDAO extends DBContext {
         //            }
         //        }
         //    }
+        //        OrderDAO dao = new OrderDAO();
+        //        List<Order> orders = dao.getAllOrders();
+        //
+        //        for (Order o : orders) {
+        //            System.out.println("Order ID: " + o.getOrderID());
+        //            System.out.println("Customer Name: " + o.getCustomerName());
+        //            System.out.println("Voucher Code: " + o.getVoucherCode());
+        //            System.out.println("Amount: " + o.getAmount());
+        //            System.out.println("Order Status: " + o.getOrderStatus());
+        //            System.out.println("Created At: " + o.getOrderCreatedAt());
+        //            System.out.println("------");
+        //        }
+        //    }
+//        OrderDAO dao = new OrderDAO();
+//
+//        int testOrderId = 1;       // Thay bằng ID đơn hàng có thực trong DB
+//        int newStatus = 2;         // Ví dụ: 2 = Preparing
+//
+//        boolean result = dao.updateStatusOrderByOrderId(testOrderId, newStatus);
+//
+//        if (result) {
+//            System.out.println("✅ Update successful for OrderID = " + testOrderId);
+//        } else {
+//            System.out.println("❌ Update failed for OrderID = " + testOrderId);
+//        }
         OrderDAO dao = new OrderDAO();
-        List<Order> orders = dao.getAllOrders();
 
-        for (Order o : orders) {
-            System.out.println("Order ID: " + o.getOrderID());
-            System.out.println("Customer Name: " + o.getCustomerName());
-            System.out.println("Voucher Code: " + o.getVoucherCode());
-            System.out.println("Amount: " + o.getAmount());
-            System.out.println("Order Status: " + o.getOrderStatus());
-            System.out.println("Created At: " + o.getOrderCreatedAt());
-            System.out.println("------");
+        int testOrderID = 1; // Thay bằng orderID có thật trong DB
+        int status = dao.getOrderStatusByOrderId(testOrderID);
+
+        if (status != -1) {
+            System.out.println("✅ Trạng thái của đơn hàng #" + testOrderID + " là: " + status);
+        } else {
+            System.out.println("❌ Không tìm thấy đơn hàng hoặc lỗi xảy ra.");
         }
     }
 }
