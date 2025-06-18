@@ -1,3 +1,4 @@
+<%@page import="model.Cart"%>
 <%@page import="java.util.List"%>
 <%@page import="model.Category"%>
 <%@page import="model.Dish"%>
@@ -221,8 +222,16 @@
                     height: 150px;
                 }
             }
+            .alert {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                min-width: 250px;
+            }
+
         </style>
-          <%-- style category --%>
+        <%-- style category --%>
         <style>
             .menu-section .btn {
                 border-radius: 20px;
@@ -250,7 +259,7 @@
         </style>
     </head>
     <body>
-         <div class="sidebar">
+        <div class="sidebar">
             <div class="text-center mb-4">
                 <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
                 <h5 class="mt-2 text-orange">OISHIP</h5>
@@ -261,9 +270,20 @@
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
             <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
-            <a href="#cart"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
+            <a href="#cart">
+                <i class="fas fa-shopping-cart me-2"></i>
+                Cart
+                <span id="cart-count" class="badge bg-danger ms-1">0</span>
+            </a>
+
             <a href="#"><i class="fas fa-list me-2"></i> Order</a>
         </div>
+        <%
+            List<Cart> cartItems = (List<Cart>) session.getAttribute("cartItems");
+            int cartCount = (cartItems != null) ? cartItems.size() : 0;
+        %>
+
+        <a href="add-cart"><i class="fas fa-shopping-cart me-2"></i> Cart (<%= cartCount%>)</a>
 
         <div class="main-content">
             <nav class="navbar navbar-light bg-light p-2 mb-3">
@@ -291,7 +311,7 @@
                 </div>
             </nav>
 
-            
+
             <div class="hero-section">
                 <div class="content">
                     <h1>Delicious meals delivered in just 30 minutes!</h1>
@@ -302,7 +322,7 @@
                 </div>
             </div>
 
-             <!-- Menu Section -->
+            <!-- Menu Section -->
             <div id="menu" class="menu-section">
                 <h2 class="mb-4">MENU</h2>
                 <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
@@ -331,8 +351,21 @@
                     %>
                 </div>
             </div>
+            <%
+                String message = (String) session.getAttribute("message");
+                if (message != null) {
+            %>
+            <div id="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
+                <%= message%>
+                <button type="button" class="btn-close" onclick="document.getElementById('successMessage').style.display = 'none';"></button>
+            </div>
+            <%
+                    session.removeAttribute("message"); // Xoá sau khi hiển thị để không bị lặp
+                }
+            %>
 
-             <!-- Dishes Section -->
+
+            <!-- Dishes Section -->
             <div id="dishes" class="dish-section">
                 <h2 class="mb-4">Trending Food</h2>
                 <div class="row">
@@ -346,8 +379,10 @@
                     %>
 
                     <div class="col-md-4 mb-3">
+
+                        <!-- FORM 1: Xem chi tiết món -->
                         <form action="home/dish" method="post">
-                            <input type="hidden" name="dishId" value="<%= menuItem.getDishID()%>">
+                            <input type="hidden" name="dishID" value="<%= menuItem.getDishID()%>">
                             <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
                                 <div class="card dish-card">
                                     <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
@@ -356,13 +391,19 @@
                                         <p class="card-text">Price: <%= menuItem.getFormattedPrice()%>đ</p>
                                     </div>
                                 </div>
-                                <div class="mt-1">
-                                    <a href="addToCart?dishId=<%= menuItem.getDishID()%>" class="btn btn-custom w-100" type="button">
-                                        Add Cart
-                                    </a>
-                                </div>
                             </button>
                         </form>
+
+                        <!-- FORM 2: Add to Cart riêng biệt -->
+                        <form method="post" action="${pageContext.request.contextPath}/customer/add-cart">
+                            <input type="hidden" name="dishID" value="<%= menuItem.getDishID()%>" />
+                            <input type="hidden" name="quantity" value="1"  />
+                            <button type="submit" class="btn btn-custom w-100">Add Cart</button>
+                        </form> 
+
+
+
+
                     </div>
                     <%
                         }
@@ -378,29 +419,29 @@
                 </div>
             </div>
         </div>
-            
+
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('.sidebar a').forEach(anchor => {
-                    anchor.addEventListener('click', function (e) {
-                        if (this.getAttribute('href').startsWith('#')) {
-                            e.preventDefault();
-                            const targetId = this.getAttribute('href').substring(1);
-                            document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
-                            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-                            this.classList.add('active');
-                        }
-                    });
-                });
+                    document.addEventListener('DOMContentLoaded', () => {
+                        document.querySelectorAll('.sidebar a').forEach(anchor => {
+                            anchor.addEventListener('click', function (e) {
+                                if (this.getAttribute('href').startsWith('#')) {
+                                    e.preventDefault();
+                                    const targetId = this.getAttribute('href').substring(1);
+                                    document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
+                                    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                                    this.classList.add('active');
+                                }
+                            });
+                        });
 
-                document.querySelectorAll('.dish-card .btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        alert('Đã thêm món vào giỏ hàng!');
+                        document.querySelectorAll('.dish-card .btn').forEach(button => {
+                            button.addEventListener('click', () => {
+                                alert('Đã thêm món vào giỏ hàng!');
+                            });
+                        });
                     });
-                });
-            });
         </script>
 
         <script>
@@ -433,5 +474,51 @@
                 }
             });
         </script>
+        <script>
+            setTimeout(function () {
+                const msg = document.getElementById("successMessage");
+                if (msg)
+                    msg.style.display = "none";
+            }, 3000);
+        </script>
+
+        <script>
+            document.querySelectorAll(".add-to-cart-btn").forEach(button => {
+                button.addEventListener("click", function () {
+                    const dishId = this.getAttribute("data-dishid");
+                    const formData = new FormData();
+                    formData.append("dishId", dishId);
+                    formData.append("quantity", "1");
+
+                    fetch("<%=request.getContextPath()%>/customer/add-cart", {
+                        method: "POST",
+                        headers: {
+                            "X-Requested-With": "XMLHttpRequest" // ✅ Được phép
+                                    // KHÔNG cần Content-Type vì fetch sẽ tự thêm đúng loại cho FormData
+                        },
+                        body: formData
+                    })
+                            .then(res => res.json())
+                            .then(data => {
+                                if (data.success) {
+                                    // ✅ Cập nhật số lượng hiển thị (nếu có)
+                                    if (document.getElementById("cart-count")) {
+                                        document.getElementById("cart-count").textContent = data.cartCount;
+                                    }
+                                    alert(data.message);
+                                } else if (data.redirect) {
+                                    window.location.href = data.redirect;
+                                } else {
+                                    alert(data.message);
+                                }
+                            })
+                            .catch(err => {
+                                alert("Lỗi khi thêm vào giỏ hàng.");
+                                console.error(err);
+                            });
+                });
+            });
+        </script>
+
     </body>
 </html>
