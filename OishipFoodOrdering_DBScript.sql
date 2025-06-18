@@ -20,13 +20,13 @@ CREATE TABLE Account (
 	email NVARCHAR(100) UNIQUE,
 	[password] NVARCHAR(255),
 	role NVARCHAR(20) CHECK (role IN ('admin', 'staff', 'customer')),
-    status INT DEFAULT 1, -- 1 active, 0 inactive, -1 banned,
 	createAt DATETIME DEFAULT GETDATE()
 );
 
 -- Customer table
 CREATE TABLE Customer (
     customerID INT PRIMARY KEY, -- accountID
+    status INT DEFAULT 1, -- 1 active, 0 inactive, -1 banned,
     phone NVARCHAR(15),
     address NVARCHAR(255),
     FOREIGN KEY (customerID) REFERENCES Account(accountID)
@@ -82,6 +82,7 @@ CREATE TABLE Voucher (
     voucherID INT IDENTITY(1,1) PRIMARY KEY,
     code NVARCHAR(255) UNIQUE,
     voucherDescription NVARCHAR(255),
+    discountType NVARCHAR(10), -- stores '%' or 'VND',
     discount DECIMAL(10,2),
     maxDiscountValue DECIMAL(10,2),
     minOrderValue DECIMAL(10,2),

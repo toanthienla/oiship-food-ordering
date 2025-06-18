@@ -42,6 +42,10 @@ public class CustomerServlet extends HttpServlet {
             request.setAttribute("error", "Failed to load menu items.");
         }
 
+       // int userId = (int) session.getAttribute("userId");
+        AccountDAO dao = new AccountDAO();
+
+
         // Get customer information using email stored in session
         int userId = (int) session.getAttribute("userId");
         AccountDAO accountDAO = new AccountDAO();

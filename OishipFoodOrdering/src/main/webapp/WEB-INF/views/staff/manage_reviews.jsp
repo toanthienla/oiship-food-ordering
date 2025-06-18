@@ -1,6 +1,8 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -153,10 +155,45 @@
             </nav>
 
             <!-- Content -->
-            <div class="content">
-                <h1>Manage Reviews</h1>
-                <p>Manage customers reviews.</p>
+            <div class="container mt-5">
+                <h2 class="mb-4">Manage Reviews</h2>
+
+                <table class="table table-striped table-bordered align-middle">
+                    <thead class="table-dark">
+                        <tr>
+                            <th>ID</th>
+                            <th>Customer</th>
+                            <th>Rating</th>
+                            <th>Comment</th>
+                            <th>Date</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <c:forEach var="r" items="${reviews}">
+                            <tr>
+                                <td>${r.reviewID}</td>
+                                <td>${r.customerName}</td>
+                                <td>
+                                    <span class="badge bg-warning text-dark">${r.rating} ★</span>
+                                </td>
+                                <td>${r.comment}</td>
+                                <td><small>${r.reviewCreatedAt}</small></td>
+                                <td>
+                                    <a href="manage-reviews?action=delete&reviewID=${r.reviewID}"
+                                       class="btn btn-sm btn-danger"
+                                       onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?');">
+                                        🗑 Delete
+                                    </a>
+                                </td>
+                            </tr>
+                        </c:forEach>
+                    </tbody>
+                </table>
             </div>
+
+
+
         </div>
     </body>
 </html>
