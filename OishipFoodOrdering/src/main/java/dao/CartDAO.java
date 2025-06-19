@@ -66,6 +66,29 @@ public class CartDAO extends DBContext {
             ps.executeUpdate();
         }
     }
+//  phương thức edit quantity nếu đã có cartID
+public void updateCartQuantity(int cartID, int quantity) throws SQLException {
+    String sql = "UPDATE Cart SET quantity = ? WHERE cartID = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, quantity);
+        ps.setInt(2, cartID);
+        ps.executeUpdate();
+    }
+}
+
+public void updateQuantity(int cartID, int quantity) {
+    String sql = "UPDATE Cart SET quantity = ? WHERE cartID = ?";
+    try (
+         PreparedStatement ps = conn.prepareStatement(sql)) {
+
+        ps.setInt(1, quantity);
+        ps.setInt(2, cartID);
+        ps.executeUpdate();
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+}
 
     // Xóa một món trong giỏ hàng   
     public void deleteCartItem(int cartId) throws SQLException {
