@@ -20,17 +20,16 @@ CREATE TABLE Account (
 	email NVARCHAR(100) UNIQUE,
 	[password] NVARCHAR(255),
 	role NVARCHAR(20) CHECK (role IN ('admin', 'staff', 'customer')),
+    status INT DEFAULT 1, -- 1 active, 0 inactive, -1 banned,
 	createAt DATETIME DEFAULT GETDATE()
 );
 
 -- Customer table
 CREATE TABLE Customer (
     customerID INT PRIMARY KEY, -- accountID
-    status INT DEFAULT 1, -- 1 active, 0 inactive, -1 banned,
     phone NVARCHAR(15),
     address NVARCHAR(255),
     FOREIGN KEY (customerID) REFERENCES Account(accountID)
-
 );
 
 -- Category table
@@ -193,6 +192,7 @@ CREATE TABLE Contact (
 	contactID INT IDENTITY PRIMARY KEY,
 	[subject] NVARCHAR (255),
 	[message] NVARCHAR (2000),
-	FK_Contact_Customer INT FOREIGN KEY REFERENCES Customer(customerID)
+	FK_Contact_Customer INT FOREIGN KEY REFERENCES Customer(customerID),
+	createAt DATETIME DEFAULT GETDATE()
 );
 

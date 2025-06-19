@@ -16,18 +16,20 @@ public class ContactDAO extends DBContext {
                 + "    c.contactID,\n"
                 + "    c.subject,\n"
                 + "    c.message,\n"
+                + "    c.createAt,\n"
                 + "    a.accountID AS customerID,\n"
                 + "    a.fullName,\n"
                 + "    a.email,\n"
                 + "    a.password,\n"
                 + "    a.role,\n"
-                + "    a.createAt,\n"
-                + "    cu.status,\n"
+                + "    a.status,\n"
+                + "    a.createAt AS accountCreatedAt,\n"
                 + "    cu.phone,\n"
                 + "    cu.address\n"
                 + "FROM Contact c\n"
                 + "JOIN Customer cu ON c.FK_Contact_Customer = cu.customerID\n"
                 + "JOIN Account a ON cu.customerID = a.accountID";
+
         try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 Customer customer = new Customer(
@@ -36,8 +38,8 @@ public class ContactDAO extends DBContext {
                         rs.getString("email"),
                         rs.getString("password"),
                         rs.getString("role"),
-                        rs.getTimestamp("createAt"),
-                        rs.getInt("status"),
+                        rs.getTimestamp("accountCreatedAt"),
+                        rs.getInt("status"), // Moved here from Account
                         rs.getString("phone"),
                         rs.getString("address")
                 );
