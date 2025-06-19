@@ -297,8 +297,10 @@
                     %>
 
                     <div class="col-md-4 mb-3">
+
+                        <!-- FORM 1: Xem chi tiết món -->
                         <form action="home/dish" method="post">
-                            <input type="hidden" name="dishId" value="<%= menuItem.getDishID()%>">
+                            <input type="hidden" name="dishID" value="<%= menuItem.getDishID()%>">
                             <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
                                 <div class="card dish-card">
                                     <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
@@ -307,13 +309,19 @@
                                         <p class="card-text">Price: <%= menuItem.getFormattedPrice()%>đ</p>
                                     </div>
                                 </div>
-                                <div class="mt-1">
-                                    <a href="addToCart?dishId=<%= menuItem.getDishID()%>" class="btn btn-custom w-100" type="button">
-                                        Add Cart
-                                    </a>
-                                </div>
                             </button>
                         </form>
+
+                        <!-- FORM 2: Add to Cart riêng biệt -->
+                        <form method="post" action="${pageContext.request.contextPath}/customer/add-cart">
+                            <input type="hidden" name="dishID" value="${menuItem.dishID}" />
+                            <input type="hidden" name="quantity" value="1" />
+                            <button type="submit" class="btn btn-custom w-100">Add Cart</button>
+                        </form> 
+
+
+
+
                     </div>
                     <%
                         }
