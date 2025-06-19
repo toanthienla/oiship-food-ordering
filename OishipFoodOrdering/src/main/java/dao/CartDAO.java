@@ -67,14 +67,14 @@ public class CartDAO extends DBContext {
         }
     }
 
-//    // Xóa một món trong giỏ hàng   
-//    public void deleteCartItem(int cartId) throws SQLException {
-//        String sql = "DELETE FROM Cart WHERE cartID = ?";
-//        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//            ps.setInt(1, cartId);
-//            ps.executeUpdate();
-//        }
-//    }
+    // Xóa một món trong giỏ hàng   
+    public void deleteCartItem(int cartId) throws SQLException {
+        String sql = "DELETE FROM Cart WHERE cartID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, cartId);
+            ps.executeUpdate();
+        }
+    }
 //    // Xóa toàn bộ giỏ hàng của một customer
 //    public void deleteCartByCustomerId(int customerId) throws SQLException {
 //        String sql = "DELETE FROM Cart WHERE FK_Cart_Customer = ?";

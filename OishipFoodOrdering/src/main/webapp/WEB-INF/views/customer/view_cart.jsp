@@ -3,11 +3,11 @@
 <%@ page import="model.Dish" %>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <!DOCTYPE html>
-<html>
+<html lang="vi">
 <head>
     <meta charset="UTF-8">
-    <title>Giỏ hàng</title>
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css">
+    <title>Giỏ hàng của bạn</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
 </head>
 <body>
 <div class="container mt-4">
@@ -15,36 +15,46 @@
 
     <%
         List<Cart> cartItems = (List<Cart>) request.getAttribute("cartItems");
-        if (cartItems != null && !cartItems.isEmpty()) {
+        String error = (String) request.getAttribute("error");
     %>
-        <table class="table table-bordered table-striped">
+
+    <% if (error != null) { %>
+        <div class="alert alert-danger"><%= error %></div>
+    <% } %>
+
+    <% if (cartItems != null && !cartItems.isEmpty()) { %>
+        <table class="table table-bordered table-striped align-middle">
             <thead class="table-dark">
                 <tr>
                     <th>Hình ảnh</th>
                     <th>Tên món</th>
                     <th>Số lượng</th>
+                    <th>Thao tác</th>
                 </tr>
             </thead>
             <tbody>
                 <% for (Cart item : cartItems) {
                     Dish dish = item.getDish();
                 %>
-                    <tr>
-                        <td><img src="<%= dish.getImage() %>" width="100" height="80"></td>
-                        <td><%= dish.getDishName() %></td>
-                        <td><%= item.getQuantity() %></td>
-                    </tr>
+                <tr>
+                    <td><img src="<%= dish.getImage() %>" alt="Ảnh món <%= dish.getDishName() %>" width="100" height="80" class="img-thumbnail"/></td>
+                    <td><%= dish.getDishName() %></td>
+                    <td><%= item.getQuantity() %></td>
+                    <td>
+                        <form action="<%= request.getContextPath() %>/customer/view-cart" method="post" onsubmit="return confirm('Bạn có chắc muốn xóa món này khỏi giỏ hàng?');">
+                            <input type="hidden" name="cartID" value="<%= item.getCartID() %>"/>
+                            <button type="submit" class="btn btn-danger btn-sm">Xóa</button>
+                        </form>
+                    </td>
+                </tr>
                 <% } %>
             </tbody>
         </table>
     <% } else { %>
         <div class="alert alert-warning">Giỏ hàng của bạn hiện chưa có món nào.</div>
     <% } %>
-
-    <% String error = (String) request.getAttribute("error");
-       if (error != null) { %>
-        <div class="alert alert-danger mt-3"><%= error %></div>
-    <% } %>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
