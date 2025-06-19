@@ -192,17 +192,17 @@
     <body>
         <div class="sidebar">
             <div class="text-center mb-4">
-                <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
+            <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
                 <h5 class="mt-2 text-orange">OISHIP</h5>
             </div>
             <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
             <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
             <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
-            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
-            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
-            <a href="#cart"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
-            <a href="#"><i class="fas fa-list me-2"></i> Order</a>
+            <a href="login"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
+            <a href="login"><i class="fas fa-list me-2"></i> Order</a>
+            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
+            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
         </div>
 
         <div class="main-content">
@@ -296,7 +296,8 @@
                                         : "https://via.placeholder.com/300x200";
                     %>
 
-                    <div class="col-md-4 mb-3">
+                    <div class="col-md-4 mb-3 dish-item">
+
 
                         <!-- FORM 1: Xem chi tiết món -->
                         <form action="home/dish" method="post">
@@ -335,6 +336,13 @@
                 <div class="text-end">
                     <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
                 </div>
+                <!-- Pagination Controls -->
+                <div class="d-flex flex-wrap justify-content-center align-items-center mt-4 gap-2">
+                    <button id="prevPageBtn" class="btn btn-outline-primary">← Prev</button>
+                    <div id="pageNumbers" class="d-flex flex-wrap gap-2"></div>
+                    <button id="nextPageBtn" class="btn btn-outline-primary">Next →</button>
+                </div>
+
             </div>
         </div>
 
@@ -391,5 +399,77 @@
                 }
             });
         </script>
+        <script>
+            document.addEventListener('DOMContentLoaded', () => {
+                const itemsPerPage = 15;
+                const dishes = Array.from(document.querySelectorAll(".dish-item"));
+                const totalPages = Math.ceil(dishes.length / itemsPerPage);
+                let currentPage = 1;
+
+                const prevBtn = document.getElementById("prevPageBtn");
+                const nextBtn = document.getElementById("nextPageBtn");
+                const pageNumbers = document.getElementById("pageNumbers");
+
+                function showPage(page) {
+                    dishes.forEach((item, index) => {
+                        item.style.display = "none";
+                    });
+                    const start = (page - 1) * itemsPerPage;
+                    const end = start + itemsPerPage;
+                    dishes.slice(start, end).forEach(item => {
+                        item.style.display = "block";
+                    });
+
+                    // Update active page button
+                    document.querySelectorAll("#pageNumbers button").forEach(btn => {
+                        btn.classList.remove("btn-primary");
+                        btn.classList.add("btn-outline-primary");
+                    });
+                    const activeBtn = document.querySelector(`#pageBtn${page}`);
+                    if (activeBtn) {
+                        activeBtn.classList.add("btn-primary");
+                        activeBtn.classList.remove("btn-outline-primary");
+                    }
+
+                    // Disable prev/next
+                    prevBtn.disabled = page === 1;
+                    nextBtn.disabled = page === totalPages;
+                }
+
+                function createPagination() {
+                    pageNumbers.innerHTML = "";
+                    for (let i = 1; i <= totalPages; i++) {
+                        const btn = document.createElement("button");
+                        btn.textContent = i;
+                        btn.id = `pageBtn${i}`;
+                        btn.className = "btn btn-outline-primary";
+                        btn.addEventListener("click", () => {
+                            currentPage = i;
+                            showPage(currentPage);
+                        });
+                        pageNumbers.appendChild(btn);
+                    }
+                }
+
+                prevBtn.addEventListener("click", () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        showPage(currentPage);
+                    }
+                });
+
+                nextBtn.addEventListener("click", () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        showPage(currentPage);
+                    }
+                });
+
+                createPagination();
+                showPage(currentPage);
+            });
+        </script>
+
+
     </body>
 </html>
