@@ -1,11 +1,11 @@
 package controller.admin;
 
 import dao.AdminDAO;
+import dao.SecurityDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Admin;
-import org.mindrot.jbcrypt.BCrypt;
 
 import java.io.IOException;
 
@@ -28,10 +28,10 @@ public class LoginAdminServlet extends HttpServlet {
         String email = request.getParameter("email");
         String password = request.getParameter("password");
 
-        System.out.println("Admin login attempt: email=" + email);
+        System.out.println("Admin login attempt: email=" + email + ", time=" + new java.util.Date());
 
         if (email == null || password == null || email.trim().isEmpty() || password.trim().isEmpty()) {
-            System.out.println("Admin login failed: Missing email or password");
+            System.out.println("Admin login failed: Missing or empty email or password");
             request.setAttribute("error", "Email and password are required.");
             request.getRequestDispatcher("/WEB-INF/views/admin/login_admin.jsp").forward(request, response);
             return;
@@ -39,6 +39,7 @@ public class LoginAdminServlet extends HttpServlet {
 
         AdminDAO adminDAO = new AdminDAO();
         Admin admin = adminDAO.getAdminByEmail(email.trim());
+        System.out.println("DEBUG: Admin found - " + (admin != null ? "Yes, ID: " + admin.getAdminId() : "No"));
 
         if (admin == null) {
             System.out.println("Admin login failed: No admin found for email=" + email);
@@ -47,8 +48,9 @@ public class LoginAdminServlet extends HttpServlet {
             return;
         }
 
-        if (!BCrypt.checkpw(password, admin.getPassword())) {
-            System.out.println("Admin login failed: Invalid password for email=" + email + ", stored hash=" + admin.getPassword());
+        if (!SecurityDAO.checkPassword(password, admin.getPassword())) {
+            System.out.println("DEBUG: Password check failed for email=" + email + ", hashed password=" + admin.getPassword());
+            System.out.println("Admin login failed: Invalid password for email=" + email);
             request.setAttribute("error", "Invalid email or password.");
             request.getRequestDispatcher("/WEB-INF/views/admin/login_admin.jsp").forward(request, response);
             return;
@@ -56,11 +58,14 @@ public class LoginAdminServlet extends HttpServlet {
 
         // Login successful
         HttpSession session = request.getSession(true);
-        session.setAttribute("admin", admin.getAdminId());
+        session.setAttribute("adminId", admin.getAdminId());
         session.setAttribute("role", "admin");
-        session.setAttribute("userId", admin.getAdminId());
         session.setAttribute("userName", admin.getFullName());
-        System.out.println("Admin login successful: email=" + email + ", adminId=" + admin.getAdminId() + ", role=admin, userName=" + admin.getFullName());
+        System.out.println("DEBUG: Session after login - adminId=" + session.getAttribute("adminId") +
+                ", role=" + session.getAttribute("role") + ", userName=" + session.getAttribute("userName"));
+        System.out.println("Admin login successful: email=" + email + ", adminId=" + admin.getAdminId()
+                + ", role=admin, userName=" + admin.getFullName()
+                + ", time=" + new java.util.Date());
 
         response.sendRedirect(request.getContextPath() + "/admin/dashboard");
     }

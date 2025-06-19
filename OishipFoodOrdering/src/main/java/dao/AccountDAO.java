@@ -5,6 +5,8 @@ import model.Account;
 import model.Staff;
 import utils.DBContext;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccountDAO extends DBContext {
 
@@ -12,17 +14,16 @@ public class AccountDAO extends DBContext {
         super();
     }
 
-    // Existing methods (login, getCustomerByEmail, insertAccount, updatePasswordByEmail, isEmailOrPhoneExists, updateStatus, findById) unchanged
-
+    // Login method
     public Object login(String email, String plainPassword) {
         if (email == null || plainPassword == null) {
             System.out.println("login: email or plainPassword is null, email=" + email);
             return null;
         }
-        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, " +
-                     "c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? AND a.status = 1";
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+                + "c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? AND a.status = 1";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -67,14 +68,15 @@ public class AccountDAO extends DBContext {
         return null;
     }
 
+    // Get customer by email
     public Customer getCustomerByEmail(String email) {
         if (email == null) {
             System.out.println("getCustomerByEmail: email is null");
             return null;
         }
-        String sql = "SELECT a.accountID AS customerID, c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? AND a.role = 'customer'";
+        String sql = "SELECT a.accountID AS customerID, c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? AND a.role = 'customer'";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -87,45 +89,58 @@ public class AccountDAO extends DBContext {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error retrieving account by email: " + email + ": " + e.getMessage());
+            System.out.println("Error retrieving customer by email: " + email + ": " + e.getMessage());
             e.printStackTrace();
         }
         return null;
     }
 
-    public int insertAccount(Account account) {
-        if (account == null || account.getFullName() == null || account.getEmail() == null
-                || account.getPassword() == null || account.getRole() == null) {
-            System.out.println("insertAccount: Account or required fields are null");
-            return -1;
-        }
-        String sql = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setString(1, account.getFullName());
-            ps.setString(2, account.getEmail());
-            ps.setString(3, account.getPassword());
-            ps.setString(4, account.getRole());
-            ps.setTimestamp(5, account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
-            ps.setInt(6, account.getStatus());
-
-            int affectedRows = ps.executeUpdate();
-            if (affectedRows == 0) {
-                System.out.println("insertAccount: No rows affected for email: " + account.getEmail());
-                return -1;
-            }
-
-            try (ResultSet rs = ps.getGeneratedKeys()) {
-                if (rs.next()) {
-                    return rs.getInt(1);
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error inserting account for email " + account.getEmail() + ": " + e.getMessage());
-            e.printStackTrace();
-        }
+  public int insertAccount(Account account) {
+    if (account == null || account.getFullName() == null || account.getEmail() == null
+            || account.getPassword() == null || account.getRole() == null) {
+        System.out.println("insertAccount: Account or required fields are null");
         return -1;
     }
+    String sqlAccount = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
+    try (Connection conn = getConnection(); PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
+        psAccount.setString(1, account.getFullName());
+        psAccount.setString(2, account.getEmail());
+        psAccount.setString(3, account.getPassword());
+        psAccount.setString(4, account.getRole());
+        psAccount.setTimestamp(5, account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
+        psAccount.setInt(6, account.getStatus());
 
+        int affectedRows = psAccount.executeUpdate();
+        if (affectedRows == 0) {
+            System.out.println("insertAccount: No rows affected for email: " + account.getEmail());
+            return -1;
+        }
+
+        try (ResultSet rs = psAccount.getGeneratedKeys()) {
+            if (rs.next()) {
+                int accountID = rs.getInt(1);
+                account.setAccountID(accountID);
+
+                // Insert into Customer table if role is "customer"
+                if ("customer".equals(account.getRole())) {
+                    String sqlCustomer = "INSERT INTO Customer (customerID, phone, address) VALUES (?, ?, ?)";
+                    try (PreparedStatement psCustomer = conn.prepareStatement(sqlCustomer)) {
+                        psCustomer.setInt(1, accountID);
+                        psCustomer.setString(2, ""); // Default phone
+                        psCustomer.setString(3, ""); // Default address
+                        psCustomer.executeUpdate();
+                    }
+                }
+                return accountID;
+            }
+        }
+    } catch (SQLException e) {
+        System.out.println("Error inserting account for email " + account.getEmail() + ": " + e.getMessage());
+        e.printStackTrace();
+    }
+    return -1;
+}
+    // Update password by email
     public boolean updatePasswordByEmail(String email, String role, String hashedPassword) {
         if (email == null || hashedPassword == null) {
             System.out.println("updatePasswordByEmail: email or hashedPassword is null, email=" + email + ", role=" + role);
@@ -154,12 +169,13 @@ public class AccountDAO extends DBContext {
         return false;
     }
 
+    // Check if email or phone exists
     public boolean isEmailOrPhoneExists(String email, String phone) {
         if (email == null && phone == null) {
             return false;
         }
-        String sql = "SELECT COUNT(*) FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? OR c.phone = ?";
+        String sql = "SELECT COUNT(*) FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? OR c.phone = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email != null ? email : "");
             ps.setString(2, phone != null ? phone : "");
@@ -173,8 +189,9 @@ public class AccountDAO extends DBContext {
         }
     }
 
+    // Update account status
     public boolean updateStatus(int accountID, int status) {
-        if (accountID <= 0 || (status != 1 && status != 0 && status != -1)) {
+        if (accountID <= 0 || (status != 1 && status != 0 && status != 2)) { // Added status 2 for suspended
             System.out.println("updateStatus: Invalid accountID or status, accountID=" + accountID + ", status=" + status);
             return false;
         }
@@ -191,26 +208,186 @@ public class AccountDAO extends DBContext {
         return false;
     }
 
+    // Find account by email
+    public Account findByEmail(String email) {
+        if (email == null || email.trim().isEmpty()) {
+            System.out.println("findByEmail: email is null or empty");
+            return null;
+        }
+        String sql = "SELECT accountID, fullName, email, [password], status, role, createAt "
+                + "FROM Account WHERE email = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToAccount(rs);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving account by email: " + email + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+      // Find account by ID
+    public Account getAccountById(int accountID) {
+        if (accountID <= 0) {
+            System.out.println("getAccountById: Invalid accountID: " + accountID);
+            return null;
+        }
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+                + "c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.accountID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, accountID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    Account account = new Account();
+                    account.setAccountID(rs.getInt("accountID"));
+                    account.setFullName(rs.getString("fullName"));
+                    account.setEmail(rs.getString("email"));
+                    account.setPassword(rs.getString("password"));
+                    account.setStatus(rs.getInt("status"));
+                    account.setRole(rs.getString("role"));
+                    account.setCreateAt(rs.getTimestamp("createAt"));
+
+                    // Populate Customer object if role is "customer" and data exists
+                    if ("customer".equals(rs.getString("role"))) {
+                        Customer customer = new Customer();
+                        customer.setCustomerID(rs.getInt("accountID"));
+                        String phone = rs.getString("phone");
+                        String address = rs.getString("address");
+                        customer.setPhone(phone != null ? phone : "");
+                        customer.setAddress(address != null ? address : "");
+                        account.setCustomer(customer);
+                        System.out.println("DEBUG: Account ID: " + account.getAccountID() + ", Phone: " + (phone != null ? phone : "null") + ", Address: " + (address != null ? address : "null") + ", Time: 10:05 PM +07 Wed Jun 18 2025");
+                    } else {
+                        System.out.println("DEBUG: Account ID: " + account.getAccountID() + " is not a customer, Role: " + rs.getString("role") + ", Time: 10:05 PM +07 Wed Jun 18 2025");
+                    }
+                    return account;
+                } else {
+                    System.out.println("DEBUG: No account found for ID: " + accountID + ", Time: 10:05 PM +07 Wed Jun 18 2025");
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving account by ID: " + accountID + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return null;
+    }
+    // Search accounts by role and search term
+    public List<Account> searchAccounts(String role, String searchTerm) {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT * FROM Account WHERE role = ? AND (fullName LIKE ? OR email LIKE ?) ORDER BY accountID";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, role);
+            stmt.setString(2, "%" + searchTerm + "%");
+            stmt.setString(3, "%" + searchTerm + "%");
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    accounts.add(mapResultSetToAccount(rs));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error searching accounts for role " + role + " with term " + searchTerm + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return accounts;
+    }
+
+    public boolean updateAccount(Account account, String department, int accessLevel, String phone, String address, String shippingPreferences) {
+        if (account == null || account.getAccountID() <= 0) {
+            System.out.println("updateAccount: Invalid account or accountID: " + (account != null ? account.getAccountID() : "null"));
+            return false;
+        }
+        String sqlAccount = "UPDATE Account SET fullName = ?, status = ?, role = ?, createAt = ? WHERE accountID = ?";
+        try (Connection conn = getConnection(); PreparedStatement psAccount = conn.prepareStatement(sqlAccount)) {
+            psAccount.setString(1, account.getFullName());
+            psAccount.setInt(2, account.getStatus());
+            psAccount.setString(3, account.getRole());
+            psAccount.setTimestamp(4, account.getCreateAt());
+            psAccount.setInt(5, account.getAccountID());
+            int rowsAccount = psAccount.executeUpdate();
+
+            if ("staff".equals(account.getRole()) && department != null) {
+                String sqlStaff = "UPDATE Staff SET department = ?, accessLevel = ? WHERE staffID = ?";
+                try (PreparedStatement psStaff = conn.prepareStatement(sqlStaff)) {
+                    psStaff.setString(1, department);
+                    psStaff.setInt(2, accessLevel);
+                    psStaff.setInt(3, account.getAccountID());
+                    int rowsStaff = psStaff.executeUpdate();
+                    return rowsAccount > 0 && rowsStaff > 0;
+                }
+            } else if ("customer".equals(account.getRole()) && phone != null) {
+                String sqlCustomer = "UPDATE Customer SET phone = ?, address = ?, shippingPreferences = ? WHERE customerID = ?";
+                try (PreparedStatement psCustomer = conn.prepareStatement(sqlCustomer)) {
+                    psCustomer.setString(1, phone);
+                    psCustomer.setString(2, address);
+                    psCustomer.setString(3, shippingPreferences);
+                    psCustomer.setInt(4, account.getAccountID());
+                    int rowsCustomer = psCustomer.executeUpdate();
+                    return rowsAccount > 0 && rowsCustomer > 0;
+                }
+            }
+            return rowsAccount > 0;
+        } catch (SQLException e) {
+            System.out.println("Error updating account ID " + account.getAccountID() + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Delete an account by ID
+    public boolean deleteAccount(int id) {
+        if (id <= 0) {
+            System.out.println("deleteAccount: Invalid accountID: " + id);
+            return false;
+        }
+        String sql = "DELETE FROM Account WHERE accountID = ?";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, id);
+            int rows = stmt.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            System.out.println("Error deleting account ID " + id + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public Account findById(int accountID) {
         if (accountID <= 0) {
             System.out.println("findById: Invalid accountID: " + accountID);
             return null;
         }
-        String sql = "SELECT accountID, fullName, email, [password], status, role, createAt " +
-                     "FROM Account WHERE accountID = ?";
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+                + "c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.accountID = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, accountID);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
-                    return new Account(
-                            rs.getInt("accountID"),
-                            rs.getString("fullName"),
-                            rs.getString("email"),
-                            rs.getString("password"),
-                            rs.getInt("status"),
-                            rs.getString("role"),
-                            rs.getTimestamp("createAt")
-                    );
+                    Account account = new Account();
+                    account.setAccountID(rs.getInt("accountID"));
+                    account.setFullName(rs.getString("fullName"));
+                    account.setEmail(rs.getString("email"));
+                    account.setPassword(rs.getString("password"));
+                    account.setStatus(rs.getInt("status"));
+                    account.setRole(rs.getString("role"));
+                    account.setCreateAt(rs.getTimestamp("createAt"));
+
+                    // Populate Customer object if role is "customer"
+                    if ("customer".equals(rs.getString("role"))) {
+                        Customer customer = new Customer();
+                        customer.setCustomerID(rs.getInt("accountID"));
+                        customer.setPhone(rs.getString("phone") != null ? rs.getString("phone") : "");
+                        customer.setAddress(rs.getString("address") != null ? rs.getString("address") : "");
+                        account.setCustomer(customer); // Assuming Account has a setCustomer method
+                    }
+                    return account;
                 }
             }
         } catch (SQLException e) {
@@ -220,32 +397,101 @@ public class AccountDAO extends DBContext {
         return null;
     }
 
-    public Account findByEmail(String email) {
-        if (email == null || email.trim().isEmpty()) {
-            System.out.println("findByEmail: email is null or empty");
-            return null;
+    // ... (other methods remain unchanged)
+    // Helper method to map ResultSet to Account object (updated)
+    private Account mapResultSetToAccount(ResultSet rs) throws SQLException {
+        Account account = new Account();
+        account.setAccountID(rs.getInt("accountID"));
+        account.setFullName(rs.getString("fullName"));
+        account.setEmail(rs.getString("email"));
+        account.setPassword(rs.getString("password"));
+        account.setStatus(rs.getInt("status"));
+        account.setRole(rs.getString("role"));
+        account.setCreateAt(rs.getTimestamp("createAt"));
+
+        // Populate Customer object if role is "customer"
+        if ("customer".equals(rs.getString("role"))) {
+            Customer customer = new Customer();
+            customer.setCustomerID(rs.getInt("accountID"));
+            customer.setPhone(rs.getString("phone") != null ? rs.getString("phone") : "");
+            customer.setAddress(rs.getString("address") != null ? rs.getString("address") : "");
+            account.setCustomer(customer); // Assuming Account has a setCustomer method
         }
-        String sql = "SELECT accountID, fullName, email, [password], status, role, createAt " +
-                     "FROM Account WHERE email = ?";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return new Account(
-                            rs.getInt("accountID"),
-                            rs.getString("fullName"),
-                            rs.getString("email"),
-                            rs.getString("password"),
-                            rs.getInt("status"),
-                            rs.getString("role"),
-                            rs.getTimestamp("createAt")
-                    );
+        return account;
+    }
+
+    // Get all customers
+    public List<Account> getAllCustomers() {
+        List<Account> customers = new ArrayList<>();
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+                + "c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.role = 'customer' ORDER BY a.accountID";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Account account = new Account();
+                    account.setAccountID(rs.getInt("accountID"));
+                    account.setFullName(rs.getString("fullName"));
+                    account.setEmail(rs.getString("email"));
+                    account.setPassword(rs.getString("password"));
+                    account.setStatus(rs.getInt("status"));
+                    account.setRole(rs.getString("role"));
+                    account.setCreateAt(rs.getTimestamp("createAt"));
+
+                    // Populate Customer object
+                    Customer customer = new Customer();
+                    customer.setCustomerID(rs.getInt("accountID"));
+                    customer.setPhone(rs.getString("phone") != null ? rs.getString("phone") : "");
+                    customer.setAddress(rs.getString("address") != null ? rs.getString("address") : "");
+                    account.setCustomer(customer);
+
+                    customers.add(account);
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error retrieving account by email: " + email + ": " + e.getMessage());
+            System.out.println("Error retrieving all customers: " + e.getMessage());
             e.printStackTrace();
         }
-        return null;
+        return customers;
     }
+
+    // Get all staff
+    public List<Account> getAllStaff() {
+        List<Account> staffList = new ArrayList<>();
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt "
+                + "FROM Account a "
+                + "WHERE a.role = 'staff' ORDER BY a.accountID";
+        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Account account = new Account();
+                    account.setAccountID(rs.getInt("accountID"));
+                    account.setFullName(rs.getString("fullName"));
+                    account.setEmail(rs.getString("email"));
+                    account.setPassword(rs.getString("password"));
+                    account.setStatus(rs.getInt("status"));
+                    account.setRole(rs.getString("role"));
+                    account.setCreateAt(rs.getTimestamp("createAt"));
+
+                    // Assuming Staff table exists with department and accessLevel
+                    // If Staff table is not implemented, remove the following block
+                    /*
+                    Staff staff = new Staff();
+                    staff.setAccountID(rs.getInt("accountID"));
+                    staff.setDepartment(rs.getString("department") != null ? rs.getString("department") : "");
+                    staff.setAccessLevel(rs.getInt("accessLevel"));
+                    account.setStaff(staff); // Assuming setStaff method exists
+                     */
+                    staffList.add(account);
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving all staff: " + e.getMessage());
+            e.printStackTrace();
+        }
+        return staffList;
+    }
+    
+  
 }
