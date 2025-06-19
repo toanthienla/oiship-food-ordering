@@ -4,15 +4,11 @@ import dao.AccountDAO;
 import dao.CustomerDAO;
 import dao.OTPDAO;
 import dao.SecurityDAO;
-import jakarta.mail.MessagingException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import model.Customer;
-import utils.EmailService;
-
 import java.io.IOException;
-import java.sql.Timestamp;
 
 @WebServlet(name = "RegisterServlet", urlPatterns = {"/register"})
 public class RegisterServlet extends HttpServlet {
@@ -24,6 +20,16 @@ public class RegisterServlet extends HttpServlet {
         if ("true".equals(verified)) {
             processRegistration(request, response);
             return;
+        }
+        // Check for remember_me cookie
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("email".equals(cookie.getName())) {
+                    request.setAttribute("email", cookie.getValue());
+                    break;
+                }
+            }
         }
         request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
     }
@@ -37,6 +43,7 @@ public class RegisterServlet extends HttpServlet {
         String address = request.getParameter("address");
         String password = request.getParameter("password");
         String confirmPassword = request.getParameter("confirm_password");
+        String rememberMe = request.getParameter("remember_me");
 
         if (fullName == null || email == null || phone == null || address == null || password == null || confirmPassword == null) {
             request.setAttribute("error", "All fields are required.");
@@ -50,7 +57,7 @@ public class RegisterServlet extends HttpServlet {
         }
 
         AccountDAO accountDAO = new AccountDAO();
-        if (accountDAO.getCustomerByEmail(email) != null) {
+        if (accountDAO.findByEmail(email) != null) {
             request.setAttribute("error", "Email already exists.");
             request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
             return;
@@ -64,7 +71,20 @@ public class RegisterServlet extends HttpServlet {
         session.setAttribute("regAddress", address);
         session.setAttribute("regPassword", hashedPassword);
 
-        // Chuyển hướng sang verify với verified=true
+        // Handle remember_me
+        if ("on".equals(rememberMe)) {
+            Cookie emailCookie = new Cookie("email", email);
+            emailCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
+            emailCookie.setPath(request.getContextPath());
+            response.addCookie(emailCookie);
+        } else {
+            Cookie emailCookie = new Cookie("email", "");
+            emailCookie.setMaxAge(0);
+            emailCookie.setPath(request.getContextPath());
+            response.addCookie(emailCookie);
+        }
+
+        // Chuyển hướng sang verify
         response.sendRedirect("verify?verified=true");
     }
 
@@ -75,53 +95,38 @@ public class RegisterServlet extends HttpServlet {
         String email = (String) session.getAttribute("regEmail");
         String phone = (String) session.getAttribute("regPhone");
         String address = (String) session.getAttribute("regAddress");
-        String password = (String) session.getAttribute("regPassword");
+        String hashedPassword = (String) session.getAttribute("regPassword");
 
-        if (fullName == null || email == null || password == null) {
+        if (fullName == null || email == null || hashedPassword == null) {
             response.sendRedirect("register");
             return;
         }
 
-        Customer customer = new Customer(
-                0, fullName, email, password, "customer", new Timestamp(System.currentTimeMillis()),
-                1, phone, address
-        );
+        Customer customer = new Customer(0, phone, address); // customerID set to 0
+        CustomerDAO customerDAO = new CustomerDAO();
+        if (customerDAO.insertCustomer(customer, fullName, email, hashedPassword)) {
+            int accountId = customer.getCustomerID();
+            System.out.println("Customer insert result: customerId=" + accountId + ", email=" + email);
 
-        AccountDAO accountDAO = new AccountDAO();
-        int accountId = accountDAO.insertAccount(customer);
-        System.out.println("Account insert result: " + accountId);
-        if (accountId > 0) {
-            customer.setCustomerID(accountId);
-            CustomerDAO customerDAO = new CustomerDAO();
-            if (customerDAO.insertCustomer(customer)) {
-                if (customer.getStatus() == 1) {
-                    // Cập nhật customerId vào bản ghi OTP
-                    OTPDAO otpDAO = new OTPDAO();
-                    otpDAO.updateOtpCustomerId(email, accountId);
-                    System.out.println("Updated OTP with customerId: " + accountId + " for email: " + email);
+            // Cập nhật customerId vào bản ghi OTP
+            OTPDAO otpDAO = new OTPDAO();
+            otpDAO.updateOtpCustomerId(email, accountId);
+            System.out.println("Updated OTP with customerId: " + accountId + " for email: " + email);
 
-                    session.removeAttribute("regFullName");
-                    session.removeAttribute("regEmail");
-                    session.removeAttribute("regPhone");
-                    session.removeAttribute("regAddress");
-                    session.removeAttribute("regPassword");
+            session.removeAttribute("regFullName");
+            session.removeAttribute("regEmail");
+            session.removeAttribute("regPhone");
+            session.removeAttribute("regAddress");
+            session.removeAttribute("regPassword");
 
-                    session.setAttribute("userId", accountId);
-                    session.setAttribute("role", "customer");
-                    session.setAttribute("email", email);
-                    session.setAttribute("userName", fullName);
+            session.setAttribute("userId", accountId);
+            session.setAttribute("role", "customer");
+            session.setAttribute("email", email);
+            session.setAttribute("userName", fullName);
 
-                    response.sendRedirect("home");
-                } else {
-                    request.setAttribute("error", "Account status is not active (status != 1).");
-                    request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
-                }
-            } else {
-                request.setAttribute("error", "Failed to register customer details.");
-                request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
-            }
+            response.sendRedirect("home");
         } else {
-            request.setAttribute("error", "Account creation failed. Please try again. Check database constraints or connection.");
+            request.setAttribute("error", "Account creation failed. Please try again.");
             request.getRequestDispatcher("/WEB-INF/views/auth/register.jsp").forward(request, response);
         }
     }

@@ -12,15 +12,13 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import java.util.List;
-import model.OrderDetail;
 
 /**
  *
  * @author HCT
  */
-@WebServlet(name = "OrderDetailServlet", urlPatterns = {"/staff/manage-orders/order-detail"})
-public class OrderDetailServlet extends HttpServlet {
+@WebServlet(name = "UpdateStatusOrderServlet", urlPatterns = {"/staff/manage-orders/update-status"})
+public class UpdateStatusOrderServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -39,10 +37,10 @@ public class OrderDetailServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet OrderDetailServlet</title>");
+            out.println("<title>Servlet UpdateStatusOrderServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet OrderDetailServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet UpdateStatusOrderServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
@@ -60,16 +58,20 @@ public class OrderDetailServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        String orderIDParam = request.getParameter("orderID");
-        if (orderIDParam != null) {
-            int orderID = Integer.parseInt(orderIDParam);
+        try {
+            int orderID = Integer.parseInt(request.getParameter("orderID"));
             OrderDAO dao = new OrderDAO();
-            List<OrderDetail> details = dao.getOrderDetailsByOrderID(orderID); // trả về list
-            request.setAttribute("orderDetails", details);
-            request.getRequestDispatcher("/WEB-INF/views/staff/order_detail.jsp").forward(request, response);
-        } else {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing orderID");
+            int orderStatus = dao.getOrderStatusByOrderId(orderID);
+
+            request.setAttribute("orderID", orderID);
+            request.setAttribute("orderStatus", orderStatus);
+
+            request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
+
+        } catch (Exception e) {
+            response.sendRedirect(request.getContextPath() + "/staff/manage-orders/order-detail?orderID=" + request.getParameter("orderID"));
         }
+
     }
 
     /**
@@ -83,7 +85,19 @@ public class OrderDetailServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        doGet(request, response);
+        int orderID = Integer.parseInt(request.getParameter("orderID"));
+        int newStatus = Integer.parseInt(request.getParameter("newStatus"));
+
+        OrderDAO dao = new OrderDAO();
+        boolean success = dao.updateStatusOrderByOrderId(orderID, newStatus);
+
+        String message = success ? "Order status updated successfully." : "Failed to update order status.";
+
+        request.setAttribute("orderID", orderID);
+        request.setAttribute("orderStatus", newStatus);
+        request.setAttribute("message", message);
+
+        request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
     }
 
     /**

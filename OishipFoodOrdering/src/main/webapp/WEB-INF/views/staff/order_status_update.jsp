@@ -1,4 +1,3 @@
-
 <%@page import="model.Staff"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -10,7 +9,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Staff Manage Orders - Order Detail</title>
+        <title>Staff Manage Orders - Update Status</title>
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
@@ -91,6 +90,49 @@
                 padding: 8px;
             }
 
+            /*style timeline*/
+            .timeline {
+                display: flex;
+                justify-content: space-between;
+                margin: 40px 0;
+                position: relative;
+            }
+
+            .timeline::before {
+                content: "";
+                position: absolute;
+                top: 50%;
+                left: 0;
+                right: 0;
+                height: 4px;
+                background: #dee2e6;
+                z-index: 0;
+            }
+
+            .status-step {
+                text-align: center;
+                position: relative;
+                z-index: 1;
+            }
+
+            .status-dot {
+                width: 20px;
+                height: 20px;
+                background: #dee2e6;
+                border-radius: 50%;
+                margin: 0 auto 10px;
+                border: 2px solid #6c757d;
+            }
+
+            .active {
+                background: red;
+                border-color: darkred;
+            }
+
+            .status-label {
+                font-weight: 500;
+            }
+
             @media (max-width: 768px) {
                 .main {
                     margin-left: 0;
@@ -156,83 +198,60 @@
                 </div>
             </nav>
             <!--Content -->
-            <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-            <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
+            <div class="content">
+                <div class="container mt-5">
+                    <h2 class="text-center mb-4">Update Order Status - Order #${orderID}</h2>
 
-            <!--Content -->
-            <div class="content container mt-4">
-                <h2>Order Details</h2>
-
-                <c:if test="${empty orderDetails}">
-                    <div class="alert alert-info">No details available for this order.</div>
-                </c:if>
-
-                <c:if test="${not empty orderDetails}">
-                    <!-- THÔNG TIN CHUNG CỦA ĐƠN HÀNG -->
-                    <div class="border rounded p-3 mb-4 bg-light">
-                        <p><strong>Customer:</strong> ${orderDetails[0].customerName}</p>
-                        <p><strong>Order Created At:</strong>
-                            <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
-                        </p>
-                        <p><strong>Status:</strong>
-                            <c:choose>
-                                <c:when test="${orderDetails[0].orderStatus == 0}">Pending</c:when>
-                                <c:when test="${orderDetails[0].orderStatus == 1}">Confirmed</c:when>
-                                <c:when test="${orderDetails[0].orderStatus == 2}">Preparing</c:when>
-                                <c:when test="${orderDetails[0].orderStatus == 3}">Out for Delivery</c:when>
-                                <c:when test="${orderDetails[0].orderStatus == 4}">Delivered</c:when>
-                                <c:when test="${orderDetails[0].orderStatus == 5}">Cancelled</c:when>
-                                <c:when test="${orderDetails[0].orderStatus == 6}">Failed</c:when>
-                                <c:otherwise>Unknown</c:otherwise>
-                            </c:choose>
-                        </p>
+                    <!-- Timeline -->
+                    <div class="timeline">
+                        <c:forEach var="i" begin="0" end="6">
+                            <div class="status-step">
+                                <div class="status-dot ${orderStatus == i ? 'active' : ''}"></div>
+                                <div class="status-label">
+                                    <c:choose>
+                                        <c:when test="${i == 0}">Pending</c:when>
+                                        <c:when test="${i == 1}">Confirmed</c:when>
+                                        <c:when test="${i == 2}">Preparing</c:when>
+                                        <c:when test="${i == 3}">Out for Delivery</c:when>
+                                        <c:when test="${i == 4}">Delivered</c:when>
+                                        <c:when test="${i == 5}">Cancelled</c:when>
+                                        <c:when test="${i == 6}">Failed</c:when>
+                                    </c:choose>
+                                </div>
+                            </div>
+                        </c:forEach>
                     </div>
 
-                    <!-- BẢNG CHI TIẾT MÓN ĂN -->
-                    <table class="table table-bordered table-hover">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>Dish</th>
-                                <th>Image</th>
-                                <th>Description</th>
-                                <th>Quantity</th>
-                                <th>Cost (VNĐ)</th>
+                    <!-- Update Form -->
+                    <form action="${pageContext.request.contextPath}/staff/manage-orders/update-status" method="post" class="text-center">
+                        <input type="hidden" name="orderID" value="${orderID}">
+                        <div class="mb-3">
+                            <label class="fw-semibold">Select new status:</label>
+                            <select name="newStatus" class="form-select w-50 mx-auto" required>
+                                <option disabled selected value="">-- Choose status --</option>
+                                <option value="0">Pending</option>
+                                <option value="1">Confirmed</option>
+                                <option value="2">Preparing</option>
+                                <option value="3">Out for Delivery</option>
+                                <option value="4">Delivered</option>
+                                <option value="5">Cancelled</option>
+                                <option value="6">Failed</option>
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        <a href="${pageContext.request.contextPath}/staff/manage-orders/order-detail?orderID=${orderID}" class="btn btn-secondary">Back</a>
+                    </form>
 
-                            </tr>
-                        </thead>
-                        <tbody>
-                            <c:set var="totalCost" value="0" />
-                            <c:forEach var="detail" items="${orderDetails}">
-                                <tr>
-                                    <td>${detail.dishName}</td>
-                                    <td>
-                                        <img src="https://placehold.co/80x60"/>
-                                    </td>
-                                    <td>${detail.dishDescription}</td>
-                                    <td>${detail.quantity}</td>
-                                    <td>
-                                        ... VNĐ
-                                    </td>
-
-                                </tr>
-
-                            </c:forEach>
-                        </tbody>
-                    </table>
-
-                    <!-- TỔNG TIỀN + NÚT UPDATE -->
-                    <div class="d-flex justify-content-between align-items-center mt-3">
-                        <h5>
-                            Total Cost: 
-                            ... VNĐ
-                        </h5>
-                        <a class="btn btn-success"
-                           href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${orderDetails[0].orderId}">
-                            Update Order Status
-                        </a>
-                    </div>
-                </c:if>
+                    <!-- Success/Error Message -->
+                    <c:if test="${not empty message}">
+                        <script>
+            alert("${message}");
+                        </script>
+                    </c:if>
+                </div>
             </div>
+
+
 
 
 

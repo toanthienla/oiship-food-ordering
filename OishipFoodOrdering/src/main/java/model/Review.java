@@ -11,7 +11,8 @@ import java.sql.Timestamp;
  * @author Phi Yen
  */
 public class Review {
-     private int reviewID;
+
+    private int reviewID;
     private int rating;
     private String comment;
     private Timestamp reviewCreatedAt;
@@ -88,6 +89,34 @@ public class Review {
         this.customerName = customerName;
     }
 
+    private String dishName; //để lưu dish khi join bảng
 
+    public String getDishName() { //getter của dish ở trên
+        return dishName;
+    }
 
+    public void setDishName(String dishName) { //setter của dish đó luôn
+        this.dishName = dishName;
+    }
+    
+    private int OrderId; //lưu Orderid
+
+    public int getOrderId() {
+        return OrderId;
+    }
+
+    public void setOrderId(int OrderId) {
+        this.OrderId = OrderId;
+    }
+    
+    private String catName;
+
+    public String getCatName() {
+        return catName;
+    }
+
+    public void setCatName(String catName) {
+        this.catName = catName;
+    }
+    
 }

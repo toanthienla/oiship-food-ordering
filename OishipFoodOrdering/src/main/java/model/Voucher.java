@@ -8,6 +8,7 @@ public class Voucher {
     private int voucherID;
     private String code;
     private String voucherDescription;
+    private String discountType; // "%" or "VND"
     private BigDecimal discount;
     private BigDecimal maxDiscountValue;
     private BigDecimal minOrderValue;
@@ -19,16 +20,16 @@ public class Voucher {
     private int accountID;
 
     // Constructors
-    public Voucher() {
-    }
+    public Voucher() {}
 
-    public Voucher(int voucherID, String code, String voucherDescription, BigDecimal discount,
-            BigDecimal maxDiscountValue, BigDecimal minOrderValue,
-            LocalDateTime startDate, LocalDateTime endDate,
-            int usageLimit, int usedCount, boolean active, int accountID) {
+    public Voucher(int voucherID, String code, String voucherDescription, String discountType,
+                   BigDecimal discount, BigDecimal maxDiscountValue, BigDecimal minOrderValue,
+                   LocalDateTime startDate, LocalDateTime endDate,
+                   int usageLimit, int usedCount, boolean active, int accountID) {
         this.voucherID = voucherID;
         this.code = code;
         this.voucherDescription = voucherDescription;
+        this.discountType = discountType;
         this.discount = discount;
         this.maxDiscountValue = maxDiscountValue;
         this.minOrderValue = minOrderValue;
@@ -63,6 +64,14 @@ public class Voucher {
 
     public void setVoucherDescription(String voucherDescription) {
         this.voucherDescription = voucherDescription;
+    }
+
+    public String getDiscountType() {
+        return discountType;
+    }
+
+    public void setDiscountType(String discountType) {
+        this.discountType = discountType;
     }
 
     public BigDecimal getDiscount() {

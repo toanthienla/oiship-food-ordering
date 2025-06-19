@@ -1,6 +1,8 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ page contentType="text/html;charset=UTF-8" pageEncoding="UTF-8" language="java" %>
+
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
 <%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+
 <!DOCTYPE html>
 <html>
     <head>
@@ -153,10 +155,108 @@
             </nav>
 
             <!-- Content -->
-            <div class="content">
-                <h1>Manage Reviews</h1>
-                <p>Manage customers reviews.</p>
+            <div class="content mt-5">
+                <h2 class="mb-4 text-center">Manage Reviews</h2>
+
+                <!-- Search and Filter -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <label class="me-2 fw-semibold mb-0">Search Dish:</label>
+                            <input type="text" id="dishSearch" class="form-control w-auto" placeholder="Enter dish name..." />
+                        </div>
+                    </div>
+                    <div class="col-md-6 mt-3 mt-md-0">
+                        <div class="d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
+                            <label class="me-2 fw-semibold mb-0">Filter by Category:</label>
+                            <select id="categoryFilter" class="form-select w-auto">
+                                <option value="all">All</option> 
+                                <c:forEach var="cat" items="${categories}">
+                                    <option value="${cat.catName}">${cat.catName}</option>
+                                </c:forEach>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reviews Table -->
+                <div class="table-responsive">
+                    <table id="reviewTable" class="table table-hover table-bordered text-center align-middle shadow-sm">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>#</th>
+                                <th>Order ID</th>
+                                <th>Dish</th>
+                                <th>Category</th>
+                                <th>Customer</th>
+                                <th>Rating</th>
+                                <th>Comment</th>
+                                <th>Date</th>
+                                <th>Action</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="r" items="${reviews}">
+                                
+                                <tr data-category="${r.catName}">
+                                    <td class="fw-bold">${r.reviewID}</td>
+                                    <td>#${r.orderId}</td>
+                                    <td>${r.dishName}</td>
+                                    <td>${r.catName}</td>
+                                    <td>${r.customerName}</td>
+                                    <td>
+                                        <span class="badge bg-warning text-dark fs-6">${r.rating} ★</span>
+                                    </td>
+                                    <td class="text-start">${r.comment}</td>
+                                    <td><small class="text-muted">${r.reviewCreatedAt}</small></td>
+                                    <td>
+                                        <a href="manage-reviews?action=delete&reviewID=${r.reviewID}"
+                                           class="btn btn-sm btn-outline-danger"
+                                           onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?');">
+                                            🗑 Delete
+                                        </a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
             </div>
-        </div>
+
+            <!-- JavaScript filter -->
+            <script>
+                // Bỏ dấu tiếng Việt để search tốt hơn
+                function removeVietnameseTones(str) {
+                    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                            .replace(/đ/g, "d").replace(/Đ/g, "D");
+                }
+
+                document.addEventListener("DOMContentLoaded", () => {
+                    const searchInput = document.getElementById("dishSearch");
+                    const categoryFilter = document.getElementById("categoryFilter");
+                    const rows = document.querySelectorAll("#reviewTable tbody tr");
+
+                    function filterReviews() {
+                        const searchKeyword = removeVietnameseTones(searchInput.value.trim().toLowerCase());
+                        const selectedCategory = removeVietnameseTones(categoryFilter.value.trim().toLowerCase());
+
+                        rows.forEach(row => {
+                            const dishCell = row.children[2]; // Cột Dish
+                            const dishName = removeVietnameseTones(dishCell.textContent.toLowerCase());
+                            const category = removeVietnameseTones(row.getAttribute("data-category")?.toLowerCase() || "");
+
+                            const matchesSearch = dishName.includes(searchKeyword);
+                            const matchesCategory = selectedCategory === "all" || category === selectedCategory;
+
+                            row.style.display = (matchesSearch && matchesCategory) ? "" : "none";
+                        });
+                    }
+
+                    searchInput.addEventListener("input", filterReviews);
+                    categoryFilter.addEventListener("change", filterReviews);
+                });
+            </script>
+
+
     </body>
 </html>
