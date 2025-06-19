@@ -152,62 +152,118 @@
             </nav>
 
             <!-- Content -->
-            <div class="content">
-                <h2>Manage Orders</h2>
+            <div class="content mt-5">
+                <h2 class="mb-4 text-center">Manage Orders</h2>
 
-                <table border="1" cellpadding="10" cellspacing="0">
-                    <thead>
-                        <tr>
-                            <th>ID</th>
-                            <th>Amount</th>
-                            <th>Status</th>
-                            <th>Payment</th>
-                            <th>Created At</th>
-                            <th>Updated At</th>
-                            <th>Voucher ID</th>
-                            <th>Customer ID</th>
-                            <th>Action</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <c:forEach var="order" items="${orders}">
+                <!-- Search and Filter -->
+                <div class="row mb-4">
+                    <div class="col-md-6">
+                        <div class="d-flex align-items-center">
+                            <label class="me-2 fw-semibold mb-0">Search Customer:</label>
+                            <input type="text" id="customerSearch" class="form-control w-auto" placeholder="Enter customer name..." />
+                        </div>
+                    </div>
+                    <div class="col-md-6 mt-3 mt-md-0">
+                        <div class="d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
+                            <label class="me-2 fw-semibold mb-0">Filter by Status:</label>
+                            <select id="statusFilter" class="form-select w-auto">
+                                <option value="all">All</option>
+                                <option value="0">Pending</option>
+                                <option value="1">Confirmed</option>
+                                <option value="2">Preparing</option>
+                                <option value="3">Out for Delivery</option>
+                                <option value="4">Delivered</option>
+                                <option value="5">Cancelled</option>
+                                <option value="6">Failed</option>
+                            </select>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Orders Table -->
+                <div class="table-responsive">
+                    <table id="orderTable" class="table table-hover table-bordered text-center align-middle shadow-sm">
+                        <thead class="table-dark">
                             <tr>
-                                <td>${order.orderID}</td>
-                                <td>${order.amount}</td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${order.orderStatus == 0}">Pending</c:when>
-                                        <c:when test="${order.orderStatus == 1}">Confirmed</c:when>
-                                        <c:when test="${order.orderStatus == 2}">Preparing</c:when>
-                                        <c:when test="${order.orderStatus == 3}">Out for Delivery</c:when>
-                                        <c:when test="${order.orderStatus == 4}">Delivered</c:when>
-                                        <c:when test="${order.orderStatus == 5}">Cancelled</c:when>
-                                        <c:when test="${order.orderStatus == 6}">Failed</c:when>
-                                        <c:otherwise>Unknown</c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>
-                                    <c:choose>
-                                        <c:when test="${order.paymentStatus == 0}">Unpaid</c:when>
-                                        <c:when test="${order.paymentStatus == 1}">Paid</c:when>
-                                        <c:when test="${order.paymentStatus == 2}">Refunded</c:when>
-                                        <c:otherwise>Unknown</c:otherwise>
-                                    </c:choose>
-                                </td>
-                                <td>${order.orderCreatedAt}</td>
-                                <td>${order.orderUpdatedAt}</td>
-                                <td>${order.voucherID}</td>
-                                <td>${order.customerID}</td>
-                                <td>
-                                    <a href="${pageContext.request.contextPath}/staff/manage-orders/order-detail?orderID=${order.orderID}">
-                                        <button>Detail</button>
-                                    </a>
-                                </td>
+                                <th>#</th>
+                                <th>Customer</th>
+                                <th>Voucher</th>
+                                <th>Amount</th>
+                                <th>Status</th>
+                                <th>Created At</th>
+                                <th>Action</th>
                             </tr>
-                        </c:forEach>
-                    </tbody>
-                </table>
+                        </thead>
+                        <tbody>
+                            <c:forEach var="o" items="${orders}">
+                                <tr data-customer="${o.customerName}" data-status="${o.orderStatus}">
+                                    <td class="fw-bold">${o.orderID}</td>
+                                    <td>${o.customerName}</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${empty o.voucherCode}">-</c:when>
+                                            <c:otherwise>${o.voucherCode}</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/> VNĐ</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${o.orderStatus == 0}">Pending</c:when>
+                                            <c:when test="${o.orderStatus == 1}">Confirmed</c:when>
+                                            <c:when test="${o.orderStatus == 2}">Preparing</c:when>
+                                            <c:when test="${o.orderStatus == 3}">Out for Delivery</c:when>
+                                            <c:when test="${o.orderStatus == 4}">Delivered</c:when>
+                                            <c:when test="${o.orderStatus == 5}">Cancelled</c:when>
+                                            <c:when test="${o.orderStatus == 6}">Failed</c:when>
+                                            <c:otherwise>Unknown</c:otherwise>
+                                        </c:choose>
+                                    </td>
+                                    <td><fmt:formatDate value="${o.orderCreatedAt}" pattern="dd-MM-yyyy HH:mm:ss"/></td>
+                                    <td>
+                                        <a class="btn btn-sm btn-outline-primary"
+                                           href="${pageContext.request.contextPath}/staff/manage-orders/order-detail?orderID=${o.orderID}">
+                                            Detail
+                                        </a>
+                                    </td>
+                                </tr>
+                            </c:forEach>
+                        </tbody>
+                    </table>
+                </div>
             </div>
+
+            <!-- JavaScript Filter -->
+            <script>
+                function removeVietnameseTones(str) {
+                    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                            .replace(/đ/g, "d").replace(/Đ/g, "D");
+                }
+
+                document.addEventListener("DOMContentLoaded", () => {
+                    const searchInput = document.getElementById("customerSearch");
+                    const statusFilter = document.getElementById("statusFilter");
+                    const rows = document.querySelectorAll("#orderTable tbody tr");
+
+                    function filterOrders() {
+                        const keyword = removeVietnameseTones(searchInput.value.trim().toLowerCase());
+                        const status = statusFilter.value;
+
+                        rows.forEach(row => {
+                            const customer = removeVietnameseTones(row.getAttribute("data-customer")?.toLowerCase() || "");
+                            const rowStatus = row.getAttribute("data-status");
+
+                            const matchSearch = customer.includes(keyword);
+                            const matchStatus = status === "all" || status === rowStatus;
+
+                            row.style.display = (matchSearch && matchStatus) ? "" : "none";
+                        });
+                    }
+
+                    searchInput.addEventListener("input", filterOrders);
+                    statusFilter.addEventListener("change", filterOrders);
+                });
+            </script>
+
 
 
         </div>

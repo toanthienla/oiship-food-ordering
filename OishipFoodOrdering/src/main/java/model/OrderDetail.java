@@ -1,9 +1,17 @@
 package model;
 
-public class OrderDetail {
-    private int ODID;
+import java.util.Date;
+
+public class OrderDetail{
+    private int ODID; //Order Detail id
     private int quantity;
     private Dish dish;
+    private String DishName;
+    private int OrderStatus;
+    private int OrderId; //Order id
+    private String customerName;
+    private Date createAt;
+    private String dishDescription;
 
     public OrderDetail() {
     }
@@ -37,4 +45,54 @@ public class OrderDetail {
     public void setDish(Dish dish) {
         this.dish = dish;
     }
+
+    public String getDishName() {
+        return DishName;
+    }
+
+    public void setDishName(String DishName) {
+        this.DishName = DishName;
+    }
+
+    public int getOrderStatus() {
+        return OrderStatus;
+    }
+
+    public void setOrderStatus(int OrderStatus) {
+        this.OrderStatus = OrderStatus;
+    }
+
+    public int getOrderId() {
+        return OrderId;
+    }
+
+    public void setOrderId(int OrderId) {
+        this.OrderId = OrderId;
+    }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public Date getCreateAt() {
+        return createAt;
+    }
+
+    public void setCreateAt(Date createAt) {
+        this.createAt = createAt;
+    }
+
+    public String getDishDescription() {
+        return dishDescription;
+    }
+
+    public void setDishDescription(String dishDescription) {
+        this.dishDescription = dishDescription;
+    }
+    
+    
 }

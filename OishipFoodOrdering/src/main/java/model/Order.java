@@ -13,6 +13,8 @@ public class Order {
     private Date orderUpdatedAt;
     private int voucherID;
     private int customerID;
+    private String voucherCode;
+    private String customerName;
 
     // Getters and setters
     public int getOrderID() {
@@ -78,4 +80,23 @@ public class Order {
     public void setCustomerID(int customerID) {
         this.customerID = customerID;
     }
+
+    public String getCustomerName() {
+        return customerName;
+    }
+
+    public void setCustomerName(String customerName) {
+        this.customerName = customerName;
+    }
+
+    public String getVoucherCode() {
+        return voucherCode;
+    }
+
+    public void setVoucherCode(String voucherCode) {
+        this.voucherCode = voucherCode;
+    }
+    
+    
+    
 }

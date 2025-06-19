@@ -98,5 +98,25 @@ public class Review {
     public void setDishName(String dishName) { //setter của dish đó luôn
         this.dishName = dishName;
     }
+    
+    private int OrderId; //lưu Orderid
 
+    public int getOrderId() {
+        return OrderId;
+    }
+
+    public void setOrderId(int OrderId) {
+        this.OrderId = OrderId;
+    }
+    
+    private String catName;
+
+    public String getCatName() {
+        return catName;
+    }
+
+    public void setCatName(String catName) {
+        this.catName = catName;
+    }
+    
 }

@@ -1,31 +1,50 @@
 ﻿USE Oiship;
 GO
 
--- Insert Admin and Staff into Account
--- Enable IDENTITY_INSERT for Account
+-- Enable IDENTITY_INSERT for Account to manually assign accountID
 SET IDENTITY_INSERT Account ON;
 
 -- Insert Admin
-INSERT INTO Account (accountID, fullName, email, [password], role)
+INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
 VALUES 
-    (1, N'Admin', 'oiship.team@gmail.com', '$2a$12$idmLQWYZMvm/xdTYIq5CEO3PulVWC2U4Eivgns3pMhJ3Bsw74hQO2', 'admin');
+(1, N'Admin', 'oiship.team@gmail.com', 
+ '$2a$12$idmLQWYZMvm/xdTYIq5CEO3PulVWC2U4Eivgns3pMhJ3Bsw74hQO2', 
+ 'admin', 1, GETDATE());
+
 -- Insert Staff
-INSERT INTO Account (accountID, fullName, email, [password], role)
+INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
 VALUES 
-    (2, N'Staff User', 'staff@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', 'staff');
+(2, N'Staff User', 'staff@example.com', 
+ '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', 
+ 'staff', 1, GETDATE());
 
--- Insert Customer
-INSERT INTO Account (fullName, email, [password], role)
+-- Insert Customers with different status
+INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
 VALUES 
-    (N'Customer One', 'customer1@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer'),
-    (N'Customer Two', 'customer2@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer'),
-    (N'Customer Three', 'customer3@example.com', '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 'customer');
-INSERT INTO Customer (customerID, status, phone, address)
-VALUES 
-    (3, 1, '0909123123', N'123 Main Street, Hanoi'),
-    (4, 1, '0912345678', N'456 Le Loi, Da Nang'),
-    (5, 1, '0987654321', N'789 Nguyen Hue, HCMC');
+-- Active customer
+(3, N'Customer One', 'customer1@example.com', 
+ '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 
+ 'customer', 1, GETDATE()),
 
+-- Inactive customer
+(4, N'Customer Two', 'customer2@example.com', 
+ '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 
+ 'customer', 0, GETDATE()),
+
+-- Banned customer
+(5, N'Customer Three', 'customer3@example.com', 
+ '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 
+ 'customer', -1, GETDATE());
+
+-- Disable IDENTITY_INSERT now that manual insert is done
+SET IDENTITY_INSERT Account OFF;
+
+-- Insert Customer details (only for 'customer' role accounts)
+INSERT INTO Customer (customerID, phone, address)
+VALUES 
+(3, '0909123123', N'123 Main Street, Hanoi'),
+(4, '0912345678', N'456 Le Loi, Da Nang'),
+(5, '0987654321', N'789 Nguyen Hue, HCMC');
 
 -- Disable IDENTITY_INSERT for Account
 SET IDENTITY_INSERT Account OFF;
@@ -301,6 +320,15 @@ VALUES
 ('Voucher Update', 'A new voucher worth 50K VND has been added to your account.', 1),
 ('Holiday Announcement', 'We will be closed for Tet holiday from Feb 8 to Feb 14.', 1),
 ('Security Reminder', 'Please update your password every 90 days to keep your account secure.', 1);
+
+-- Insert Contact Requests
+INSERT INTO Contact ([subject], [message], FK_Contact_Customer)
+VALUES
+(N'Late Delivery', N'My order arrived 30 minutes late. Please improve delivery times.', 3),
+(N'Wrong Order', N'I received the wrong dish. I ordered chicken but got beef.', 4),
+(N'Service Feedback', N'The delivery person was very polite and helpful. Good job!', 5),
+(N'App Bug', N'The app crashes when I try to view my order history.', 3),
+(N'Suggestion', N'Can you add more vegan options to the menu?', 4);
 
 -- Optional: Verify data
 SELECT accountID, fullName, email, [password], role, createAt

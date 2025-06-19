@@ -4,6 +4,7 @@
  */
 package controller.staff;
 
+import dao.CategoryDAO;
 import dao.ManageReviewsDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -13,6 +14,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
+import model.Category;
 import model.Review;
 
 /**
@@ -61,8 +63,11 @@ public class ManageReviewsServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-                String action = request.getParameter("action");
+        String action = request.getParameter("action");
         ManageReviewsDAO dao = new ManageReviewsDAO();
+        CategoryDAO categoryDAO = new CategoryDAO(); // DAO bạn dùng để lấy danh sách category
+        List<Category> categories = categoryDAO.getAllCategories(); // Hàm trả về list catName
+        request.setAttribute("categories", categories);
 
         // Nếu là hành động xóa
         if ("delete".equals(action)) {
