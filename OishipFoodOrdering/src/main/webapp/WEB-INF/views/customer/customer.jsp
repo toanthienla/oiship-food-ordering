@@ -270,7 +270,7 @@
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
             <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
-            <a href="#cart">
+            <a href="customer/view-cart">
                 <i class="fas fa-shopping-cart me-2"></i>
                 Cart
                 <span id="cart-count" class="badge bg-danger ms-1">0</span>

@@ -10,38 +10,40 @@ import java.util.List;
 
 public class CartDAO extends DBContext {
 
-//    // Lấy tất cả món trong giỏ hàng của một customer
-//    public List<Cart> getCartByCustomerId(int customerId) throws SQLException {
-//        List<Cart> cartItems = new ArrayList<>();
-//        String sql = "SELECT c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, " +
-//                     "d.DishName, d.image, d.opCost, d.interestPercentage " +
-//                     "FROM Cart c " +
-//                     "JOIN Dish d ON c.FK_Cart_Dish = d.DishID " +
-//                     "WHERE c.FK_Cart_Customer = ?";
-//        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//            ps.setInt(1, customerId);
-//            ResultSet rs = ps.executeQuery();
-//            while (rs.next()) {
-//                Cart cart = new Cart();
-//                cart.setCartID(rs.getInt("cartID"));
-//                cart.setCustomerID(rs.getInt("FK_Cart_Customer"));
-//                cart.setDishID(rs.getInt("FK_Cart_Dish"));
-//                cart.setQuantity(rs.getInt("quantity"));
-//
-//                // Gắn thông tin món ăn (nếu cần)
-//                Dish dish = new Dish();
-//                dish.setDishID(rs.getInt("FK_Cart_Dish"));
-//                dish.setDishName(rs.getString("DishName"));
-//                dish.setImage(rs.getString("image"));
-//                dish.setOpCost(rs.getBigDecimal("opCost"));
-//                dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
-//
-//                cart.setDish(dish);
-//                cartItems.add(cart);
-//            }
-//        }
-//        return cartItems;
-//    }
+  public List<Cart> getCartByCustomerId(int customerId) throws SQLException {
+    List<Cart> cartItems = new ArrayList<>();
+
+    String sql = "SELECT " +
+                 "c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, " +
+                 "d.DishName, d.image, d.opCost, d.interestPercentage " +
+                 "FROM Cart c " +
+                 "JOIN Dish d ON c.FK_Cart_Dish = d.DishID " +
+                 "WHERE c.FK_Cart_Customer = ?";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, customerId);
+        ResultSet rs = ps.executeQuery();
+        while (rs.next()) {
+            Cart cart = new Cart();
+            cart.setCartID(rs.getInt("cartID"));
+            cart.setCustomerID(rs.getInt("FK_Cart_Customer"));
+            cart.setDishID(rs.getInt("FK_Cart_Dish"));
+            cart.setQuantity(rs.getInt("quantity"));
+
+            Dish dish = new Dish();
+            dish.setDishID(rs.getInt("FK_Cart_Dish"));
+            dish.setDishName(rs.getString("DishName"));
+            dish.setImage(rs.getString("image"));
+            dish.setOpCost(rs.getBigDecimal("opCost"));
+            dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
+
+            cart.setDish(dish);
+            cartItems.add(cart);
+        }
+    }
+
+    return cartItems;
+}
 
     // Thêm món mới vào giỏ hàng
     public void addToCart(int customerId, int dishId, int quantity) throws SQLException {
@@ -55,7 +57,7 @@ public class CartDAO extends DBContext {
     }
 
     // Cập nhật số lượng món trong giỏ hàng
-  public void updateQuantity(int customerID, int dishID, int newQuantity) throws SQLException {
+    public void updateQuantity(int customerID, int dishID, int newQuantity) throws SQLException {
         String sql = "UPDATE Cart SET quantity = ? WHERE FK_Cart_Customer = ? AND FK_Cart_Dish = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, newQuantity);
@@ -73,7 +75,6 @@ public class CartDAO extends DBContext {
 //            ps.executeUpdate();
 //        }
 //    }
-
 //    // Xóa toàn bộ giỏ hàng của một customer
 //    public void deleteCartByCustomerId(int customerId) throws SQLException {
 //        String sql = "DELETE FROM Cart WHERE FK_Cart_Customer = ?";
@@ -82,7 +83,6 @@ public class CartDAO extends DBContext {
 //            ps.executeUpdate();
 //        }
 //    }
-
     // Kiểm tra xem một món đã có trong giỏ hàng chưa
     public Cart getCartItem(int customerId, int dishId) throws SQLException {
         String sql = "SELECT * FROM Cart WHERE FK_Cart_Customer = ? AND FK_Cart_Dish = ?";
