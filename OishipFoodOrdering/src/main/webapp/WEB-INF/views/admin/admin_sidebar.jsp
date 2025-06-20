@@ -14,7 +14,7 @@
         <a class="nav-link" href="view-revenue"><i class="bi bi-bar-chart-line"></i>Income Statistics</a>
         <a class="nav-link" href="contact-requests"><i class="bi bi-envelope"></i>Contact Requests</a>
         <a class="nav-link" href="manage-notifications"><i class="bi bi-bell"></i>Notifications</a>
-        <a class="nav-link" href="manage-customers"><i class="bi bi-people"></i> Staff & Customers</a>
+        <a class="nav-link" href="accounts"><i class="bi bi-people"></i> Staff & Customers</a>
         <a class="nav-link" href="/OishipFoodOrdering/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
     </div>
 

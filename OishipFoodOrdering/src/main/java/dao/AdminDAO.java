@@ -1,7 +1,6 @@
 package dao;
 
 import model.Admin;
-
 import java.sql.Connection;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -15,8 +14,8 @@ public class AdminDAO extends DBContext {
     }
 
     public Admin getAdminByEmail(String email) {
-        String sql = "SELECT accountID, fullName, email, [password], createAt "
-                + "FROM [Account] "
+        String sql = "SELECT accountID, fullName, email, password, createAt " // Removed brackets from password
+                + "FROM Account " // Changed to lowercase 'accounts'
                 + "WHERE LTRIM(RTRIM(email)) = ? COLLATE SQL_Latin1_General_CP1_CI_AS "
                 + "AND LTRIM(RTRIM(role)) = 'admin' COLLATE SQL_Latin1_General_CP1_CI_AS";
 
@@ -39,7 +38,7 @@ public class AdminDAO extends DBContext {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("❗ AdminDAO: Error retrieving admin for email=" + email);
+            System.out.println("❗ AdminDAO: Error retrieving admin for email=" + email + ": " + e.getMessage());
             e.printStackTrace();
         }
 
