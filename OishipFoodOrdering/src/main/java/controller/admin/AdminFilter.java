@@ -20,12 +20,26 @@ public class AdminFilter implements Filter {
         // Exclude /admin/login from authentication
         boolean isLoginPage = uri.equals(contextPath + "/admin/login");
         HttpSession session = req.getSession(false);
-        boolean isLoggedIn = session != null && session.getAttribute("admin") != null;
+        boolean isLoggedIn = session != null && "admin".equals(session.getAttribute("role")); // Check role
         
-//        if (isLoggedIn || isLoginPage) {
+        System.out.println("DEBUG: Filter - URI=" + uri + ", isLoginPage=" + isLoginPage + ", isLoggedIn=" + isLoggedIn +
+                ", role=" + (session != null ? session.getAttribute("role") : "null"));
+
+        if (isLoggedIn || isLoginPage) {
             chain.doFilter(request, response);
-//        } else {
-//            res.sendRedirect(contextPath + "/admin/login");
-//        }
+        } else {
+            System.out.println("DEBUG: Redirecting to /admin/login due to unauthorized access");
+            res.sendRedirect(contextPath + "/admin/login");
+        }
+    }
+
+    @Override
+    public void init(FilterConfig filterConfig) throws ServletException {
+        // Initialization code if needed
+    }
+
+    @Override
+    public void destroy() {
+        // Cleanup code if needed
     }
 }

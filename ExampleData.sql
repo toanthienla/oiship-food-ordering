@@ -349,3 +349,32 @@ FROM DishIngredient;
 
 SELECT voucherID, code, voucherDescription, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, active
 FROM Voucher;
+
+	
+UPDATE Dish
+SET isAvailable = 1
+WHERE dishID = 1;
+
+SELECT * FROM Dish WHERE dishID = 1;
+
+
+select * from Customer
+
+SELECT 
+    c.cartID,
+    d.DishName,
+    d.[image],
+    c.quantity,
+    d.opCost,
+    d.interestPercentage,
+    (d.opCost + (d.opCost * d.interestPercentage / 100)) * c.quantity AS TotalPrice
+FROM 
+    Cart c
+JOIN 
+    Dish d ON c.FK_Cart_Dish = d.DishID
+WHERE 
+    c.FK_Cart_Customer = 9;
+
+
+	SELECT * FROM Cart;
+
