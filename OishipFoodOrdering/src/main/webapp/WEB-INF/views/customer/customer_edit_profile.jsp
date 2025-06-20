@@ -1,5 +1,5 @@
 
-<%@page import="model.Customer"%>
+<%@page import="model.Staff"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
@@ -9,23 +9,21 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Staff - My Profile</title>
+        <title>Staff - Edit Profile</title>
 
-        <!-- Bootstrap 5 CSS & JS -->
-        <link rel="stylesheet" href="../css/bootstrap.css" />
-        <script src="../js/bootstrap.bundle.js"></script>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-        <!--CSS for Sidebar-->
-        <link rel="stylesheet" href="../css/sidebar.css" />
 
-        <!--JS for Sidebar-->
-        <script src="../js/sidebar.js"></script>
 
+        <!-- Sidebar CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
+
+        <!-- Sidebar JS -->
+        <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
         <!-- Bootstrap Icons -->
-        <link
-            rel="stylesheet"
-            href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
-            />
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
 
         <style>
             body {
@@ -139,8 +137,7 @@
     </head>
     <body>
 
-      
-      <!-- Sidebar -->
+        <!-- Sidebar -->
         <jsp:include page="customer_sidebar.jsp" />
 
         <div class="main">
@@ -158,46 +155,61 @@
                 </div>
             </nav>
             <!-- Profile Content -->
-            <div class="container py-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="card shadow">
-                            <div class="card-header bg-primary text-white">
-                                <h4 class="mb-0">Customer Profile</h4>
-                            </div>
-                            <div class="card-body">
-                                <%
-                                    Customer customer = (Customer) request.getAttribute("customer");
-                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                                    if (customer != null) {
-                                %>
-                                <dl class="row">
-                                    <dt class="col-sm-4">Full Name:</dt>
-                                    <dd class="col-sm-8"><%= customer.getFullName() != null ? customer.getFullName(): "N/A"%></dd>
 
-                                    <dt class="col-sm-4">Email:</dt>
-                                    <dd class="col-sm-8"><%= customer.getEmail() != null ? customer.getEmail() : "N/A"%></dd>
+            <div class="content mt-4">
+                <h2 class="mb-4">Edit Your Name</h2>
 
-                                    <dt class="col-sm-4">Role:</dt>
-                                    <dd class="col-sm-8"><%= customer.getRole() != null ? customer.getRole() : "N/A"%></dd>
-
-                                    <dt class="col-sm-4">Created At:</dt>
-                                    <dd class="col-sm-8"><%= customer.getAccountCreatedAt()!= null ? dateFormat.format(customer.getAccountCreatedAt()) : "N/A"%></dd>
-                                </dl>
-                                <% } else { %>
-                                <div class="alert alert-danger text-center">Not found customer profile.</div>
-                                <% }%>
-                                <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-                                    <a href="${pageContext.request.contextPath}/customer/profile/edit-profile" class="btn btn-success">Edit Profile</a>
-                                    <a href="${pageContext.request.contextPath}/customer/profile/change-password" class="btn btn-danger">Change Password</a>
-                                    <a href="${pageContext.request.contextPath}/customer/profile" class="btn btn-secondary">Back to Profile</a>
-                                </div>
-
-                            </div>
-                        </div>
+                <form method="post" action="${pageContext.request.contextPath}/customer/profile/edit-profile">
+                    <div class="mb-3">
+                        <label for="fullName" class="form-label">Full Name</label>
+                        <input type="text"
+                               class="form-control"
+                               id="fullName"
+                               name="fullName"
+                               value="${customer.fullName}"
+                               required>
                     </div>
-                </div>
+
+                    <div class="mb-3">
+                        <label for="phone" class="form-label">Phone</label>
+                        <input type="text"
+                               class="form-control"
+                               id="phone"
+                               name="phone"
+                               value="${customer.phone}"
+                               required>
+                    </div>
+
+                    <div class="mb-3">
+                        <label for="address" class="form-label">Address</label>
+                        <input type="text"
+                               class="form-control"
+                               id="address"
+                               name="address"
+                               value="${customer.address}"
+                               required>
+                    </div>
+
+
+                    <div class="d-flex gap-2">
+                        <button type="submit" class="btn btn-primary">Update</button>
+                        <a href="${pageContext.request.contextPath}/customer/profile" class="btn btn-secondary">Cancel</a>
+                    </div>
+                </form>
+
+                <c:if test="${not empty message}">
+                    <div class="alert alert-info mt-3">${message}</div>
+                </c:if>
+
+                <c:if test="${not empty error}">
+                    <div class="alert alert-danger mt-3">${error}</div>
+                </c:if>
             </div>
 
+
+
+
+            <!-- JS -->
+            <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
     </body>
 </html>

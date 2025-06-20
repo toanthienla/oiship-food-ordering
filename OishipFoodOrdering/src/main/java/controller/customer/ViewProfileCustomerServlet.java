@@ -16,12 +16,8 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Customer;
 
-/**
- *
- * @author Phi Yen
- */
-@WebServlet(name = "ViewProfile", urlPatterns = {"/customer/profile"})
-public class ViewProfile extends HttpServlet {
+@WebServlet(name = "ViewProfileCustomerServlet", urlPatterns = {"/customer/profile"})
+public class ViewProfileCustomerServlet extends HttpServlet {
 
    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -63,7 +59,7 @@ public class ViewProfile extends HttpServlet {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/customer/customer_profile.jsp");
                 dispatcher.forward(request, response);
             } else {
-                request.setAttribute("error", "Staff profile not found.");
+                request.setAttribute("error", "Customer profile not found.");
                 request.getRequestDispatcher("/error.jsp").forward(request, response);
             }
 
