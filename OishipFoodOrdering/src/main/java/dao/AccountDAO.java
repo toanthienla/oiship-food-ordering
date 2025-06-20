@@ -13,16 +13,15 @@ public class AccountDAO extends DBContext {
     }
 
     // Existing methods (login, getCustomerByEmail, insertAccount, updatePasswordByEmail, isEmailOrPhoneExists, updateStatus, findById) unchanged
-
     public Object login(String email, String plainPassword) {
         if (email == null || plainPassword == null) {
             System.out.println("login: email or plainPassword is null, email=" + email);
             return null;
         }
-        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, " +
-                     "c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? AND a.status = 1";
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+                + "c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? AND a.status = 1";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -72,9 +71,9 @@ public class AccountDAO extends DBContext {
             System.out.println("getCustomerByEmail: email is null");
             return null;
         }
-        String sql = "SELECT a.accountID AS customerID, c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? AND a.role = 'customer'";
+        String sql = "SELECT a.accountID AS customerID, c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? AND a.role = 'customer'";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -158,8 +157,8 @@ public class AccountDAO extends DBContext {
         if (email == null && phone == null) {
             return false;
         }
-        String sql = "SELECT COUNT(*) FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? OR c.phone = ?";
+        String sql = "SELECT COUNT(*) FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? OR c.phone = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email != null ? email : "");
             ps.setString(2, phone != null ? phone : "");
@@ -196,8 +195,8 @@ public class AccountDAO extends DBContext {
             System.out.println("findById: Invalid accountID: " + accountID);
             return null;
         }
-        String sql = "SELECT accountID, fullName, email, [password], status, role, createAt " +
-                     "FROM Account WHERE accountID = ?";
+        String sql = "SELECT accountID, fullName, email, [password], status, role, createAt "
+                + "FROM Account WHERE accountID = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, accountID);
             try (ResultSet rs = ps.executeQuery()) {
@@ -225,8 +224,8 @@ public class AccountDAO extends DBContext {
             System.out.println("findByEmail: email is null or empty");
             return null;
         }
-        String sql = "SELECT accountID, fullName, email, [password], status, role, createAt " +
-                     "FROM Account WHERE email = ?";
+        String sql = "SELECT accountID, fullName, email, [password], status, role, createAt "
+                + "FROM Account WHERE email = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -248,4 +247,60 @@ public class AccountDAO extends DBContext {
         }
         return null;
     }
+
+    //Dùng trong chức năng staff tạo order
+    public int insertAnonymousCustomerAndReturnCustomerID(String fullName) {
+    String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
+    String insertCustomerSQL = "INSERT INTO Customer (customerID) VALUES (?)";
+
+    try (Connection conn = getConnection()) {
+        conn.setAutoCommit(false); // Bắt đầu transaction
+
+        // Tạo email giả để tránh lỗi UNIQUE
+        String fakeEmail = "anon_" + System.currentTimeMillis() + "@anon.com";
+
+        // Insert vào Account
+        try (PreparedStatement psAccount = conn.prepareStatement(insertAccountSQL)) {
+            psAccount.setString(1, fullName);
+            psAccount.setString(2, fakeEmail);
+
+            ResultSet rs = psAccount.executeQuery();
+            if (rs.next()) {
+                int accountId = rs.getInt("accountID");
+
+                // Insert vào Customer
+                try (PreparedStatement psCustomer = conn.prepareStatement(insertCustomerSQL)) {
+                    psCustomer.setInt(1, accountId);
+                    psCustomer.executeUpdate();
+                }
+
+                conn.commit();
+                return accountId; // Trả về ID đã insert
+            }
+        } catch (SQLException e) {
+            conn.rollback();
+            e.printStackTrace();
+        }
+    } catch (SQLException e) {
+        e.printStackTrace();
+    }
+
+    return -1;
+}
+
+    public static void main(String[] args) {
+        AccountDAO accountDAO = new AccountDAO();
+
+        // Giả lập tên customer nhập từ staff
+        String customerName = "Nguyễn Văn A";
+
+        int customerID = accountDAO.insertAnonymousCustomerAndReturnCustomerID(customerName);
+
+        if (customerID != -1) {
+            System.out.println("✅ Inserted anonymous customer successfully. New customerID/accountID: " + customerID);
+        } else {
+            System.out.println("❌ Failed to insert anonymous customer.");
+        }
+    }
+
 }

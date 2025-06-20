@@ -123,6 +123,57 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
+    public int insertAnonymousCustomer(String fullName) {
+        int generatedID = -1;
+        String sql = "INSERT INTO Account(fullName) VALUES (?)";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+
+            ps.setString(1, fullName);
+            ps.executeUpdate();
+
+            try (ResultSet rs = ps.getGeneratedKeys()) {
+                if (rs.next()) {
+                    generatedID = rs.getInt(1); // Lấy accountID vừa được tạo
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return generatedID;
+    }
+
+    //Các method cần cho staff tạo order
+    public int insertOrder(int customerID) {
+        String sql = "INSERT INTO [Order] (FK_Order_Customer, orderStatus, paymentStatus, orderCreatedAt) "
+                + "OUTPUT INSERTED.orderID VALUES (?, 1, 1, GETDATE())";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("orderID");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
+    public boolean insertOrderDetail(int orderID, int dishID, int quantity) {
+        String sql = "INSERT INTO OrderDetail (FK_OD_Order, FK_OD_Dish, quantity) VALUES (?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            ps.setInt(2, dishID);
+            ps.setInt(3, quantity);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            System.out.println("Failed to insert OrderDetail:");
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
         //        OrderDAO dao = new OrderDAO();
         //        List<Order> orders = dao.getAllOrders();
@@ -176,27 +227,41 @@ public class OrderDAO extends DBContext {
         //            System.out.println("------");
         //        }
         //    }
-//        OrderDAO dao = new OrderDAO();
-//
-//        int testOrderId = 1;       // Thay bằng ID đơn hàng có thực trong DB
-//        int newStatus = 2;         // Ví dụ: 2 = Preparing
-//
-//        boolean result = dao.updateStatusOrderByOrderId(testOrderId, newStatus);
-//
-//        if (result) {
-//            System.out.println("✅ Update successful for OrderID = " + testOrderId);
-//        } else {
-//            System.out.println("❌ Update failed for OrderID = " + testOrderId);
-//        }
+        //        OrderDAO dao = new OrderDAO();
+        //
+        //        int testOrderId = 1;       // Thay bằng ID đơn hàng có thực trong DB
+        //        int newStatus = 2;         // Ví dụ: 2 = Preparing
+        //
+        //        boolean result = dao.updateStatusOrderByOrderId(testOrderId, newStatus);
+        //
+        //        if (result) {
+        //            System.out.println("✅ Update successful for OrderID = " + testOrderId);
+        //        } else {
+        //            System.out.println("❌ Update failed for OrderID = " + testOrderId);
+        //        }
+        //        OrderDAO dao = new OrderDAO();
+        //
+        //        int testOrderID = 1; // Thay bằng orderID có thật trong DB
+        //        int status = dao.getOrderStatusByOrderId(testOrderID);
+        //
+        //        if (status != -1) {
+        //            System.out.println("✅ Trạng thái của đơn hàng #" + testOrderID + " là: " + status);
+        //        } else {
+        //            System.out.println("❌ Không tìm thấy đơn hàng hoặc lỗi xảy ra.");
+        //        }
+        //    }
         OrderDAO dao = new OrderDAO();
 
-        int testOrderID = 1; // Thay bằng orderID có thật trong DB
-        int status = dao.getOrderStatusByOrderId(testOrderID);
+        int orderID = 12;
+        int dishID = 3;
+        int quantity = 2;
 
-        if (status != -1) {
-            System.out.println("✅ Trạng thái của đơn hàng #" + testOrderID + " là: " + status);
+        boolean success = dao.insertOrderDetail(orderID, dishID, quantity);
+
+        if (success) {
+            System.out.println("✅ Inserted OrderDetail successfully.");
         } else {
-            System.out.println("❌ Không tìm thấy đơn hàng hoặc lỗi xảy ra.");
+            System.out.println("❌ Failed to insert OrderDetail.");
         }
     }
 }

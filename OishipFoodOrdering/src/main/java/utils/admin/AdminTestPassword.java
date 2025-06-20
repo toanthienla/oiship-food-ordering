@@ -20,7 +20,8 @@ public class AdminTestPassword {
             System.out.println("✅ Database Connected!");
 
             // Test admin account password
-            testAccountPassword(conn, "oiship.team@gmail.com", "admin", "Admin");
+            //testAccountPassword(conn, "oiship.team@gmail.com", "admin", "Admin");
+            testAccountPassword(conn, "staff@example.com", "123", "Staff");
 
         } catch (Exception e) {
             Util.logError(String.format("Test password failed\n%s\n---", e.getMessage()));
