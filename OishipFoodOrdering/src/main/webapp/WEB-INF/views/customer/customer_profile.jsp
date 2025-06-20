@@ -146,7 +146,6 @@
         <div class="main">
             <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
                 <div class="container-fluid">
-                    <a class="navbar-brand" href="${pageContext.request.contextPath}/staff/dashboard">Oiship</a>
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-auto">
                             <li class="wellcome-text">Welcome, <span><c:out value="${sessionScope.userName}" /></span>!</li>
