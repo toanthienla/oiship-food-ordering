@@ -331,17 +331,13 @@
                 <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
                 <h5 class="mt-2 text-orange">OISHIP</h5>
             </div>
-            <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
-            <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
-            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
-            <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
+            <a href="customer/view-vouchers-list"><i class="fas fa-tags me-2"></i>Vouchers</a>
             <a href="customer/view-cart">
                 <i class="fas fa-shopping-cart me-2"></i>
                 Cart
                 <span id="cart-count" class="badge bg-danger ms-1">0</span>
             </a>
-            <a href="#"><i class="fas fa-list me-2"></i> Order</a>
-            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
+            <a href="#"><i class="fas fa-list me-2"></i> Order</a>           
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
 
         </div>
@@ -360,9 +356,15 @@
                 </form>
                 <div class="d-flex align-items-center">
                     <div class="notification-bell me-3">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge rounded-pill">3</span>
+                        <a href="${pageContext.request.contextPath}/customer/view-notification-list" class="text-decoration-none position-relative">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
+                                <%= ((List<?>) request.getAttribute("notifications")) != null ? ((List<?>) request.getAttribute("notifications")).size() : 0%>
+                            </span>
+                        </a>
                     </div>
+
+
                     <div class="dropdown">
                         <a class="dropdown-toggle text-decoration-none user-account" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user"></i>
@@ -568,25 +570,25 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('.sidebar a').forEach(anchor => {
-                    anchor.addEventListener('click', function (e) {
-                        if (this.getAttribute('href').startsWith('#')) {
-                            e.preventDefault();
-                            const targetId = this.getAttribute('href').substring(1);
-                            document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
-                            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-                            this.classList.add('active');
-                        }
-                    });
-                });
+                        document.addEventListener('DOMContentLoaded', () => {
+                            document.querySelectorAll('.sidebar a').forEach(anchor => {
+                                anchor.addEventListener('click', function (e) {
+                                    if (this.getAttribute('href').startsWith('#')) {
+                                        e.preventDefault();
+                                        const targetId = this.getAttribute('href').substring(1);
+                                        document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
+                                        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                                        this.classList.add('active');
+                                    }
+                                });
+                            });
 
-                document.querySelectorAll('.dish-card .btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        alert('Đã thêm món vào giỏ hàng!');
-                    });
-                });
-            });
+                            document.querySelectorAll('.dish-card .btn').forEach(button => {
+                                button.addEventListener('click', () => {
+                                    alert('Đã thêm món vào giỏ hàng!');
+                                });
+                            });
+                        });
         </script>
 
         <script>
