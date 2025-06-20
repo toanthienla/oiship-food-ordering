@@ -304,7 +304,7 @@
                             </div>
                         </a>
                         <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="#">Profile</a></li>
+                            <li><a class="dropdown-item" href="customer/profile">Profile</a></li>
                             <li><a class="dropdown-item" href="logout">Log out</a></li>
                         </ul>
                     </div>
