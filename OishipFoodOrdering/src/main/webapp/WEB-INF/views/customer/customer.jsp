@@ -231,6 +231,73 @@
             }
 
         </style>
+        <%-- phân trang --%>
+        <style>
+            .pagination-container {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                margin-top: 30px;
+                flex-wrap: wrap;
+                user-select: none;
+            }
+
+            .pagination-container button {
+                background-color: transparent;
+                border: none;
+                color: #666;
+                font-size: 1.25rem;      /* Tăng cỡ chữ */
+                padding: 10px 18px;       /* Tăng khoảng cách trong nút */
+                border-radius: 8px;       /* Bo tròn nút nhiều hơn */
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .pagination-container button:hover {
+                background-color: #f0f0f0;
+                font-weight: bold;
+                transform: scale(1.05);   /* Phóng nhẹ khi hover */
+            }
+
+            .pagination-container button.active {
+                background-color: #d6692a;  /* màu giống nút "Add Cart" */
+                color: #fff;
+                font-weight: bold;
+                box-shadow: 0 0 8px rgba(214, 105, 42, 0.4); /* hiệu ứng bóng */
+            }
+
+            .pagination-container button:disabled {
+                color: #aaa;
+                cursor: default;
+                opacity: 0.5;
+            }
+
+            .pagination-dots {
+                padding: 10px 18px;
+                font-size: 1.2rem;
+                color: #888;
+            }
+
+            .pagination-container button:hover {
+                background-color: #f2dfd3; /* nhẹ hơn 1 chút để tương phản */
+            }
+
+            .pagination-container button.active {
+                background-color: #d85c38;
+                color: #fff;
+            }
+
+            .pagination-container button:disabled {
+                color: #aaa;
+                cursor: default;
+            }
+
+            .pagination-dots {
+                padding: 6px 12px;
+                color: #888;
+            }
+
+        </style>
         <%-- style category --%>
         <style>
             .menu-section .btn {
@@ -267,16 +334,16 @@
             <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
             <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
             <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
-            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
-            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
             <a href="customer/view-cart">
                 <i class="fas fa-shopping-cart me-2"></i>
                 Cart
                 <span id="cart-count" class="badge bg-danger ms-1">0</span>
             </a>
-
             <a href="#"><i class="fas fa-list me-2"></i> Order</a>
+            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
+            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
+
         </div>
         <%
             List<Cart> cartItems = (List<Cart>) session.getAttribute("cartItems");
@@ -418,36 +485,108 @@
                     <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
                 </div>
                 <!-- Pagination Controls -->
-                <div class="d-flex flex-wrap justify-content-center align-items-center mt-4 gap-2">
-                    <button id="prevPageBtn" class="btn btn-outline-primary">← Prev</button>
-                    <div id="pageNumbers" class="d-flex flex-wrap gap-2"></div>
-                    <button id="nextPageBtn" class="btn btn-outline-primary">Next →</button>
+                <div class="pagination-container">
+                    <button id="prevPageBtn" class="page-btn rounded">&laquo;</button>
+                    <div id="pageNumbers" class="d-flex gap-2"></div>
+                    <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
                 </div>
             </div>
+            <!-- Location Map Section -->
+            <div id="location" class="menu-section mt-4">
+                <h2 class="mb-4">Location Map</h2>
+                <div class="mb-3">
+                    <label for="locationInput" class="form-label">Enter Location:</label>
+                    <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
+                    <button class="btn btn-custom mt-2" onclick="geocodeAddress()">Search Location</button>
+                </div>
+                <div id="map"></div>
+            </div>
+
+            <!-- ... (phần cuối file giữ nguyên) ... -->
+
+            <!-- Thêm vào <head> -->
+            <style>
+                #map {
+                    height: 400px;
+                    width: 100%;
+                    margin-top: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+            </style>
+            <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
+
+            <!-- Thêm vào cuối <body> -->
+            <script>
+                        let map;
+                        function initMap() {
+                            const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
+                            map = new google.maps.Map(document.getElementById("map"), {
+                                center: defaultLocation,
+                                zoom: 12,
+                            });
+
+                            const input = document.getElementById("locationInput");
+                            const searchBox = new google.maps.places.SearchBox(input);
+
+                            map.addListener("bounds_changed", () => {
+                                searchBox.setBounds(map.getBounds());
+                            });
+
+                            searchBox.addListener("places_changed", () => {
+                                const places = searchBox.getPlaces();
+                                if (places.length == 0)
+                                    return;
+                                const place = places[0];
+                                if (!place.geometry || !place.geometry.location) {
+                                    console.log("No geometry available for this place");
+                                    return;
+                                }
+                                map.setCenter(place.geometry.location);
+                                map.setZoom(15);
+                                new google.maps.Marker({map, position: place.geometry.location});
+                            });
+                        }
+
+                        function geocodeAddress() {
+                            const geocoder = new google.maps.Geocoder();
+                            const address = document.getElementById("locationInput").value;
+                            geocoder.geocode({address: address}, (results, status) => {
+                                if (status === "OK") {
+                                    map.setCenter(results[0].geometry.location);
+                                    map.setZoom(15);
+                                    new google.maps.Marker({map: map, position: results[0].geometry.location});
+                                } else {
+                                    alert("Geocode was not successful for the following reason: " + status);
+                                }
+                            });
+                        }
+            </script>
+
         </div>
 
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        document.querySelectorAll('.sidebar a').forEach(anchor => {
-                            anchor.addEventListener('click', function (e) {
-                                if (this.getAttribute('href').startsWith('#')) {
-                                    e.preventDefault();
-                                    const targetId = this.getAttribute('href').substring(1);
-                                    document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
-                                    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-                                    this.classList.add('active');
-                                }
-                            });
-                        });
-
-                        document.querySelectorAll('.dish-card .btn').forEach(button => {
-                            button.addEventListener('click', () => {
-                                alert('Đã thêm món vào giỏ hàng!');
-                            });
-                        });
+            document.addEventListener('DOMContentLoaded', () => {
+                document.querySelectorAll('.sidebar a').forEach(anchor => {
+                    anchor.addEventListener('click', function (e) {
+                        if (this.getAttribute('href').startsWith('#')) {
+                            e.preventDefault();
+                            const targetId = this.getAttribute('href').substring(1);
+                            document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
+                            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
+                            this.classList.add('active');
+                        }
                     });
+                });
+
+                document.querySelectorAll('.dish-card .btn').forEach(button => {
+                    button.addEventListener('click', () => {
+                        alert('Đã thêm món vào giỏ hàng!');
+                    });
+                });
+            });
         </script>
 
         <script>
@@ -525,7 +664,7 @@
                 });
             });
         </script>
- <script>
+        <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const itemsPerPage = 15;
                 const dishes = Array.from(document.querySelectorAll(".dish-item"));
@@ -564,18 +703,53 @@
 
                 function createPagination() {
                     pageNumbers.innerHTML = "";
-                    for (let i = 1; i <= totalPages; i++) {
-                        const btn = document.createElement("button");
-                        btn.textContent = i;
-                        btn.id = `pageBtn${i}`;
-                        btn.className = "btn btn-outline-primary";
-                        btn.addEventListener("click", () => {
-                            currentPage = i;
-                            showPage(currentPage);
-                        });
-                        pageNumbers.appendChild(btn);
+
+                    const maxVisible = 5;
+                    let startPage = Math.max(currentPage - 2, 1);
+                    let endPage = Math.min(startPage + maxVisible - 1, totalPages);
+
+                    if (endPage - startPage < maxVisible - 1) {
+                        startPage = Math.max(endPage - maxVisible + 1, 1);
+                    }
+
+                    if (startPage > 1) {
+                        appendPageButton(1);
+                        if (startPage > 2) {
+                            pageNumbers.appendChild(createDots());
+                        }
+                    }
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        appendPageButton(i);
+                    }
+
+                    if (endPage < totalPages) {
+                        if (endPage < totalPages - 1) {
+                            pageNumbers.appendChild(createDots());
+                        }
+                        appendPageButton(totalPages);
                     }
                 }
+
+                function appendPageButton(i) {
+                    const btn = document.createElement("button");
+                    btn.textContent = i;
+                    btn.className = (i === currentPage) ? "active" : "";
+                    btn.addEventListener("click", () => {
+                        currentPage = i;
+                        showPage(currentPage);
+                        createPagination();
+                    });
+                    pageNumbers.appendChild(btn);
+                }
+
+                function createDots() {
+                    const dots = document.createElement("span");
+                    dots.textContent = "...";
+                    dots.className = "pagination-dots";
+                    return dots;
+                }
+
 
                 prevBtn.addEventListener("click", () => {
                     if (currentPage > 1) {
@@ -595,6 +769,7 @@
                 showPage(currentPage);
             });
         </script>
+
 
     </body>
 </html>

@@ -9,7 +9,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Staff - Change Password</title>
+        <title>Customer - Change Password</title>
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
@@ -141,7 +141,7 @@
 
         <div class="main">
             <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-                <div class="container-fluid">
+                <div class="container-fluid">                   
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-auto">
                             <li class="wellcome-text">Welcome, <span><c:out value="${sessionScope.userName}" /></span>!</li>
@@ -169,7 +169,7 @@
                         <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
                     </div>
                     <button type="submit" class="btn btn-primary">Change Password</button>
-                    <a href="${pageContext.request.contextPath}/staff/profile" class="btn btn-secondary">Cancel</a>
+                    <a href="${pageContext.request.contextPath}/customer/profile" class="btn btn-secondary">Back to Profile</a>
                 </form>
 
                 <c:if test="${not empty error}">
