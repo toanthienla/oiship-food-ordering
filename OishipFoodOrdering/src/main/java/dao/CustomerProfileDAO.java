@@ -136,32 +136,32 @@ public class CustomerProfileDAO extends DBContext {
     return false;
 }
 
-//   public boolean changePasswordCustomerByEmail(String email, String newPassword) {
-//    if (email == null || email.trim().isEmpty() || newPassword == null || newPassword.trim().isEmpty()) {
-//        LOGGER.warning("Invalid email or newPassword: email=" + email + ", newPassword=" + newPassword);
-//        return false;
-//    }
-//
-//    String sql = "UPDATE Account SET [password] = ? WHERE email = ? AND role = 'customer'";
-//    String hashedPassword = SecurityDAO.hashPassword(newPassword); // Hàm hashPassword từ lớp SecurityDAO
-//
-//    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-//        ps.setString(1, hashedPassword);
-//        ps.setString(2, email);
-//        int rowsAffected = ps.executeUpdate();
-//
-//        if (rowsAffected > 0) {
-//            LOGGER.info("Customer password updated successfully for email: " + email);
-//            return true;
-//        } else {
-//            LOGGER.warning("No customer found or no update for email: " + email);
-//        }
-//    } catch (SQLException e) {
-//        LOGGER.log(Level.SEVERE, "Error updating customer password for email: " + e.getMessage(), e);
-//    }
-//
-//    return false;
-//}
+   public boolean changePasswordCustomerByEmail(String email, String newPassword) {
+    if (email == null || email.trim().isEmpty() || newPassword == null || newPassword.trim().isEmpty()) {
+        LOGGER.warning("Invalid email or newPassword: email=" + email + ", newPassword=" + newPassword);
+        return false;
+    }
+
+    String sql = "UPDATE Account SET [password] = ? WHERE email = ? AND role = 'customer'";
+    String hashedPassword = SecurityDAO.hashPassword(newPassword); // Hàm hashPassword từ lớp SecurityDAO
+
+    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, hashedPassword);
+        ps.setString(2, email);
+        int rowsAffected = ps.executeUpdate();
+
+        if (rowsAffected > 0) {
+            LOGGER.info("Customer password updated successfully for email: " + email);
+            return true;
+        } else {
+            LOGGER.warning("No customer found or no update for email: " + email);
+        }
+    } catch (SQLException e) {
+        LOGGER.log(Level.SEVERE, "Error updating customer password for email: " + e.getMessage(), e);
+    }
+
+    return false;
+}
 
 
 
