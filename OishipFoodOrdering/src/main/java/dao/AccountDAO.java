@@ -16,17 +16,16 @@ public class AccountDAO extends DBContext {
     }
 
     // ===================== AUTHENTICATION =====================
-
     public Object login(String email, String plainPassword) {
         if (email == null || plainPassword == null) {
             System.out.println("login: email or plainPassword is null, email=" + email);
             return null;
         }
 
-        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, " +
-                     "c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? AND a.status = 1";
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+                + "c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? AND a.status = 1";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -75,18 +74,16 @@ public class AccountDAO extends DBContext {
     }
 
     // ===================== CREATE =====================
-
     public int insertAccount(Account account) {
-        if (account == null || account.getFullName() == null || account.getEmail() == null ||
-            account.getPassword() == null || account.getRole() == null) {
+        if (account == null || account.getFullName() == null || account.getEmail() == null
+                || account.getPassword() == null || account.getRole() == null) {
             System.out.println("insertAccount: Account or required fields are null");
             return -1;
         }
 
         String sql = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
 
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, account.getFullName());
             ps.setString(2, account.getEmail());
@@ -96,7 +93,9 @@ public class AccountDAO extends DBContext {
             ps.setInt(6, account.getStatus());
 
             int affected = ps.executeUpdate();
-            if (affected == 0) return -1;
+            if (affected == 0) {
+                return -1;
+            }
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
@@ -161,10 +160,30 @@ public class AccountDAO extends DBContext {
         return -1;
     }
 
-    // ===================== READ =====================
+    public boolean isEmailOrPhoneExists(String email, String phone) {
+        if (email == null && phone == null) {
+            return false;
+        }
+        String sql = "SELECT COUNT(*) FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? OR c.phone = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, email != null ? email : "");
+            ps.setString(2, phone != null ? phone : "");
+            try (ResultSet rs = ps.executeQuery()) {
+                return rs.next() && rs.getInt(1) > 0;
+            }
+        } catch (SQLException e) {
+            System.out.println("Error checking email or phone existence: " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
 
+    // ===================== READ =====================
     public Account findByEmail(String email) {
-        if (email == null || email.trim().isEmpty()) return null;
+        if (email == null || email.trim().isEmpty()) {
+            return null;
+        }
 
         String sql = "SELECT * FROM Account WHERE email = ?";
 
@@ -183,12 +202,14 @@ public class AccountDAO extends DBContext {
     }
 
     public Account getAccountById(int accountId) {
-        if (accountId <= 0) return null;
+        if (accountId <= 0) {
+            return null;
+        }
 
-        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, " +
-                     "c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.accountID = ?";
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+                + "c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.accountID = ?";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, accountId);
@@ -205,11 +226,13 @@ public class AccountDAO extends DBContext {
     }
 
     public Customer getCustomerByEmail(String email) {
-        if (email == null) return null;
+        if (email == null) {
+            return null;
+        }
 
-        String sql = "SELECT a.accountID AS customerID, c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? AND a.role = 'customer'";
+        String sql = "SELECT a.accountID AS customerID, c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? AND a.role = 'customer'";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
@@ -231,9 +254,9 @@ public class AccountDAO extends DBContext {
 
     public List<Account> getAllCustomers() {
         List<Account> list = new ArrayList<>();
-        String sql = "SELECT a.*, c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.role = 'customer' ORDER BY a.accountID";
+        String sql = "SELECT a.*, c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.role = 'customer' ORDER BY a.accountID";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
@@ -283,17 +306,22 @@ public class AccountDAO extends DBContext {
     }
 
     // ===================== UPDATE =====================
-
     public boolean updatePasswordByEmail(String email, String role, String hashedPassword) {
-        if (email == null || hashedPassword == null) return false;
+        if (email == null || hashedPassword == null) {
+            return false;
+        }
 
         String sql = "UPDATE Account SET [password] = ? WHERE email = ?";
-        if (role != null) sql += " AND role = ?";
+        if (role != null) {
+            sql += " AND role = ?";
+        }
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, hashedPassword);
             ps.setString(2, email);
-            if (role != null) ps.setString(3, role);
+            if (role != null) {
+                ps.setString(3, role);
+            }
 
             return ps.executeUpdate() > 0;
         } catch (SQLException e) {
@@ -304,7 +332,9 @@ public class AccountDAO extends DBContext {
     }
 
     public boolean updateStatus(int accountId, int status) {
-        if (accountId <= 0 || (status != 0 && status != 1 && status != 2)) return false;
+        if (accountId <= 0 || (status != 0 && status != 1 && status != 2)) {
+            return false;
+        }
 
         String sql = "UPDATE Account SET status = ? WHERE accountID = ?";
 
@@ -320,7 +350,9 @@ public class AccountDAO extends DBContext {
     }
 
     public boolean updateAccount(Account account, String department, int accessLevel, String phone, String address, String shippingPreferences) {
-        if (account == null || account.getAccountID() <= 0) return false;
+        if (account == null || account.getAccountID() <= 0) {
+            return false;
+        }
 
         String sqlAccount = "UPDATE Account SET fullName = ?, status = ?, role = ?, createAt = ? WHERE accountID = ?";
 
@@ -361,9 +393,10 @@ public class AccountDAO extends DBContext {
     }
 
     // ===================== DELETE =====================
-
     public boolean deleteAccount(int id) {
-        if (id <= 0) return false;
+        if (id <= 0) {
+            return false;
+        }
 
         String sql = "DELETE FROM Account WHERE accountID = ?";
 
@@ -378,7 +411,6 @@ public class AccountDAO extends DBContext {
     }
 
     // ===================== HELPER =====================
-
     private Account mapResultSetToAccount(ResultSet rs) throws SQLException {
         Account account = new Account();
         account.setAccountID(rs.getInt("accountID"));
@@ -401,7 +433,6 @@ public class AccountDAO extends DBContext {
     }
 
     // ===================== TEST =====================
-
     public static void main(String[] args) {
         AccountDAO dao = new AccountDAO();
         String name = "Nguyễn Văn A";
