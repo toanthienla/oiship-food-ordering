@@ -171,27 +171,27 @@ public class AccountManagementServlet extends HttpServlet {
                     response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
                         URLEncoder.encode("Failed to add account. Please try again.", "UTF-8"));
                 }
-//            } else if ("edit".equals(action)) {
-//                int id = Integer.parseInt(request.getParameter("id"));
-//                String fullName = request.getParameter("fullName");
-//                Account existingAccount = accountDAO.getAccountById(id);
-//                if (existingAccount != null) {
-//                    existingAccount.setFullName(fullName);
-//
-//                    if ("customer".equals(existingAccount.getRole())) {
-//                        String phone = request.getParameter("phone");
-//                        String address = request.getParameter("address");
-//                        accountDAO.updateAccount(existingAccount, null, 0, phone, address, null);
-//                    } else {
-//                        accountDAO.updateAccount(existingAccount, null, 0, null, null, null);
-//                    }
-//                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-//                        URLEncoder.encode("Account updated successfully.", "UTF-8"));
-//                } else {
-//                    System.out.println("DEBUG: Existing account not found for ID: " + id + ", Time: " + new java.util.Date());
-//                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-//                        URLEncoder.encode("Account not found.", "UTF-8"));
-//                }
+            } else if ("edit".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                String fullName = request.getParameter("fullName");
+                Account existingAccount = accountDAO.getAccountById(id);
+                if (existingAccount != null) {
+                    existingAccount.setFullName(fullName);
+
+                    if ("customer".equals(existingAccount.getRole())) {
+                        String phone = request.getParameter("phone");
+                        String address = request.getParameter("address");
+                        accountDAO.updateAccount(existingAccount, null, 0, phone, address, null);
+                    } else {
+                        accountDAO.updateAccount(existingAccount, null, 0, null, null, null);
+                    }
+                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
+                        URLEncoder.encode("Account updated successfully.", "UTF-8"));
+                } else {
+                    System.out.println("DEBUG: Existing account not found for ID: " + id + ", Time: " + new java.util.Date());
+                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
+                        URLEncoder.encode("Account not found.", "UTF-8"));
+                }
             }
         } catch (Exception e) {
             e.printStackTrace();
