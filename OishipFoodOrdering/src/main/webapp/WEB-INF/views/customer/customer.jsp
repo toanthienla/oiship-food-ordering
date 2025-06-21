@@ -1,3 +1,5 @@
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="model.Review"%>
 <%@page import="model.Cart"%>
 <%@page import="java.util.List"%>
 <%@page import="model.Category"%>
@@ -12,6 +14,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Bootstrap JS (modal cần cái này) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
         <style>
             body {
                 font-family: 'Arial', sans-serif;
@@ -350,10 +358,12 @@
 
         <div class="main-content">
             <nav class="navbar navbar-light bg-light p-2 mb-3">
-                <form method="POST" action="${pageContext.request.contextPath}/customer/search-dish" class="d-flex search-bar" role="search">
-                    <input class="form-control me-2" type="search-dish" name="searchQuery" placeholder="Search for dishes..." aria-label="Search" />
+                <form id="dishSearchForm" class="d-flex search-bar" role="search">
+                    <input class="form-control me-2" type="text" id="searchQuery" placeholder="Search for dishes..." />
                     <button class="btn btn-outline-success" type="submit">Find</button>
                 </form>
+
+
                 <div class="d-flex align-items-center">
                     <div class="notification-bell me-3">
                         <a href="${pageContext.request.contextPath}/customer/view-notification-list" class="text-decoration-none position-relative">
@@ -395,31 +405,27 @@
             <div id="menu" class="menu-section">
                 <h2 class="mb-4">MENU</h2>
                 <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
-                    <form action="home/dish" method="post">
-                        <input type="hidden" name="catId" value="all">
-                        <a href="#"
-                           class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
-                            All
-                        </a>
-                    </form>
+                    <button class="btn btn-outline-primary menu-btn active" onclick="loadDishesByCategory('all')">All</button>
 
                     <%
                         List<Category> categories = (List<Category>) request.getAttribute("categories");
                         if (categories != null) {
                             for (model.Category cat : categories) {
                     %>
-                    <form action="home/dish" method="post">
-                        <input type="hidden" name="catId" value="<%= cat.getCatID()%>">
-                        <button type="submit" class="btn btn-outline-primary menu-btn">
-                            <%= cat.getCatName()%>
-                        </button>
-                    </form>
+                    <button class="btn btn-outline-primary menu-btn"
+                            onclick="loadDishesByCategory(<%= cat.getCatID()%>)">
+                        <%= cat.getCatName()%>
+                    </button>
                     <%
                             }
                         }
                     %>
                 </div>
             </div>
+            <div id="dish-container">
+                <jsp:include page="dish_category.jsp" />
+            </div>
+
             <%
                 String message = (String) session.getAttribute("message");
                 if (message != null) {
@@ -434,65 +440,7 @@
             %>
 
 
-            <!-- Dishes Section -->
-            <div id="dishes" class="dish-section">
-                <h2 class="mb-4">Trending Food</h2>
-                <div class="row">
-                    <%
-                        List<Dish> menuItems = (List<Dish>) request.getAttribute("menuItems");
-                        if (menuItems != null && !menuItems.isEmpty()) {
-                            for (Dish menuItem : menuItems) {
-                                String imageUrl = (menuItem.getImage() != null && !menuItem.getImage().isEmpty())
-                                        ? menuItem.getImage()
-                                        : "https://via.placeholder.com/300x200";
-                    %>
 
-                    <div class="col-md-4 mb-3 dish-item">
-
-                        <!-- FORM 1: Xem chi tiết món -->
-                        <form action="home/dish" method="post">
-                            <input type="hidden" name="dishID" value="<%= menuItem.getDishID()%>">
-                            <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
-                                <div class="card dish-card">
-                                    <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><%= menuItem.getDishName()%></h5>
-                                        <p class="card-text">Price: <%= menuItem.getFormattedPrice()%>đ</p>
-                                    </div>
-                                </div>
-                            </button>
-                        </form>
-
-                        <!-- FORM 2: Add to Cart riêng biệt -->
-                        <form method="post" action="${pageContext.request.contextPath}/customer/add-cart">
-                            <input type="hidden" name="dishID" value="<%= menuItem.getDishID()%>" />
-                            <input type="hidden" name="quantity" value="1"  />
-                            <button type="submit" class="btn btn-custom w-100">Add Cart</button>
-                        </form> 
-
-
-
-
-                    </div>
-                    <%
-                        }
-                    } else {
-                    %>
-                    <p class="text-muted">No dishes available to display.</p>
-                    <%
-                        }
-                    %>
-                </div>
-                <div class="text-end">
-                    <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
-                </div>
-                <!-- Pagination Controls -->
-                <div class="pagination-container">
-                    <button id="prevPageBtn" class="page-btn rounded">&laquo;</button>
-                    <div id="pageNumbers" class="d-flex gap-2"></div>
-                    <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
-                </div>
-            </div>
             <!-- Location Map Section -->
             <div id="location" class="menu-section mt-4">
                 <h2 class="mb-4">Location Map</h2>
@@ -569,58 +517,54 @@
 
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- 💡 Đặt modal rỗng tại đây -->
+        <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content" id="dishDetailContent">
+                    <!-- Nội dung chi tiết sẽ được load bằng AJAX -->
+                </div>
+            </div>
+        </div>
         <script>
-                        document.addEventListener('DOMContentLoaded', () => {
-                            document.querySelectorAll('.sidebar a').forEach(anchor => {
-                                anchor.addEventListener('click', function (e) {
-                                    if (this.getAttribute('href').startsWith('#')) {
-                                        e.preventDefault();
-                                        const targetId = this.getAttribute('href').substring(1);
-                                        document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
-                                        document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-                                        this.classList.add('active');
-                                    }
-                                });
-                            });
-
-                            document.querySelectorAll('.dish-card .btn').forEach(button => {
-                                button.addEventListener('click', () => {
-                                    alert('Đã thêm món vào giỏ hàng!');
-                                });
-                            });
-                        });
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const menuButtons = document.querySelectorAll('.menu-btn');
-
-                menuButtons.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        menuButtons.forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-
-                        const category = btn.getAttribute('data-category');
-                        filterDishes(category);
-                    });
-                });
-
-                function filterDishes(category) {
-                    const dishes = document.querySelectorAll('.dish-card');
-                    dishes.forEach(dish => {
-                        if (category === 'all') {
-                            dish.parentElement.style.display = 'block';
-                        } else {
-                            if (dish.getAttribute('data-category') === category) {
-                                dish.parentElement.style.display = 'block';
-                            } else {
-                                dish.parentElement.style.display = 'none';
-                            }
+                        function openDishDetail(dishId) {
+                            fetch('<%=request.getContextPath()%>/customer/dish-detail', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                                body: 'dishId=' + dishId
+                            })
+                                    .then(response => response.text())
+                                    .then(html => {
+                                        document.getElementById('dishDetailContent').innerHTML = html;
+                                        new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
+                                    })
+                                    .catch(error => console.error('Error loading dish detail:', error));
                         }
-                    });
-                }
-            });
         </script>
+
+        <!-- 💡 xử lí load category -->
+        <script>
+            function loadDishesByCategory(catId) {
+                document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+
+                fetch('<%= request.getContextPath()%>/customer/dish-detail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'catId=' + catId
+                })
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('dish-container').innerHTML = html;
+                        })
+                        .catch(error => {
+                            console.error('Error loading dishes:', error);
+                        });
+            }
+
+        </script>      
+
         <script>
             setTimeout(function () {
                 const msg = document.getElementById("successMessage");
@@ -641,7 +585,7 @@
                         method: "POST",
                         headers: {
                             "X-Requested-With": "XMLHttpRequest" // ✅ Được phép
-                                    // KHÔNG cần Content-Type vì fetch sẽ tự thêm đúng loại cho FormData
+
                         },
                         body: formData
                     })
@@ -666,6 +610,38 @@
                 });
             });
         </script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const form = document.getElementById("dishSearchForm");
+                const input = document.getElementById("searchQuery");
+                const dishContainer = document.getElementById("dish-container");
+
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault(); // Ngăn form reload
+
+                    const query = input.value.trim();
+
+                    fetch("<%=request.getContextPath()%>/customer/search-dish", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: new URLSearchParams({
+                            searchQuery: query
+                        })
+                    })
+                            .then(response => response.text())
+                            .then(data => {
+                                dishContainer.innerHTML = data;
+                            })
+                            .catch(error => {
+                                console.error("Search error:", error);
+                            });
+                });
+            });
+        </script>
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const itemsPerPage = 15;
