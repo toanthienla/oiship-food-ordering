@@ -95,51 +95,98 @@ public class AccountDAO extends DBContext {
         return null;
     }
 
-  public int insertAccount(Account account) {
-    if (account == null || account.getFullName() == null || account.getEmail() == null
-            || account.getPassword() == null || account.getRole() == null) {
-        System.out.println("insertAccount: Account or required fields are null");
-        return -1;
-    }
-    String sqlAccount = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
-    try (Connection conn = getConnection(); PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
-        psAccount.setString(1, account.getFullName());
-        psAccount.setString(2, account.getEmail());
-        psAccount.setString(3, account.getPassword());
-        psAccount.setString(4, account.getRole());
-        psAccount.setTimestamp(5, account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
-        psAccount.setInt(6, account.getStatus());
-
-        int affectedRows = psAccount.executeUpdate();
-        if (affectedRows == 0) {
-            System.out.println("insertAccount: No rows affected for email: " + account.getEmail());
+    public int addAccoountAtsffAndCustomer(Account account) {
+        if (account == null || account.getFullName() == null || account.getEmail() == null
+                || account.getPassword() == null || account.getRole() == null) {
+            System.out.println("insertAccount: Account or required fields are null");
             return -1;
         }
+        String sqlAccount = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
+            psAccount.setString(1, account.getFullName());
+            psAccount.setString(2, account.getEmail());
+            psAccount.setString(3, account.getPassword());
+            psAccount.setString(4, account.getRole());
+            psAccount.setTimestamp(5, account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
+            psAccount.setInt(6, account.getStatus());
 
-        try (ResultSet rs = psAccount.getGeneratedKeys()) {
-            if (rs.next()) {
-                int accountID = rs.getInt(1);
-                account.setAccountID(accountID);
-
-                // Insert into Customer table if role is "customer"
-                if ("customer".equals(account.getRole())) {
-                    String sqlCustomer = "INSERT INTO Customer (customerID, phone, address) VALUES (?, ?, ?)";
-                    try (PreparedStatement psCustomer = conn.prepareStatement(sqlCustomer)) {
-                        psCustomer.setInt(1, accountID);
-                        psCustomer.setString(2, ""); // Default phone
-                        psCustomer.setString(3, ""); // Default address
-                        psCustomer.executeUpdate();
-                    }
-                }
-                return accountID;
+            int affectedRows = psAccount.executeUpdate();
+            if (affectedRows == 0) {
+                System.out.println("insertAccount: No rows affected for email: " + account.getEmail());
+                return -1;
             }
+
+            try (ResultSet rs = psAccount.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int accountID = rs.getInt(1);
+                    account.setAccountID(accountID);
+
+                    // Insert into Customer table if role is "customer"
+                    if ("customer".equals(account.getRole())) {
+                        String sqlCustomer = "INSERT INTO Customer (customerID, phone, address) VALUES (?, ?, ?)";
+                        try (PreparedStatement psCustomer = conn.prepareStatement(sqlCustomer)) {
+                            psCustomer.setInt(1, accountID);
+                            psCustomer.setString(2, ""); // Default phone
+                            psCustomer.setString(3, ""); // Default address
+                            psCustomer.executeUpdate();
+                        }
+                    }
+                    return accountID;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error inserting account for email " + account.getEmail() + ": " + e.getMessage());
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        System.out.println("Error inserting account for email " + account.getEmail() + ": " + e.getMessage());
-        e.printStackTrace();
+        return -1;
     }
-    return -1;
-}
+
+    public int insertAccount(Account account) {
+        if (account == null || account.getFullName() == null || account.getEmail() == null
+                || account.getPassword() == null || account.getRole() == null) {
+            System.out.println("insertAccount: Account or required fields are null");
+            return -1;
+        }
+        String sqlAccount = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
+        try (Connection conn = getConnection(); PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
+            psAccount.setString(1, account.getFullName());
+            psAccount.setString(2, account.getEmail());
+            psAccount.setString(3, account.getPassword());
+            psAccount.setString(4, account.getRole());
+            psAccount.setTimestamp(5, account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
+            psAccount.setInt(6, account.getStatus());
+
+            int affectedRows = psAccount.executeUpdate();
+            if (affectedRows == 0) {
+                System.out.println("insertAccount: No rows affected for email: " + account.getEmail());
+                return -1;
+            }
+
+            try (ResultSet rs = psAccount.getGeneratedKeys()) {
+                if (rs.next()) {
+                    int accountID = rs.getInt(1);
+                    account.setAccountID(accountID);
+
+                    // Insert into Customer table if role is "customer"
+                    if ("customer".equals(account.getRole())) {
+                        String sqlCustomer = "INSERT INTO Customer (customerID, phone, address) VALUES (?, ?, ?)";
+                        try (PreparedStatement psCustomer = conn.prepareStatement(sqlCustomer)) {
+                            psCustomer.setInt(1, accountID);
+                            psCustomer.setString(2, ""); // Default phone
+                            psCustomer.setString(3, ""); // Default address
+                            psCustomer.executeUpdate();
+                        }
+                    }
+                    return accountID;
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error inserting account for email " + account.getEmail() + ": " + e.getMessage());
+            e.printStackTrace();
+        }
+        return -1;
+    }
+
     // Update password by email
     public boolean updatePasswordByEmail(String email, String role, String hashedPassword) {
         if (email == null || hashedPassword == null) {
@@ -189,23 +236,24 @@ public class AccountDAO extends DBContext {
         }
     }
 
-    // Update account status
-    public boolean updateStatus(int accountID, int status) {
-        if (accountID <= 0 || (status != 1 && status != 0 && status != 2)) { // Added status 2 for suspended
-            System.out.println("updateStatus: Invalid accountID or status, accountID=" + accountID + ", status=" + status);
+    public boolean updateStatus(int id, int status) {
+        if (id <= 0) {
+            System.out.println("updateStatus: Invalid ID");
             return false;
         }
         String sql = "UPDATE Account SET status = ? WHERE accountID = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, status);
-            ps.setInt(2, accountID);
-            int rows = ps.executeUpdate();
-            return rows > 0;
+            ps.setInt(2, id);
+
+            int affectedRows = ps.executeUpdate();
+            System.out.println("updateStatus: Updated status for accountID " + id + " to " + status + ", affected rows: " + affectedRows);
+            return affectedRows > 0;
         } catch (SQLException e) {
-            System.out.println("Error updating status for accountID " + accountID + ": " + e.getMessage());
+            System.out.println("Error updating status for accountID " + id + ": " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
-        return false;
     }
 
     // Find account by email
@@ -230,7 +278,7 @@ public class AccountDAO extends DBContext {
         return null;
     }
 
-      // Find account by ID
+    // Find account by ID
     public Account getAccountById(int accountID) {
         if (accountID <= 0) {
             System.out.println("getAccountById: Invalid accountID: " + accountID);
@@ -277,6 +325,7 @@ public class AccountDAO extends DBContext {
         }
         return null;
     }
+
     // Search accounts by role and search term
     public List<Account> searchAccounts(String role, String searchTerm) {
         List<Account> accounts = new ArrayList<>();
@@ -339,22 +388,70 @@ public class AccountDAO extends DBContext {
         }
     }
 
-    // Delete an account by ID
     public boolean deleteAccount(int id) {
         if (id <= 0) {
-            System.out.println("deleteAccount: Invalid accountID: " + id);
+            System.out.println("deleteAccount: Invalid ID");
             return false;
         }
-        String sql = "DELETE FROM Account WHERE accountID = ?";
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql)) {
-            stmt.setInt(1, id);
-            int rows = stmt.executeUpdate();
-            return rows > 0;
+
+        Connection conn = null;
+        try {
+            conn = getConnection();
+            conn.setAutoCommit(false); // Bắt đầu transaction
+
+            // Kiểm tra và xóa bản ghi trong Customer nếu là customer
+            String checkCustomerSql = "SELECT role FROM Account WHERE accountID = ?";
+            try (PreparedStatement psCheck = conn.prepareStatement(checkCustomerSql)) {
+                psCheck.setInt(1, id);
+                try (ResultSet rs = psCheck.executeQuery()) {
+                    if (rs.next() && "customer".equals(rs.getString("role"))) {
+                        String deleteCustomerSql = "DELETE FROM Customer WHERE customerID = ?";
+                        try (PreparedStatement psCustomer = conn.prepareStatement(deleteCustomerSql)) {
+                            psCustomer.setInt(1, id);
+                            int customerRows = psCustomer.executeUpdate();
+                            System.out.println("deleteAccount: Deleted " + customerRows + " rows from Customer for accountID " + id);
+                        }
+                    }
+                }
+            }
+
+            // Xóa bản ghi trong Account
+            String deleteAccountSql = "DELETE FROM Account WHERE accountID = ?";
+            try (PreparedStatement psAccount = conn.prepareStatement(deleteAccountSql)) {
+                psAccount.setInt(1, id);
+                int affectedRows = psAccount.executeUpdate();
+                System.out.println("deleteAccount: Deleted accountID " + id + ", affected rows: " + affectedRows);
+
+                if (affectedRows > 0) {
+                    conn.commit(); // Commit transaction nếu thành công
+                    return true;
+                } else {
+                    conn.rollback(); // Rollback nếu không xóa được
+                    System.out.println("deleteAccount: No rows affected for accountID " + id);
+                    return false;
+                }
+            }
         } catch (SQLException e) {
-            System.out.println("Error deleting account ID " + id + ": " + e.getMessage());
+            if (conn != null) {
+                try {
+                    conn.rollback(); // Rollback nếu có lỗi
+                } catch (SQLException ex) {
+                    System.out.println("Error during rollback: " + ex.getMessage());
+                }
+            }
+            System.out.println("Error deleting account with ID " + id + ": " + e.getMessage());
             e.printStackTrace();
+            return false;
+        } finally {
+            if (conn != null) {
+                try {
+                    conn.setAutoCommit(true); // Khôi phục auto-commit
+                    conn.close();
+                } catch (SQLException e) {
+                    System.out.println("Error closing connection: " + e.getMessage());
+                }
+            }
         }
-        return false;
     }
 
     public Account findById(int accountID) {
@@ -492,6 +589,153 @@ public class AccountDAO extends DBContext {
         }
         return staffList;
     }
+
+    public boolean isCustomerExists(int customerID) {
+        String sql = "SELECT COUNT(*) FROM Customer WHERE customerID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerID);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1) > 0; // Trả về true nếu có bản ghi
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            System.out.println("Error checking Customer existence for ID: " + customerID + ", Time: " + new java.util.Date() + ", Error: " + e.getMessage());
+        }
+        return false; // Trả về false nếu có lỗi hoặc không tìm thấy
+    }
+
+    public boolean updateCustomer(Customer customer) {
+        if (customer == null || customer.getCustomerID() <= 0 || customer.getPhone() == null || customer.getAddress() == null) {
+            System.out.println("updateCustomer: Customer or required fields are null or invalid");
+            return false;
+        }
+
+        // Kiểm tra xem bản ghi đã tồn tại chưa
+        String checkSql = "SELECT COUNT(*) FROM Customer WHERE customerID = ?";
+        try (Connection conn = getConnection(); PreparedStatement psCheck = conn.prepareStatement(checkSql)) {
+            psCheck.setInt(1, customer.getCustomerID());
+            try (ResultSet rs = psCheck.executeQuery()) {
+                if (rs.next() && rs.getInt(1) > 0) {
+                    // Bản ghi đã tồn tại, thực hiện UPDATE
+                    String updateSql = "UPDATE Customer SET phone = ?, address = ? WHERE customerID = ?";
+                    try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+                        psUpdate.setString(1, customer.getPhone().trim());
+                        psUpdate.setString(2, customer.getAddress().trim());
+                        psUpdate.setInt(3, customer.getCustomerID());
+                        int affectedRows = psUpdate.executeUpdate();
+                        System.out.println("updateCustomer: Updated customerID " + customer.getCustomerID() + ", affected rows: " + affectedRows);
+                        return affectedRows > 0;
+                    }
+                } else {
+                    // Bản ghi không tồn tại, thực hiện INSERT
+                    String insertSql = "INSERT INTO Customer (customerID, phone, address) VALUES (?, ?, ?)";
+                    try (PreparedStatement psInsert = conn.prepareStatement(insertSql)) {
+                        psInsert.setInt(1, customer.getCustomerID());
+                        psInsert.setString(2, customer.getPhone().trim());
+                        psInsert.setString(3, customer.getAddress().trim());
+                        int affectedRows = psInsert.executeUpdate();
+                        System.out.println("updateCustomer: Inserted customerID " + customer.getCustomerID() + ", affected rows: " + affectedRows);
+                        return affectedRows > 0;
+                    }
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error updating customer for ID " + customer.getCustomerID() + ": " + e.getMessage());
+            e.printStackTrace();
+            return false;
+        }
+    }
     
-  
+
+
+    public List<Account> getAccountsByStatus(String role, int status) {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT * FROM Account WHERE role = ? AND status = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, role);
+            ps.setInt(2, status);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    accounts.add(mapAccount(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if ("customer".equals(role)) {
+            // Lấy thông tin Customer nếu có
+            for (Account account : accounts) {
+                account.setCustomer(getCustomerById(account.getAccountID()));
+            }
+        }
+        return accounts;
+    }
+
+
+    public List<Account> searchAccountsByStatus(String role, String keyword, int status) {
+        List<Account> accounts = new ArrayList<>();
+        String sql = "SELECT * FROM Account WHERE role = ? AND status = ? AND (fullName LIKE ? OR email LIKE ?)";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, role);
+            ps.setInt(2, status);
+            ps.setString(3, "%" + keyword + "%");
+            ps.setString(4, "%" + keyword + "%");
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    accounts.add(mapAccount(rs));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        if ("customer".equals(role)) {
+            // Lấy thông tin Customer nếu có
+            for (Account account : accounts) {
+                account.setCustomer(getCustomerById(account.getAccountID()));
+            }
+        }
+        return accounts;
+    }
+
+    private Account mapAccount(ResultSet rs) throws SQLException {
+        Account account = new Account();
+        account.setAccountID(rs.getInt("accountID"));
+        account.setFullName(rs.getString("fullName"));
+        account.setEmail(rs.getString("email"));
+        account.setPassword(rs.getString("password"));
+        account.setStatus(rs.getInt("status"));
+        account.setRole(rs.getString("role"));
+        account.setCreateAt(rs.getTimestamp("createAt"));
+        return account;
+    }
+
+    private Account mapAccountWithCustomer(ResultSet rs) throws SQLException {
+        Account account = mapAccount(rs);
+        account.setCustomer(new model.Customer(
+            rs.getInt("customerID"),
+            rs.getString("phone"),
+            rs.getString("address")
+        ));
+        return account;
+    }
+
+    private model.Customer getCustomerById(int id) {
+        // Giả định có phương thức riêng để lấy Customer
+        String sql = "SELECT * FROM Customer WHERE customerID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, id);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return new model.Customer(id, rs.getString("phone"), rs.getString("address"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+
 }
