@@ -647,8 +647,6 @@ public class AccountDAO extends DBContext {
             return false;
         }
     }
-    
-
 
     public List<Account> getAccountsByStatus(String role, int status) {
         List<Account> accounts = new ArrayList<>();
@@ -672,7 +670,6 @@ public class AccountDAO extends DBContext {
         }
         return accounts;
     }
-
 
     public List<Account> searchAccountsByStatus(String role, String keyword, int status) {
         List<Account> accounts = new ArrayList<>();
@@ -714,9 +711,9 @@ public class AccountDAO extends DBContext {
     private Account mapAccountWithCustomer(ResultSet rs) throws SQLException {
         Account account = mapAccount(rs);
         account.setCustomer(new model.Customer(
-            rs.getInt("customerID"),
-            rs.getString("phone"),
-            rs.getString("address")
+                rs.getInt("customerID"),
+                rs.getString("phone"),
+                rs.getString("address")
         ));
         return account;
     }
@@ -737,5 +734,42 @@ public class AccountDAO extends DBContext {
         return null;
     }
 
+    public int insertAnonymousCustomerAndReturnCustomerID(String fullName) {
+        String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
+        String insertCustomerSQL = "INSERT INTO Customer (customerID) VALUES (?)";
 
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false); // Bắt đầu transaction
+
+            // Tạo email giả để tránh lỗi UNIQUE
+            String fakeEmail = "anon_" + System.currentTimeMillis() + "@anon.com";
+
+            // Insert vào Account
+            try (PreparedStatement psAccount = conn.prepareStatement(insertAccountSQL)) {
+                psAccount.setString(1, fullName);
+                psAccount.setString(2, fakeEmail);
+
+                ResultSet rs = psAccount.executeQuery();
+                if (rs.next()) {
+                    int accountId = rs.getInt("accountID");
+
+                    // Insert vào Customer
+                    try (PreparedStatement psCustomer = conn.prepareStatement(insertCustomerSQL)) {
+                        psCustomer.setInt(1, accountId);
+                        psCustomer.executeUpdate();
+                    }
+
+                    conn.commit();
+                    return accountId; // Trả về ID đã insert
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
 }
