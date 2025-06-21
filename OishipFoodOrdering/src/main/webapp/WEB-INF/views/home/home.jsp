@@ -11,7 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-
+        <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
         <%-- style category --%>
         <style>
             .menu-section .btn {
@@ -36,10 +36,116 @@
             .menu-section .d-flex {
                 -ms-overflow-style: none;
                 scrollbar-width: none;
+                .pagination-container {
+                    display: flex;
+                    justify-content: center;
+                    gap: 8px;
+                    margin-top: 30px;
+                    flex-wrap: wrap;
+                    user-select: none;
+                }
+
+                .pagination-container button {
+                    background-color: transparent;
+                    border: none;
+                    color: #666;
+                    font-size: 1rem;
+                    padding: 6px 12px;
+                    border-radius: 4px;
+                    cursor: pointer;
+                }
+
+                .pagination-container button:hover {
+                    background-color: #eee;
+                }
+
+                .pagination-container button.active {
+                    background-color: #d85c38;
+                    color: #fff;
+                }
+
+                .pagination-container button:disabled {
+                    color: #aaa;
+                    cursor: default;
+                }
+
+                .pagination-dots {
+                    padding: 6px 12px;
+                    color: #888;
+                }
+
             }
+        </style>
+        <%-- phân trang --%>
+        <style>
+            .pagination-container {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                margin-top: 30px;
+                flex-wrap: wrap;
+                user-select: none;
+            }
+
+            .pagination-container button {
+                background-color: transparent;
+                border: none;
+                color: #666;
+                font-size: 1.25rem;      /* Tăng cỡ chữ */
+                padding: 10px 18px;       /* Tăng khoảng cách trong nút */
+                border-radius: 8px;       /* Bo tròn nút nhiều hơn */
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .pagination-container button:hover {
+                background-color: #f0f0f0;
+                font-weight: bold;
+                transform: scale(1.05);   /* Phóng nhẹ khi hover */
+            }
+
+            .pagination-container button.active {
+                background-color: #d6692a;  /* màu giống nút "Add Cart" */
+                color: #fff;
+                font-weight: bold;
+                box-shadow: 0 0 8px rgba(214, 105, 42, 0.4); /* hiệu ứng bóng */
+            }
+
+            .pagination-container button:disabled {
+                color: #aaa;
+                cursor: default;
+                opacity: 0.5;
+            }
+
+            .pagination-dots {
+                padding: 10px 18px;
+                font-size: 1.2rem;
+                color: #888;
+            }
+
+            .pagination-container button:hover {
+                background-color: #f2dfd3; /* nhẹ hơn 1 chút để tương phản */
+            }
+
+            .pagination-container button.active {
+                background-color: #d85c38;
+                color: #fff;
+            }
+
+            .pagination-container button:disabled {
+                color: #aaa;
+                cursor: default;
+            }
+
+            .pagination-dots {
+                padding: 6px 12px;
+                color: #888;
+            }
+
         </style>
         <%-- style home --%>
         <style>
+
             body {
                 font-family: 'Arial', sans-serif;
                 background-color: #f8f9fa;
@@ -192,7 +298,7 @@
     <body>
         <div class="sidebar">
             <div class="text-center mb-4">
-            <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
+                <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
                 <h5 class="mt-2 text-orange">OISHIP</h5>
             </div>
             <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
@@ -205,8 +311,8 @@
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
             <a href="login"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
             <a href="login"><i class="fas fa-list me-2"></i> Order</a>
-            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
-            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
+            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>           
+            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>          
         </div>
 
         <div class="main-content">
@@ -341,14 +447,25 @@
                     <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
                 </div>
                 <!-- Pagination Controls -->
-                <div class="d-flex flex-wrap justify-content-center align-items-center mt-4 gap-2">
-                    <button id="prevPageBtn" class="btn btn-outline-primary">← Prev</button>
-                    <div id="pageNumbers" class="d-flex flex-wrap gap-2"></div>
-                    <button id="nextPageBtn" class="btn btn-outline-primary">Next →</button>
+                <div class="pagination-container">
+                    <button id="prevPageBtn" class="page-btn rounded">&laquo;</button>
+                    <div id="pageNumbers" class="d-flex gap-2"></div>
+                    <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
                 </div>
 
-            </div>
 
+            </div>
+            <!-- Location Map Section -->
+            <div id="location" class="menu-section mt-4">
+                <h2 class="mb-4">Location Map</h2>
+                <div class="mb-3">
+                    <label for="locationInput" class="form-label">Enter Location:</label>
+                    <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
+                    <button class="btn btn-custom mt-2" onclick="geocodeAddress()">Search Location</button>
+                </div>
+                <div id="map"></div>
+            </div>
+          
             <!-- Location Map Section -->
             <div id="location" class="menu-section mt-4">
                 <h2 class="mb-4">Location Map</h2>
@@ -365,6 +482,7 @@
             <!-- Thêm vào <head> -->
             <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
             <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css">
+          
             <style>
                 #map {
                     height: 400px;
@@ -430,7 +548,9 @@
             </script>
         </div>
 
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
         <script>
             document.addEventListener('DOMContentLoaded', () => {
                 document.querySelectorAll('.sidebar a').forEach(anchor => {
@@ -522,18 +642,53 @@
 
                 function createPagination() {
                     pageNumbers.innerHTML = "";
-                    for (let i = 1; i <= totalPages; i++) {
-                        const btn = document.createElement("button");
-                        btn.textContent = i;
-                        btn.id = `pageBtn${i}`;
-                        btn.className = "btn btn-outline-primary";
-                        btn.addEventListener("click", () => {
-                            currentPage = i;
-                            showPage(currentPage);
-                        });
-                        pageNumbers.appendChild(btn);
+
+                    const maxVisible = 5;
+                    let startPage = Math.max(currentPage - 2, 1);
+                    let endPage = Math.min(startPage + maxVisible - 1, totalPages);
+
+                    if (endPage - startPage < maxVisible - 1) {
+                        startPage = Math.max(endPage - maxVisible + 1, 1);
+                    }
+
+                    if (startPage > 1) {
+                        appendPageButton(1);
+                        if (startPage > 2) {
+                            pageNumbers.appendChild(createDots());
+                        }
+                    }
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        appendPageButton(i);
+                    }
+
+                    if (endPage < totalPages) {
+                        if (endPage < totalPages - 1) {
+                            pageNumbers.appendChild(createDots());
+                        }
+                        appendPageButton(totalPages);
                     }
                 }
+
+                function appendPageButton(i) {
+                    const btn = document.createElement("button");
+                    btn.textContent = i;
+                    btn.className = (i === currentPage) ? "active" : "";
+                    btn.addEventListener("click", () => {
+                        currentPage = i;
+                        showPage(currentPage);
+                        createPagination();
+                    });
+                    pageNumbers.appendChild(btn);
+                }
+
+                function createDots() {
+                    const dots = document.createElement("span");
+                    dots.textContent = "...";
+                    dots.className = "pagination-dots";
+                    return dots;
+                }
+
 
                 prevBtn.addEventListener("click", () => {
                     if (currentPage > 1) {

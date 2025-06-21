@@ -13,7 +13,7 @@ import model.Category;
 import model.Dish;
 import model.Review;
 
-@WebServlet(name = "DishServlet", urlPatterns = {"/home/dish"})
+@WebServlet(name = "DishServlet", urlPatterns = {"/customer/dish-detail"})
 public class DishServlet extends HttpServlet {
 
     @Override
