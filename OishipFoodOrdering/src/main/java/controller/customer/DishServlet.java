@@ -8,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 import model.Category;
 import model.Dish;
@@ -104,7 +105,12 @@ public class DishServlet extends HttpServlet {
 
         request.setAttribute("isLoggedIn", isLoggedIn);
         request.setAttribute("userName", userName);
-
+ // ✨ NEW: Gửi category ID active nếu có món ăn
+    List<Dish> menuItemResults = new ArrayList<>();
+            if (!menuItemResults.isEmpty()) {
+                int activeCategoryId = menuItemResults.get(0).getCategoryId();  // <-- Dish cần có getCategoryID()
+                request.setAttribute("activeCategoryId", activeCategoryId);
+            }
         // Forward to dish category view
         request.getRequestDispatcher("/WEB-INF/views/customer/dish_category.jsp").forward(request, response);
     }
