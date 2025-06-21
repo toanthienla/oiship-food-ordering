@@ -55,16 +55,16 @@ public class AccountManagementServlet extends HttpServlet {
                 }
                 request.setAttribute("account", account);
                 request.getRequestDispatcher(jspPath).forward(request, response);
-//            } else if ("delete".equals(action)) {
-//                int id = Integer.parseInt(request.getParameter("id"));
-//                System.out.println("DEBUG: Attempting to delete account with ID: " + id);
-//                if (accountDAO.deleteAccount(id)) {
-//                    System.out.println("DEBUG: Successfully deleted account with ID: " + id);
-//                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + URLEncoder.encode("Account deleted successfully.", "UTF-8"));
-//                } else {
-//                    System.out.println("DEBUG: Failed to delete account with ID: " + id);
-//                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + URLEncoder.encode("Failed to delete account. Please try again.", "UTF-8"));
-//                }
+            } else if ("delete".equals(action)) {
+                int id = Integer.parseInt(request.getParameter("id"));
+                System.out.println("DEBUG: Attempting to delete account with ID: " + id);
+                if (accountDAO.deleteAccount(id)) {
+                    System.out.println("DEBUG: Successfully deleted account with ID: " + id);
+                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + URLEncoder.encode("Account deleted successfully.", "UTF-8"));
+                } else {
+                    System.out.println("DEBUG: Failed to delete account with ID: " + id);
+                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + URLEncoder.encode("Failed to delete account. Please try again.", "UTF-8"));
+                }
             } else if ("updateStatus".equals(action)) {
                 int id = Integer.parseInt(request.getParameter("id"));
                 int status = Integer.parseInt(request.getParameter("status"));
