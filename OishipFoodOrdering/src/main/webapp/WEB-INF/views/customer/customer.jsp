@@ -1,3 +1,5 @@
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="model.Review"%>
 <%@page import="model.Cart"%>
 <%@page import="java.util.List"%>
 <%@page import="model.Category"%>
@@ -12,6 +14,12 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
+        <!-- Bootstrap CSS -->
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+        <!-- Bootstrap JS (modal cần cái này) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
         <style>
             body {
                 font-family: 'Arial', sans-serif;
@@ -231,6 +239,73 @@
             }
 
         </style>
+        <%-- phân trang --%>
+        <style>
+            .pagination-container {
+                display: flex;
+                justify-content: center;
+                gap: 8px;
+                margin-top: 30px;
+                flex-wrap: wrap;
+                user-select: none;
+            }
+
+            .pagination-container button {
+                background-color: transparent;
+                border: none;
+                color: #666;
+                font-size: 1.25rem;      /* Tăng cỡ chữ */
+                padding: 10px 18px;       /* Tăng khoảng cách trong nút */
+                border-radius: 8px;       /* Bo tròn nút nhiều hơn */
+                cursor: pointer;
+                transition: all 0.3s ease;
+            }
+
+            .pagination-container button:hover {
+                background-color: #f0f0f0;
+                font-weight: bold;
+                transform: scale(1.05);   /* Phóng nhẹ khi hover */
+            }
+
+            .pagination-container button.active {
+                background-color: #d6692a;  /* màu giống nút "Add Cart" */
+                color: #fff;
+                font-weight: bold;
+                box-shadow: 0 0 8px rgba(214, 105, 42, 0.4); /* hiệu ứng bóng */
+            }
+
+            .pagination-container button:disabled {
+                color: #aaa;
+                cursor: default;
+                opacity: 0.5;
+            }
+
+            .pagination-dots {
+                padding: 10px 18px;
+                font-size: 1.2rem;
+                color: #888;
+            }
+
+            .pagination-container button:hover {
+                background-color: #f2dfd3; /* nhẹ hơn 1 chút để tương phản */
+            }
+
+            .pagination-container button.active {
+                background-color: #d85c38;
+                color: #fff;
+            }
+
+            .pagination-container button:disabled {
+                color: #aaa;
+                cursor: default;
+            }
+
+            .pagination-dots {
+                padding: 6px 12px;
+                color: #888;
+            }
+
+        </style>
         <%-- style category --%>
         <style>
             .menu-section .btn {
@@ -264,19 +339,15 @@
                 <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
                 <h5 class="mt-2 text-orange">OISHIP</h5>
             </div>
-            <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
-            <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
-            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
-            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
-            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
-            <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
+            <a href="customer/view-vouchers-list"><i class="fas fa-tags me-2"></i>Vouchers</a>
             <a href="customer/view-cart">
                 <i class="fas fa-shopping-cart me-2"></i>
                 Cart
                 <span id="cart-count" class="badge bg-danger ms-1">0</span>
             </a>
+            <a href="#"><i class="fas fa-list me-2"></i> Order</a>           
+            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
 
-            <a href="#"><i class="fas fa-list me-2"></i> Order</a>
         </div>
         <%
             List<Cart> cartItems = (List<Cart>) session.getAttribute("cartItems");
@@ -287,15 +358,23 @@
 
         <div class="main-content">
             <nav class="navbar navbar-light bg-light p-2 mb-3">
-                <form method="POST" action="${pageContext.request.contextPath}/customer/search-dish" class="d-flex search-bar" role="search">
-                    <input class="form-control me-2" type="search-dish" name="searchQuery" placeholder="Search for dishes..." aria-label="Search" />
+                <form id="dishSearchForm" class="d-flex search-bar" role="search">
+                    <input class="form-control me-2" type="text" id="searchQuery" placeholder="Search for dishes..." />
                     <button class="btn btn-outline-success" type="submit">Find</button>
                 </form>
+
+
                 <div class="d-flex align-items-center">
                     <div class="notification-bell me-3">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge rounded-pill">3</span>
+                        <a href="${pageContext.request.contextPath}/customer/view-notification-list" class="text-decoration-none position-relative">
+                            <i class="fas fa-bell fa-lg"></i>
+                            <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
+                                <%= ((List<?>) request.getAttribute("notifications")) != null ? ((List<?>) request.getAttribute("notifications")).size() : 0%>
+                            </span>
+                        </a>
                     </div>
+
+
                     <div class="dropdown">
                         <a class="dropdown-toggle text-decoration-none user-account" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-user"></i>
@@ -326,31 +405,27 @@
             <div id="menu" class="menu-section">
                 <h2 class="mb-4">MENU</h2>
                 <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
-                    <form action="home/dish" method="post">
-                        <input type="hidden" name="catId" value="all">
-                        <a href="#"
-                           class="btn btn-outline-primary menu-btn <%= (request.getParameter("catId") == null) ? "active" : ""%>">
-                            All
-                        </a>
-                    </form>
+                    <button class="btn btn-outline-primary menu-btn active" onclick="loadDishesByCategory('all')">All</button>
 
                     <%
                         List<Category> categories = (List<Category>) request.getAttribute("categories");
                         if (categories != null) {
                             for (model.Category cat : categories) {
                     %>
-                    <form action="home/dish" method="post">
-                        <input type="hidden" name="catId" value="<%= cat.getCatID()%>">
-                        <button type="submit" class="btn btn-outline-primary menu-btn">
-                            <%= cat.getCatName()%>
-                        </button>
-                    </form>
+                    <button class="btn btn-outline-primary menu-btn"
+                            onclick="loadDishesByCategory(<%= cat.getCatID()%>)">
+                        <%= cat.getCatName()%>
+                    </button>
                     <%
                             }
                         }
                     %>
                 </div>
             </div>
+            <div id="dish-container">
+                <jsp:include page="dish_category.jsp" />
+            </div>
+
             <%
                 String message = (String) session.getAttribute("message");
                 if (message != null) {
@@ -365,121 +440,131 @@
             %>
 
 
-            <!-- Dishes Section -->
-            <div id="dishes" class="dish-section">
-                <h2 class="mb-4">Trending Food</h2>
-                <div class="row">
-                    <%
-                        List<Dish> menuItems = (List<Dish>) request.getAttribute("menuItems");
-                        if (menuItems != null && !menuItems.isEmpty()) {
-                            for (Dish menuItem : menuItems) {
-                                String imageUrl = (menuItem.getImage() != null && !menuItem.getImage().isEmpty())
-                                        ? menuItem.getImage()
-                                        : "https://via.placeholder.com/300x200";
-                    %>
 
-                    <div class="col-md-4 mb-3 dish-item">
-
-                        <!-- FORM 1: Xem chi tiết món -->
-                        <form action="home/dish" method="post">
-                            <input type="hidden" name="dishID" value="<%= menuItem.getDishID()%>">
-                            <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
-                                <div class="card dish-card">
-                                    <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><%= menuItem.getDishName()%></h5>
-                                        <p class="card-text">Price: <%= menuItem.getFormattedPrice()%>đ</p>
-                                    </div>
-                                </div>
-                            </button>
-                        </form>
-
-                        <!-- FORM 2: Add to Cart riêng biệt -->
-                        <form method="post" action="${pageContext.request.contextPath}/customer/add-cart">
-                            <input type="hidden" name="dishID" value="<%= menuItem.getDishID()%>" />
-                            <input type="hidden" name="quantity" value="1"  />
-                            <button type="submit" class="btn btn-custom w-100">Add Cart</button>
-                        </form> 
-
-
-
-
-                    </div>
-                    <%
-                        }
-                    } else {
-                    %>
-                    <p class="text-muted">No dishes available to display.</p>
-                    <%
-                        }
-                    %>
+            <!-- Location Map Section -->
+            <div id="location" class="menu-section mt-4">
+                <h2 class="mb-4">Location Map</h2>
+                <div class="mb-3">
+                    <label for="locationInput" class="form-label">Enter Location:</label>
+                    <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
+                    <button class="btn btn-custom mt-2" onclick="geocodeAddress()">Search Location</button>
                 </div>
-                <div class="text-end">
-                    <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
-                </div>
-                <!-- Pagination Controls -->
-                <div class="d-flex flex-wrap justify-content-center align-items-center mt-4 gap-2">
-                    <button id="prevPageBtn" class="btn btn-outline-primary">← Prev</button>
-                    <div id="pageNumbers" class="d-flex flex-wrap gap-2"></div>
-                    <button id="nextPageBtn" class="btn btn-outline-primary">Next →</button>
-                </div>
+                <div id="map"></div>
             </div>
+
+            <!-- ... (phần cuối file giữ nguyên) ... -->
+
+            <!-- Thêm vào <head> -->
+            <style>
+                #map {
+                    height: 400px;
+                    width: 100%;
+                    margin-top: 20px;
+                    border-radius: 10px;
+                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+                }
+            </style>
+            <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
+
+            <!-- Thêm vào cuối <body> -->
+            <script>
+                        let map;
+                        function initMap() {
+                            const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
+                            map = new google.maps.Map(document.getElementById("map"), {
+                                center: defaultLocation,
+                                zoom: 12,
+                            });
+
+                            const input = document.getElementById("locationInput");
+                            const searchBox = new google.maps.places.SearchBox(input);
+
+                            map.addListener("bounds_changed", () => {
+                                searchBox.setBounds(map.getBounds());
+                            });
+
+                            searchBox.addListener("places_changed", () => {
+                                const places = searchBox.getPlaces();
+                                if (places.length == 0)
+                                    return;
+                                const place = places[0];
+                                if (!place.geometry || !place.geometry.location) {
+                                    console.log("No geometry available for this place");
+                                    return;
+                                }
+                                map.setCenter(place.geometry.location);
+                                map.setZoom(15);
+                                new google.maps.Marker({map, position: place.geometry.location});
+                            });
+                        }
+
+                        function geocodeAddress() {
+                            const geocoder = new google.maps.Geocoder();
+                            const address = document.getElementById("locationInput").value;
+                            geocoder.geocode({address: address}, (results, status) => {
+                                if (status === "OK") {
+                                    map.setCenter(results[0].geometry.location);
+                                    map.setZoom(15);
+                                    new google.maps.Marker({map: map, position: results[0].geometry.location});
+                                } else {
+                                    alert("Geocode was not successful for the following reason: " + status);
+                                }
+                            });
+                        }
+            </script>
+
         </div>
 
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- 💡 Đặt modal rỗng tại đây -->
+        <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content" id="dishDetailContent">
+                    <!-- Nội dung chi tiết sẽ được load bằng AJAX -->
+                </div>
+            </div>
+        </div>
         <script>
-                    document.addEventListener('DOMContentLoaded', () => {
-                        document.querySelectorAll('.sidebar a').forEach(anchor => {
-                            anchor.addEventListener('click', function (e) {
-                                if (this.getAttribute('href').startsWith('#')) {
-                                    e.preventDefault();
-                                    const targetId = this.getAttribute('href').substring(1);
-                                    document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
-                                    document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-                                    this.classList.add('active');
-                                }
-                            });
-                        });
-
-                        document.querySelectorAll('.dish-card .btn').forEach(button => {
-                            button.addEventListener('click', () => {
-                                alert('Đã thêm món vào giỏ hàng!');
-                            });
-                        });
-                    });
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const menuButtons = document.querySelectorAll('.menu-btn');
-
-                menuButtons.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        menuButtons.forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-
-                        const category = btn.getAttribute('data-category');
-                        filterDishes(category);
-                    });
-                });
-
-                function filterDishes(category) {
-                    const dishes = document.querySelectorAll('.dish-card');
-                    dishes.forEach(dish => {
-                        if (category === 'all') {
-                            dish.parentElement.style.display = 'block';
-                        } else {
-                            if (dish.getAttribute('data-category') === category) {
-                                dish.parentElement.style.display = 'block';
-                            } else {
-                                dish.parentElement.style.display = 'none';
-                            }
+                        function openDishDetail(dishId) {
+                            fetch('<%=request.getContextPath()%>/customer/dish-detail', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                                body: 'dishId=' + dishId
+                            })
+                                    .then(response => response.text())
+                                    .then(html => {
+                                        document.getElementById('dishDetailContent').innerHTML = html;
+                                        new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
+                                    })
+                                    .catch(error => console.error('Error loading dish detail:', error));
                         }
-                    });
-                }
-            });
         </script>
+
+        <!-- 💡 xử lí load category -->
+        <script>
+            function loadDishesByCategory(catId) {
+                document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+                event.target.classList.add('active');
+
+                fetch('<%= request.getContextPath()%>/customer/dish-detail', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded'
+                    },
+                    body: 'catId=' + catId
+                })
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('dish-container').innerHTML = html;
+                        })
+                        .catch(error => {
+                            console.error('Error loading dishes:', error);
+                        });
+            }
+
+        </script>      
+
         <script>
             setTimeout(function () {
                 const msg = document.getElementById("successMessage");
@@ -500,7 +585,7 @@
                         method: "POST",
                         headers: {
                             "X-Requested-With": "XMLHttpRequest" // ✅ Được phép
-                                    // KHÔNG cần Content-Type vì fetch sẽ tự thêm đúng loại cho FormData
+
                         },
                         body: formData
                     })
@@ -525,7 +610,39 @@
                 });
             });
         </script>
- <script>
+
+        <script>
+            document.addEventListener("DOMContentLoaded", () => {
+                const form = document.getElementById("dishSearchForm");
+                const input = document.getElementById("searchQuery");
+                const dishContainer = document.getElementById("dish-container");
+
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault(); // Ngăn form reload
+
+                    const query = input.value.trim();
+
+                    fetch("<%=request.getContextPath()%>/customer/search-dish", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: new URLSearchParams({
+                            searchQuery: query
+                        })
+                    })
+                            .then(response => response.text())
+                            .then(data => {
+                                dishContainer.innerHTML = data;
+                            })
+                            .catch(error => {
+                                console.error("Search error:", error);
+                            });
+                });
+            });
+        </script>
+
+        <script>
             document.addEventListener('DOMContentLoaded', () => {
                 const itemsPerPage = 15;
                 const dishes = Array.from(document.querySelectorAll(".dish-item"));
@@ -564,18 +681,53 @@
 
                 function createPagination() {
                     pageNumbers.innerHTML = "";
-                    for (let i = 1; i <= totalPages; i++) {
-                        const btn = document.createElement("button");
-                        btn.textContent = i;
-                        btn.id = `pageBtn${i}`;
-                        btn.className = "btn btn-outline-primary";
-                        btn.addEventListener("click", () => {
-                            currentPage = i;
-                            showPage(currentPage);
-                        });
-                        pageNumbers.appendChild(btn);
+
+                    const maxVisible = 5;
+                    let startPage = Math.max(currentPage - 2, 1);
+                    let endPage = Math.min(startPage + maxVisible - 1, totalPages);
+
+                    if (endPage - startPage < maxVisible - 1) {
+                        startPage = Math.max(endPage - maxVisible + 1, 1);
+                    }
+
+                    if (startPage > 1) {
+                        appendPageButton(1);
+                        if (startPage > 2) {
+                            pageNumbers.appendChild(createDots());
+                        }
+                    }
+
+                    for (let i = startPage; i <= endPage; i++) {
+                        appendPageButton(i);
+                    }
+
+                    if (endPage < totalPages) {
+                        if (endPage < totalPages - 1) {
+                            pageNumbers.appendChild(createDots());
+                        }
+                        appendPageButton(totalPages);
                     }
                 }
+
+                function appendPageButton(i) {
+                    const btn = document.createElement("button");
+                    btn.textContent = i;
+                    btn.className = (i === currentPage) ? "active" : "";
+                    btn.addEventListener("click", () => {
+                        currentPage = i;
+                        showPage(currentPage);
+                        createPagination();
+                    });
+                    pageNumbers.appendChild(btn);
+                }
+
+                function createDots() {
+                    const dots = document.createElement("span");
+                    dots.textContent = "...";
+                    dots.className = "pagination-dots";
+                    return dots;
+                }
+
 
                 prevBtn.addEventListener("click", () => {
                     if (currentPage > 1) {
@@ -595,6 +747,7 @@
                 showPage(currentPage);
             });
         </script>
+
 
     </body>
 </html>

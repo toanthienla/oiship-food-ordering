@@ -4,6 +4,7 @@
  */
 package controller.customer;
 
+
 import dao.CustomerProfileDAO;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
@@ -16,8 +17,10 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Customer;
 
+
+
 @WebServlet(name = "ViewProfileCustomerServlet", urlPatterns = {"/customer/profile"})
-public class ViewProfileCustomerServlet extends HttpServlet {
+public class ViewProfileCustomerServllet extends HttpServlet {
 
    
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
@@ -59,7 +62,7 @@ public class ViewProfileCustomerServlet extends HttpServlet {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/customer/customer_profile.jsp");
                 dispatcher.forward(request, response);
             } else {
-                request.setAttribute("error", "Customer profile not found.");
+                request.setAttribute("error", "Staff profile not found.");
                 request.getRequestDispatcher("/error.jsp").forward(request, response);
             }
 
@@ -78,11 +81,7 @@ public class ViewProfileCustomerServlet extends HttpServlet {
         processRequest(request, response);
     }
 
-    /**
-     * Returns a short description of the servlet.
-     *
-     * @return a String containing servlet description
-     */
+   
     @Override
     public String getServletInfo() {
         return "Short description";

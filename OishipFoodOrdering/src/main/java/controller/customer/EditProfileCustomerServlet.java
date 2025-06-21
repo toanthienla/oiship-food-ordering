@@ -7,6 +7,7 @@ import jakarta.servlet.http.*;
 import model.Customer;
 import java.io.IOException;
 
+
 @WebServlet(name = "EditProfileCustomerServlet", urlPatterns = {"/customer/profile/edit-profile"})
 public class EditProfileCustomerServlet extends HttpServlet {
 
@@ -43,7 +44,7 @@ public class EditProfileCustomerServlet extends HttpServlet {
             boolean success = cus.editCustomerInfoByEmail(email, newName, newPhone, newAddress);
 
             if (success) {
-                request.getSession().setAttribute("userName", newName); // Cập nhật tên trên navbar
+                request.getSession().setAttribute("userName", newName); 
                 request.setAttribute("message", "Profile updated successfully.");
             } else {
                 request.setAttribute("error", "Failed to update profile.");
