@@ -1,53 +1,38 @@
 ﻿USE Oiship;
 GO
 
--- Enable IDENTITY_INSERT for Account to manually assign accountID
-SET IDENTITY_INSERT Account ON;
-
--- Insert Admin
-INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
+-- Insert Accounts (consolidated to avoid duplicates)
+INSERT INTO [Account] (fullName, email, [password], role, createAt, status)
 VALUES 
-(1, N'Admin', 'oiship.team@gmail.com', 
- '$2a$12$idmLQWYZMvm/xdTYIq5CEO3PulVWC2U4Eivgns3pMhJ3Bsw74hQO2', 
- 'admin', 1, GETDATE());
+    (N'Admin User', N'oiship.team@gmail.com', '$2a$12$LbQahNHNjDNd3N8QsEIVee/mh4TceoYZJNQoPD1x5aPzN9Zih/pAe', N'admin', '2025-06-18 13:00:00', 1),
+    (N'Staff User 1', N'staff1@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', N'staff', '2025-06-18 15:39:00', 1),
+    (N'Staff User 2', N'staff2@example.com', '$2a$12$LbQahNHNjDNd3N8QsEIVee/mh4TceoYZJNQoPD1x5aPzN9Zih/pAe', N'staff', '2025-06-18 15:39:00', 1),
+    (N'Staff User 3', N'staff3@example.com', '$2a$12$9kL5mPx7jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde', N'staff', '2025-06-18 15:52:00', 1),
+    (N'Staff User 4', N'staff4@example.com', '$2a$12$QwErTyUiOp9kLmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO', N'staff', '2025-06-18 15:52:00', 1),
+    (N'Customer 1', N'customer1@example.com', '$2a$12$LmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLm', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 2', N'customer2@example.com', '$2a$12$Y3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 3', N'customer3@example.com', '$2a$12$5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde5j', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 4', N'customer4@example.com', '$2a$12$R1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 5', N'customer5@example.com', '$2a$12$zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 6', N'customer6@example.com', '$2a$12$8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde5jK8Q', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 7', N'customer7@example.com', '$2a$12$n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 8', N'customer8@example.com', '$2a$12$T8yZ9xLmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 9', N'customer9@example.com', '$2a$12$NoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmN', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 10', N'customer10@example.com', '$2a$12$xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2x', N'customer', '2025-06-18 15:52:00', 1);
 
--- Insert Staff
-INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
-VALUES 
-(2, N'Staff User', 'staff@example.com', 
- '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', 
- 'staff', 1, GETDATE());
-
--- Insert Customers with different status
-INSERT INTO Account (accountID, fullName, email, [password], role, status, createAt)
-VALUES 
--- Active customer
-(3, N'Customer One', 'customer1@example.com', 
- '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 
- 'customer', 1, GETDATE()),
-
--- Inactive customer
-(4, N'Customer Two', 'customer2@example.com', 
- '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 
- 'customer', 0, GETDATE()),
-
--- Banned customer
-(5, N'Customer Three', 'customer3@example.com', 
- '$2a$12$aaaaaaabbbbbbbbccccccddeeeeeeeffffffffgggggggg', 
- 'customer', -1, GETDATE());
-
--- Disable IDENTITY_INSERT now that manual insert is done
-SET IDENTITY_INSERT Account OFF;
-
--- Insert Customer details (only for 'customer' role accounts)
+-- Insert Customers (corresponding to accountID 6 to 15)
 INSERT INTO Customer (customerID, phone, address)
 VALUES 
-(3, '0909123123', N'123 Main Street, Hanoi'),
-(4, '0912345678', N'456 Le Loi, Da Nang'),
-(5, '0987654321', N'789 Nguyen Hue, HCMC');
-
--- Disable IDENTITY_INSERT for Account
-SET IDENTITY_INSERT Account OFF;
+    (6, '0901111000', N'123 Đường Láng, Hà Nội'),
+    (7, '0901111001', N'456 Nguyễn Trãi, TP.HCM'),
+    (8, '0901111002', N'789 CMT8, Đà Nẵng'),
+    (9, '0901111003', N'101 Hùng Vương, Huế'),
+    (10, '0901111004', N'202 Lê Lợi, Vinh'),
+    (11, '0901111005', N'303 Phạm Văn Đồng, Cần Thơ'),
+    (12, '0901111006', N'404 Trường Chinh, Quảng Ngãi'),
+    (13, '0901111007', N'505 Điện Biên Phủ, Hải Phòng'),
+    (14, '0901111008', N'606 Võ Thị Sáu, Biên Hòa'),
+    (15, '0901111009', N'707 Trần Hưng Đạo, Nha Trang');
 
 -- Insert Categories
 INSERT INTO Category (catName, catDescription)
@@ -66,44 +51,44 @@ VALUES
     (N'Ẩm thực quốc tế', N'Món ăn đến từ nhiều nước'),
     (N'Ăn vặt', N'Món ăn nhẹ và ăn vặt');
 
--- Insert Dishes (with NULL image)
-INSERT INTO Dish (dishName, opCost, interestPercentage, [image], dishDescription, stock, FK_Dish_Category)
+-- Insert Dishes
+INSERT INTO Dish (dishName, opCost, interestPercentage, [image], dishDescription, stock, isAvailable, FK_Dish_Category)
 VALUES 
-    (N'Cơm gà xối mỡ', 28000, 25, NULL, N'Cơm gà chiên giòn, nước mắm', 20, 1),
-    (N'Phở bò tái', 36000, 25, NULL, N'Phở truyền thống với bò tái', 30, 2),
-    (N'Bánh mì thịt nguội', 16000, 25, NULL, N'Bánh mì kẹp thịt nguội, rau sống', 25, 3),
-    (N'Trà sữa trân châu đường đen', 32000, 25, NULL, N'Trà sữa ngọt béo kèm trân châu', 40, 4),
-    (N'Cà phê sữa đá', 16000, 25, NULL, N'Cà phê pha phin với sữa đặc', 50, 5),
-    (N'Súp cua trứng bắc thảo', 24000, 25, NULL, N'Súp dinh dưỡng, vị thanh', 15, 6),
-    (N'Gà rán cay Hàn Quốc', 40000, 25, NULL, N'Gà chiên sốt cay kiểu Hàn', 20, 7),
-    (N'Lẩu thái chua cay', 120000, 25, NULL, N'Lẩu tôm mực kiểu Thái', 10, 8),
-    (N'Gỏi cuốn tôm thịt', 20000, 25, NULL, N'Gỏi cuốn với nước mắm chấm', 35, 9),
-    (N'Nước ép cam tươi', 24000, 25, NULL, N'Cam vắt nguyên chất', 30, 10),
-    (N'Bánh tart trứng', 12000, 25, NULL, N'Bánh mềm, nhân trứng sữa', 20, 11),
-    (N'Pizza xúc xích', 72000, 25, NULL, N'Món pizza Ý thơm ngon', 12, 12),
-    (N'Bánh tráng trộn', 16000, 25, NULL, N'Món ăn vặt Sài Gòn đặc trưng', 50, 13), 
-    (N'Mì xào bò', 36000, 25, NULL, N'Mì xào với thịt bò mềm và rau', 25, 2),
-    (N'Bún bò Huế', 40000, 25, NULL, N'Món bún đặc trưng miền Trung', 20, 2),
-    (N'Cơm tấm sườn bì', 36000, 25, NULL, N'Cơm tấm với sườn, bì, chả', 30, 1),
-    (N'Bánh mì chảo', 28000, 25, NULL, N'Bánh mì chảo nóng với trứng và pate', 15, 3),
-    (N'Trà sữa thái xanh', 30400, 25, NULL, N'Trà sữa vị trà thái tươi mát', 40, 4),
-    (N'Cà phê đen đá', 14400, 25, NULL, N'Cà phê truyền thống đậm đà', 50, 5),
-    (N'Súp hải sản', 32000, 25, NULL, N'Súp thơm ngon với tôm và mực', 18, 6),
-    (N'Cánh gà chiên nước mắm', 36000, 25, NULL, N'Món cánh gà chiên giòn', 22, 7),
-    (N'Lẩu nấm chay', 96000, 25, NULL, N'Lẩu nấm thanh đạm phù hợp ăn chay', 12, 8),
-    (N'Nem cuốn', 16000, 25, NULL, N'Nem cuốn tươi ngon với rau sống', 35, 9),
-    (N'Sinh tố bơ', 28000, 25, NULL, N'Sinh tố bơ sánh mịn', 25, 10),
-    (N'Bánh tiramisu', 32000, 25, NULL, N'Bánh mềm, vị cà phê ngọt dịu', 20, 11),
-    (N'Cơm chiên hải sản', 40000, 25, NULL, N'Cơm chiên tôm mực thơm ngon', 28, 1),
-    (N'Pizza hải sản', 80000, 25, NULL, N'Pizza topping tôm, mực, phô mai', 10, 12),
-    (N'Bánh tráng nướng', 20000, 25, NULL, N'Bánh tráng nướng kiểu Đà Lạt', 40, 13),
-    (N'Bánh mì que', 12000, 25, NULL, N'Món ăn nhẹ tiện lợi', 30, 3),
-    (N'Mì ý sốt bò bằm', 48000, 25, NULL, N'Món Âu đơn giản, vị béo', 20, 12),
-    (N'Nước ép dứa', 22400, 25, NULL, N'Nước ép thơm mát, giải nhiệt', 30, 10),
-    (N'Cháo sườn trứng bắc thảo', 28000, 25, NULL, N'Cháo đặc biệt cho buổi sáng', 15, 6),
-    (N'Lẩu cá chua cay', 128000, 25, NULL, N'Lẩu với cá và măng chua', 8, 8);
+    (N'Cơm gà xối mỡ', 28000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385058/dishes/cach-lam-com-ga-chien-xoi-mo-ngon-da-vang-gion-rum-dom-gian-avt-1200x676.jpg.jpg', N'Cơm gà chiên giòn, nước mắm', 20, 1, 1),
+    (N'Phở bò tái', 36000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384800/dishes/OIP.jpg.jpg', N'Phở truyền thống với bò tái', 30, 1, 2),
+    (N'Bánh mì thịt nguội', 16000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750035552/dishes/download.jpg.jpg', N'Bánh mì kẹp thịt nguội, rau sống', 25, 1, 3),
+    (N'Trà sữa trân châu đường đen', 32000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385726/dishes/R.jpg.jpg', N'Trà sữa ngọt béo kèm trân châu', 40, 1, 4),
+    (N'Cà phê sữa đá', 16000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384941/dishes/OIP%20%281%29.jpg.jpg', N'Cà phê pha phin với sữa đặc', 50, 1, 5),
+    (N'Súp cua trứng bắc thảo', 24000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384885/dishes/Sup.jpg.jpg', N'Súp dinh dưỡng, vị thanh', 15, 1, 6),
+    (N'Gà rán cay Hàn Quốc', 40000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385113/dishes/287c6cc2-836a-4106-88b1-d0325ef3e7ad.jpg.jpg', N'Gà chiên sốt cay kiểu Hàn', 20, 1, 7),
+    (N'Lẩu thái chua cay', 120000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385492/dishes/lau-thai-hai-san-thumb.jpg.jpg', N'Lẩu tôm mực kiểu Thái', 10, 1, 8),
+    (N'Gỏi cuốn tôm thịt', 20000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384997/dishes/5519_4.jpg.jpg', N'Gỏi cuốn với nước mắm chấm', 35, 1, 9),
+    (N'Nước ép cam tươi', 24000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385637/dishes/cach-lam-nuoc-ep-cam-11.jpg.jpg', N'Cam vắt nguyên chất', 30, 1, 10),
+    (N'Bánh tart trứng', 12000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384767/dishes/cach-lam-banh-tart-trung.jpeg.jpg', N'Bánh mềm, nhân trứng sữa', 20, 1, 11),
+    (N'Pizza xúc xích', 72000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385819/dishes/R%20%282%29.jpg.jpg', N'Món pizza Ý thơm ngon', 12, 1, 12),
+    (N'Bánh tráng trộn', 16000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385769/dishes/banh-trang-tron-1.jpg.jpg', N'Món ăn vặt Sài Gòn đặc trưng', 50, 1, 13),
+    (N'Mì xào bò', 36000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384825/dishes/mysaoR.jpg.jpg', N'Mì xào với thịt bò mềm và rau', 25, 1, 2),
+    (N'Bún bò Huế', 40000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384858/dishes/bun-bo-hue-bowl.jpg.jpg', N'Món bún đặc trưng miền Trung', 20, 1, 2),
+    (N'Cơm tấm sườn bì', 36000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385077/dishes/Suon-bi-op-la.png.png', N'Cơm tấm với sườn, bì, chả', 30, 1, 1),
+    (N'Bánh mì chảo', 28000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384725/dishes/cach-lam-banh-mi-chao-tai-nha-8.jpg.jpg', N'Bánh mì chảo nóng với trứng và pate', 15, 1, 3),
+    (N'Trà sữa thái xanh', 30400, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385757/dishes/R%20%281%29.jpg.jpg', N'Trà sữa vị trà thái tươi mát', 40, 1, 4),
+    (N'Cà phê đen đá', 14400, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384982/dishes/ca-phe-den-da.png.png', N'Cà phê truyền thống đậm đà', 50, 1, 5),
+    (N'Súp hải sản', 32000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384900/dishes/download%20%281%29.jpg.jpg', N'Súp thơm ngon với tôm và mực', 18, 1, 6),
+    (N'Cánh gà chiên nước mắm', 36000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385139/dishes/OIP%20%282%29.jpg.jpg', N'Món cánh gà chiên giòn', 22, 1, 7),
+    (N'Lẩu nấm chay', 96000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385534/dishes/Cach-lam-LAU-NAM-CHAY.jpg.jpg', N'Lẩu nấm thanh đạm phù hợp ăn chay', 12, 1, 8),
+    (N'Nem cuốn', 16000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385017/dishes/e5899654-cach-lam-nem-cuon.jpg.jpg', N'Nem cuốn tươi ngon với rau sống', 35, 1, 9),
+    (N'Sinh tố bơ', 28000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385654/dishes/cach-lam-sinh-to-bo-xoai.jpg.jpg', N'Sinh tố bơ sánh mịn', 25, 1, 10),
+    (N'Bánh tiramisu', 32000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384781/dishes/banh-tiramisu.jpg.jpg', N'Bánh mềm, vị cà phê ngọt dịu', 20, 1, 11),
+    (N'Cơm chiên hải sản', 40000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385101/dishes/original.jpg.jpg', N'Cơm chiên tôm mực thơm ngon', 28, 1, 1),
+    (N'Pizza hải sản', 80000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385836/dishes/DSCF5429-1536x1024.jpg.jpg', N'Pizza topping tôm, mực, phô mai', 10, 1, 12),
+    (N'Bánh tráng nướng', 20000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385806/dishes/vshjsfdghjhvc-1.jpg.jpg', N'Bánh tráng nướng kiểu Đà Lạt', 40, 1, 13),
+    (N'Bánh mì que', 12000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384753/dishes/banh-mi-que-phap_1.jpg.jpg', N'Món ăn nhẹ tiện lợi', 30, 1, 3),
+    (N'Mì ý sốt bò bằm', 48000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385857/dishes/hinh-mon-mi-y.jpg.jpg', N'Món Âu đơn giản, vị béo', 20, 1, 12),
+    (N'Nước ép dứa', 22400, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385709/dishes/nuoc-ep-dua-luoi-thom-dua-692618.jpg.jpg', N'Nước ép thơm mát, giải nhiệt', 30, 1, 10),
+    (N'Cháo sườn trứng bắc thảo', 28000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750384925/dishes/chao-trung-vit-bac-thao-2.jpg.jpg', N'Cháo đặc biệt cho buổi sáng', 15, 1, 6),
+    (N'Lẩu cá chua cay', 128000, 25, 'https://res.cloudinary.com/dw0x1mci6/image/upload/v1750385623/dishes/lau-ca-dieu-hong-chua-cay.jpg.jpg', N'Lẩu với cá và măng chua', 8, 1, 8);
 
--- Insert Ingredients (không có quantity và FK_Ingredient_Dish, thay vào đó dùng FK_Ingredient_Account)
+-- Insert Ingredients
 INSERT INTO Ingredient (name, unitCost, FK_Ingredient_Account)
 VALUES 
     (N'Gạo', 500, 1),
@@ -121,224 +106,180 @@ VALUES
     (N'Rau sống', 1000, 1),
     (N'Trà đen', 2000, 1),
     (N'Sữa đặc', 1500, 1),
-    (N'Trân châu', 1000, 1),
-    (N'Đường đen', 1200, 1),
-    (N'Cà phê', 1000, 1),
-    (N'Đá viên', 200, 1),
-    (N'Thịt cua', 12000, 1),
-    (N'Trứng bắc thảo', 7000, 1),
-    (N'Ngô non', 2000, 1),
-    (N'Bột năng', 500, 1),
-    (N'Gà miếng', 15000, 1),
+    (N'Trân châu', 3000, 1),
+    (N'Đường đen', 2000, 1),
+    (N'Đá viên', 500, 1),
+    (N'Thịt cua', 20000, 1),
+    (N'Trứng bắc thảo', 5000, 1),
+    (N'Ngô non', 1500, 1),
+    (N'Bột năng', 1000, 1),
+    (N'Gà miếng', 18000, 1),
     (N'Sốt cay Hàn', 3000, 1),
-    (N'Bột chiên giòn', 1000, 1),
-    (N'Tỏi băm', 500, 1),
-    (N'Tôm', 10000, 1),
-    (N'Mực', 12000, 1),
-    (N'Nước lẩu thái', 3000, 1),
-    (N'Rau thập cẩm', 4000, 1),
-    (N'Nấm', 4000, 1),
+    (N'Bột chiên giòn', 2000, 1),
+    (N'Tỏi băm', 1000, 1),
+    (N'Tôm', 25000, 1),
+    (N'Mực', 20000, 1),
+    (N'Nước lẩu thái', 5000, 1),
+    (N'Rau thập cẩm', 1500, 1),
+    (N'Nấm', 2000, 1),
     (N'Bánh tráng', 1000, 1),
-    (N'Tôm luộc', 8000, 1),
-    (N'Thịt luộc', 7000, 1),
-    (N'Cam tươi', 3000, 1),
-    (N'Đường', 500, 1),
-    (N'Trứng gà', 2000, 1),
-    (N'Sữa tươi', 1500, 1),
-    (N'Bột mì', 1000, 1),
-    (N'Bơ', 5000, 1),
-    (N'Bột pizza', 3000, 1),
-    (N'Xúc xích', 7000, 1),
-    (N'Phô mai', 10000, 1),
-    (N'Sốt cà', 2000, 1),
-    (N'Bánh tráng cắt sợi', 1000, 1),
-    (N'Tóp mỡ', 3000, 1),
-    (N'Trứng cút', 2000, 1),
-    (N'Xoài xanh', 1500, 1),
-    (N'Mì trứng', 1500, 1),
-    (N'Thịt bò mềm', 18000, 1),
-    (N'Rau cải', 1000, 1),
-    (N'Nước tương', 800, 1),
-    (N'Bún tươi', 1500, 1),
-    (N'Thịt bò Huế', 18000, 1),
-    (N'Chả Huế', 5000, 1),
-    (N'Nước dùng đặc biệt', 3000, 1),
-    (N'Cơm tấm', 1500, 1),
-    (N'Sườn nướng', 12000, 1),
+    (N'Tôm luộc', 30000, 1),
+    (N'Thịt luộc', 20000, 1),
+    (N'Cam tươi', 5000, 1),
+    (N'Đường', 1000, 1),
+    (N'Cà phê', 2000, 1),
+    (N'Mì trứng', 1000, 1),
+    (N'Thịt bò', 18000, 1),
+    (N'Bún', 1000, 1),
+    (N'Nước dùng heo', 3000, 1),
+    (N'Sườn heo', 15000, 1),
     (N'Bì heo', 5000, 1),
-    (N'Chả trứng', 4000, 1),
-    (N'Trứng ốp la', 2000, 1),
-    (N'Pate gan', 4000, 1),
-    (N'Trà thái xanh', 2000, 1),
-    (N'Sữa bột', 1500, 1),
-    (N'Cà phê đen', 1000, 1),
-    (N'Tôm tươi', 8000, 1),
-    (N'Nước dùng', 3000, 1),
-    (N'Cánh gà', 12000, 1),
-    (N'Nấm rơm', 4000, 1),
-    (N'Nấm kim châm', 4000, 1),
-    (N'Nước dùng chay', 2000, 1),
-    (N'Thịt heo luộc', 7000, 1),
+    (N'Chả trứng', 6000, 1),
+    (N'Trứng ốp la', 3000, 1),
+    (N'Pate', 2000, 1),
+    (N'Trà thái', 2000, 1),
+    (N'Hải sản', 25000, 1),
+    (N'Cánh gà', 15000, 1),
+    (N'Nấm chay', 2000, 1),
     (N'Bơ', 5000, 1),
-    (N'Bánh ladyfinger', 3000, 1),
-    (N'Mascarpone', 10000, 1),
-    (N'Cà phê', 1000, 1),
-    (N'Socola', 5000, 1),
-    (N'Cơm trắng', 1000, 1),
-    (N'Đế pizza', 3000, 1),
-    (N'Hành phi', 1000, 1),
-    (N'Chà bông', 3000, 1),
-    (N'Bánh mì que', 1200, 1),
-    (N'Tương ớt', 800, 1),
-    (N'Mì ý', 3000, 1),
-    (N'Thịt bò bằm', 10000, 1),
-    (N'Phô mai bào', 4000, 1),
-    (N'Dứa tươi', 3000, 1),
-    (N'Gạo tẻ', 1000, 1),
-    (N'Sườn non', 10000, 1),
-    (N'Cá', 10000, 1),
-    (N'Măng chua', 3000, 1),
-    (N'Nước dùng cá', 3000, 1),
-    (N'Rau ăn lẩu', 4000, 1);
+    (N'Phô mai', 3000, 1),
+    (N'Bột bánh tráng', 1000, 1),
+    (N'Topping Đà Lạt', 2000, 1),
+    (N'Xúc xích', 7000, 1),
+    (N'Sốt bò bằm', 5000, 1),
+    (N'Dứa', 4000, 1),
+    (N'Sườn non', 15000, 1),
+    (N'Cá', 20000, 1),
+    (N'Măng chua', 2000, 1);
 
--- Insert DishIngredient (mối quan hệ n-n giữa Dish và Ingredient)
+-- Insert DishIngredient Relationships
 INSERT INTO DishIngredient (dishID, ingredientID, quantity)
 VALUES 
-    -- Dish 1: Cơm gà xối mỡ
-    (1, 1, 0.5),  -- Gạo
-    (1, 2, 0.2),  -- Gà chiên
-    (1, 3, 0.3),  -- Nước mắm
-    (1, 4, 0.25), -- Hành phi
+    (1, 1, 0.5), (1, 2, 0.2), (1, 3, 0.03), (1, 4, 0.01),
+    (2, 5, 0.3), (2, 6, 0.15), (2, 7, 0.01), (2, 8, 0.01), (2, 9, 0.5),
+    (3, 10, 0.2), (3, 11, 0.1), (3, 12, 0.05), (3, 13, 0.05),
+    (4, 14, 0.02), (4, 15, 0.05), (4, 16, 0.1), (4, 17, 0.05), (4, 18, 0.2),
+    (5, 37, 0.02), (5, 15, 0.03), (5, 18, 0.2),
+    (6, 19, 0.05), (6, 20, 0.02), (6, 21, 0.03), (6, 22, 0.01),
+    (7, 23, 0.2), (7, 24, 0.03), (7, 25, 0.05), (7, 26, 0.01),
+    (8, 27, 0.1), (8, 28, 0.1), (8, 29, 0.3), (8, 30, 0.2), (8, 31, 0.1),
+    (9, 32, 0.02), (9, 33, 0.05), (9, 34, 0.05), (9, 13, 0.05),
+    (10, 35, 0.3), (10, 36, 0.01), (10, 18, 0.2),
+    (11, 15, 0.02), (11, 36, 0.02),
+    (12, 55, 0.1), (12, 52, 0.05),
+    (13, 32, 0.05), (13, 54, 0.03), (13, 7, 0.01),
+    (14, 38, 0.2), (14, 39, 0.1), (14, 13, 0.05), (14, 26, 0.01),
+    (15, 40, 0.3), (15, 39, 0.1), (15, 41, 0.5), (15, 7, 0.01),
+    (16, 1, 0.3), (16, 42, 0.1), (16, 43, 0.03), (16, 44, 0.03),
+    (17, 10, 0.2), (17, 45, 0.02), (17, 46, 0.03), (17, 12, 0.05),
+    (18, 47, 0.02), (18, 15, 0.05), (18, 16, 0.1), (18, 17, 0.05), (18, 18, 0.2),
+    (19, 37, 0.02), (19, 18, 0.2), (19, 36, 0.01),
+    (20, 48, 0.1), (20, 22, 0.01), (20, 30, 0.05),
+    (21, 49, 0.2), (21, 3, 0.03), (21, 25, 0.05),
+    (22, 50, 0.2), (22, 30, 0.2), (22, 31, 0.1),
+    (23, 32, 0.02), (23, 33, 0.05), (23, 13, 0.05),
+    (24, 51, 0.2), (24, 15, 0.03), (24, 18, 0.2),
+    (25, 37, 0.01), (25, 15, 0.02), (25, 36, 0.02),
+    (26, 1, 0.3), (26, 48, 0.1), (26, 7, 0.01),
+    (27, 27, 0.05), (27, 28, 0.05), (27, 52, 0.1),
+    (28, 53, 0.02), (28, 54, 0.03), (28, 7, 0.01),
+    (29, 10, 0.1), (29, 55, 0.05), (29, 46, 0.03),
+    (30, 38, 0.2), (30, 56, 0.06), (30, 52, 0.03),
+    (31, 57, 0.3), (31, 36, 0.01), (31, 18, 0.2),
+    (32, 58, 0.1), (32, 20, 0.02), (32, 1, 0.1),
+    (33, 59, 0.2), (33, 60, 0.1), (33, 30, 0.2);
 
-    -- Dish 2: Phở bò tái
-    (2, 5, 0.5),  -- Bánh phở
-    (2, 6, 0.25), -- Thịt bò tái
-    (2, 7, 0.3),  -- Hành lá
-    (2, 8, 0.1),  -- Gừng
-    (2, 9, 0.4),  -- Nước dùng bò
-
-    -- Dish 3: Bánh mì thịt nguội
-    (3, 10, 0.5), -- Bánh mì
-    (3, 11, 0.3), -- Thịt nguội
-    (3, 12, 0.2), -- Dưa leo
-    (3, 13, 0.2), -- Rau sống
-
-    -- Dish 4: Trà sữa trân châu đường đen
-    (4, 14, 0.3), -- Trà đen
-    (4, 15, 0.25), -- Sữa đặc
-    (4, 16, 0.4),  -- Trân châu
-    (4, 17, 0.3),  -- Đường đen
-
-    -- Dish 5: Cà phê sữa đá
-    (5, 18, 0.5), -- Cà phê
-    (5, 15, 0.4), -- Sữa đặc
-    (5, 19, 0.6), -- Đá viên
-
-    -- Dish 6: Súp cua trứng bắc thảo
-    (6, 20, 0.2), -- Thịt cua
-    (6, 21, 0.15), -- Trứng bắc thảo
-    (6, 22, 0.2),  -- Ngô non
-    (6, 23, 0.1),  -- Bột năng
-
-    -- Dish 7: Gà rán cay Hàn Quốc
-    (7, 24, 0.25), -- Gà miếng
-    (7, 25, 0.15), -- Sốt cay Hàn
-    (7, 26, 0.2),  -- Bột chiên giòn
-    (7, 27, 0.2),  -- Tỏi băm
-
-    -- Dish 8: Lẩu thái chua cay
-    (8, 28, 0.1),  -- Tôm
-    (8, 29, 0.1),  -- Mực
-    (8, 30, 0.2),  -- Nước lẩu thái
-    (8, 31, 0.3),  -- Rau thập cẩm
-    (8, 32, 0.2),  -- Nấm
-
-    -- Dish 9: Gỏi cuốn tôm thịt
-    (9, 33, 0.3),  -- Bánh tráng
-    (9, 34, 0.2),  -- Tôm luộc
-    (9, 35, 0.2),  -- Thịt luộc
-    (9, 13, 0.25), -- Rau sống
-
-    -- Dish 10: Nước ép cam tươi
-    (10, 36, 0.4), -- Cam tươi
-    (10, 37, 0.2), -- Đường
-    (10, 19, 0.2), -- Đá viên
-
-    -- (Tiếp tục cho các dish khác, ví dụ)
-    (11, 38, 0.3), -- Trứng gà
-    (11, 39, 0.2), -- Sữa tươi
-    (11, 40, 0.25), -- Bột mì
-    (11, 41, 0.15), -- Bơ
-
-    (12, 42, 0.2), -- Bột pizza
-    (12, 43, 0.2), -- Xúc xích
-    (12, 44, 0.15), -- Phô mai
-    (12, 45, 0.2),  -- Sốt cà
-
-    (13, 46, 0.3), -- Bánh tráng cắt sợi
-    (13, 47, 0.2), -- Tóp mỡ
-    (13, 48, 0.25), -- Trứng cút
-    (13, 49, 0.2),  -- Xoài xanh
-
-    -- (Thêm các dish còn lại tương tự, chỉ liệt kê một phần để minh họa)
-    (14, 50, 0.3), -- Mì trứng
-    (14, 51, 0.2), -- Thịt bò mềm
-    (14, 52, 0.25), -- Rau cải
-    (14, 53, 0.2),  -- Nước tương
-
-    (15, 54, 0.3), -- Bún tươi
-    (15, 55, 0.25), -- Thịt bò Huế
-    (15, 56, 0.2),  -- Chả Huế
-    (15, 57, 0.25), -- Nước dùng đặc biệt
-
-    -- (Tiếp tục cho các dish từ 16 đến 33 tương tự, bạn có thể bổ sung đầy đủ)
-    -- Ví dụ Dish 16
-    (16, 58, 0.4), -- Cơm tấm
-    (16, 59, 0.25), -- Sườn nướng
-    (16, 60, 0.2),  -- Bì heo
-    (16, 61, 0.2);  -- Chả trứng
-
--- Insert Vouchers (without FK_Voucher_Account, sẽ thêm sau nếu cần)
-INSERT INTO Voucher (code, voucherDescription, discountType, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, active)
+-- Insert Vouchers
+INSERT INTO Voucher (code, voucherDescription, discountType, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, usedCount, active, FK_Voucher_Account)
 VALUES 
-    ('SELLER10', N'Giảm 10% cho đơn từ 100k', '%', 10.0, 30000, 100000, GETDATE(), DATEADD(DAY, 30, GETDATE()), 100, 1),
-    ('SELLER20K', N'Giảm 20K cho đơn từ 150k', 'VND', 20000, 20000, 150000, GETDATE(), DATEADD(DAY, 30, GETDATE()), 50, 1),
-    ('FREESHIP', N'Miễn phí ship cho đơn từ 80k', 'VND', 15000, 15000, 80000, GETDATE(), DATEADD(DAY, 15, GETDATE()), 200, 1),
-    ('COMBO50', N'Giảm 50K cho đơn combo từ 250k', 'VND', 50000, 50000, 250000, GETDATE(), DATEADD(DAY, 20, GETDATE()), 30, 1),
-    ('THAI15', N'Giảm 15% cho món Thái', '%', 15.0, 40000, 120000, GETDATE(), DATEADD(DAY, 25, GETDATE()), 70, 1),
-    ('COFFEELOVER', N'Giảm 25K cho đơn cà phê từ 100k', 'VND', 25000, 25000, 100000, GETDATE(), DATEADD(DAY, 10, GETDATE()), 80, 1),
-    ('NOODLE10', N'Giảm 10% cho các món mì - đơn từ 90k', '%', 10.0, 20000, 90000, GETDATE(), DATEADD(DAY, 20, GETDATE()), 60, 1),
-    ('OISHIPWEEKEND', N'Cuối tuần rộn ràng - giảm 30K đơn từ 200k', 'VND', 30000, 30000, 200000, GETDATE(), DATEADD(DAY, 5, GETDATE()), 40, 1),
-    ('LUNCHDEAL', N'Ưu đãi bữa trưa - giảm 20K đơn từ 120k', 'VND', 20000, 20000, 120000, GETDATE(), DATEADD(DAY, 14, GETDATE()), 100, 1),
-    ('NEWUSER', N'Dành cho khách mới - giảm 15% tối đa 50K', '%', 15.0, 50000, 0, GETDATE(), DATEADD(DAY, 30, GETDATE()), 150, 1);
+    ('SELLER10', N'Giảm 10% cho đơn từ 100k', '%', 10.0, 30000, 100000, '2025-06-18', '2025-07-18', 100, 0, 1, 1),
+    ('SELLER20K', N'Giảm 20K cho đơn từ 150k', 'VND', 20000, 20000, 150000, '2025-06-18', '2025-07-18', 50, 0, 1, 2),
+    ('FREESHIP', N'Miễn phí ship cho đơn từ 80k', 'VND', 15000, 15000, 80000, '2025-06-18', '2025-07-03', 200, 0, 1, 3),
+    ('COMBO50', N'Giảm 50K cho đơn combo từ 250k', 'VND', 50000, 50000, 250000, '2025-06-18', '2025-07-08', 30, 0, 1, 4),
+    ('THAI15', N'Giảm 15% cho món Thái', '%', 15.0, 40000, 120000, '2025-06-18', '2025-07-13', 70, 0, 1, 5),
+    ('COFFEELOVER', N'Giảm 25K cho đơn cà phê từ 100k', 'VND', 25000, 25000, 100000, '2025-06-18', '2025-06-28', 80, 0, 1, 1);
+
+-- Insert Orders
+INSERT INTO [Order] (amount, orderStatus, paymentStatus, orderCreatedAt, orderUpdatedAt, FK_Order_Voucher, FK_Order_Customer)
+VALUES 
+    (70000, 0, 0, '2025-06-14 10:00:00', '2025-06-14 10:00:00', 1, 6),
+    (90000, 1, 1, '2025-06-13 12:30:00', '2025-06-13 13:00:00', NULL, 6),
+    (150000, 3, 1, '2025-06-12 15:45:00', '2025-06-12 16:30:00', 3, 7),
+    (200000, 4, 1, '2025-06-11 09:15:00', '2025-06-11 11:00:00', 4, 7),
+    (60000, 5, 2, '2025-06-10 14:20:00', '2025-06-10 15:00:00', NULL, 8),
+    (80000, 2, 1, '2025-06-14 11:30:00', '2025-06-14 12:00:00', 5, 6),
+    (60000, 6, 0, '2025-06-13 09:00:00', '2025-06-13 09:30:00', NULL, 8),
+    (100000, 1, 1, '2025-06-12 13:15:00', '2025-06-12 13:45:00', 2, 7),
+    (90000, 4, 1, '2025-06-11 16:00:00', '2025-06-11 17:30:00', NULL, 6),
+    (100000, 3, 1, '2025-06-10 18:00:00', '2025-06-10 19:00:00', 6, 8);
+
+-- Insert OrderDetails
+INSERT INTO OrderDetail (quantity, FK_OD_Order, FK_OD_Dish)
+VALUES 
+    (2, 1, 1),
+    (2, 2, 2),
+    (1, 3, 8),
+    (2, 4, 12),
+    (3, 5, 13),
+    (2, 6, 4),
+    (3, 7, 3),
+    (4, 8, 9),
+    (3, 9, 10),
+    (2, 10, 7);
+
+-- Insert Additional OrderDetails for OrderID = 1
+INSERT INTO OrderDetail (quantity, FK_OD_Order, FK_OD_Dish)
+VALUES
+    (2, 1, 1),
+    (1, 1, 2),
+    (3, 1, 4),
+    (1, 1, 7),
+    (2, 1, 9);
+
+-- Insert Reviews
+INSERT INTO Review (rating, comment, reviewCreatedAt, FK_Review_OrderDetail, FK_Review_Customer)
+VALUES 
+    (5, N'Rất ngon, giao hàng nhanh!', GETDATE(), 3, 6),
+    (4, N'Vị ổn nhưng hơi nguội.', GETDATE(), 4, 7),
+    (3, N'Tạm ổn, không quá đặc sắc.', GETDATE(), 5, 6),
+    (2, N'Món ăn không giống hình.', GETDATE(), 6, 7),
+    (5, N'Tuyệt vời, sẽ đặt lại lần nữa!', GETDATE(), 7, 6);
 
 -- Insert Notifications
 INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
 VALUES 
-('System Maintenance', 'The system will be down for maintenance from 10 PM to 12 AM.', 1),
-('New Feature Released', 'We have added a new dashboard analytics tool. Check it out!', 1),
-('Voucher Update', 'A new voucher worth 50K VND has been added to your account.', 1),
-('Holiday Announcement', 'We will be closed for Tet holiday from Feb 8 to Feb 14.', 1),
-('Security Reminder', 'Please update your password every 90 days to keep your account secure.', 1);
+('System Maintenance', 'The system will be down for maintenance from 10 PM to 12 AM.', 6),
+('New Feature Released', 'We have added a new dashboard analytics tool. Check it out!', 7),
+('Voucher Update', 'A new voucher worth 50K VND has been added to your account.', 8),
+('Holiday Announcement', 'We will be closed for Tet holiday from Feb 8 to Feb 14.', 9),
+('Security Reminder', 'Please update your password every 90 days to keep your account secure.', 10);
 
 -- Insert Contact Requests
 INSERT INTO Contact ([subject], [message], FK_Contact_Customer)
 VALUES
-(N'Late Delivery', N'My order arrived 30 minutes late. Please improve delivery times.', 3),
-(N'Wrong Order', N'I received the wrong dish. I ordered chicken but got beef.', 4),
-(N'Service Feedback', N'The delivery person was very polite and helpful. Good job!', 5),
-(N'App Bug', N'The app crashes when I try to view my order history.', 3),
-(N'Suggestion', N'Can you add more vegan options to the menu?', 4);
+(N'Late Delivery', N'My order arrived 30 minutes late. Please improve delivery times.', 6),
+(N'Wrong Order', N'I received the wrong dish. I ordered chicken but got beef.', 7),
+(N'Service Feedback', N'The delivery person was very polite and helpful. Good job!', 8),
+(N'App Bug', N'The app crashes when I try to view my order history.', 9),
+(N'Suggestion', N'Can you add more vegan options to the menu?', 10);
 
--- Optional: Verify data
-SELECT accountID, fullName, email, [password], role, createAt
-FROM [Account]
-WHERE role IN ('admin', 'staff');
+-- Verification Queries
+SELECT accountID, fullName, email, [password], role, status, createAt
+FROM Account
+WHERE role = 'admin';
+
+SELECT accountID, fullName, email, status, role, createAt
+FROM Account
+WHERE role = 'customer';
+
+SELECT accountID, fullName, email, status, role, createAt
+FROM Account
+WHERE role = 'staff';
 
 SELECT catID, catName, catDescription
 FROM Category;
 
-SELECT dishID, dishName, opCost, interestPercentage, dishDescription, stock, FK_Dish_Category
+SELECT dishID, dishName, opCost, interestPercentage, [image], dishDescription, stock, isAvailable, FK_Dish_Category
 FROM Dish;
 
 SELECT ingredientID, name, unitCost, FK_Ingredient_Account
@@ -347,5 +288,10 @@ FROM Ingredient;
 SELECT dishID, ingredientID, quantity
 FROM DishIngredient;
 
-SELECT voucherID, code, voucherDescription, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, active
+SELECT voucherID, code, voucherDescription, discountType, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, usedCount, active, FK_Voucher_Account
 FROM Voucher;
+
+SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, 
+       c.phone, c.address 
+FROM Account a 
+LEFT JOIN Customer c ON a.accountID = c.customerID;

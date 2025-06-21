@@ -71,7 +71,7 @@ public class LoginServlet extends HttpServlet {
         if (user instanceof Customer) {
             role = "customer";
             userId = ((Customer) user).getCustomerID();
-            accountInfo = accountDAO.findById(userId);
+            accountInfo = accountDAO.getAccountById(userId);
         } else if (user instanceof Staff) {
             role = ((Staff) user).getRole();
             userId = ((Staff) user).getAccountID();

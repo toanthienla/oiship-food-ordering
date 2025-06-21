@@ -20,7 +20,8 @@ public class AdminTestPassword {
             System.out.println("✅ Database Connected! Time: " + new java.util.Date());
 
             // Test admin account password
-            testAccountPassword(conn, "oiship.team@gmail.com", "admin", "Admin");
+            //testAccountPassword(conn, "oiship.team@gmail.com", "admin", "Admin");
+            testAccountPassword(conn, "staff@example.com", "123", "Staff");
 
         } catch (ClassNotFoundException e) {
             Util.logError("Failed to load SQL Server JDBC driver: " + e.getMessage());

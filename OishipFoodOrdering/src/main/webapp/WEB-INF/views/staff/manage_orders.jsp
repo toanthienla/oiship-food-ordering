@@ -8,16 +8,16 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Staff - Manage Orders</title>
 
-        <!-- Bootstrap 5 CSS & JS -->
-        <link rel="stylesheet" href="../css/bootstrap.css" />
-        <script src="../js/bootstrap.bundle.js"></script>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-        <!--CSS for Sidebar-->
-        <link rel="stylesheet" href="../css/sidebar.css" />
 
-        <!--JS for Sidebar-->
-        <script src="../js/sidebar.js"></script>
 
+        <!-- Sidebar CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
+
+        <!-- Sidebar JS -->
+        <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
@@ -155,18 +155,22 @@
             <div class="content mt-5">
                 <h2 class="mb-4 text-center">Manage Orders</h2>
 
-                <!-- Search and Filter -->
-                <div class="row mb-4">
-                    <div class="col-md-6">
+
+                <!-- Search + Filter + Create Order -->
+                <div class="row mb-4 align-items-end">
+                    <!-- Search -->
+                    <div class="col-md-5">
                         <div class="d-flex align-items-center">
-                            <label class="me-2 fw-semibold mb-0">Search Customer:</label>
-                            <input type="text" id="customerSearch" class="form-control w-auto" placeholder="Enter customer name..." />
+                            <label class="me-2 fw-semibold mb-0 flex-shrink-0">Search Customer:</label>
+                            <input type="text" id="customerSearch" class="form-control" placeholder="Enter customer name..." />
                         </div>
                     </div>
-                    <div class="col-md-6 mt-3 mt-md-0">
-                        <div class="d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
-                            <label class="me-2 fw-semibold mb-0">Filter by Status:</label>
-                            <select id="statusFilter" class="form-select w-auto">
+
+                    <!-- Filter -->
+                    <div class="col-md-5 mt-3 mt-md-0">
+                        <div class="d-flex align-items-center">
+                            <label class="me-2 fw-semibold mb-0 flex-shrink-0">Filter by Status:</label>
+                            <select id="statusFilter" class="form-select">
                                 <option value="all">All</option>
                                 <option value="0">Pending</option>
                                 <option value="1">Confirmed</option>
@@ -178,7 +182,15 @@
                             </select>
                         </div>
                     </div>
+
+                    <!-- Create Order -->
+                    <div class="col-md-2 mt-3 mt-md-0 text-md-end">
+                        <a href="${pageContext.request.contextPath}/staff/manage-orders/create-order" class="btn btn-success w-100">
+                            <i class="bi bi-plus-circle"></i> Create
+                        </a>
+                    </div>
                 </div>
+
 
                 <!-- Orders Table -->
                 <div class="table-responsive">

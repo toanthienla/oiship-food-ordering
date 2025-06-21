@@ -200,7 +200,7 @@
                                 
                                 <tr data-category="${r.catName}">
                                     <td class="fw-bold">${r.reviewID}</td>
-                                    <td>#${r.orderId}</td>
+                                    <td>${r.orderId}</td>
                                     <td>${r.dishName}</td>
                                     <td>${r.catName}</td>
                                     <td>${r.customerName}</td>
