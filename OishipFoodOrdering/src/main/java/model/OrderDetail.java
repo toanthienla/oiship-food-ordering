@@ -2,7 +2,8 @@ package model;
 
 import java.util.Date;
 
-public class OrderDetail{
+public class OrderDetail {
+
     private int ODID; //Order Detail id
     private int quantity;
     private Dish dish;
@@ -12,6 +13,7 @@ public class OrderDetail{
     private String customerName;
     private Date createAt;
     private String dishDescription;
+    private Order order;
 
     public OrderDetail() {
     }
@@ -93,6 +95,13 @@ public class OrderDetail{
     public void setDishDescription(String dishDescription) {
         this.dishDescription = dishDescription;
     }
-    
-    
+
+// Getter Setter cho order
+public Order getOrder() {
+    return order;
+}
+
+public void setOrder(Order order) {
+    this.order = order;
+}
 }

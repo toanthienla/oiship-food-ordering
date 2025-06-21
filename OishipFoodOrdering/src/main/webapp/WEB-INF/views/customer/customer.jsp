@@ -34,7 +34,8 @@
                 transition: all 0.3s ease;
             }
 
-            .menu-btn:hover, .menu-btn.active {
+            .menu-btn:hover,
+            .menu-btn.active {
                 background-color: #ff6200 !important;
                 color: #fff !important;
                 box-shadow: 0 4px 15px rgba(255, 98, 0, 0.5);
@@ -56,7 +57,8 @@
                 text-decoration: none;
             }
 
-            .sidebar a:hover, .sidebar .active {
+            .sidebar a:hover,
+            .sidebar .active {
                 background-color: #ff6200;
                 color: #fff !important;
             }
@@ -64,10 +66,6 @@
             .main-content {
                 margin-left: 250px;
                 padding: 20px;
-            }
-
-            .search-bar {
-                margin-bottom: 20px;
             }
 
             .hero-section {
@@ -105,11 +103,6 @@
                 margin-bottom: 1rem;
             }
 
-            .hero-section p {
-                font-size: 1.2rem;
-                margin-bottom: 1.5rem;
-            }
-
             .btn-custom {
                 background-color: #ff6200;
                 color: #fff;
@@ -122,67 +115,9 @@
                 background-color: #e65c00;
             }
 
-            .btn-outline-custom {
-                border-color: #fff;
-                color: #fff;
-                padding: 10px 20px;
-            }
-
-            .btn-outline-custom:hover {
-                background-color: #fff;
-                color: #ff6200;
-            }
-
-            .notification-bell {
-                position: relative;
-            }
-
-            .notification-bell .badge {
-                position: absolute;
-                top: -5px;
-                right: -10px;
-                background-color: #ff6200;
-            }
-
-            .user-account {
-                display: flex;
-                align-items: center;
-                padding: 5px 10px;
-                border-radius: 20px;
-                transition: background 0.3s ease;
-            }
-
-            .user-account:hover {
-                background-color: #f1f1f1;
-            }
-
-            .user-account i {
-                font-size: 1.2rem;
-                color: #ff6200;
-                margin-right: 8px;
-            }
-
-            .welcome-text {
-                font-weight: 500;
-                color: #333;
-            }
-
-            .welcome-text span {
-                color: #ff6200;
-                font-weight: 600;
-            }
-
-            .dropdown-menu {
-                border-radius: 10px;
-                box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            }
-
-            .dropdown-item:hover {
-                background-color: #ff6200;
-                color: #fff;
-            }
-
-            .menu-section, .dish-section, .contact-section {
+            .menu-section,
+            .dish-section,
+            .contact-section {
                 background-color: #fff;
                 padding: 20px;
                 border-radius: 10px;
@@ -207,29 +142,6 @@
                 width: 100%;
             }
 
-            .contact-form .form-control {
-                margin-bottom: 1rem;
-            }
-
-            @media (max-width: 768px) {
-                .sidebar {
-                    width: 100%;
-                    height: auto;
-                    position: relative;
-                }
-                .main-content {
-                    margin-left: 0;
-                }
-                .hero-section {
-                    height: 300px;
-                }
-                .hero-section h1 {
-                    font-size: 1.8rem;
-                }
-                .dish-card img {
-                    height: 150px;
-                }
-            }
             .alert {
                 position: fixed;
                 top: 20px;
@@ -238,9 +150,7 @@
                 min-width: 250px;
             }
 
-        </style>
-        <%-- phân trang --%>
-        <style>
+            /* --- PHÂN TRANG --- */
             .pagination-container {
                 display: flex;
                 justify-content: center;
@@ -254,9 +164,9 @@
                 background-color: transparent;
                 border: none;
                 color: #666;
-                font-size: 1.25rem;      /* Tăng cỡ chữ */
-                padding: 10px 18px;       /* Tăng khoảng cách trong nút */
-                border-radius: 8px;       /* Bo tròn nút nhiều hơn */
+                font-size: 1.25rem;
+                padding: 10px 18px;
+                border-radius: 8px;
                 cursor: pointer;
                 transition: all 0.3s ease;
             }
@@ -264,14 +174,14 @@
             .pagination-container button:hover {
                 background-color: #f0f0f0;
                 font-weight: bold;
-                transform: scale(1.05);   /* Phóng nhẹ khi hover */
+                transform: scale(1.05);
             }
 
             .pagination-container button.active {
-                background-color: #d6692a;  /* màu giống nút "Add Cart" */
+                background-color: #d6692a;
                 color: #fff;
                 font-weight: bold;
-                box-shadow: 0 0 8px rgba(214, 105, 42, 0.4); /* hiệu ứng bóng */
+                box-shadow: 0 0 8px rgba(214, 105, 42, 0.4);
             }
 
             .pagination-container button:disabled {
@@ -286,28 +196,7 @@
                 color: #888;
             }
 
-            .pagination-container button:hover {
-                background-color: #f2dfd3; /* nhẹ hơn 1 chút để tương phản */
-            }
-
-            .pagination-container button.active {
-                background-color: #d85c38;
-                color: #fff;
-            }
-
-            .pagination-container button:disabled {
-                color: #aaa;
-                cursor: default;
-            }
-
-            .pagination-dots {
-                padding: 6px 12px;
-                color: #888;
-            }
-
-        </style>
-        <%-- style category --%>
-        <style>
+            /* --- CATEGORY STYLE --- */
             .menu-section .btn {
                 border-radius: 20px;
                 padding: 8px 20px;
@@ -331,7 +220,102 @@
                 -ms-overflow-style: none;
                 scrollbar-width: none;
             }
+
+
+            @media (max-width: 768px) {
+                .sidebar {
+                    width: 100%;
+                    height: auto;
+                    position: relative;
+                }
+
+                .main-content {
+                    margin-left: 0;
+                }
+
+                .hero-section {
+                    height: 300px;
+                }
+
+                .hero-section h1 {
+                    font-size: 1.8rem;
+                }
+
+                .dish-card img {
+                    height: 150px;
+                }
+            }
+            .user-account {
+                display: flex;
+                align-items: center;
+                gap: 8px; /* ✅ tạo khoảng cách giữa icon và dòng chữ */
+                color: #333;
+            }
+
+            .user-account i {
+                font-size: 1.2rem;
+                color: #ff6200;
+            }
+
+            .welcome-text {
+                white-space: nowrap;
+                font-weight: 500;
+                color: #333;
+            }
+            /* Container chung của dropdown */
+            .dropdown .dropdown-toggle {
+                color: #ff6200;
+                font-weight: 500;
+                padding: 8px 12px;
+                border-radius: 8px;
+                transition: all 0.3s ease;
+            }
+
+            /* Hover lên nút dropdown */
+            .dropdown .dropdown-toggle:hover {
+                background-color: #fff0e5;
+                color: #e65c00;
+                box-shadow: 0 2px 8px rgba(255, 98, 0, 0.3);
+            }
+
+            /* Icon hình người */
+            .user-account i {
+                color: #ff6200;
+                font-size: 1.2rem;
+            }
+
+            /* Dòng Welcome */
+            .welcome-text {
+                font-weight: 500;
+                color: #333;
+                white-space: nowrap;
+            }
+
+            /* Giao diện menu xổ xuống */
+            .dropdown-menu {
+                border-radius: 10px;
+                border: none;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+                padding: 8px 0;
+            }
+
+            /* Mỗi item trong dropdown */
+            .dropdown-menu .dropdown-item {
+                padding: 10px 20px;
+                color: #333;
+                transition: all 0.2s ease;
+            }
+
+            /* Hover item */
+            .dropdown-menu .dropdown-item:hover {
+                background-color: #ffe6d5;
+                color: #ff6200;
+                font-weight: 500;
+            }
+
         </style>
+
+
     </head>
     <body>
         <div class="sidebar">
@@ -426,20 +410,12 @@
                 <jsp:include page="dish_category.jsp" />
             </div>
 
-            <%
-                String message = (String) session.getAttribute("message");
-                if (message != null) {
-            %>
-            <div id="successMessage" class="alert alert-success alert-dismissible fade show" role="alert">
-                <%= message%>
-                <button type="button" class="btn-close" onclick="document.getElementById('successMessage').style.display = 'none';"></button>
+            <!-- Pagination Controls -->
+            <div class="pagination-container">
+                <button id="prevPageBtn" class="page-btn rounded">&laquo;</button>
+                <div id="pageNumbers" class="d-flex gap-2"></div>
+                <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
             </div>
-            <%
-                    session.removeAttribute("message"); // Xoá sau khi hiển thị để không bị lặp
-                }
-            %>
-
-
 
             <!-- Location Map Section -->
             <div id="location" class="menu-section mt-4">
@@ -565,51 +541,9 @@
 
         </script>      
 
-        <script>
-            setTimeout(function () {
-                const msg = document.getElementById("successMessage");
-                if (msg)
-                    msg.style.display = "none";
-            }, 3000);
-        </script>
 
-        <script>
-            document.querySelectorAll(".add-to-cart-btn").forEach(button => {
-                button.addEventListener("click", function () {
-                    const dishId = this.getAttribute("data-dishid");
-                    const formData = new FormData();
-                    formData.append("dishId", dishId);
-                    formData.append("quantity", "1");
-
-                    fetch("<%=request.getContextPath()%>/customer/add-cart", {
-                        method: "POST",
-                        headers: {
-                            "X-Requested-With": "XMLHttpRequest" // ✅ Được phép
-
-                        },
-                        body: formData
-                    })
-                            .then(res => res.json())
-                            .then(data => {
-                                if (data.success) {
-                                    // ✅ Cập nhật số lượng hiển thị (nếu có)
-                                    if (document.getElementById("cart-count")) {
-                                        document.getElementById("cart-count").textContent = data.cartCount;
-                                    }
-                                    alert(data.message);
-                                } else if (data.redirect) {
-                                    window.location.href = data.redirect;
-                                } else {
-                                    alert(data.message);
-                                }
-                            })
-                            .catch(err => {
-                                alert("Lỗi khi thêm vào giỏ hàng.");
-                                console.error(err);
-                            });
-                });
-            });
-        </script>
+      
+        
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -747,6 +681,8 @@
                 showPage(currentPage);
             });
         </script>
+
+       
 
 
     </body>
