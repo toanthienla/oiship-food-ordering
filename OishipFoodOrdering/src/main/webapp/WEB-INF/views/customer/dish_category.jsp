@@ -61,12 +61,7 @@
                         </div>
                     </button>
 
-                    <!-- Add Cart -->
-                    <form method="post" action="${pageContext.request.contextPath}/customer/add-cart">
-                        <input type="hidden" name="dishID" value="<%= menuItem.getDishID()%>" />
-                        <input type="hidden" name="quantity" value="1" />
-                        <button type="submit" class="btn btn-custom w-100 mt-1">Add Cart</button>
-                    </form>
+                   
                 </div>
                 <% }
         } else { %>

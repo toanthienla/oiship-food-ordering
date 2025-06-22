@@ -100,14 +100,7 @@ public void updateQuantity(int cartID, int quantity) {
             ps.executeUpdate();
         }
     }
-//    // Xóa toàn bộ giỏ hàng của một customer
-//    public void deleteCartByCustomerId(int customerId) throws SQLException {
-//        String sql = "DELETE FROM Cart WHERE FK_Cart_Customer = ?";
-//        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//            ps.setInt(1, customerId);
-//            ps.executeUpdate();
-//        }
-//    }
+
     // Kiểm tra xem một món đã có trong giỏ hàng chưa
     public Cart getCartItem(int customerId, int dishId) throws SQLException {
         String sql = "SELECT * FROM Cart WHERE FK_Cart_Customer = ? AND FK_Cart_Dish = ?";

@@ -329,7 +329,7 @@
                 Cart
                 <span id="cart-count" class="badge bg-danger ms-1">0</span>
             </a>
-            <a href="#"><i class="fas fa-list me-2"></i> Order</a>           
+        <a href="customer/order"><i class="fas fa-list me-2"></i> Order</a>  
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
 
         </div>
@@ -542,8 +542,8 @@
         </script>      
 
 
-      
-        
+
+
 
         <script>
             document.addEventListener("DOMContentLoaded", () => {
@@ -682,7 +682,7 @@
             });
         </script>
 
-       
+
 
 
     </body>
