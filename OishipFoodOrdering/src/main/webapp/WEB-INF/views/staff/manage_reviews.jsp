@@ -166,17 +166,7 @@
                             <input type="text" id="dishSearch" class="form-control w-auto" placeholder="Enter dish name..." />
                         </div>
                     </div>
-                    <div class="col-md-6 mt-3 mt-md-0">
-                        <div class="d-flex align-items-center justify-content-md-end mt-2 mt-md-0">
-                            <label class="me-2 fw-semibold mb-0">Filter by Category:</label>
-                            <select id="categoryFilter" class="form-select w-auto">
-                                <option value="all">All</option> 
-                                <c:forEach var="cat" items="${categories}">
-                                    <option value="${cat.catName}">${cat.catName}</option>
-                                </c:forEach>
-                            </select>
-                        </div>
-                    </div>
+
                 </div>
 
                 <!-- Reviews Table -->

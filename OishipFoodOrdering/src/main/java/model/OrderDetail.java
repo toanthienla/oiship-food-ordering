@@ -13,8 +13,11 @@ public class OrderDetail {
     private String customerName;
     private Date createAt;
     private String dishDescription;
+
+    private String dishImage;
+
     private Order order;
-    
+
 
     public OrderDetail() {
     }
@@ -97,6 +100,17 @@ public class OrderDetail {
         this.dishDescription = dishDescription;
     }
 
+
+    public String getDishImage() {
+        return dishImage;
+    }
+
+    public void setDishImage(String dishImage) {
+        this.dishImage = dishImage;
+    }
+    
+    
+
 // Getter Setter cho order
 public Order getOrder() {
     return order;
@@ -105,4 +119,5 @@ public Order getOrder() {
 public void setOrder(Order order) {
     this.order = order;
 }
+
 }

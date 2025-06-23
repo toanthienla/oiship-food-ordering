@@ -62,7 +62,7 @@ public class OrderDAO extends DBContext {
 
         String sql = "SELECT od.ODID, od.quantity, "
                 + "d.DishID, d.DishName, d.DishDescription, "
-                + "o.orderStatus, o.orderCreatedAt, "
+                + "o.orderStatus, o.orderCreatedAt, d.image, "
                 + "c.customerID, a.fullName AS customerName "
                 + "FROM OrderDetail od "
                 + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
@@ -82,7 +82,8 @@ public class OrderDAO extends DBContext {
                     detail.setDishDescription(rs.getString("DishDescription"));
                     detail.setOrderStatus(rs.getInt("orderStatus"));
                     detail.setCreateAt(rs.getTimestamp("orderCreatedAt"));
-                    detail.setCustomerName(rs.getString("customerName"));
+                    detail.setDishImage(rs.getString("image"));
+                    detail.setCustomerName(rs.getString("customerName"));              
                     detail.setOrderId(orderID);
                     list.add(detail);
                 }
