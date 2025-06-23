@@ -15,11 +15,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
 import model.Voucher;
 
-
 @WebServlet(name = "ViewVoucherServlet", urlPatterns = {"/customer/view-vouchers-list"})
 public class ViewVoucherServlet extends HttpServlet {
 
-   
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -46,13 +44,13 @@ public class ViewVoucherServlet extends HttpServlet {
         request.setAttribute("vouchers", vouchers);
         request.getRequestDispatcher("/WEB-INF/views/customer/vouchers_list.jsp").forward(request, response);
     }
+
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-   
     @Override
     public String getServletInfo() {
         return "Short description";
