@@ -2,6 +2,7 @@ package model;
 
 import java.math.BigDecimal;
 import java.util.Date;
+import java.util.List;
 
 public class Order {
 
@@ -15,6 +16,18 @@ public class Order {
     private int customerID;
     private String voucherCode;
     private String customerName;
+   
+
+    private List<OrderDetail> orderDetails; 
+
+    public List<OrderDetail> getOrderDetails() {
+        return orderDetails;
+    }
+
+    public void setOrderDetails(List<OrderDetail> orderDetails) {
+        this.orderDetails = orderDetails;
+    }
+    
 
     // Getters and setters
     public int getOrderID() {
@@ -96,7 +109,5 @@ public class Order {
     public void setVoucherCode(String voucherCode) {
         this.voucherCode = voucherCode;
     }
-    
-    
-    
+
 }
