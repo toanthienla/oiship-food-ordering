@@ -7,7 +7,6 @@ import jakarta.servlet.http.*;
 import model.Customer;
 import java.io.IOException;
 
-
 @WebServlet(name = "EditProfileCustomerServlet", urlPatterns = {"/customer/profile/edit-profile"})
 public class EditProfileCustomerServlet extends HttpServlet {
 
@@ -35,16 +34,16 @@ public class EditProfileCustomerServlet extends HttpServlet {
         String newPhone = request.getParameter("phone");
         String newAddress = request.getParameter("address");
 
-        if (email != null &&
-            newName != null && !newName.trim().isEmpty() &&
-            newPhone != null && !newPhone.trim().isEmpty() &&
-            newAddress != null && !newAddress.trim().isEmpty()) {
+        if (email != null
+                && newName != null && !newName.trim().isEmpty()
+                && newPhone != null && !newPhone.trim().isEmpty()
+                && newAddress != null && !newAddress.trim().isEmpty()) {
 
             CustomerProfileDAO cus = new CustomerProfileDAO();
             boolean success = cus.editCustomerInfoByEmail(email, newName, newPhone, newAddress);
 
             if (success) {
-                request.getSession().setAttribute("userName", newName); 
+                request.getSession().setAttribute("userName", newName);
                 request.setAttribute("message", "Profile updated successfully.");
             } else {
                 request.setAttribute("error", "Failed to update profile.");

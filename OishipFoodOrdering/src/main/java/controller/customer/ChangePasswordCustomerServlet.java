@@ -4,7 +4,6 @@
  */
 package controller.customer;
 
-
 import dao.CustomerProfileDAO;
 import dao.SecurityDAO;
 import java.io.IOException;
@@ -15,19 +14,16 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Customer;
 
-
-
 @WebServlet(name = "ChangePasswordCustomerServlet", urlPatterns = {"/customer/profile/change-password"})
 public class ChangePasswordCustomerServlet extends HttpServlet {
 
-   
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         request.getRequestDispatcher("/WEB-INF/views/customer/customer_change_password.jsp").forward(request, response);
     }
 
-   @Override
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         // Bước 1: Nhận email từ session
@@ -44,7 +40,7 @@ public class ChangePasswordCustomerServlet extends HttpServlet {
 
         // Bước 3: Kiểm tra mật khẩu hiện tại có đúng không
         CustomerProfileDAO customer = new CustomerProfileDAO();
-       Customer cus = customer.getCustomerByEmail(email);
+        Customer cus = customer.getCustomerByEmail(email);
 
         if (cus == null) {
             request.setAttribute("error", "Customer not found.");
@@ -79,5 +75,4 @@ public class ChangePasswordCustomerServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/customer/customer_change_password.jsp").forward(request, response);
     }
 
-  
 }
