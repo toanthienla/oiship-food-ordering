@@ -54,13 +54,13 @@ public class AddCartServlet extends HttpServlet {
         String quantityStr = request.getParameter("quantity");
         HttpSession session = request.getSession();
 
-        // Kiểm tra đăng nhập
+       // Kiểm tra đăng nhập
         if (session.getAttribute("userId") == null) {
             session.setAttribute("redirectAfterLogin", "/customer/add-cart?dishID=" + dishIdStr);
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-
+ 
         // Kiểm tra thiếu dữ liệu
         if (dishIdStr == null || quantityStr == null || dishIdStr.trim().isEmpty() || quantityStr.trim().isEmpty()) {
             request.setAttribute("error", "Thiếu dữ liệu món ăn hoặc số lượng.");

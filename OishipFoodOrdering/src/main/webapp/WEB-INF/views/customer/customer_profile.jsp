@@ -9,7 +9,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Staff - My Profile</title>
+        <title>Customer - My Profile</title>
 
         <!-- Bootstrap 5 CSS & JS -->
         <link rel="stylesheet" href="../css/bootstrap.css" />
@@ -139,13 +139,13 @@
     </head>
     <body>
 
-      
-      <!-- Sidebar -->
+
+        <!-- Sidebar -->
         <jsp:include page="customer_sidebar.jsp" />
 
         <div class="main">
             <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-                <div class="container-fluid">
+                <div class="container-fluid">                  
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-auto">
                             <li class="wellcome-text">Welcome, <span><c:out value="${sessionScope.userName}" /></span>!</li>
@@ -172,24 +172,27 @@
                                 %>
                                 <dl class="row">
                                     <dt class="col-sm-4">Full Name:</dt>
-                                    <dd class="col-sm-8"><%= customer.getFullName() != null ? customer.getFullName(): "N/A"%></dd>
+                                    <dd class="col-sm-8"><%= customer.getFullName() != null ? customer.getFullName() : "N/A"%></dd>
 
                                     <dt class="col-sm-4">Email:</dt>
                                     <dd class="col-sm-8"><%= customer.getEmail() != null ? customer.getEmail() : "N/A"%></dd>
 
-                                    <dt class="col-sm-4">Role:</dt>
-                                    <dd class="col-sm-8"><%= customer.getRole() != null ? customer.getRole() : "N/A"%></dd>
-
+                                    <dt class="col-sm-4">Phone:</dt>
+                                    <dd class="col-sm-8"><%= customer.getPhone() != null ? customer.getPhone() : "N/A"%></dd>
+                                    
+                                    <dt class="col-sm-4">Address:</dt>
+                                    <dd class="col-sm-8"><%= customer.getAddress()!= null ? customer.getAddress(): "N/A"%></dd>
+                                    
                                     <dt class="col-sm-4">Created At:</dt>
-                                    <dd class="col-sm-8"><%= customer.getAccountCreatedAt()!= null ? dateFormat.format(customer.getAccountCreatedAt()) : "N/A"%></dd>
+                                    <dd class="col-sm-8"><%= customer.getAccountCreatedAt() != null ? dateFormat.format(customer.getAccountCreatedAt()) : "N/A"%></dd>
                                 </dl>
                                 <% } else { %>
-                                <div class="alert alert-danger text-center">Not found customer profile.</div>
+                                <div class="alert alert-danger text-center">No customer profile found.</div>
                                 <% }%>
                                 <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
                                     <a href="${pageContext.request.contextPath}/customer/profile/edit-profile" class="btn btn-success">Edit Profile</a>
                                     <a href="${pageContext.request.contextPath}/customer/profile/change-password" class="btn btn-danger">Change Password</a>
-                                    <a href="${pageContext.request.contextPath}/customer/profile" class="btn btn-secondary">Back to Profile</a>
+                                    <a href="${pageContext.request.contextPath}/home" class="btn btn-secondary">Back to Home</a>
                                 </div>
 
                             </div>

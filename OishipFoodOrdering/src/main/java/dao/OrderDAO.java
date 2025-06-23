@@ -1,10 +1,13 @@
 package dao;
 
+import java.math.BigDecimal;
 import model.Order;
 import utils.DBContext;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Dish;
@@ -13,6 +16,8 @@ import model.OrderDetail;
 public class OrderDAO extends DBContext {
 
     private static final Logger LOGGER = Logger.getLogger(OrderDAO.class.getName());
+
+   
 
     public OrderDAO() {
         super();
@@ -174,6 +179,162 @@ public class OrderDAO extends DBContext {
         }
         return false;
     }
+
+    public int createOrder(int customerId, BigDecimal amount) throws SQLException {
+        String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus, FK_Order_Customer) VALUES (?, 0, 0, ?)";
+        try (
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setBigDecimal(1, amount);
+            ps.setInt(2, customerId);
+            ps.executeUpdate();
+            ResultSet rs = ps.getGeneratedKeys();
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        }
+        return -1;
+    }
+
+    public void addOrderDetail(int orderId, int dishId, int quantity) throws SQLException {
+        String sql = "INSERT INTO OrderDetail (quantity, FK_OD_Order, FK_OD_Dish) VALUES (?, ?, ?)";
+        try (
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, quantity);
+            ps.setInt(2, orderId);
+            ps.setInt(3, dishId);
+            ps.executeUpdate();
+        }
+    }
+
+//   public List<OrderDetail> getOrderHistoryByCustomerId(int customerId) {
+//    List<OrderDetail> history = new ArrayList<>();
+//    String sql = "SELECT "
+//            + "o.orderCreatedAt, d.DishName, od.quantity, o.amount, d.DishImage "
+//            + "FROM [Order] o "
+//            + "JOIN OrderDetail od ON o.orderID = od.FK_OD_Order "
+//            + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+//            + "WHERE o.FK_Order_Customer = ? "
+//            + "ORDER BY o.orderCreatedAt DESC";
+//
+//    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+//        ps.setInt(1, customerId);
+//        ResultSet rs = ps.executeQuery();
+//        while (rs.next()) {
+//            OrderDetail item = new OrderDetail();
+//
+//            // Set thông tin số lượng
+//            item.setQuantity(rs.getInt("quantity"));
+//
+//            // Tạo và set Dish
+//            Dish dish = new Dish();
+//            dish.setDishName(rs.getString("DishName"));
+//            dish.setImage(rs.getString("DishImage"));
+//            item.setDish(dish);
+//
+//            // Tạo và set Order
+//            Order order = new Order();
+//            order.setAmount(rs.getBigDecimal("amount"));
+//            order.setOrderCreatedAt(rs.getTimestamp("orderCreatedAt"));
+//            item.setOrder(order);
+//
+//            // Thêm vào danh sách
+//            history.add(item);
+//        }
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//    }
+//
+//    return history;
+//}
+
+    
+//  public List<Object[]> getOrderHistoryByCustomerId(int customerId) {
+//    List<Object[]> history = new ArrayList<>();
+//    String sql = "SELECT o.orderCreatedAt, d.dishName, od.quantity, o.amount " +
+//                 "FROM [Order] o " +
+//                 "JOIN OrderDetail od ON o.orderID = od.FK_OD_Order " +
+//                 "JOIN Dish d ON od.FK_OD_Dish = d.DishID " +
+//                 "WHERE o.FK_Order_Customer = ? " +
+//                 "ORDER BY o.orderCreatedAt DESC";
+//
+//    try (
+//         PreparedStatement ps = conn.prepareStatement(sql)) {
+//        ps.setInt(1, customerId);
+//        ResultSet rs = ps.executeQuery();
+//        while (rs.next()) {
+//            Object[] row = new Object[4];
+//            row[0] = rs.getTimestamp("orderCreatedAt");
+//            row[1] = rs.getString("dishName");
+//            row[2] = rs.getInt("quantity");
+//            row[3] = rs.getBigDecimal("amount");
+//            history.add(row);
+//        }
+//    } catch (Exception e) {
+//        e.printStackTrace();
+//    }
+//    return history;
+//}
+
+public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
+    List<Order> orders = new ArrayList<>();
+    String sql = "SELECT orderID, orderCreatedAt, amount, orderStatus, paymentStatus " +
+                 "FROM [Order] WHERE FK_Order_Customer = ? ORDER BY orderCreatedAt DESC";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, customerId);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            Order order = new Order();
+            order.setOrderID(rs.getInt("orderID"));
+            order.setOrderCreatedAt(rs.getTimestamp("orderCreatedAt"));
+            order.setAmount(rs.getBigDecimal("amount"));
+            order.setOrderStatus(rs.getInt("orderStatus"));
+            order.setPaymentStatus(rs.getInt("paymentStatus"));
+
+            // Lấy danh sách món ăn cho đơn hàng này
+            List<OrderDetail> details = getOrderDetailsByOrderId(order.getOrderID());
+            order.setOrderDetails(details);
+
+            orders.add(order);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return orders;
+}
+
+public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
+    List<OrderDetail> details = new ArrayList<>();
+    String sql = "SELECT od.ODID, od.quantity, d.DishName, d.image AS DishImage " +
+                 "FROM OrderDetail od " +
+                 "JOIN Dish d ON od.FK_OD_Dish = d.DishID " +
+                 "WHERE od.FK_OD_Order = ?";
+
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, orderId);
+        ResultSet rs = ps.executeQuery();
+
+        while (rs.next()) {
+            OrderDetail detail = new OrderDetail();
+            detail.setODID(rs.getInt("ODID"));
+            detail.setQuantity(rs.getInt("quantity"));
+
+            Dish dish = new Dish();
+            dish.setDishName(rs.getString("DishName"));
+            dish.setImage(rs.getString("DishImage"));
+            detail.setDish(dish);
+
+            details.add(detail);
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return details;
+}
+
 
     public static void main(String[] args) {
         //        OrderDAO dao = new OrderDAO();

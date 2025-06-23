@@ -9,7 +9,7 @@
     <head>
         <meta charset="UTF-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <title>Staff - Edit Profile</title>
+        <title>Customer - Edit Profile</title>
 
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
@@ -142,7 +142,7 @@
 
         <div class="main">
             <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-                <div class="container-fluid">
+                <div class="container-fluid">                    
                     <div class="collapse navbar-collapse" id="navbarNav">
                         <ul class="navbar-nav ms-auto">
                             <li class="wellcome-text">Welcome, <span><c:out value="${sessionScope.userName}" /></span>!</li>

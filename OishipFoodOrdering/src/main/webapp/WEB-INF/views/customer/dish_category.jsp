@@ -1,387 +1,109 @@
-<%@page import="model.Category"%>
-<%@page import="model.Dish"%>
-<%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
-<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ page import="java.util.List" %>
+<%@ page import="model.Dish" %>
+<%
+    List<Dish> menuItems = (List<Dish>) request.getAttribute("menuItems");
+%>
 <!DOCTYPE html>
-<html lang="en">
+<html>
     <head>
-        <title>Home - Oiship</title>
-        <meta charset="UTF-8" />
-        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
-        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-
-        <%-- style category --%>
+        <meta charset="UTF-8">
+        <title>Danh sách món ăn</title>
+        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
         <style>
-            .menu-section .btn {
-                border-radius: 20px;
-                padding: 8px 20px;
-                font-weight: 500;
-                transition: all 0.2s ease;
-                white-space: nowrap;
+            .pagination-container {
+                margin-top: 20px;
             }
-
-            .menu-section .btn.active,
-            .menu-section .btn:hover {
-                background-color: #ff6200;
-                color: #fff;
-                box-shadow: 0 3px 8px rgba(255, 98, 0, 0.3);
-            }
-
-            .menu-section .d-flex::-webkit-scrollbar {
-                display: none;
-            }
-
-            .menu-section .d-flex {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-            }
-        </style>
-        <%-- style home --%>
-        <style>
-            body {
-                font-family: 'Arial', sans-serif;
-                background-color: #f8f9fa;
-            }
-            .sidebar {
-                width: 250px;
-                background-color: #ffffff;
-                height: 100vh;
-                position: fixed;
-                padding-top: 20px;
-                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            }
-            .sidebar a {
-                display: block;
-                padding: 10px 15px;
-                color: #000;
-                text-decoration: none;
-            }
-            .sidebar a:hover, .sidebar .active {
-                background-color: #ff6200;
-                color: #fff !important;
-            }
-            .main-content {
-                margin-left: 250px;
-                padding: 20px;
-            }
-            .search-bar {
-                margin-bottom: 20px;
-            }
-            .hero-section {
-                position: relative;
-                background: url('https://via.placeholder.com/800x400') no-repeat center center;
-                background-size: cover;
-                height: 400px;
-                color: #fff;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
-                border-radius: 10px;
-                overflow: hidden;
-                margin-bottom: 2rem;
-            }
-            .hero-section::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
-            }
-            .hero-section .content {
-                position: relative;
-                z-index: 1;
-            }
-            .hero-section h1 {
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-            }
-            .hero-section p {
-                font-size: 1.2rem;
-                margin-bottom: 1.5rem;
-            }
-            .btn-custom {
-                background-color: #ff6200;
-                color: #fff;
-                border: none;
-                padding: 10px 20px;
-                transition: background-color 0.3s ease;
-            }
-            .btn-custom:hover {
-                background-color: #e65c00;
-            }
-            .btn-outline-custom {
-                border-color: #fff;
-                color: #fff;
-                padding: 10px 20px;
-            }
-            .btn-outline-custom:hover {
-                background-color: #fff;
-                color: #ff6200;
-            }
-            .notification-bell {
-                position: relative;
-            }
-            .notification-bell .badge {
-                position: absolute;
-                top: -5px;
-                right: -10px;
-                background-color: #ff6200;
-            }
-            .menu-section, .dish-section, .contact-section {
-                background-color: #fff;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                margin-bottom: 2rem;
-            }
-            .menu-btn {
-                border-radius: 30px;
-                margin-right: 8px;
-                padding: 10px 25px;
-                font-weight: 600;
-                transition: all 0.3s ease;
-            }
-            .menu-btn:hover, .menu-btn.active {
-                background-color: #ff6200 !important;
-                color: #fff !important;
-                box-shadow: 0 4px 15px rgba(255, 98, 0, 0.5);
+            .pagination-dots {
+                padding: 0 8px;
+                font-weight: bold;
             }
             .dish-card {
-                border: 1px solid #ddd;
-                border-radius: 10px;
-                overflow: hidden;
-                transition: transform 0.3s ease;
+                transition: transform 0.2s ease;
             }
             .dish-card:hover {
-                transform: translateY(-5px);
+                transform: scale(1.03);
             }
-            .dish-card img {
-                height: 200px;
-                object-fit: cover;
-                width: 100%;
+            .btn-custom {
+                background-color: #FF6B00;
+                color: white;
             }
-            .contact-form .form-control {
-                margin-bottom: 1rem;
+            .btn-outline-custom {
+                border-color: #FF6B00;
+                color: #FF6B00;
             }
-            @media (max-width: 768px) {
-                .sidebar {
-                    width: 100%;
-                    height: auto;
-                    position: relative;
-                }
-                .main-content {
-                    margin-left: 0;
-                }
-                .hero-section {
-                    height: 300px;
-                }
-                .hero-section h1 {
-                    font-size: 1.8rem;
-                }
-                .dish-card img {
-                    height: 150px;
-                }
+            .btn-outline-custom:hover {
+                background-color: #FF6B00;
+                color: white;
             }
         </style>
     </head>
     <body>
-        <div class="sidebar">
-            <div class="text-center mb-4">
-                <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
-                <h5 class="mt-2 text-orange">OISHIP</h5>
+        <div class="container my-4">
+            <h2 class="mb-4">Trending Food</h2>
+
+            <div class="row" id="dishList">
+                <% if (menuItems != null && !menuItems.isEmpty()) {
+                        for (Dish menuItem : menuItems) {
+                            String imageUrl = (menuItem.getImage() != null && !menuItem.getImage().isEmpty())
+                                    ? menuItem.getImage()
+                                    : "https://via.placeholder.com/300x200";
+                %>
+                <div class="col-md-4 mb-3 dish-item">
+                    <!-- Card món ăn mở modal -->
+                    <button class="btn btn-outline-secondary w-100" onclick="openDishDetail(<%= menuItem.getDishID()%>)">
+                        <div class="card dish-card">
+                            <img src="<%= imageUrl%>" class="card-img-top" alt="<%= menuItem.getDishName()%>">
+                            <div class="card-body">
+                                <h5 class="card-title"><%= menuItem.getDishName()%></h5>
+                                <p class="card-text">Price: <%= menuItem.getFormattedPrice()%> đ</p>
+                            </div>
+                        </div>
+                    </button>
+
+                   
+                </div>
+                <% }
+        } else { %>
+                <p class="text-muted">No dishes found.</p>
+                <% }%>
             </div>
-            <a href="#home"><i class="fas fa-home me-2"></i> Home</a>
-            <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
-            <a href="#dishes" class="active"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
-            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
-            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
-            <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
-            <a href="#cart"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
-            <a href="#"><i class="fas fa-list me-2"></i> Order</a>
+
+            <!-- Link View All -->
+            <div class="text-end mt-2">
+                <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
+            </div>      
         </div>
 
-        <div class="main-content">
-            <nav class="navbar navbar-light bg-light p-2 mb-3">
-                <form method="POST" action="${pageContext.request.contextPath}/customer/search-dish" class="d-flex search-bar" role="search">
-                    <input class="form-control me-2" type="search-dish" name="searchQuery" placeholder="Search for dishes..." aria-label="Search" />
-                    <button class="btn btn-outline-success" type="submit">Find</button>
-                </form>
-                <div class="d-flex align-items-center">
-                    <div class="notification-bell me-3">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge rounded-pill">3</span>
-                    </div>
-                    <div class="dropdown">
-                        <a class="dropdown-toggle text-decoration-none" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user"></i>
-                            <span>
-                                <c:choose>
-                                    <c:when test="${isLoggedIn and not empty userName}">
-                                        <c:out value="${userName}" />
-                                    </c:when>
-                                    <c:otherwise>
-                                        Guest
-                                    </c:otherwise>
-                                </c:choose>
-                            </span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <c:if test="${isLoggedIn}">
-                                <li><a class="dropdown-item" href="#">Profile</a></li>
-                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Log out</a></li>
-                                </c:if>
-                                <c:if test="${not isLoggedIn}">
-                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/login">Log in</a></li>
-                                </c:if>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
-
-
-
-
-            <!-- Menu Section -->
-            <%
-                String selectedCatId = (String) request.getAttribute("selectedCatId");
-            %>
-            <div id="menu" class="menu-section">
-                <h2 class="mb-4">MENU</h2>
-                <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
-                    <form action="${pageContext.request.contextPath}/home/dish" method="post">
-                        <input type="hidden" name="catId" value="all">
-                        <button type="submit"
-                                class="btn btn-outline-primary menu-btn <%= (selectedCatId == null || "all".equals(selectedCatId)) ? "active" : ""%>">
-                            All
-                        </button>
-                    </form>
-
-
-                    <%
-                        List<Category> categories = (List<Category>) request.getAttribute("categories");
-
-                        if (categories != null) {
-                            for (Category cat : categories) {
-                                boolean isActive = selectedCatId != null && selectedCatId.equals(String.valueOf(cat.getCatID()));
-                    %>
-                    <form action="${pageContext.request.contextPath}/home/dish" method="post">
-                        <input type="hidden" name="catId" value="<%= cat.getCatID()%>">
-                        <button type="submit"
-                                class="btn btn-outline-primary menu-btn <%= isActive ? "active" : ""%>">
-                            <%= cat.getCatName()%>
-                        </button>
-                    </form>
-                    <%
-                            }
-                        }
-                    %>
-                </div>
-            </div>
-
-
-            <div id="dishes" class="dish-section">
-                <h2 class="mb-4">Trending Food</h2>
-                <div class="row">
-                    <%
-                        List<Dish> menuItems = (List<Dish>) request.getAttribute("menuItems");
-                        if (menuItems != null && !menuItems.isEmpty()) {
-                            for (Dish menuItem : menuItems) {
-                                String imageUrl = (menuItem.getImage() != null && !menuItem.getImage().isEmpty())
-                                        ? menuItem.getImage()
-                                        : "https://via.placeholder.com/300x200";
-                    %>
-
-                    <div class="col-md-4 mb-3">
-                        <form action="${pageContext.request.contextPath}/home/dish" method="post">
-                            <input type="hidden" name="dishId" value="<%= menuItem.getDishID()%>">
-                            <button type="submit" class="btn p-0 border-0 text-start w-100" style="background: none;">
-                                <div class="card dish-card">
-                                    <img src="<%= imageUrl%>" alt="<%= menuItem.getDishName()%>" class="card-img-top">
-                                    <div class="card-body">
-                                        <h5 class="card-title"><%= menuItem.getDishName()%></h5>
-                                        <p class="card-text">Price: <%= menuItem.getFormattedPrice()%>đ</p>
-                                    </div>
-                                </div>
-                                <div class="mt-1">
-                                    <a href="addToCart?dishId=<%= menuItem.getDishID()%>" class="btn btn-custom w-100" type="button">
-                                        Add Cart
-                                    </a>
-                                </div>
-                            </button>
-                        </form>
-                    </div>
-                    <%
-                        }
-                    } else {
-                    %>
-                    <p class="text-muted">No dishes available to display.</p>
-                    <%
-                        }
-                    %>
-                </div>
-                <div class="text-end">
-                    <a href="menu.jsp" class="btn btn-outline-custom">View All Dishes</a>
-                </div>
-            </div>
-        </div>
-
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                document.querySelectorAll('.sidebar a').forEach(anchor => {
-                    anchor.addEventListener('click', function (e) {
-                        if (this.getAttribute('href').startsWith('#')) {
-                            e.preventDefault();
-                            const targetId = this.getAttribute('href').substring(1);
-                            document.getElementById(targetId).scrollIntoView({behavior: 'smooth'});
-                            document.querySelectorAll('.sidebar a').forEach(a => a.classList.remove('active'));
-                            this.classList.add('active');
-                        }
-                    });
+            document.addEventListener("DOMContentLoaded", () => {
+                const form = document.getElementById("dishSearchForm");
+                const input = document.getElementById("searchQuery");
+                const dishContainer = document.getElementById("dishContainer");
+
+                form.addEventListener("submit", function (event) {
+                    event.preventDefault(); // Ngăn form reload
+
+                    const query = input.value.trim();
+
+                    fetch("<%=request.getContextPath()%>/customer/search-dish", {
+                        method: "POST",
+                        headers: {
+                            "Content-Type": "application/x-www-form-urlencoded"
+                        },
+                        body: new URLSearchParams({
+                            searchQuery: query
+                        })
+                    })
+                            .then(response => response.text())
+                            .then(data => {
+                                dishContainer.innerHTML = data;
+                            })
+                            .catch(error => {
+                                console.error("Search error:", error);
+                            });
                 });
-
-                document.querySelectorAll('.dish-card .btn').forEach(button => {
-                    button.addEventListener('click', () => {
-                        alert('Dish added to cart!');
-                    });
-                });
-            });
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const menuButtons = document.querySelectorAll('.menu-btn');
-
-                menuButtons.forEach(btn => {
-                    btn.addEventListener('click', () => {
-                        menuButtons.forEach(b => b.classList.remove('active'));
-                        btn.classList.add('active');
-
-                        const category = btn.getAttribute('data-category');
-                        filterDishes(category);
-                    });
-                });
-
-                function filterDishes(category) {
-                    const dishes = document.querySelectorAll('.dish-card');
-                    dishes.forEach(dish => {
-                        if (category === 'all') {
-                            dish.parentElement.style.display = 'block';
-                        } else {
-                            if (dish.getAttribute('data-category') === category) {
-                                dish.parentElement.style.display = 'block';
-                            } else {
-                                dish.parentElement.style.display = 'none';
-                            }
-                        }
-                    });
-                }
             });
         </script>
     </body>

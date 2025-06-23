@@ -13,8 +13,7 @@ import jakarta.servlet.http.HttpSession;
 import model.Dish;
 
 /**
- * Servlet responsible for searching dishes by name.
- * Author: Phi Yen
+ * Servlet responsible for searching dishes by name. Author: Phi Yen
  */
 @WebServlet(name = "SearchDishServlet", urlPatterns = {"/customer/search-dish"})
 public class SearchDishServlet extends HttpServlet {
@@ -59,10 +58,17 @@ public class SearchDishServlet extends HttpServlet {
             session.setAttribute("searchQuery", searchQuery);
             session.setAttribute("menuItems", menuItemResults);
 
-            // Forward to search results page
+            // Gửi danh sách món ăn về request
             request.setAttribute("menuItems", menuItemResults);
             request.setAttribute("searchQuery", searchQuery);
 
+            // ✨ NEW: Gửi category ID active nếu có món ăn
+            if (!menuItemResults.isEmpty()) {
+                int activeCategoryId = menuItemResults.get(0).getCategoryId();  // <-- Dish cần có getCategoryID()
+                request.setAttribute("activeCategoryId", activeCategoryId);
+            }
+
+            // Forward
             request.getRequestDispatcher("/WEB-INF/views/customer/search_dish.jsp").forward(request, response);
 
         } catch (Exception e) {
