@@ -206,7 +206,8 @@
                                 <tr>
                                     <td>${detail.dishName}</td>
                                     <td>
-                                        <img src="https://placehold.co/80x60"/>
+                                        <img src="${detail.dishImage}" width="80" height="60"/>
+                                        
                                     </td>
                                     <td>${detail.dishDescription}</td>
                                     <td>${detail.quantity}</td>
