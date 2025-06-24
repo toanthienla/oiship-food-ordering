@@ -11,13 +11,12 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-
-
         <!-- Sidebar CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
 
         <!-- Sidebar JS -->
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
+
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
@@ -152,7 +151,6 @@
             </nav>
 
             <!--div content-->
-
             <div class="content mt-5">
                 <div class="container">
                     <h2 class="mb-4 text-center">Create New Order</h2>
@@ -167,18 +165,32 @@
 
                     <!-- Form tạo đơn hàng -->
                     <form action="${pageContext.request.contextPath}/staff/manage-orders/create-order" method="post">
-                        <!-- Nhập tên khách -->
-                        <div class="mb-4 row justify-content-center">
-                            <label class="col-sm-2 col-form-label fw-semibold text-end">Customer Name:</label>
-                            <div class="col-sm-6">
+                        <!-- Nhập tên khách + Nút tạo đơn -->
+                        <div class="mb-4 row">
+                            <!-- Customer Name -->
+                            <div class="col-md-6 mx-auto d-flex align-items-center mb-3">
+                                <label class="me-2 fw-semibold mb-0 flex-shrink-0">Customer Name:</label>
                                 <input type="text" name="customerName" class="form-control" placeholder="Enter customer full name" required />
+                            </div>
+
+                            <!-- Button -->
+                            <div class="col-md-6 mx-auto">
+                                <div class="d-flex justify-content-between">
+                                    <a href="${pageContext.request.contextPath}/staff/manage-orders/create-order"
+                                       class="btn btn-secondary w-50 me-2">
+                                        Reset
+                                    </a>
+                                    <button type="submit" class="btn btn-success w-50">
+                                        <i class="bi bi-plus-circle"></i> Create Order
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
                         <!-- Search + Filter -->
-                        <div class="row mb-4 align-items-end">
-                            <!-- Search -->
-                            <div class="col-md-5">
+                        <div class="row mb-4 justify-content-center align-items-end">
+                            <!-- Search Dish -->
+                            <div class="col-md-6">
                                 <div class="d-flex align-items-center">
                                     <label class="me-2 fw-semibold mb-0 flex-shrink-0">Search Dish:</label>
                                     <input type="text" id="dishSearch" class="form-control" placeholder="Enter dish name..." />
@@ -186,7 +198,7 @@
                             </div>
 
                             <!-- Filter Category -->
-                            <div class="col-md-5 mt-3 mt-md-0">
+                            <div class="col-md-6 mt-3 mt-md-0">
                                 <div class="d-flex align-items-center">
                                     <label class="me-2 fw-semibold mb-0 flex-shrink-0">Filter by Category:</label>
                                     <select id="categoryFilter" class="form-select">
@@ -213,7 +225,7 @@
                                         <th>Quantity</th>
                                     </tr>
                                 </thead>
-                                <tbody>
+                                <tbody id="dishTableBody">
                                     <c:forEach var="dish" items="${dishes}" varStatus="loop">
                                         <tr data-dish="${dish.dishName}" data-category="${dish.category.catName}">
                                             <td>${loop.index + 1}</td>
@@ -231,13 +243,10 @@
                                     </c:forEach>
                                 </tbody>
                             </table>
+                            <div id="pagination" class="mt-4 d-flex justify-content-center"></div>
+
                         </div>
 
-                        <!-- Submit -->
-                        <div class="text-center mt-4">
-                            <button type="submit" class="btn btn-success px-5">Create Order</button>
-                            <a href="${pageContext.request.contextPath}/staff/manage-orders/create-order" class="btn btn-secondary ms-2">Reset</a>
-                        </div>
                     </form>
                 </div>
             </div>
@@ -250,27 +259,65 @@
                 }
 
                 document.addEventListener("DOMContentLoaded", () => {
+                    const rowsPerPage = 20;
+                    const tableBody = document.getElementById("dishTableBody");
+                    const rows = Array.from(tableBody.querySelectorAll("tr"));
+                    const pagination = document.getElementById("pagination");
                     const searchInput = document.getElementById("dishSearch");
                     const categoryFilter = document.getElementById("categoryFilter");
-                    const rows = document.querySelectorAll("table tbody tr");
 
-                    function filterDishes() {
+                    function filterRows() {
                         const keyword = removeVietnameseTones(searchInput.value.trim().toLowerCase());
-                        const selectedCat = categoryFilter.value;
+                        const selectedCategory = categoryFilter.value;
 
-                        rows.forEach(row => {
-                            const dishName = removeVietnameseTones(row.getAttribute("data-dish")?.toLowerCase() || "");
-                            const category = row.getAttribute("data-category");
-
-                            const matchSearch = dishName.includes(keyword);
-                            const matchCategory = selectedCat === "all" || category === selectedCat;
-
-                            row.style.display = (matchSearch && matchCategory) ? "" : "none";
+                        return rows.filter(row => {
+                            const dishName = removeVietnameseTones(row.dataset.dish?.toLowerCase() || "");
+                            const category = row.dataset.category;
+                            const matchDish = dishName.includes(keyword);
+                            const matchCat = selectedCategory === "all" || category === selectedCategory;
+                            return matchDish && matchCat;
                         });
                     }
 
-                    searchInput.addEventListener("input", filterDishes);
-                    categoryFilter.addEventListener("change", filterDishes);
+                    function showPage(filteredRows, page) {
+                        tableBody.innerHTML = "";
+                        const start = (page - 1) * rowsPerPage;
+                        const paginated = filteredRows.slice(start, start + rowsPerPage);
+                        paginated.forEach(row => tableBody.appendChild(row));
+                        renderPagination(filteredRows.length, page);
+                    }
+
+                    function renderPagination(totalRows, currentPage) {
+                        pagination.innerHTML = "";
+                        const totalPages = Math.ceil(totalRows / rowsPerPage);
+                        if (totalPages <= 1)
+                            return;
+
+                        const createBtn = (text, page, active = false, disabled = false) => {
+                            const btn = document.createElement("button");
+                            btn.className = "btn btn-sm mx-1 " + (active ? "btn-primary" : "btn-outline-primary");
+                            btn.textContent = text;
+                            btn.disabled = disabled;
+                            btn.onclick = () => showPage(filterRows(), page);
+                            pagination.appendChild(btn);
+                        };
+
+                        createBtn("«", currentPage - 1, false, currentPage === 1);
+
+                        for (let i = 1; i <= totalPages; i++) {
+                            createBtn(i, i, i === currentPage);
+                        }
+
+                        createBtn("»", currentPage + 1, false, currentPage === totalPages);
+                    }
+
+                    function init() {
+                        showPage(filterRows(), 1);
+                    }
+
+                    searchInput.addEventListener("input", () => showPage(filterRows(), 1));
+                    categoryFilter.addEventListener("change", () => showPage(filterRows(), 1));
+                    init();
                 });
             </script>
 
