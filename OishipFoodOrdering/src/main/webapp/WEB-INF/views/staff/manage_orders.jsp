@@ -11,13 +11,12 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-
-
         <!-- Sidebar CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
 
         <!-- Sidebar JS -->
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
+
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
@@ -155,7 +154,6 @@
             <div class="content mt-5">
                 <h2 class="mb-4 text-center">Manage Orders</h2>
 
-
                 <!-- Search + Filter + Create Order -->
                 <div class="row mb-4 align-items-end">
                     <!-- Search -->
@@ -191,13 +189,13 @@
                     </div>
                 </div>
 
-
                 <!-- Orders Table -->
                 <div class="table-responsive">
                     <table id="orderTable" class="table table-hover table-bordered text-center align-middle shadow-sm">
                         <thead class="table-dark">
                             <tr>
                                 <th>#</th>
+                                <th>Order ID</th>
                                 <th>Customer</th>
                                 <th>Voucher</th>
                                 <th>Amount</th>
@@ -206,9 +204,10 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <c:forEach var="o" items="${orders}">
+                        <tbody id="orderTableBody">
+                            <c:forEach var="o" items="${orders}" varStatus="status">
                                 <tr data-customer="${o.customerName}" data-status="${o.orderStatus}">
+                                    <td>${status.index + 1}</td>
                                     <td class="fw-bold">${o.orderID}</td>
                                     <td>${o.customerName}</td>
                                     <td>
@@ -239,44 +238,85 @@
                                     </td>
                                 </tr>
                             </c:forEach>
+
                         </tbody>
                     </table>
+                    <div id="orderPagination" class="mt-4 d-flex justify-content-center"></div>
+
                 </div>
             </div>
 
             <!-- JavaScript Filter -->
             <script>
-                function removeVietnameseTones(str) {
-                    return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
-                            .replace(/đ/g, "d").replace(/Đ/g, "D");
-                }
-
                 document.addEventListener("DOMContentLoaded", () => {
+                    const rowsPerPage = 20;
+                    const tableBody = document.getElementById("orderTableBody");
+                    const rows = Array.from(tableBody.querySelectorAll("tr"));
+                    const pagination = document.getElementById("orderPagination");
                     const searchInput = document.getElementById("customerSearch");
                     const statusFilter = document.getElementById("statusFilter");
-                    const rows = document.querySelectorAll("#orderTable tbody tr");
 
-                    function filterOrders() {
+                    function removeVietnameseTones(str) {
+                        return str.normalize("NFD").replace(/[\u0300-\u036f]/g, "")
+                                .replace(/đ/g, "d").replace(/Đ/g, "D");
+                    }
+
+                    function filterRows() {
                         const keyword = removeVietnameseTones(searchInput.value.trim().toLowerCase());
-                        const status = statusFilter.value;
+                        const selectedStatus = statusFilter.value;
 
-                        rows.forEach(row => {
+                        return rows.filter(row => {
                             const customer = removeVietnameseTones(row.getAttribute("data-customer")?.toLowerCase() || "");
-                            const rowStatus = row.getAttribute("data-status");
-
+                            const status = row.getAttribute("data-status");
                             const matchSearch = customer.includes(keyword);
-                            const matchStatus = status === "all" || status === rowStatus;
-
-                            row.style.display = (matchSearch && matchStatus) ? "" : "none";
+                            const matchStatus = selectedStatus === "all" || status === selectedStatus;
+                            return matchSearch && matchStatus;
                         });
                     }
 
-                    searchInput.addEventListener("input", filterOrders);
-                    statusFilter.addEventListener("change", filterOrders);
+                    function showPage(filteredRows, page) {
+                        tableBody.innerHTML = "";
+                        const start = (page - 1) * rowsPerPage;
+                        const end = start + rowsPerPage;
+                        const paginated = filteredRows.slice(start, end);
+                        paginated.forEach(row => tableBody.appendChild(row));
+                        renderPagination(filteredRows.length, page);
+                    }
+
+                    function renderPagination(totalRows, currentPage) {
+                        pagination.innerHTML = "";
+                        const totalPages = Math.ceil(totalRows / rowsPerPage);
+                        if (totalPages <= 1)
+                            return;
+
+                        const createButton = (text, page, active = false, disabled = false) => {
+                            const btn = document.createElement("button");
+                            btn.className = "btn btn-sm mx-1 " + (active ? "btn-primary" : "btn-outline-primary");
+                            btn.textContent = text;
+                            btn.disabled = disabled;
+                            btn.onclick = () => showPage(filterRows(), page);
+                            pagination.appendChild(btn);
+                        };
+
+                        createButton("Previous", currentPage - 1, false, currentPage === 1);
+                        for (let i = 1; i <= totalPages; i++) {
+                            createButton(i, i, i === currentPage);
+                        }
+                        createButton("Next", currentPage + 1, false, currentPage === totalPages);
+                    }
+
+                    function init() {
+                        showPage(filterRows(), 1);
+                    }
+
+                    // Event listeners
+                    searchInput.addEventListener("input", () => showPage(filterRows(), 1));
+                    statusFilter.addEventListener("change", () => showPage(filterRows(), 1));
+
+                    // Initialize
+                    init();
                 });
             </script>
-
-
 
         </div>
     </body>

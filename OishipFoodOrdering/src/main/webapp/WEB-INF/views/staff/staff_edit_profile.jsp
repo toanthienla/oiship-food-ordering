@@ -1,4 +1,3 @@
-
 <%@page import="model.Staff"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -14,16 +13,17 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-
-
         <!-- Sidebar CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
 
         <!-- Sidebar JS -->
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
+
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
+        <!-- Tailwind CSS (prefix tw-) -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tailwind.css" />
 
         <style>
             body {
@@ -90,6 +90,15 @@
                 padding: 8px;
             }
 
+            .btn-orange {
+                background-color: #EF5D10;
+                color: white;
+            }
+            .btn-orange:hover {
+                background-color: #d94f0f;
+                color: white;
+            }
+
             @media (max-width: 768px) {
                 .main {
                     margin-left: 0;
@@ -154,39 +163,62 @@
                     </div>
                 </div>
             </nav>
+
             <!-- Profile Content -->
-
             <div class="content mt-4">
-                <h2 class="mb-4">Edit Your Name</h2>
+                <div class="container" style="max-width: 600px;">
+                    <div class="card shadow border-0">
+                        <!-- Header -->
+                        <div class="card-header text-white" style="background-color: #EF5D10;">
+                            <h4 class="mb-0">
+                                <i class="bi bi-person-fill me-2"></i>Edit Your Name
+                            </h4>
+                        </div>
 
-                <form method="post" action="${pageContext.request.contextPath}/staff/profile/edit-profile">
-                    <div class="mb-3">
-                        <label for="fullName" class="form-label">Full Name</label>
-                        <input type="text"
-                               class="form-control"
-                               id="fullName"
-                               name="fullName"
-                               value="${sessionScope.userName}"
-                               required>
+                        <!-- Form Body -->
+                        <div class="card-body bg-light">
+                            <form method="post" action="${pageContext.request.contextPath}/staff/profile/edit-profile">
+                                <!-- Full Name -->
+                                <div class="mb-3">
+                                    <label for="fullName" class="form-label text-dark">
+                                        <i class="bi bi-pencil-fill me-1"></i>Full Name
+                                    </label>
+                                    <input type="text"
+                                           class="form-control text-dark bg-white"
+                                           id="fullName"
+                                           name="fullName"
+                                           value="${sessionScope.userName}"
+                                           required>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn text-white" style="background-color: #EF5D10;">
+                                        <i class="bi bi-save me-1"></i>Update Name
+                                    </button>
+                                    <a href="${pageContext.request.contextPath}/staff/profile" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle me-1"></i>Cancel
+                                    </a>
+                                </div>
+                            </form>
+
+                            <!-- Message Alert -->
+                            <c:if test="${not empty message}">
+                                <div class="alert alert-info mt-3 text-dark bg-white border">
+                                    <i class="bi bi-info-circle-fill me-2"></i>${message}
+                                </div>
+                            </c:if>
+
+                            <!-- Error Alert -->
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger mt-3 text-dark bg-white border">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>${error}
+                                </div>
+                            </c:if>
+                        </div>
                     </div>
-
-                    <div class="d-flex gap-2">
-                        <button type="submit" class="btn btn-primary">Update Name</button>
-                        <a href="${pageContext.request.contextPath}/staff/profile" class="btn btn-secondary">Cancel</a>
-                    </div>
-                </form>
-
-                <c:if test="${not empty message}">
-                    <div class="alert alert-info mt-3">${message}</div>
-                </c:if>
-
-                <c:if test="${not empty error}">
-                    <div class="alert alert-danger mt-3">${error}</div>
-                </c:if>
+                </div>
             </div>
-
-
-
 
             <!-- JS -->
             <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>

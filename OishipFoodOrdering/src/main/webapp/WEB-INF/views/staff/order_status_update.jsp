@@ -14,16 +14,14 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-
-
         <!-- Sidebar CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
 
         <!-- Sidebar JS -->
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
+
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
-
 
         <style>
             body {
@@ -197,6 +195,7 @@
                     </div>
                 </div>
             </nav>
+
             <!--Content -->
             <div class="content">
                 <div class="container mt-5">
@@ -245,19 +244,13 @@
                     <!-- Success/Error Message -->
                     <c:if test="${not empty message}">
                         <script>
-            alert("${message}");
+                            alert("${message}");
                         </script>
                     </c:if>
                 </div>
             </div>
 
-
-
-
-
         </div>
-
-
         <!-- JS -->
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
     </body>

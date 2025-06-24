@@ -1,7 +1,3 @@
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/Classes/Class.java to edit this template
- */
 package dao;
 
 import utils.DBContext;
@@ -13,10 +9,6 @@ import model.Dish;
 import model.Review;
 import utils.DBContext;
 
-/**
- *
- * @author HCT
- */
 public class ManageReviewsDAO extends DBContext {
 
     public List<Review> getAllReviews() {
@@ -29,7 +21,8 @@ public class ManageReviewsDAO extends DBContext {
                 + "JOIN Dish d ON od.FK_OD_Dish = d.dishID "
                 + "JOIN Category ca ON d.FK_Dish_Category = ca.catID "
                 + "JOIN Customer cu ON r.FK_Review_Customer = cu.customerID "
-                + "JOIN Account c ON cu.customerID = c.accountID";
+                + "JOIN Account c ON cu.customerID = c.accountID "
+                + "ORDER BY r.reviewCreatedAt DESC";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             try (ResultSet rs = ps.executeQuery()) {
@@ -84,16 +77,5 @@ public class ManageReviewsDAO extends DBContext {
                 System.out.println("Date: " + r.getReviewCreatedAt());
             }
         }
-
-//        ManageReviewsDAO dao = new ManageReviewsDAO();
-//        int reviewIdToDelete = 3; // Thay ID này bằng ID của review bạn muốn xóa
-//
-//        boolean deleted = dao.deleteReviewById(reviewIdToDelete);
-//        if (deleted) {
-//            System.out.println("Review với ID " + reviewIdToDelete + " đã được xóa thành công.");
-//        } else {
-//            System.out.println("Không thể xóa review với ID " + reviewIdToDelete + ".");
-//        }
-//    }
     }
 }

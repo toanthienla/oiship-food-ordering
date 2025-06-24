@@ -7,6 +7,7 @@
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Staff Dashboard - Oiship</title>
+
         <!-- Bootstrap 5 CSS & JS -->
         <link rel="stylesheet" href="../css/bootstrap.css" />
         <script src="../js/bootstrap.bundle.js"></script>
@@ -153,6 +154,7 @@
                 </div>
             </nav>
 
+            <!--div.content-->
             <div class="dashboard-container content">
                 <h3 class="text-center mb-4">Staff Dashboard</h3>
                 <c:if test="${not empty requestScope.error}">
@@ -209,6 +211,7 @@
                     </tbody>
                 </table>
             </div>
+
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
