@@ -1,3 +1,4 @@
+<!<!--search_dish.jsp -->
 <%@page import="model.Category"%>
 <%@page import="model.Dish"%>
 <%@page import="java.util.List"%>

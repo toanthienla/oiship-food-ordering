@@ -4,6 +4,7 @@ import jakarta.servlet.*;
 import jakarta.servlet.annotation.WebFilter;
 import jakarta.servlet.http.*;
 import java.io.IOException;
+import java.util.Date;
 
 @WebFilter("/admin/*")
 public class AdminFilter implements Filter {
@@ -16,30 +17,38 @@ public class AdminFilter implements Filter {
 
         String uri = req.getRequestURI();
         String contextPath = req.getContextPath();
-
-        // Exclude /admin/login from authentication
         boolean isLoginPage = uri.equals(contextPath + "/admin/login");
         HttpSession session = req.getSession(false);
-        boolean isLoggedIn = session != null && "admin".equals(session.getAttribute("role")); // Check role
-        
-        System.out.println("DEBUG: Filter - URI=" + uri + ", isLoginPage=" + isLoginPage + ", isLoggedIn=" + isLoggedIn +
-                ", role=" + (session != null ? session.getAttribute("role") : "null"));
+        String role = (session != null) ? (String) session.getAttribute("role") : null;
+        boolean isLoggedIn = session != null && "admin".equals(role);
 
-        if (isLoggedIn || isLoginPage) {
-            chain.doFilter(request, response);
-        } else {
-            System.out.println("DEBUG: Redirecting to /admin/login due to unauthorized access");
-            res.sendRedirect(contextPath + "/admin/login");
+        // Debug logging
+        System.out.println("DEBUG: AdminFilter - URI=" + uri + ", isLoginPage=" + isLoginPage
+                + ", isLoggedIn=" + isLoggedIn + ", role=" + (role != null ? role : "null")
+                + ", time=" + new Date());
+
+        try {
+            if (isLoginPage || isLoggedIn) {
+                chain.doFilter(request, response);
+            } else {
+                System.out.println("DEBUG: Redirecting to /admin/login due to unauthorized access at " + new Date());
+                res.sendRedirect(contextPath + "/admin/login");
+            }
+        } catch (Exception e) {
+            System.out.println("ERROR: AdminFilter failed to process request for URI=" + uri
+                    + ", error=" + e.getMessage() + ", time=" + new Date());
+            e.printStackTrace();
+            res.sendError(HttpServletResponse.SC_INTERNAL_SERVER_ERROR, "Internal Server Error");
         }
     }
 
     @Override
     public void init(FilterConfig filterConfig) throws ServletException {
-        // Initialization code if needed
+        System.out.println("AdminFilter initialized at " + new Date());
     }
 
     @Override
     public void destroy() {
-        // Cleanup code if needed
+        System.out.println("AdminFilter destroyed at " + new Date());
     }
 }

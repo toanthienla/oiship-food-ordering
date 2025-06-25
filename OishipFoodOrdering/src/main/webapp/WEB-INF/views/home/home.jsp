@@ -304,10 +304,6 @@
             <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
             <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
             <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
-
-            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
-            <a href="#location"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
-
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
             <a href="login"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
             <a href="login"><i class="fas fa-list me-2"></i> Order</a>
@@ -465,24 +461,9 @@
                 </div>
                 <div id="map"></div>
             </div>
-          
-            <!-- Location Map Section -->
-            <div id="location" class="menu-section mt-4">
-                <h2 class="mb-4">Location Map</h2>
-                <div class="mb-3">
-                    <label for="locationInput" class="form-label">Enter Location:</label>
-                    <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
-                    <button class="btn btn-custom mt-2" onclick="getDirections()">Get Directions</button>
-                </div>
-                <div id="map"></div>
-            </div>
-
-            <!-- ... (phần cuối file giữ nguyên) ... -->
+       
 
             <!-- Thêm vào <head> -->
-            <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
-            <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css">
-          
             <style>
                 #map {
                     height: 400px;
@@ -491,60 +472,54 @@
                     border-radius: 10px;
                     box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
                 }
-                .mapboxgl-ctrl-geocoder {
-                    width: 100%;
-                }
             </style>
-            <script src="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.js"></script>
-            <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+            <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
 
-            <!-- Thêm vào cuối <body> trước </body> -->
+            <!-- Thêm vào cuối <body> -->
             <script>
-                        mapboxgl.accessToken = 'YOUR_MAPBOX_ACCESS_TOKEN'; // Thay bằng token của bạn
-                        const map = new mapboxgl.Map({
-                            container: 'map',
-                            style: 'mapbox://styles/mapbox/streets-v11', // Style mặc định, có thể thay đổi
-                            center: [106.7009, 10.7769], // Ho Chi Minh City [lng, lat]
-                            zoom: 12
-                        });
+                        let map;
+                        function initMap() {
+                            const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
+                            map = new google.maps.Map(document.getElementById("map"), {
+                                center: defaultLocation,
+                                zoom: 12,
+                            });
 
-                        const directions = new MapboxDirections({
-                            accessToken: mapboxgl.accessToken,
-                            unit: 'metric',
-                            profile: 'mapbox/driving', // Hoặc 'walking', 'cycling'
-                            controls: {instructions: true}
-                        });
+                            const input = document.getElementById("locationInput");
+                            const searchBox = new google.maps.places.SearchBox(input);
 
-                        map.addControl(directions, 'top-left');
+                            map.addListener("bounds_changed", () => {
+                                searchBox.setBounds(map.getBounds());
+                            });
 
-                        function getDirections() {
-                            const address = document.getElementById('locationInput').value;
-                            if (address) {
-                                // Sử dụng Geocoder để chuyển đổi địa chỉ thành tọa độ
-                                const geocoder = new MapboxGeocoder({
-                                    accessToken: mapboxgl.accessToken,
-                                    mapboxgl: mapboxgl
-                                });
-
-                                geocoder.on('result', (e) => {
-                                    const destination = e.result.center; // [lng, lat]
-                                    directions.setDestination(destination); // Đặt điểm đến
-                                    // Đặt điểm xuất phát mặc định (có thể lấy từ vị trí hiện tại nếu cần)
-                                    directions.setOrigin([106.7009, 10.7769]); // Ho Chi Minh City
-                                    map.fitBounds(directions.getBounds(), {padding: 50});
-                                });
-
-                                geocoder.query(address);
-                            } else {
-                                alert('Please enter a location.');
-                            }
+                            searchBox.addListener("places_changed", () => {
+                                const places = searchBox.getPlaces();
+                                if (places.length == 0)
+                                    return;
+                                const place = places[0];
+                                if (!place.geometry || !place.geometry.location) {
+                                    console.log("No geometry available for this place");
+                                    return;
+                                }
+                                map.setCenter(place.geometry.location);
+                                map.setZoom(15);
+                                new google.maps.Marker({map, position: place.geometry.location});
+                            });
                         }
 
-                        // Thêm control geocoder để hỗ trợ tìm kiếm
-                        map.addControl(new MapboxGeocoder({
-                            accessToken: mapboxgl.accessToken,
-                            mapboxgl: mapboxgl
-                        }));
+                        function geocodeAddress() {
+                            const geocoder = new google.maps.Geocoder();
+                            const address = document.getElementById("locationInput").value;
+                            geocoder.geocode({address: address}, (results, status) => {
+                                if (status === "OK") {
+                                    map.setCenter(results[0].geometry.location);
+                                    map.setZoom(15);
+                                    new google.maps.Marker({map: map, position: results[0].geometry.location});
+                                } else {
+                                    alert("Geocode was not successful for the following reason: " + status);
+                                }
+                            });
+                        }
             </script>
         </div>
 

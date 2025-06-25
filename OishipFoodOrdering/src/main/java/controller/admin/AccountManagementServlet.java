@@ -11,14 +11,18 @@ import jakarta.servlet.http.HttpSession;
 import model.Account;
 import model.Customer;
 import java.io.IOException;
-import java.net.URLEncoder;
+import java.io.PrintWriter;
 import java.sql.Timestamp;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
+import com.google.gson.Gson;
 
 @WebServlet(name = "AccountManagementServlet", urlPatterns = {"/admin/accounts"})
 public class AccountManagementServlet extends HttpServlet {
 
     private AccountDAO accountDAO = new AccountDAO();
+    private Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -26,6 +30,7 @@ public class AccountManagementServlet extends HttpServlet {
         HttpSession session = request.getSession();
         String adminRole = (String) session.getAttribute("role");
 
+        // Kiểm tra quyền admin
         if (adminRole == null || !adminRole.equals("admin")) {
             response.sendRedirect(request.getContextPath() + "/admin/login");
             return;
@@ -36,79 +41,147 @@ public class AccountManagementServlet extends HttpServlet {
 
         try {
             if ("details".equals(action)) {
-                int id = Integer.parseInt(request.getParameter("id"));
-                Account account = accountDAO.getAccountById(id);
-                request.setAttribute("account", account);
-                request.getRequestDispatcher("/WEB-INF/views/admin/account_details.jsp").forward(request, response);
-            } else if ("edit".equals(action)) {
+                // Hiển thị chi tiết tài khoản
                 int id = Integer.parseInt(request.getParameter("id"));
                 Account account = accountDAO.getAccountById(id);
                 if (account == null) {
-                    System.out.println("DEBUG: No account found for ID: " + id + ", Time: " + new java.util.Date());
-                } else {
-                    System.out.println("DEBUG: Retrieved account ID: " + account.getAccountID() + ", Role: " + account.getRole() + ", Customer: " + (account.getCustomer() != null ? "exists" : "null") + ", Time: " + new java.util.Date());
-                    if ("customer".equals(account.getRole()) && account.getCustomer() != null) {
-                        System.out.println("DEBUG: Phone: " + account.getCustomer().getPhone() + ", Address: " + account.getCustomer().getAddress() + ", Time: " + new java.util.Date());
-                    } else if ("customer".equals(account.getRole())) {
-                        System.out.println("DEBUG: Customer data not found for ID: " + id + ", Time: " + new java.util.Date());
-                    }
+                    request.setAttribute("message", "Account not found.");
+                    redirectWithParams(request, response);
+                    return;
                 }
                 request.setAttribute("account", account);
                 request.getRequestDispatcher(jspPath).forward(request, response);
             } else if ("delete".equals(action)) {
+                // Xóa một tài khoản (dựa trên vai trò của tài khoản)
                 int id = Integer.parseInt(request.getParameter("id"));
-                System.out.println("DEBUG: Attempting to delete account with ID: " + id);
-                if (accountDAO.deleteAccount(id)) {
-                    System.out.println("DEBUG: Successfully deleted account with ID: " + id);
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + URLEncoder.encode("Account deleted successfully.", "UTF-8"));
+                Account account = accountDAO.getAccountById(id);
+                if (account == null) {
+                    request.setAttribute("message", "Account not found.");
                 } else {
-                    System.out.println("DEBUG: Failed to delete account with ID: " + id);
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + URLEncoder.encode("Failed to delete account. Please try again.", "UTF-8"));
+                    boolean success = false;
+                    if ("customer".equals(account.getRole())) {
+                        success = accountDAO.deleteCustomerById(id);
+                    } else if ("staff".equals(account.getRole())) {
+                        success = accountDAO.deleteStaffById(id);
+                    } else {
+                        // Nếu là admin hoặc vai trò khác, có thể xử lý riêng hoặc không cho phép xóa qua đây
+                        request.setAttribute("message", "Deletion not allowed for this role.");
+                    }
+
+                    if (success) {
+                        request.setAttribute("message", "Account deleted successfully.");
+                    } else {
+                        List<String> constraints = accountDAO.checkForeignKeyConstraints(id);
+                        if (!constraints.isEmpty()) {
+                            request.setAttribute("message", "Failed to delete account: Related records found in tables: " + String.join(", ", constraints));
+                        } else {
+                            request.setAttribute("message", "Failed to delete account: Unknown error.");
+                        }
+                    }
                 }
+                redirectWithParams(request, response);
+            } else if ("deleteSelected".equals(action)) {
+                // Xóa nhiều tài khoản
+                String[] ids = request.getParameter("ids").split(",");
+                List<String> errors = new ArrayList<>();
+                for (String idStr : ids) {
+                    try {
+                        int id = Integer.parseInt(idStr);
+                        Account account = accountDAO.getAccountById(id);
+                        if (account != null) {
+                            boolean success = false;
+                            if ("customer".equals(account.getRole())) {
+                                success = accountDAO.deleteCustomerById(id);
+                            } else if ("staff".equals(account.getRole())) {
+                                success = accountDAO.deleteStaffById(id);
+                            } else {
+                                errors.add("Account ID " + id + ": Deletion not allowed for this role.");
+                                continue;
+                            }
+
+                            if (!success) {
+                                List<String> constraints = accountDAO.checkForeignKeyConstraints(id);
+                                if (!constraints.isEmpty()) {
+                                    errors.add("Account ID " + id + ": Related records in " + String.join(", ", constraints));
+                                } else {
+                                    errors.add("Account ID " + id + ": Unknown error.");
+                                }
+                            }
+                        } else {
+                            errors.add("Account ID " + id + ": Not found.");
+                        }
+                    } catch (NumberFormatException e) {
+                        errors.add("Invalid ID: " + idStr);
+                    }
+                }
+                if (errors.isEmpty()) {
+                    request.setAttribute("message", "Selected accounts deleted successfully.");
+                } else {
+                    request.setAttribute("message", "Failed to delete some accounts: " + String.join("; ", errors));
+                }
+                redirectWithParams(request, response);
             } else if ("updateStatus".equals(action)) {
+                // Cập nhật trạng thái tài khoản
                 int id = Integer.parseInt(request.getParameter("id"));
                 int status = Integer.parseInt(request.getParameter("status"));
-                System.out.println("DEBUG: Attempting to update status for accountID: " + id + " to status: " + status);
-                if (!accountDAO.updateStatus(id, status)) {
-                    System.out.println("DEBUG: Failed to update status for accountID: " + id);
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + URLEncoder.encode("Failed to update status. Please try again.", "UTF-8"));
-                    return;
+                if (status != 1 && status != 0 && status != -1) {
+                    status = 0;
+                    System.out.println("Invalid status value " + request.getParameter("status") + " for accountID " + id + ". Defaulting to 0 (inactive).");
                 }
-                System.out.println("DEBUG: Successfully updated status for accountID: " + id);
-                response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + URLEncoder.encode("Status updated successfully.", "UTF-8"));
-            } else {
-                String search = request.getParameter("search");
-                String statusParam = request.getParameter("status");
-                int status = statusParam != null && !statusParam.isEmpty() ? Integer.parseInt(statusParam) : -1; // -1 nghĩa là tất cả
-                List<Account> staffAccounts, customerAccounts;
-                if (search != null && !search.isEmpty()) {
-                    if (status >= 0) {
-                        staffAccounts = accountDAO.searchAccountsByStatus("staff", search, status);
-                        customerAccounts = accountDAO.searchAccountsByStatus("customer", search, status);
-                    } else {
-                        staffAccounts = accountDAO.searchAccounts("staff", search);
-                        customerAccounts = accountDAO.searchAccounts("customer", search);
-                    }
+                Account account = accountDAO.getAccountById(id);
+                if (account != null) {
+                    account.setStatus(status);
+                    accountDAO.updateAccount(account, null, 0, null, null, null);
+                    request.setAttribute("message", "Status updated successfully.");
                 } else {
-                    if (status >= 0) {
-                        staffAccounts = accountDAO.getAccountsByStatus("staff", status);
-                        customerAccounts = accountDAO.getAccountsByStatus("customer", status);
-                    } else {
-                        staffAccounts = accountDAO.getAllStaff();
-                        customerAccounts = accountDAO.getAllCustomers();
+                    request.setAttribute("message", "Account not found.");
+                }
+                redirectWithParams(request, response);
+            } else {
+                // Hiển thị danh sách tài khoản với lọc
+                String search = request.getParameter("search");
+                String filterStatus = request.getParameter("filterStatus");
+                System.out.println("Filter Status: " + filterStatus + ", Search: " + search);
+
+                List<Account> staffAccounts;
+                List<Account> customerAccounts;
+
+                // Lấy danh sách tài khoản dựa trên tìm kiếm
+                if (search != null && !search.trim().isEmpty()) {
+                    staffAccounts = accountDAO.searchAccounts("staff", search.trim());
+                    customerAccounts = accountDAO.searchAccounts("customer", search.trim());
+                } else {
+                    staffAccounts = accountDAO.getAccountsByRole("staff");
+                    customerAccounts = accountDAO.getAccountsByRole("customer");
+                }
+
+                // Áp dụng lọc theo trạng thái
+                if (filterStatus != null && !filterStatus.isEmpty()) {
+                    try {
+                        int statusValue = Integer.parseInt(filterStatus);
+                        staffAccounts = staffAccounts.stream()
+                                .filter(a -> a.getStatus() == statusValue)
+                                .collect(Collectors.toList());
+                        customerAccounts = customerAccounts.stream()
+                                .filter(a -> a.getStatus() == statusValue)
+                                .collect(Collectors.toList());
+                    } catch (NumberFormatException e) {
+                        System.out.println("Invalid filterStatus value: " + filterStatus);
+                        // Không áp dụng lọc nếu filterStatus không hợp lệ
                     }
                 }
+
                 request.setAttribute("staffAccounts", staffAccounts);
                 request.setAttribute("customerAccounts", customerAccounts);
-                String message = request.getParameter("message");
-                if (message != null) {
-                    request.setAttribute("message", java.net.URLDecoder.decode(message, "UTF-8"));
-                }
                 request.getRequestDispatcher(jspPath).forward(request, response);
             }
+        } catch (NumberFormatException e) {
+            request.setAttribute("message", "Invalid ID or status format: " + e.getMessage());
+            redirectWithParams(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().write("Error: " + e.getMessage());
+            request.setAttribute("message", "Error: " + e.getMessage());
+            redirectWithParams(request, response);
         }
     }
 
@@ -116,86 +189,243 @@ public class AccountManagementServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         String action = request.getParameter("action");
-        String role = request.getParameter("role");
+        boolean isAjax = "XMLHttpRequest".equals(request.getHeader("X-Requested-With"));
 
         try {
             if ("insert".equals(action)) {
+                // Thêm tài khoản mới
+                String role = request.getParameter("role");
                 String fullName = request.getParameter("fullName");
                 String email = request.getParameter("email");
                 String password = request.getParameter("password");
-                String phone = request.getParameter("phone");
-                String address = request.getParameter("address");
 
-                // Kiểm tra các trường bắt buộc
-                if (fullName == null || fullName.trim().isEmpty() || email == null || email.trim().isEmpty() || 
-                    password == null || password.trim().isEmpty() || role == null) {
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-                        URLEncoder.encode("All required fields are missing.", "UTF-8"));
-                    return;
-                }
-                if ("customer".equals(role) && (phone == null || phone.trim().isEmpty() || address == null || address.trim().isEmpty())) {
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-                        URLEncoder.encode("Phone and address are required for customer.", "UTF-8"));
-                    return;
-                }
-                if (accountDAO.findByEmail(email) != null) {
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-                        URLEncoder.encode("Email already exists.", "UTF-8"));
-                    return;
-                }
-
-                // Hash password và tạo tài khoản
-                String hashedPassword = SecurityDAO.hashPassword(password);
-                Account account = new Account(0, fullName, email, hashedPassword, 1, role, new Timestamp(System.currentTimeMillis()));
-                int accountID = accountDAO.insertAccount(account);
-
-                if (accountID > 0) {
-                    if ("customer".equals(role)) {
-                        // Tạo và cập nhật Customer với phone và address
-                        Customer customer = new Customer();
-                        customer.setCustomerID(accountID);
-                        customer.setPhone(phone.trim());
-                        customer.setAddress(address.trim());
-                        System.out.println("DEBUG: Attempting to update Customer for accountID: " + accountID + ", phone: " + phone + ", address: " + address);
-                        if (!accountDAO.updateCustomer(customer)) {
-                            System.out.println("DEBUG: Failed to update Customer for accountID: " + accountID);
-                            response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-                                URLEncoder.encode("Failed to update Customer record. Please try again.", "UTF-8"));
-                            return;
-                        }
-                        System.out.println("DEBUG: Successfully updated Customer for accountID: " + accountID);
+                if (fullName == null || fullName.trim().isEmpty() || email == null || email.trim().isEmpty()
+                        || password == null || password.trim().isEmpty()) {
+                    if (isAjax) {
+                        sendJsonResponse(response, false, "All fields are required.");
+                    } else {
+                        request.setAttribute("message", "All fields are required.");
                     }
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-                        URLEncoder.encode("Account added successfully.", "UTF-8"));
+                } else if (accountDAO.findByEmail(email) != null) {
+                    if (isAjax) {
+                        sendJsonResponse(response, false, "Email already exists.");
+                    } else {
+                        request.setAttribute("message", "Email already exists.");
+                    }
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-                        URLEncoder.encode("Failed to add account. Please try again.", "UTF-8"));
-                }
-            } else if ("edit".equals(action)) {
-                int id = Integer.parseInt(request.getParameter("id"));
-                String fullName = request.getParameter("fullName");
-                Account existingAccount = accountDAO.getAccountById(id);
-                if (existingAccount != null) {
-                    existingAccount.setFullName(fullName);
-
-                    if ("customer".equals(existingAccount.getRole())) {
+                    String hashedPassword = SecurityDAO.hashPassword(password);
+                    Account account = new Account(0, fullName.trim(), email.trim(), hashedPassword, 1, role,
+                            new Timestamp(System.currentTimeMillis()));
+                    if ("customer".equals(role)) {
                         String phone = request.getParameter("phone");
                         String address = request.getParameter("address");
-                        accountDAO.updateAccount(existingAccount, null, 0, phone, address, null);
+                        if (phone == null || phone.trim().isEmpty() || address == null || address.trim().isEmpty()) {
+                            if (isAjax) {
+                                sendJsonResponse(response, false, "Phone and address are required for customer.");
+                            } else {
+                                request.setAttribute("message", "Phone and address are required for customer.");
+                            }
+                        } else {
+                            Customer customer = new Customer();
+                            customer.setPhone(phone.trim());
+                            customer.setAddress(address.trim());
+                            account.setCustomer(customer);
+                            accountDAO.insertAccount(account); // Sử dụng insertAccount chung
+                            if (isAjax) {
+                                sendJsonResponse(response, true, role + " added successfully.");
+                            } else {
+                                request.setAttribute("message", role + " added successfully.");
+                            }
+                        }
                     } else {
-                        accountDAO.updateAccount(existingAccount, null, 0, null, null, null);
+                        accountDAO.insertAccount(account); // Sử dụng insertAccount chung
+                        if (isAjax) {
+                            sendJsonResponse(response, true, role + " added successfully.");
+                        } else {
+                            request.setAttribute("message", role + " added successfully.");
+                        }
                     }
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-                        URLEncoder.encode("Account updated successfully.", "UTF-8"));
-                } else {
-                    System.out.println("DEBUG: Existing account not found for ID: " + id + ", Time: " + new java.util.Date());
-                    response.sendRedirect(request.getContextPath() + "/admin/accounts?message=" + 
-                        URLEncoder.encode("Account not found.", "UTF-8"));
                 }
+            } else if ("edit".equals(action)) {
+                // Sửa tài khoản
+                int id = Integer.parseInt(request.getParameter("id"));
+                String fullName = request.getParameter("fullName");
+                int status = Integer.parseInt(request.getParameter("status"));
+                String role = request.getParameter("role");
+
+                if (status != 1 && status != 0 && status != -1) {
+                    status = 0;
+                    System.out.println("Invalid status value " + request.getParameter("status") + " for accountID " + id + ". Defaulting to 0 (inactive).");
+                }
+
+                if (fullName == null || fullName.trim().isEmpty()) {
+                    if (isAjax) {
+                        sendJsonResponse(response, false, "Full name is required.");
+                    } else {
+                        request.setAttribute("message", "Full name is required.");
+                    }
+                } else {
+                    Account account = accountDAO.getAccountById(id);
+                    if (account == null) {
+                        if (isAjax) {
+                            sendJsonResponse(response, false, "Account not found.");
+                        } else {
+                            request.setAttribute("message", "Account not found.");
+                        }
+                    } else {
+                        account.setFullName(fullName.trim());
+                        account.setStatus(status);
+
+                        if ("customer".equals(role)) {
+                            String phone = request.getParameter("phone");
+                            String address = request.getParameter("address");
+                            if (phone == null || phone.trim().isEmpty() || address == null || address.trim().isEmpty()) {
+                                if (isAjax) {
+                                    sendJsonResponse(response, false, "Phone and address are required for customer.");
+                                } else {
+                                    request.setAttribute("message", "Phone and address are required for customer.");
+                                }
+                            } else {
+                                Customer customer = account.getCustomer();
+                                if (customer == null) {
+                                    customer = new Customer();
+                                    customer.setCustomerID(id);
+                                    account.setCustomer(customer);
+                                }
+                                customer.setPhone(phone.trim());
+                                customer.setAddress(address.trim());
+                                accountDAO.updateAccount(account, null, 0, phone.trim(), address.trim(), null);
+                                if (isAjax) {
+                                    sendJsonResponse(response, true, "Customer account updated successfully.");
+                                } else {
+                                    request.setAttribute("message", "Customer account updated successfully.");
+                                }
+                            }
+                        } else {
+                            accountDAO.updateAccount(account, null, 0, null, null, null);
+                            if (isAjax) {
+                                sendJsonResponse(response, true, "Staff account updated successfully.");
+                            } else {
+                                request.setAttribute("message", "Staff account updated successfully.");
+                            }
+                        }
+                    }
+                }
+            } else if ("deleteCustomer".equals(action)) {
+                // Xóa khách hàng
+                int customerId = Integer.parseInt(request.getParameter("id"));
+                boolean success = accountDAO.deleteCustomerById(customerId); // Gọi phương thức xóa khách hàng riêng
+                if (success) {
+                    if (isAjax) {
+                        sendJsonResponse(response, true, "Customer deleted successfully.");
+                    } else {
+                        request.setAttribute("message", "Customer deleted successfully.");
+                    }
+                } else {
+                    List<String> constraints = accountDAO.checkForeignKeyConstraints(customerId);
+                    if (!constraints.isEmpty()) {
+                        if (isAjax) {
+                            sendJsonResponse(response, false, "Failed to delete customer: Related records found in tables: " + String.join(", ", constraints));
+                        } else {
+                            request.setAttribute("message", "Failed to delete customer: Related records found in tables: " + String.join(", ", constraints));
+                        }
+                    } else {
+                        if (isAjax) {
+                            sendJsonResponse(response, false, "Failed to delete customer: Unknown error.");
+                        } else {
+                            request.setAttribute("message", "Failed to delete customer: Unknown error.");
+                        }
+                    }
+                }
+            } else if ("deleteStaff".equals(action)) {
+                // Xóa nhân viên
+                int staffId = Integer.parseInt(request.getParameter("id"));
+                boolean success = accountDAO.deleteStaffById(staffId); // Gọi phương thức xóa nhân viên riêng
+                if (success) {
+                    if (isAjax) {
+                        sendJsonResponse(response, true, "Staff deleted successfully.");
+                    } else {
+                        request.setAttribute("message", "Staff deleted successfully.");
+                    }
+                } else {
+                    List<String> constraints = accountDAO.checkForeignKeyConstraints(staffId);
+                    if (!constraints.isEmpty()) {
+                        if (isAjax) {
+                            sendJsonResponse(response, false, "Failed to delete staff: Related records found in tables: " + String.join(", ", constraints));
+                        } else {
+                            request.setAttribute("message", "Failed to delete staff: Related records found in tables: " + String.join(", ", constraints));
+                        }
+                    } else {
+                        if (isAjax) {
+                            sendJsonResponse(response, false, "Failed to delete staff: Unknown error.");
+                        } else {
+                            request.setAttribute("message", "Failed to delete staff: Unknown error.");
+                        }
+                    }
+                }
+            }
+
+            if (!isAjax) {
+                redirectWithParams(request, response);
+            }
+        } catch (NumberFormatException e) {
+            if (isAjax) {
+                sendJsonResponse(response, false, "Invalid ID format: " + e.getMessage());
+            } else {
+                request.setAttribute("message", "Invalid ID format: " + e.getMessage());
+                redirectWithParams(request, response);
             }
         } catch (Exception e) {
             e.printStackTrace();
-            response.getWriter().write("Error: " + e.getMessage());
+            if (isAjax) {
+                sendJsonResponse(response, false, "Error: " + e.getMessage());
+            } else {
+                request.setAttribute("message", "Error: " + e.getMessage());
+                redirectWithParams(request, response);
+            }
+        }
+    }
+
+    // Phương thức hỗ trợ chuyển hướng với các tham số
+    private void redirectWithParams(HttpServletRequest request, HttpServletResponse response) throws IOException {
+        String filterStatus = request.getParameter("filterStatus");
+        String search = request.getParameter("search");
+        String tab = request.getParameter("tab");
+        String redirectUrl = request.getContextPath() + "/admin/accounts?filterStatus="
+                + (filterStatus != null ? filterStatus : "")
+                + "&search=" + (search != null ? search : "")
+                + "&tab=" + (tab != null ? tab : "staff-tab");
+        response.sendRedirect(redirectUrl);
+    }
+
+    // Phương thức gửi phản hồi JSON
+    private void sendJsonResponse(HttpServletResponse response, boolean success, String message) throws IOException {
+        response.setContentType("application/json");
+        response.setCharacterEncoding("UTF-8");
+        PrintWriter out = response.getWriter();
+        String jsonResponse = gson.toJson(new ResponseMessage(success, message));
+        out.print(jsonResponse);
+        out.flush();
+    }
+
+    // Lớp nội bộ để tạo đối tượng JSON
+    private static class ResponseMessage {
+
+        private boolean success;
+        private String message;
+
+        public ResponseMessage(boolean success, String message) {
+            this.success = success;
+            this.message = message;
+        }
+
+        // Getters (required for Gson)
+        public boolean isSuccess() {
+            return success;
+        }
+
+        public String getMessage() {
+            return message;
         }
     }
 }
