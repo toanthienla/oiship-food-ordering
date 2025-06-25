@@ -1,5 +1,6 @@
 package dao;
 
+import java.math.BigDecimal;
 import model.Cart;
 import model.Dish;
 import utils.DBContext;
@@ -7,12 +8,50 @@ import utils.DBContext;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+
 import model.DishIngredient;
 import model.Ingredient;
+import utils.TotalPriceCalculator;
 
 public class CartDAO extends DBContext {
 
-  public List<Cart> getCartByCustomerId(int customerId) throws SQLException {
+ 
+//  public List<Cart> getCartByCustomerId(int customerId) throws SQLException {
+//    List<Cart> cartItems = new ArrayList<>();
+//
+//    String sql = "SELECT " +
+//                 "c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, " +
+//                 "d.DishName, d.image, d.opCost, d.interestPercentage " +
+//                 "FROM Cart c " +
+//                 "JOIN Dish d ON c.FK_Cart_Dish = d.DishID " +
+//                 "WHERE c.FK_Cart_Customer = ?";
+//
+//    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+//        ps.setInt(1, customerId);
+//        ResultSet rs = ps.executeQuery();
+//        while (rs.next()) {
+//            Cart cart = new Cart();
+//            cart.setCartID(rs.getInt("cartID"));
+//            cart.setCustomerID(rs.getInt("FK_Cart_Customer"));
+//            cart.setDishID(rs.getInt("FK_Cart_Dish"));
+//            cart.setQuantity(rs.getInt("quantity"));
+//
+//            Dish dish = new Dish();
+//            dish.setDishID(rs.getInt("FK_Cart_Dish"));
+//            dish.setDishName(rs.getString("DishName"));
+//            dish.setImage(rs.getString("image"));
+//            dish.setOpCost(rs.getBigDecimal("opCost"));
+//            dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
+//
+//            cart.setDish(dish);
+//            cartItems.add(cart);
+//        }
+//    }
+//
+//    return cartItems;
+//}
+
+    public List<Cart> getCartByCustomerId(int customerId) throws SQLException {
     List<Cart> cartItems = new ArrayList<>();
 
     String sql = "SELECT " +
@@ -25,6 +64,9 @@ public class CartDAO extends DBContext {
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
         ps.setInt(1, customerId);
         ResultSet rs = ps.executeQuery();
+
+        IngredientDAO ingredientDAO = new IngredientDAO();
+
         while (rs.next()) {
             Cart cart = new Cart();
             cart.setCartID(rs.getInt("cartID"));
@@ -33,11 +75,23 @@ public class CartDAO extends DBContext {
             cart.setQuantity(rs.getInt("quantity"));
 
             Dish dish = new Dish();
-            dish.setDishID(rs.getInt("FK_Cart_Dish"));
+            int dishId = rs.getInt("FK_Cart_Dish");
+
+            dish.setDishID(dishId);
             dish.setDishName(rs.getString("DishName"));
             dish.setImage(rs.getString("image"));
             dish.setOpCost(rs.getBigDecimal("opCost"));
             dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
+
+            // ✅ Tính giá từ nguyên liệu
+            List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
+            BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+            BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
+                    dish.getOpCost(), dish.getInterestPercentage(), ingredientCost);
+
+            dish.setIngredients(ingredients);
+            dish.setTotalPrice(totalPrice);
+            dish.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
 
             cart.setDish(dish);
             cartItems.add(cart);
@@ -47,6 +101,7 @@ public class CartDAO extends DBContext {
     return cartItems;
 }
 
+    
     // Thêm món mới vào giỏ hàng
     public void addToCart(int customerId, int dishId, int quantity) throws SQLException {
         String sql = "INSERT INTO Cart (quantity, FK_Cart_Customer, FK_Cart_Dish) VALUES (?, ?, ?)";

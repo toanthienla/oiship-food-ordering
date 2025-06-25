@@ -309,7 +309,8 @@
             <a href="#location"><i class="fas fa-map-marker-alt me-2"></i> Location</a>
 
             <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
-            <a href="login"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
+            <a href="customer/view-cart"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
+            
             <a href="login"><i class="fas fa-list me-2"></i> Order</a>
             <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>           
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>          
@@ -324,7 +325,7 @@
                 <div class="d-flex align-items-center">
                     <div class="notification-bell me-3">
                         <i class="fas fa-bell"></i>
-                        <span class="badge rounded-pill">3</span>
+                        <span class="badge rounded-pill"></span>
                     </div>
                     <div class="dropdown">
                         <a class="dropdown-toggle text-decoration-none" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">

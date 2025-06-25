@@ -324,21 +324,22 @@
                 <h5 class="mt-2 text-orange">OISHIP</h5>
             </div>
             <a href="customer/view-vouchers-list"><i class="fas fa-tags me-2"></i>Vouchers</a>
+            <%
+                List<Cart> cartItems = (List<Cart>) session.getAttribute("cartItems");
+                int cartCount = (cartItems != null) ? cartItems.size() : 0;
+            %>
             <a href="customer/view-cart">
                 <i class="fas fa-shopping-cart me-2"></i>
                 Cart
-                <span id="cart-count" class="badge bg-danger ms-1">0</span>
+                <span id="cart-count" class="badge bg-danger ms-1"></span>
             </a>
             <a href="customer/order"><i class="fas fa-list me-2"></i> Order</a>  
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
 
         </div>
-        <%
-            List<Cart> cartItems = (List<Cart>) session.getAttribute("cartItems");
-            int cartCount = (cartItems != null) ? cartItems.size() : 0;
-        %>
 
-        <a href="add-cart"><i class="fas fa-shopping-cart me-2"></i> Cart (<%= cartCount%>)</a>
+
+
 
         <div class="main-content">
             <nav class="navbar navbar-light bg-light p-2 mb-3">
@@ -370,7 +371,7 @@
                                    data-bs-toggle="modal" 
                                    data-bs-target="#notificationModal"
                                    data-title="<%= n.getNotTitle()%>"  
-                                     data-description="<%= n.getNotDescription() %>" 
+                                   data-description="<%= n.getNotDescription()%>" 
                                    data-id="<%= n.getNotID()%>">
                                     <strong><%= n.getNotTitle()%></strong>
                                 </a>
@@ -751,7 +752,7 @@
                     document.getElementById('modalTitle').textContent = title;
                     document.getElementById('modalDescription').textContent = desc;
 
-                   
+
                 });
             }
         </script>

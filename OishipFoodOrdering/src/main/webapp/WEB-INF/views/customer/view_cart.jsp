@@ -112,23 +112,42 @@
                     <tbody>
                         <% for (Cart item : cartItems) {
                                 Dish dish = item.getDish();
-                                BigDecimal unitPrice = dish.getTotalPrice();
                                 int quantity = item.getQuantity();
+                                BigDecimal unitPrice = dish.getTotalPrice(); // đã tính từ DAO
                                 BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
                         %>
                         <tr>
-                            <td><input type="checkbox" class="item-checkbox" value="<%= item.getCartID()%>"></td>
-                            <td><img src="<%= dish.getImage()%>" width="100" height="80" class="img-thumbnail"></td>
-                            <td><%= dish.getDishName()%></td>
+                            <!-- Checkbox chọn món -->
+                            <td>
+                                <input type="checkbox" class="item-checkbox" value="<%= item.getCartID()%>">
+                            </td>
+
+                            <!-- Hình ảnh món -->
+                            <td>
+                                <img src="<%= dish.getImage()%>" width="100" height="80" class="img-thumbnail">
+                            </td>
+
+                            <!-- Tên món ăn -->
+                            <td>
+                                <%= dish.getDishName()%><br>
+                                <small class="text-muted">Đơn giá: <%= dish.getFormattedPrice()%> đ</small>
+                            </td>
+
+                            <!-- Số lượng có nút tăng/giảm -->
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
-                                    <input type="text" id="qty_<%= item.getCartID()%>" value="<%= item.getQuantity()%>" readonly class="form-control text-center" style="width: 60px;">
+                                    <input type="text" id="qty_<%= item.getCartID()%>" value="<%= quantity%>" readonly class="form-control text-center" style="width: 60px;">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
                             </td>
 
-                            <td class="item-total" data-price="<%= unitPrice.intValue()%>"><%= String.format("%,.0f", itemTotal)%> đ</td>
+                            <!-- Tổng tiền của món -->
+                            <td class="item-total" data-price="<%= unitPrice.intValue()%>">
+                                <%= String.format("%,.0f", itemTotal)%> đ
+                            </td>
+
+                            <!-- Nút xoá -->
                             <td>
                                 <form action="<%= request.getContextPath()%>/customer/view-cart" method="post" onsubmit="return confirm('Are you sure you want to remove this item?');">
                                     <input type="hidden" name="cartID" value="<%= item.getCartID()%>">
@@ -138,13 +157,14 @@
                         </tr>
                         <% } %>
                     </tbody>
+
                 </table>
             </div>
             <% } else { %>
             <div class="alert alert-warning text-center">Your cart is currently empty.</div>
             <% }%>
 
-         <form action="${pageContext.request.contextPath}/customer/order" method="post" id="orderForm">
+            <form action="${pageContext.request.contextPath}/customer/order" method="post" id="orderForm">
                 <div class="d-flex justify-content-between mt-4">
                     <a href="<%= request.getContextPath()%>/customer" class="btn btn-custom-back">&laquo; Back to Menu</a>
                     <button type="submit" class="btn btn-success text-white" onclick="prepareOrder()">
@@ -154,7 +174,7 @@
                 </div>
             </form>
 
-           
+
         </div>
 
         <script>
@@ -211,6 +231,13 @@
                 return true;
             }
         </script>
+        <script>
+            function toggleAll(source) {
+                const checkboxes = document.querySelectorAll('.item-checkbox');
+                checkboxes.forEach(cb => cb.checked = source.checked);
+            }
+        </script>
+
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>

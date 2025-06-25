@@ -83,21 +83,12 @@
                         <i class="fa-solid fa-star star"></i>
                     </p>
                     <% }%>
-
-
-
                     <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3">
                         <input type="hidden" name="dishID" value="<%= dish.getDishID()%>" />
-
                         <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= dish.getDishID()%>, -1)">−</button>
-
                             <input type="text" id="qty_<%= dish.getDishID()%>" name="quantity" value="1"
                                    class="form-control text-center" style="width: 60px;" >
-
-                            <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= dish.getDishID()%>, 1)">+</button>
                         </div>
-
 
                         <button type="submit" class="btn btn-custom w-100">Add to Cart</button>
                     </form>
@@ -135,17 +126,13 @@
         </div>
 
 
+
+
         <script>
-            const input = document.getElementById("qty_" + dishId);
+            const contextPath = "<%= request.getContextPath()%>";
 
             function updateQuantity(dishId, delta) {
-                console.log("clicked + or -"); // ← Thêm dòng này
                 const input = document.getElementById("qty_" + dishId);
-                if (!input) {
-                    console.error("Không tìm thấy input qty_" + dishId);
-                    return;
-                }
-
                 let qty = parseInt(input.value);
                 if (isNaN(qty))
                     qty = 1;
@@ -153,12 +140,24 @@
                 if (qty < 1)
                     qty = 1;
                 input.value = qty;
+
+                fetch(contextPath + "/customer/add-cart", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: "dishID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+
+                }).then(() => {
+                    const row = input.closest("tr");
+                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                    const total = qty * price;
+                    row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
+                });
             }
 
 
         </script>
-
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
 
 
     </body>
