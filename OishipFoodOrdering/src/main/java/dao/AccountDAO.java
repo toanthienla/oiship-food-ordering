@@ -807,7 +807,7 @@ public class AccountDAO extends DBContext {
     }
 
     public int insertAnonymousCustomerAndReturnCustomerID(String fullName) {
-              String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
+        String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
         String insertCustomerSQL = "INSERT INTO Customer (customerID) VALUES (?)";
 
         try (Connection conn = getConnection()) {
@@ -830,8 +830,19 @@ public class AccountDAO extends DBContext {
                         psCustomer.setInt(1, accountId);
                         psCustomer.executeUpdate();
                     }
+                    conn.commit();
+                    return accountId; // Trả về ID đã insert
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-    
+        return -1;
+    }
 
     public boolean deleteCustomerById(int customerID) {
         if (customerID <= 0) {
@@ -1010,18 +1021,4 @@ public class AccountDAO extends DBContext {
         }
     }
 
-
-                    conn.commit();
-                    return accountId; // Trả về ID đã insert
-                }
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return -1;
-    }
 }
