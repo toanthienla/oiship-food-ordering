@@ -179,13 +179,13 @@ CREATE TABLE [Notification] (
 	FK_Notification_Account INT FOREIGN KEY REFERENCES Account(accountID) -- Admin/Staff add notification
 );
 
--- Notification - Customer
-CREATE TABLE CustomertNotification (
-    customerID INT,
-    notID INT,
-    PRIMARY KEY (customerID, notID),
-    FOREIGN KEY (customerID) REFERENCES Customer(customerID),
-    FOREIGN KEY (notID) REFERENCES Notification(notID)
+	-- Notification - Customer
+	CREATE TABLE CustomertNotification (
+		customerID INT,
+		notID INT,	
+		PRIMARY KEY (customerID, notID),
+		FOREIGN KEY (customerID) REFERENCES Customer(customerID),
+		FOREIGN KEY (notID) REFERENCES Notification(notID)
 );
 -- Contact table
 CREATE TABLE Contact (

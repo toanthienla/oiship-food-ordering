@@ -123,10 +123,11 @@
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
-                                    <input type="text" id="qty_<%= item.getCartID()%>" value="<%= quantity%>" readonly class="form-control text-center" style="width: 60px;">
+                                    <input type="text" id="qty_<%= item.getCartID()%>" value="<%= item.getQuantity()%>" readonly class="form-control text-center" style="width: 60px;">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
                             </td>
+
                             <td class="item-total" data-price="<%= unitPrice.intValue()%>"><%= String.format("%,.0f", itemTotal)%> đ</td>
                             <td>
                                 <form action="<%= request.getContextPath()%>/customer/view-cart" method="post" onsubmit="return confirm('Are you sure you want to remove this item?');">
@@ -143,102 +144,74 @@
             <div class="alert alert-warning text-center">Your cart is currently empty.</div>
             <% }%>
 
-            <form action="<%= request.getContextPath()%>/customer/order" method="post" id="orderForm">
+         <form action="${pageContext.request.contextPath}/customer/order" method="post" id="orderForm">
                 <div class="d-flex justify-content-between mt-4">
                     <a href="<%= request.getContextPath()%>/customer" class="btn btn-custom-back">&laquo; Back to Menu</a>
-                    <button type="button" class="btn btn-success text-white" onclick="prepareCheckoutModal()" data-bs-toggle="modal" data-bs-target="#checkoutModal">
+                    <button type="submit" class="btn btn-success text-white" onclick="prepareOrder()">
                         <i class="fa-solid fa-cart-shopping me-1"></i> Order Now
                     </button>
+
                 </div>
             </form>
 
-            <!-- Modal xác nhận -->
-            <div class="modal fade" id="checkoutModal" tabindex="-1" aria-labelledby="checkoutModalLabel" aria-hidden="true">
-                <div class="modal-dialog modal-lg">
-                    <div class="modal-content">
-                        <div class="modal-header bg-success text-white">
-                            <h5 class="modal-title">Xác nhận đơn hàng</h5>
-                            <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                        </div>
-                        <div class="modal-body">
-                            <div id="checkoutSummary"></div>
-                            <div class="text-end fw-bold mt-3">Tổng cộng: <span id="totalAmount">0</span> đ</div>
-                        </div>
-                        <div class="modal-footer">
-                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Quay lại</button>
-                            <button type="submit" class="btn btn-success" form="orderForm">Xác nhận đặt hàng</button>
-                        </div>
-                    </div>
-                </div>
-            </div>
+           
         </div>
 
         <script>
-    const contextPath = "<%= request.getContextPath()%>";
+            const contextPath = "<%= request.getContextPath()%>";
 
-    function updateQuantity(cartId, delta) {
-        const input = document.getElementById("qty_" + cartId);
-        let qty = parseInt(input.value);
-        qty = isNaN(qty) ? 1 : qty + delta;
-        qty = Math.max(1, qty);
-        input.value = qty;
+            function updateQuantity(cartId, delta) {
+                const input = document.getElementById("qty_" + cartId);
+                let qty = parseInt(input.value);
+                if (isNaN(qty))
+                    qty = 1;
+                qty += delta;
+                if (qty < 1)
+                    qty = 1;
+                input.value = qty;
 
-        fetch(contextPath + "/customer/view-cart", {
-            method: "POST",
-            headers: {"Content-Type": "application/x-www-form-urlencoded"},
-            body: `cartID=${cartId}&quantity=${qty}`
-        }).then(() => {
-            const row = input.closest("tr");
-            const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-            const total = qty * price;
-            row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
-        });
-    }
+                fetch(contextPath + "/customer/view-cart", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
 
-    function prepareCheckoutModal() {
-        const checkedItems = document.querySelectorAll('.item-checkbox:checked');
-        let summaryHTML = '';
-        let total = 0;
+                }).then(() => {
+                    const row = input.closest("tr");
+                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                    const total = qty * price;
+                    row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
+                });
+            }
 
-        if (checkedItems.length === 0) {
-            summaryHTML = '<div class="alert alert-warning text-center">Bạn chưa chọn món nào.</div>';
-        } else {
-            checkedItems.forEach(cb => {
-                const row = cb.closest('tr');
-                const image = row.querySelector('img').src;
-                const name = row.cells[2].textContent;
-                const quantity = parseInt(row.querySelector('input[type="text"]').value);
-                const unitPrice = parseInt(row.querySelector('.item-total').getAttribute('data-price'));
-                const itemTotal = quantity * unitPrice;
-                total += itemTotal;
-                summaryHTML += `
-                    <div class="d-flex align-items-center mb-3">
-                        <img src="${image}" class="img-thumbnail me-3" style="width: 80px; height: 80px;">
-                        <div>
-                            <h6 class="mb-1">${name}</h6>
-                            <p class="mb-0">Số lượng: <strong>${quantity}</strong></p>
-                            <p class="mb-0">Tạm tính: ${itemTotal.toLocaleString()} đ</p>
-                        </div>
-                    </div>`;
-            });
-        }
 
-        document.getElementById('checkoutSummary').innerHTML = summaryHTML;
-        document.getElementById('totalAmount').textContent = total.toLocaleString();
-
-        // Clear old hidden inputs
-        document.querySelectorAll('#orderForm input[name="selectedItems"]').forEach(e => e.remove());
-
-        // Add new hidden inputs
-        checkedItems.forEach(cb => {
-            const hidden = document.createElement('input');
-            hidden.type = 'hidden';
-            hidden.name = 'selectedItems';
-            hidden.value = cb.value;
-            document.getElementById('orderForm').appendChild(hidden);
-        });
-    }
         </script>
+        <script>
+            function prepareOrder() {
+                const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+
+                // Nếu không chọn món nào
+                if (checkedItems.length === 0) {
+                    alert("Vui lòng chọn ít nhất một món để đặt hàng.");
+                    event.preventDefault();
+                    return false;
+                }
+
+                // Xóa input cũ
+                document.querySelectorAll('#orderForm input[name="selectedItems"]').forEach(e => e.remove());
+
+                // Thêm input ẩn
+                checkedItems.forEach(cb => {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'selectedItems';
+                    hidden.value = cb.value;
+                    document.getElementById('orderForm').appendChild(hidden);
+                });
+
+                return true;
+            }
+        </script>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>
