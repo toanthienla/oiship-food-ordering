@@ -71,7 +71,6 @@ public class UpdateStatusOrderServlet extends HttpServlet {
             int orderID = Integer.parseInt(orderIDParam);
             OrderDAO dao = new OrderDAO();
 
-
             int orderStatus = dao.getOrderStatusByOrderId(orderID);
             List<OrderDetail> details = dao.getOrderDetailsByOrderID(orderID);
 
@@ -99,29 +98,44 @@ public class UpdateStatusOrderServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            int orderID = Integer.parseInt(request.getParameter("orderID"));
-            int newStatus = Integer.parseInt(request.getParameter("newStatus"));
+            String orderIDParam = request.getParameter("orderID");
+            String newStatusParam = request.getParameter("newStatus");
+
+            if (orderIDParam == null || orderIDParam.trim().isEmpty() || newStatusParam == null || newStatusParam.trim().isEmpty()) {
+                request.setAttribute("message", "Error: Missing order ID or status.");
+                request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
+                return;
+            }
+
+            int orderID = Integer.parseInt(orderIDParam);
+            int newStatus = Integer.parseInt(newStatusParam);
 
             OrderDAO dao = new OrderDAO();
             boolean success = dao.updateStatusOrderByOrderId(orderID, newStatus);
 
+            // Lấy lại dữ liệu để hiển thị
+            int orderStatus = dao.getOrderStatusByOrderId(orderID);
+            List<OrderDetail> details = dao.getOrderDetailsByOrderID(orderID);
+
+            request.setAttribute("orderID", orderID);
+            request.setAttribute("orderStatus", orderStatus);
+            request.setAttribute("orderDetails", details);
+
             if (success) {
-                int orderStatus = dao.getOrderStatusByOrderId(orderID);
-                List<OrderDetail> details = dao.getOrderDetailsByOrderID(orderID);
-
-                request.setAttribute("orderID", orderID);
-                request.setAttribute("orderStatus", orderStatus);
-                request.setAttribute("orderDetails", details);
                 request.setAttribute("message", "Order status updated successfully!");
-
-                request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
             } else {
                 request.setAttribute("message", "Failed to update order status.");
-                request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
             }
+
+            response.sendRedirect(request.getContextPath() + "/staff/manage-orders/update-status?orderID=" + orderID);
+
+        } catch (NumberFormatException e) {
+            request.setAttribute("message", "Error: Invalid order ID or status format.");
+            request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            response.sendRedirect(request.getContextPath() + "/staff/manage-orders?error=exception");
+            request.setAttribute("message", "Error: An unexpected error occurred.");
+            request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
         }
     }
 
