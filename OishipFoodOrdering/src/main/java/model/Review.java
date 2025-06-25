@@ -19,6 +19,7 @@ public class Review {
     private int orderDetailId;    // FK_Review_OrderDetail
     private int customerId;       // FK_Review_Customer
     private String customerName;  // Tên người đánh giá (join từ Account)
+   
 
     public Review() {
     }
@@ -98,7 +99,7 @@ public class Review {
     public void setDishName(String dishName) { //setter của dish đó luôn
         this.dishName = dishName;
     }
-    
+
     private int OrderId; //lưu Orderid
 
     public int getOrderId() {
@@ -108,7 +109,7 @@ public class Review {
     public void setOrderId(int OrderId) {
         this.OrderId = OrderId;
     }
-    
+
     private String catName;
 
     public String getCatName() {
@@ -118,5 +119,5 @@ public class Review {
     public void setCatName(String catName) {
         this.catName = catName;
     }
-    
+
 }

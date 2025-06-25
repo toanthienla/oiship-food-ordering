@@ -807,41 +807,31 @@ public class AccountDAO extends DBContext {
     }
 
     public int insertAnonymousCustomerAndReturnCustomerID(String fullName) {
-        String sqlAccount = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
-        String sqlCustomer = "INSERT INTO Customer (customerID) VALUES (?)";
+              String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
+        String insertCustomerSQL = "INSERT INTO Customer (customerID) VALUES (?)";
 
         try (Connection conn = getConnection()) {
-            conn.setAutoCommit(false);
+            conn.setAutoCommit(false); // Bắt đầu transaction
 
+            // Tạo email giả để tránh lỗi UNIQUE
             String fakeEmail = "anon_" + System.currentTimeMillis() + "@anon.com";
 
-            try (PreparedStatement ps = conn.prepareStatement(sqlAccount)) {
-                ps.setString(1, fullName);
-                ps.setString(2, fakeEmail);
+            // Insert vào Account
+            try (PreparedStatement psAccount = conn.prepareStatement(insertAccountSQL)) {
+                psAccount.setString(1, fullName);
+                psAccount.setString(2, fakeEmail);
 
-                try (ResultSet rs = ps.executeQuery()) {
-                    if (rs.next()) {
-                        int accountId = rs.getInt("accountID");
+                ResultSet rs = psAccount.executeQuery();
+                if (rs.next()) {
+                    int accountId = rs.getInt("accountID");
 
-                        try (PreparedStatement psCustomer = conn.prepareStatement(sqlCustomer)) {
-                            psCustomer.setInt(1, accountId);
-                            psCustomer.executeUpdate();
-                        }
-
-                        conn.commit();
-                        return accountId;
+                    // Insert vào Customer
+                    try (PreparedStatement psCustomer = conn.prepareStatement(insertCustomerSQL)) {
+                        psCustomer.setInt(1, accountId);
+                        psCustomer.executeUpdate();
                     }
-                }
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
 
-        return -1;
-    }
+    
 
     public boolean deleteCustomerById(int customerID) {
         if (customerID <= 0) {
@@ -1020,4 +1010,18 @@ public class AccountDAO extends DBContext {
         }
     }
 
+
+                    conn.commit();
+                    return accountId; // Trả về ID đã insert
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
 }

@@ -1,8 +1,3 @@
-
-<%@page import="model.Category"%>
-<%@page import="model.Dish"%>
-<%@page import="java.util.List"%>
-
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ page import="java.util.List" %>
 <%@ page import="model.Dish" %>

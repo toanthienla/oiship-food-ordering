@@ -4,7 +4,6 @@
  */
 package controller.customer;
 
-
 import dao.CustomerProfileDAO;
 import jakarta.servlet.RequestDispatcher;
 import java.io.IOException;
@@ -17,12 +16,9 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Customer;
 
-
-
 @WebServlet(name = "ViewProfileCustomerServlet", urlPatterns = {"/customer/profile"})
 public class ViewProfileCustomerServllet extends HttpServlet {
 
-   
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         response.setContentType("text/html;charset=UTF-8");
@@ -40,11 +36,10 @@ public class ViewProfileCustomerServllet extends HttpServlet {
         }
     }
 
- 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-              // Lấy email từ session (đã lưu khi đăng nhập)
+        // Lấy email từ session (đã lưu khi đăng nhập)
         HttpSession session = request.getSession(false);
         String email = (String) session.getAttribute("email");
 
@@ -55,7 +50,7 @@ public class ViewProfileCustomerServllet extends HttpServlet {
 
         try {
             CustomerProfileDAO cusPro = new CustomerProfileDAO();
-           Customer cus = cusPro.getCustomerByEmail(email);
+            Customer cus = cusPro.getCustomerByEmail(email);
 
             if (cus != null) {
                 request.setAttribute("customer", cus);
@@ -71,17 +66,15 @@ public class ViewProfileCustomerServllet extends HttpServlet {
             request.setAttribute("error", "Server error: " + e.getMessage());
             request.getRequestDispatcher("/error.jsp").forward(request, response);
         }
-    
+
     }
 
-    
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         processRequest(request, response);
     }
 
-   
     @Override
     public String getServletInfo() {
         return "Short description";

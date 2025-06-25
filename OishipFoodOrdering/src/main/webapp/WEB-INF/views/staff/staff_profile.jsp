@@ -1,4 +1,3 @@
-
 <%@page import="model.Staff"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -26,6 +25,9 @@
             rel="stylesheet"
             href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css"
             />
+
+        <!-- Tailwind CSS (prefix tw-) -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tailwind.css" />
 
         <style>
             body {
@@ -92,6 +94,26 @@
                 padding: 8px;
             }
 
+            .btn-orange {
+                background-color: #EF5D10;
+                color: white;
+            }
+            .btn-orange:hover {
+                background-color: #d94f0f;
+                color: white;
+            }
+
+            .card-rounded {
+                border-radius: 1.5rem;
+            }
+
+            .card-header-orange {
+                background-color: #EF5D10;
+                color: white;
+                border-top-left-radius: 1.5rem;
+                border-top-right-radius: 1.5rem;
+            }
+
             @media (max-width: 768px) {
                 .main {
                     margin-left: 0;
@@ -156,47 +178,63 @@
                     </div>
                 </div>
             </nav>
+
             <!-- Profile Content -->
-            <div class="container py-5">
-                <div class="row justify-content-center">
-                    <div class="col-md-8">
-                        <div class="card shadow">
-                            <div class="card-header bg-primary text-white">
-                                <h4 class="mb-0">Staff Profile</h4>
+            <div class="content container my-5">
+                <div class="card shadow card-rounded border border-light">
+                    <!-- Header -->
+                    <div class="card-header px-4 py-3 d-flex align-items-center" style="background-color: #EF5D10;">
+                        <i class="bi bi-person-circle me-3 fs-4 text-white"></i>
+                        <h4 class="mb-0 text-white">Staff Profile</h4>
+                    </div>
+
+                    <!-- Body -->
+                    <div class="card-body px-4 py-4 bg-light">
+                        <%
+                            Staff staff = (Staff) request.getAttribute("staff");
+                            SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
+                            if (staff != null) {
+                        %>
+                        <div class="row mb-4 text-dark">
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-secondary"><i class="bi bi-person-fill me-1"></i>Full Name:</strong>
+                                <div><%= staff.getFullName() != null ? staff.getFullName() : "N/A"%></div>
                             </div>
-                            <div class="card-body">
-                                <%
-                                    Staff staff = (Staff) request.getAttribute("staff");
-                                    SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy HH:mm:ss");
-                                    if (staff != null) {
-                                %>
-                                <dl class="row">
-                                    <dt class="col-sm-4">Full Name:</dt>
-                                    <dd class="col-sm-8"><%= staff.getFullName() != null ? staff.getFullName() : "N/A"%></dd>
-
-                                    <dt class="col-sm-4">Email:</dt>
-                                    <dd class="col-sm-8"><%= staff.getEmail() != null ? staff.getEmail() : "N/A"%></dd>
-
-                                    <dt class="col-sm-4">Role:</dt>
-                                    <dd class="col-sm-8"><%= staff.getRole() != null ? staff.getRole() : "N/A"%></dd>
-
-                                    <dt class="col-sm-4">Created At:</dt>
-                                    <dd class="col-sm-8"><%= staff.getCreateAt() != null ? dateFormat.format(staff.getCreateAt()) : "N/A"%></dd>
-                                </dl>
-                                <% } else { %>
-                                <div class="alert alert-danger text-center">No staff profile found.</div>
-                                <% }%>
-                                <div class="text-center mt-4 d-flex justify-content-center gap-3 flex-wrap">
-                                    <a href="${pageContext.request.contextPath}/staff/profile/edit-profile" class="btn btn-success">Edit Profile</a>
-                                    <a href="${pageContext.request.contextPath}/staff/profile/change-password" class="btn btn-danger">Change Password</a>
-                                    <a href="${pageContext.request.contextPath}/staff/dashboard" class="btn btn-secondary">Back to Dashboard</a>
-                                </div>
-
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-secondary"><i class="bi bi-envelope-fill me-1"></i>Email:</strong>
+                                <div><%= staff.getEmail() != null ? staff.getEmail() : "N/A"%></div>
                             </div>
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-secondary"><i class="bi bi-person-badge-fill me-1"></i>Role:</strong>
+                                <div><%= staff.getRole() != null ? staff.getRole() : "N/A"%></div>
+                            </div>
+                            <div class="col-md-6 mb-3">
+                                <strong class="text-secondary"><i class="bi bi-calendar-event me-1"></i>Created At:</strong>
+                                <div><%= staff.getCreateAt() != null ? dateFormat.format(staff.getCreateAt()) : "N/A"%></div>
+                            </div>
+                        </div>
+                        <% } else { %>
+                        <div class="alert alert-warning text-center">
+                            <i class="bi bi-exclamation-circle me-2"></i>No staff profile found.
+                        </div>
+                        <% }%>
+
+                        <!-- Buttons -->
+                        <div class="d-flex flex-wrap justify-content-center gap-3 mt-4">
+                            <a href="${pageContext.request.contextPath}/staff/profile/edit-profile"
+                               class="btn d-inline-flex align-items-center gap-2 px-4 py-2 shadow text-white"
+                               style="background-color: #EF5D10;">
+                                <i class="bi bi-pencil-square"></i> Edit Profile
+                            </a>
+                            <a href="${pageContext.request.contextPath}/staff/profile/change-password"
+                               class="btn btn-secondary d-inline-flex align-items-center gap-2 px-4 py-2 shadow">
+                                <i class="bi bi-shield-lock-fill"></i> Change Password
+                            </a>
                         </div>
                     </div>
                 </div>
             </div>
 
+        </div>
     </body>
 </html>

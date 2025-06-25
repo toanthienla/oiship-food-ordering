@@ -3,6 +3,7 @@ package controller.customer;
 import dao.AccountDAO;
 import dao.CategoryDAO;
 import dao.DishDAO;
+import dao.NotificationDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
@@ -12,6 +13,7 @@ import model.Dish;
 
 import java.io.IOException;
 import java.util.List;
+import model.Notification;
 
 @WebServlet(name = "CustomerServlet", urlPatterns = {"/customer"})
 public class CustomerServlet extends HttpServlet {
@@ -42,9 +44,8 @@ public class CustomerServlet extends HttpServlet {
             request.setAttribute("error", "Failed to load menu items.");
         }
 
-       // int userId = (int) session.getAttribute("userId");
+        // int userId = (int) session.getAttribute("userId");
         AccountDAO dao = new AccountDAO();
-
 
         // Get customer information using email stored in session
         int userId = (int) session.getAttribute("userId");
@@ -71,7 +72,9 @@ public class CustomerServlet extends HttpServlet {
             }
         }
 
-        // Forward to customer homepage view
+       NotificationDAO notificationDAO = new NotificationDAO();
+       List<Notification> no = notificationDAO.getAllNotifications();
+      request.setAttribute("notifications", no);    
         request.getRequestDispatcher("/WEB-INF/views/customer/customer.jsp").forward(request, response);
     }
 

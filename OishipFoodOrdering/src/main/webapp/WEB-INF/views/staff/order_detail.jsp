@@ -1,4 +1,3 @@
-
 <%@page import="model.Staff"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -15,16 +14,14 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-
-
         <!-- Sidebar CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
 
         <!-- Sidebar JS -->
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
+
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
-
 
         <style>
             body {
@@ -155,9 +152,6 @@
                     </div>
                 </div>
             </nav>
-            <!--Content -->
-            <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
-            <%@ taglib uri="http://java.sun.com/jsp/jstl/fmt" prefix="fmt" %>
 
             <!--Content -->
             <div class="content container mt-4">
@@ -206,7 +200,8 @@
                                 <tr>
                                     <td>${detail.dishName}</td>
                                     <td>
-                                        <img src="https://placehold.co/80x60"/>
+                                        <img src="${detail.dishImage}" width="80" height="60"/>
+
                                     </td>
                                     <td>${detail.dishDescription}</td>
                                     <td>${detail.quantity}</td>
@@ -234,11 +229,7 @@
                 </c:if>
             </div>
 
-
-
         </div>
-
-
         <!-- JS -->
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
     </body>

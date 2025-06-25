@@ -1,4 +1,3 @@
-
 <%@page import="model.Staff"%>
 <%@page import="java.text.SimpleDateFormat"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
@@ -14,15 +13,17 @@
         <!-- Bootstrap CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-
-
         <!-- Sidebar CSS -->
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
 
         <!-- Sidebar JS -->
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
+
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
+        <!-- Tailwind CSS (prefix tw-) -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/tailwind.css" />
 
         <style>
             body {
@@ -153,40 +154,75 @@
                     </div>
                 </div>
             </nav>
+
             <!-- Profile Content -->
             <div class="content mt-4">
-                <h2>Change Password</h2>
-                <form method="post" action="${pageContext.request.contextPath}/staff/profile/change-password">
-                    <div class="mb-3">
-                        <label for="currentPassword" class="form-label">Current Password</label>
-                        <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="newPassword" class="form-label">New Password</label>
-                        <input type="password" class="form-control" id="newPassword" name="newPassword" required>
-                    </div>
-                    <div class="mb-3">
-                        <label for="confirmPassword" class="form-label">Confirm New Password</label>
-                        <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
-                    </div>
-                    <button type="submit" class="btn btn-primary">Change Password</button>
-                    <a href="${pageContext.request.contextPath}/staff/profile" class="btn btn-secondary">Cancel</a>
-                </form>
+                <div class="container" style="max-width: 600px;">
+                    <div class="card shadow border-0">
+                        <!-- Header -->
+                        <div class="card-header text-white" style="background-color: #EF5D10;">
+                            <h4 class="mb-0">
+                                <i class="bi bi-shield-lock-fill me-2"></i>Change Password
+                            </h4>
+                        </div>
 
-                <c:if test="${not empty error}">
-                    <div class="alert alert-danger mt-3">${error}</div>
-                </c:if>
+                        <!-- Form Body -->
+                        <div class="card-body bg-light">
+                            <form method="post" action="${pageContext.request.contextPath}/staff/profile/change-password">
+                                <!-- Current Password -->
+                                <div class="mb-3">
+                                    <label for="currentPassword" class="form-label">
+                                        <i class="bi bi-lock me-1 text-dark"></i>Current Password
+                                    </label>
+                                    <input type="password" class="form-control" id="currentPassword" name="currentPassword" required>
+                                </div>
 
-                <c:if test="${not empty message}">
-                    <div class="alert alert-success mt-3">${message}</div>
-                </c:if>
+                                <!-- New Password -->
+                                <div class="mb-3">
+                                    <label for="newPassword" class="form-label">
+                                        <i class="bi bi-key me-1 text-dark"></i>New Password
+                                    </label>
+                                    <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                </div>
+
+                                <!-- Confirm Password -->
+                                <div class="mb-3">
+                                    <label for="confirmPassword" class="form-label">
+                                        <i class="bi bi-check2-circle me-1 text-dark"></i>Confirm New Password
+                                    </label>
+                                    <input type="password" class="form-control" id="confirmPassword" name="confirmPassword" required>
+                                </div>
+
+                                <!-- Buttons -->
+                                <div class="d-flex justify-content-between">
+                                    <button type="submit" class="btn text-white" style="background-color: #EF5D10;">
+                                        <i class="bi bi-save me-1"></i>Change Password
+                                    </button>
+                                    <a href="${pageContext.request.contextPath}/staff/profile" class="btn btn-outline-secondary">
+                                        <i class="bi bi-x-circle me-1"></i>Cancel
+                                    </a>
+                                </div>
+                            </form>
+
+                            <!-- Alerts -->
+                            <c:if test="${not empty error}">
+                                <div class="alert alert-danger mt-3">
+                                    <i class="bi bi-exclamation-triangle-fill me-2"></i>${error}
+                                </div>
+                            </c:if>
+
+                            <c:if test="${not empty message}">
+                                <div class="alert alert-success mt-3">
+                                    <i class="bi bi-check-circle-fill me-2"></i>${message}
+                                </div>
+                            </c:if>
+                        </div>
+                    </div>
+                </div>
             </div>
 
-
-
-
-            <!-- JS -->
-            <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
-
+        </div>
+        <!-- JS -->
+        <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
     </body>
 </html>

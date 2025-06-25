@@ -114,4 +114,36 @@ public class VoucherDAO extends DBContext {
 
         return 0;
     }
+    
+    
+  public Voucher getVoucherByCode(String code) {
+    String sql = "SELECT * FROM Voucher WHERE code = ?";    
+    Voucher voucher = null;
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setString(1, code);
+        ResultSet rs = ps.executeQuery();
+        if (rs.next()) {
+            voucher = new Voucher(
+                rs.getInt("voucherID"),
+                rs.getString("code"),
+                rs.getString("voucherDescription"),
+                rs.getString("discountType"),
+                rs.getBigDecimal("discount"),
+                rs.getBigDecimal("maxDiscountValue"),
+                rs.getBigDecimal("minOrderValue"),
+                rs.getTimestamp("startDate").toLocalDateTime(),
+                rs.getTimestamp("endDate").toLocalDateTime(),
+                rs.getInt("usageLimit"),
+                rs.getInt("usedCount"),
+                rs.getInt("active") == 1,
+                rs.getInt("FK_Voucher_Account")
+            );
+        }
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+    return voucher;
+}
+
+
 }
