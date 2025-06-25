@@ -96,6 +96,7 @@ public class AddCartServlet extends HttpServlet {
             } else {
                 cartDAO.addToCart(customerID, dishID, quantity);
             }
+             response.setStatus(HttpServletResponse.SC_OK);
 
             request.setAttribute("addedDish", dish);
             request.setAttribute("quantity", quantity);

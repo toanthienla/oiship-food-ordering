@@ -206,74 +206,9 @@ public class OrderDAO extends DBContext {
         }
     }
 
-//   public List<OrderDetail> getOrderHistoryByCustomerId(int customerId) {
-//    List<OrderDetail> history = new ArrayList<>();
-//    String sql = "SELECT "
-//            + "o.orderCreatedAt, d.DishName, od.quantity, o.amount, d.DishImage "
-//            + "FROM [Order] o "
-//            + "JOIN OrderDetail od ON o.orderID = od.FK_OD_Order "
-//            + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
-//            + "WHERE o.FK_Order_Customer = ? "
-//            + "ORDER BY o.orderCreatedAt DESC";
-//
-//    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//        ps.setInt(1, customerId);
-//        ResultSet rs = ps.executeQuery();
-//        while (rs.next()) {
-//            OrderDetail item = new OrderDetail();
-//
-//            // Set thông tin số lượng
-//            item.setQuantity(rs.getInt("quantity"));
-//
-//            // Tạo và set Dish
-//            Dish dish = new Dish();
-//            dish.setDishName(rs.getString("DishName"));
-//            dish.setImage(rs.getString("DishImage"));
-//            item.setDish(dish);
-//
-//            // Tạo và set Order
-//            Order order = new Order();
-//            order.setAmount(rs.getBigDecimal("amount"));
-//            order.setOrderCreatedAt(rs.getTimestamp("orderCreatedAt"));
-//            item.setOrder(order);
-//
-//            // Thêm vào danh sách
-//            history.add(item);
-//        }
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//    }
-//
-//    return history;
-//}
 
-    
-//  public List<Object[]> getOrderHistoryByCustomerId(int customerId) {
-//    List<Object[]> history = new ArrayList<>();
-//    String sql = "SELECT o.orderCreatedAt, d.dishName, od.quantity, o.amount " +
-//                 "FROM [Order] o " +
-//                 "JOIN OrderDetail od ON o.orderID = od.FK_OD_Order " +
-//                 "JOIN Dish d ON od.FK_OD_Dish = d.DishID " +
-//                 "WHERE o.FK_Order_Customer = ? " +
-//                 "ORDER BY o.orderCreatedAt DESC";
-//
-//    try (
-//         PreparedStatement ps = conn.prepareStatement(sql)) {
-//        ps.setInt(1, customerId);
-//        ResultSet rs = ps.executeQuery();
-//        while (rs.next()) {
-//            Object[] row = new Object[4];
-//            row[0] = rs.getTimestamp("orderCreatedAt");
-//            row[1] = rs.getString("dishName");
-//            row[2] = rs.getInt("quantity");
-//            row[3] = rs.getBigDecimal("amount");
-//            history.add(row);
-//        }
-//    } catch (Exception e) {
-//        e.printStackTrace();
-//    }
-//    return history;
-//}
+
+
 
 public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
     List<Order> orders = new ArrayList<>();
@@ -334,6 +269,7 @@ public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
 
     return details;
 }
+
 
 
     public static void main(String[] args) {

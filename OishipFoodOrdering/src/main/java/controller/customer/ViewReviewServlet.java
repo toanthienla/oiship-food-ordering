@@ -4,8 +4,7 @@
  */
 package controller.customer;
 
-import dao.NotificationDAO;
-import dao.VoucherDAO;
+import dao.ReviewDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -14,15 +13,14 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.util.List;
-import model.Notification;
-import model.Voucher;
+import model.Review;
 
 /**
  *
  * @author Phi Yen
  */
-@WebServlet(name = "ViewNotificationServlet", urlPatterns = {"/customer/view-notification-list"})
-public class ViewNotificationServlet extends HttpServlet {
+@WebServlet(name = "ViewReviewServlet", urlPatterns = {"/customer/view-review"})
+public class ViewReviewServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -41,34 +39,57 @@ public class ViewNotificationServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewNotificationServlet</title>");
+            out.println("<title>Servlet ViewReviewServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewNotificationServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ViewReviewServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
     }
 
-    
-    
-    @Override
+ 
+        
+           @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        NotificationDAO dao = new NotificationDAO();
-        List<Notification> no = dao.getAllNotifications();
-
-        request.setAttribute("notifications", no);
-        request.getRequestDispatcher("/WEB-INF/views/customer/notifications_list.jsp").forward(request, response);
+        // Có thể redirect hoặc ẩn hoàn toàn tùy bạn
+        response.sendRedirect(request.getContextPath() + "/customer/order");
+    
     }
-
-       @Override
+    @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+       
+        String odidParam = request.getParameter("orderID");
+        if (odidParam == null) {
+            response.sendRedirect(request.getContextPath() + "/customer/order");
+            return;
+        }
+
+        try {
+            int odid = Integer.parseInt(odidParam);
+
+            ReviewDAO reviewDAO = new ReviewDAO();
+            List<Review> review = reviewDAO.getReviewsByOrderId(odid);
+
+            if (review != null) {
+                request.setAttribute("reviews", review);
+                request.getRequestDispatcher("/WEB-INF/views/customer/view_review.jsp").forward(request, response);
+            } else {
+                response.sendRedirect(request.getContextPath() + "/customer/order");
+            }
+
+        } catch (NumberFormatException e) {
+            response.sendRedirect(request.getContextPath() + "/customer/order");
+        }
     }
 
-   
+    /**
+     * Returns a short description of the servlet.
+     *
+     * @return a String containing servlet description
+     */
     @Override
     public String getServletInfo() {
         return "Short description";

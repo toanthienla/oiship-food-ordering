@@ -329,7 +329,7 @@
                 Cart
                 <span id="cart-count" class="badge bg-danger ms-1">0</span>
             </a>
-        <a href="customer/order"><i class="fas fa-list me-2"></i> Order</a>  
+            <a href="customer/order"><i class="fas fa-list me-2"></i> Order</a>  
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
 
         </div>
@@ -349,13 +349,64 @@
 
 
                 <div class="d-flex align-items-center">
-                    <div class="notification-bell me-3">
-                        <a href="${pageContext.request.contextPath}/customer/view-notification-list" class="text-decoration-none position-relative">
+                    <div class="dropdown me-3">
+                        <a class="text-decoration-none position-relative dropdown-toggle" href="#" role="button"
+                           id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                             <i class="fas fa-bell fa-lg"></i>
                             <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
                                 <%= ((List<?>) request.getAttribute("notifications")) != null ? ((List<?>) request.getAttribute("notifications")).size() : 0%>
                             </span>
                         </a>
+                        <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificationDropdown" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+                            <%
+                                List<?> notifications = (List<?>) request.getAttribute("notifications");
+                                if (notifications != null && !notifications.isEmpty()) {
+                                    for (Object obj : notifications) {
+                                        model.Notification n = (model.Notification) obj;
+                            %>
+                            <li class="mb-1">
+                                <a href="#" 
+                                   class="dropdown-item text-wrap text-decoration-none" 
+                                   data-bs-toggle="modal" 
+                                   data-bs-target="#notificationModal"
+                                   data-title="<%= n.getNotTitle()%>"  
+                                     data-description="<%= n.getNotDescription() %>" 
+                                   data-id="<%= n.getNotID()%>">
+                                    <strong><%= n.getNotTitle()%></strong>
+                                </a>
+                            </li>
+                            <li><hr class="dropdown-divider"></li>
+
+                            <%
+                                }
+                            } else {
+                            %>
+                            <li><span class="dropdown-item-text text-muted">No new notifications.</span></li>
+                                <%
+                                    }
+                                %>
+                        </ul>
+                        <!-- Notification Modal -->
+                        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel"
+                             aria-hidden="true" data-bs-backdrop="false">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content rounded-4 shadow border-0">
+                                    <div class="modal-header"
+                                         style="background-color: #ff6f00; color: white; border-top-left-radius: 1rem; border-top-right-radius: 1rem;">
+                                        <h5 class="modal-title fw-bold" id="modalTitle"></h5>
+                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal"
+                                                aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body" id="modalDescription" style="font-size: 1rem; line-height: 1.6;"></div>
+                                    <div class="modal-footer bg-light"
+                                         style="border-bottom-left-radius: 1rem; border-bottom-right-radius: 1rem;">
+                                        <button type="button" class="btn" style="background-color: #ff6f00; color: white; font-weight: 500;"
+                                                data-bs-dismiss="modal">Close</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
                     </div>
 
 
@@ -492,7 +543,7 @@
         </div>
 
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+
         <!-- 💡 Đặt modal rỗng tại đây -->
         <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
@@ -502,19 +553,19 @@
             </div>
         </div>
         <script>
-                        function openDishDetail(dishId) {
-                            fetch('<%=request.getContextPath()%>/customer/dish-detail', {
-                                method: 'POST',
-                                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                                body: 'dishId=' + dishId
-                            })
-                                    .then(response => response.text())
-                                    .then(html => {
-                                        document.getElementById('dishDetailContent').innerHTML = html;
-                                        new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
-                                    })
-                                    .catch(error => console.error('Error loading dish detail:', error));
-                        }
+            function openDishDetail(dishId) {
+                fetch('<%=request.getContextPath()%>/customer/dish-detail', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                    body: 'dishId=' + dishId
+                })
+                        .then(response => response.text())
+                        .then(html => {
+                            document.getElementById('dishDetailContent').innerHTML = html;
+                            new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
+                        })
+                        .catch(error => console.error('Error loading dish detail:', error));
+            }
         </script>
 
         <!-- 💡 xử lí load category -->
@@ -681,8 +732,29 @@
                 showPage(currentPage);
             });
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 
+        <script>
+            const contextPath = '<%= request.getContextPath()%>';
 
+            const notificationModal = document.getElementById('notificationModal');
+            if (notificationModal) {
+                notificationModal.addEventListener('show.bs.modal', function (event) {
+                    const link = event.relatedTarget;
+                    if (!link)
+                        return;
+
+                    const title = link.getAttribute('data-title');
+                    const desc = link.getAttribute('data-description');
+                    const id = link.getAttribute('data-id');
+
+                    document.getElementById('modalTitle').textContent = title;
+                    document.getElementById('modalDescription').textContent = desc;
+
+                   
+                });
+            }
+        </script>
 
 
     </body>
