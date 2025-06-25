@@ -17,8 +17,6 @@ public class OrderDAO extends DBContext {
 
     private static final Logger LOGGER = Logger.getLogger(OrderDAO.class.getName());
 
-   
-
     public OrderDAO() {
         super();
     }
@@ -83,7 +81,7 @@ public class OrderDAO extends DBContext {
                     detail.setOrderStatus(rs.getInt("orderStatus"));
                     detail.setCreateAt(rs.getTimestamp("orderCreatedAt"));
                     detail.setDishImage(rs.getString("image"));
-                    detail.setCustomerName(rs.getString("customerName"));              
+                    detail.setCustomerName(rs.getString("customerName"));
                     detail.setOrderId(orderID);
                     list.add(detail);
                 }
@@ -206,6 +204,7 @@ public class OrderDAO extends DBContext {
         }
     }
 
+
 public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
     List<Order> orders = new ArrayList<>();
     String sql = "SELECT orderID, orderCreatedAt, amount, orderStatus, paymentStatus " +
@@ -229,121 +228,42 @@ public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
 
             orders.add(order);
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+
+        return orders;
     }
 
-    return orders;
-}
+    public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
+        List<OrderDetail> details = new ArrayList<>();
+        String sql = "SELECT od.ODID, od.quantity, d.DishName, d.image AS DishImage "
+                + "FROM OrderDetail od "
+                + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+                + "WHERE od.FK_OD_Order = ?";
 
-public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
-    List<OrderDetail> details = new ArrayList<>();
-    String sql = "SELECT od.ODID, od.quantity, d.DishName, d.image AS DishImage " +
-                 "FROM OrderDetail od " +
-                 "JOIN Dish d ON od.FK_OD_Dish = d.DishID " +
-                 "WHERE od.FK_OD_Order = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
 
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, orderId);
-        ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                OrderDetail detail = new OrderDetail();
+                detail.setODID(rs.getInt("ODID"));
+                detail.setQuantity(rs.getInt("quantity"));
 
-        while (rs.next()) {
-            OrderDetail detail = new OrderDetail();
-            detail.setODID(rs.getInt("ODID"));
-            detail.setQuantity(rs.getInt("quantity"));
+                Dish dish = new Dish();
+                dish.setDishName(rs.getString("DishName"));
+                dish.setImage(rs.getString("DishImage"));
+                detail.setDish(dish);
 
-            Dish dish = new Dish();
-            dish.setDishName(rs.getString("DishName"));
-            dish.setImage(rs.getString("DishImage"));
-            detail.setDish(dish);
-
-            details.add(detail);
+                details.add(detail);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
-    } catch (Exception e) {
-        e.printStackTrace();
+
+        return details;
     }
-
-    return details;
-}
-
 
 
     public static void main(String[] args) {
-        //        OrderDAO dao = new OrderDAO();
-        //        List<Order> orders = dao.getAllOrders();
-        //
-        //        if (orders.isEmpty()) {
-        //            System.out.println("No orders found.");
-        //        } else {
-        //            for (Order order : orders) {
-        //                System.out.println("Order ID: " + order.getOrderID());
-        //                System.out.println("Customer ID: " + order.getCustomerID());
-        //                System.out.println("Amount: " + order.getAmount());
-        //                System.out.println("Order Status: " + order.getOrderStatus());
-        //                System.out.println("Payment Status: " + order.getPaymentStatus());
-        //                System.out.println("Created At: " + order.getOrderCreatedAt());
-        //                System.out.println("Updated At: " + order.getOrderUpdatedAt());
-        //                System.out.println("Voucher ID: " + order.getVoucherID());
-        //                System.out.println("-----------");
-        //            }
-        //        }
-
-        //        OrderDAO dao = new OrderDAO();
-        //        int testOrderID = 1; // thay số này bằng orderID bạn muốn test (phải có trong DB)
-        //
-        //        List<OrderDetail> details = dao.getOrderDetailsByOrderID(testOrderID);
-        //
-        //        if (details.isEmpty()) {
-        //            System.out.println("Không có dữ liệu cho orderID = " + testOrderID);
-        //        } else {
-        //            for (OrderDetail detail : details) {
-        //                System.out.println("ODID: " + detail.getODID());
-        //                System.out.println("Dish Name: " + detail.getDishName());
-        //                System.out.println("Quantity: " + detail.getQuantity());
-        //                System.out.println("Description: " + detail.getDishDescription());
-        //                System.out.println("Order Status: " + detail.getOrderStatus());
-        //                System.out.println("Customer Name: " + detail.getCustomerName());
-        //                System.out.println("Created At: " + detail.getCreateAt());
-        //                System.out.println("-----------------------------");
-        //            }
-        //        }
-        //    }
-        //        OrderDAO dao = new OrderDAO();
-        //        List<Order> orders = dao.getAllOrders();
-        //
-        //        for (Order o : orders) {
-        //            System.out.println("Order ID: " + o.getOrderID());
-        //            System.out.println("Customer Name: " + o.getCustomerName());
-        //            System.out.println("Voucher Code: " + o.getVoucherCode());
-        //            System.out.println("Amount: " + o.getAmount());
-        //            System.out.println("Order Status: " + o.getOrderStatus());
-        //            System.out.println("Created At: " + o.getOrderCreatedAt());
-        //            System.out.println("------");
-        //        }
-        //    }
-        //        OrderDAO dao = new OrderDAO();
-        //
-        //        int testOrderId = 1;       // Thay bằng ID đơn hàng có thực trong DB
-        //        int newStatus = 2;         // Ví dụ: 2 = Preparing
-        //
-        //        boolean result = dao.updateStatusOrderByOrderId(testOrderId, newStatus);
-        //
-        //        if (result) {
-        //            System.out.println("✅ Update successful for OrderID = " + testOrderId);
-        //        } else {
-        //            System.out.println("❌ Update failed for OrderID = " + testOrderId);
-        //        }
-        //        OrderDAO dao = new OrderDAO();
-        //
-        //        int testOrderID = 1; // Thay bằng orderID có thật trong DB
-        //        int status = dao.getOrderStatusByOrderId(testOrderID);
-        //
-        //        if (status != -1) {
-        //            System.out.println("✅ Trạng thái của đơn hàng #" + testOrderID + " là: " + status);
-        //        } else {
-        //            System.out.println("❌ Không tìm thấy đơn hàng hoặc lỗi xảy ra.");
-        //        }
-        //    }
         OrderDAO dao = new OrderDAO();
 
         int orderID = 12;
