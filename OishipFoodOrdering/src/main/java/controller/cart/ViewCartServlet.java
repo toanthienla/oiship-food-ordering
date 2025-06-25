@@ -8,8 +8,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
 import model.Cart;
-import model.Dish;
-import utils.TotalPriceCalculator;
+
 
 @WebServlet(name = "ViewCartServlet", urlPatterns = {"/customer/view-cart"})
 public class ViewCartServlet extends HttpServlet {
@@ -27,22 +26,10 @@ public class ViewCartServlet extends HttpServlet {
 
         try {
             CartDAO cartDAO = new CartDAO();
-            List<Cart> cartItems = cartDAO.getCartByCustomerId(customerID);
-
-            // ✅ Tính totalPrice cho từng Dish
-            BigDecimal grandTotal = BigDecimal.ZERO;
-            for (Cart cart : cartItems) {
-                Dish dish = cart.getDish();
-                if (dish != null) {
-                    BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(dish.getIngredients());
-                    BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
-                            dish.getOpCost(), dish.getInterestPercentage(), ingredientCost);
-                    dish.setTotalPrice(totalPrice); // ✅ Lưu giá 1 món (không nhân số lượng)
-                }
-            }
+            List<Cart> cartItems = cartDAO.getCartByCustomerId(customerID);           
 
             request.setAttribute("cartItems", cartItems);
-            //request.setAttribute("grandTotal", grandTotal); // ✅ Gửi sang JSP nếu muốn hiển thị tổng
+        
 
             request.getRequestDispatcher("/WEB-INF/views/customer/view_cart.jsp").forward(request, response);
         } catch (Exception e) {
