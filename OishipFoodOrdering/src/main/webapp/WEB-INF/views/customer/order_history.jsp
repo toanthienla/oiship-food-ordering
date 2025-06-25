@@ -81,7 +81,9 @@
     <body>
         <div class="container mt-5">
             <h2 class="text-center mb-4">Your Order History</h2>
-
+ <div class="text-center mt-4">
+                <a href="<%= request.getContextPath()%>/customer" class="btn btn-primary px-4 py-2">&laquo; Back to Menu</a>
+            </div>
             <%
                 List<Order> orderHistory = (List<Order>) request.getAttribute("orderHistory");
                 String[] orderStatusText = (String[]) request.getAttribute("orderStatusText");
