@@ -5,6 +5,8 @@ import model.Account;
 import model.Staff;
 import utils.DBContext;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
@@ -116,4 +118,5 @@ public class StaffDAO extends DBContext {
             System.out.println("Failed to update password for email: " + email);
         }
     }
+
 }

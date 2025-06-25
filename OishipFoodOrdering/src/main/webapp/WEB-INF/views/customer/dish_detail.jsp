@@ -1,3 +1,4 @@
+<!<!--dis_detail.jsp -->
 <%@page import="model.Review"%>
 <%@page import="model.Dish"%>
 <%@page import="java.text.SimpleDateFormat"%>

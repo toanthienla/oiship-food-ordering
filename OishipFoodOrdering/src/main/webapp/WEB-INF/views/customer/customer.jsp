@@ -1,4 +1,4 @@
-<%@page import="java.text.SimpleDateFormat"%>
+<!<!--customer.jsp>
 <%@page import="model.Review"%>
 <%@page import="model.Cart"%>
 <%@page import="java.util.List"%>

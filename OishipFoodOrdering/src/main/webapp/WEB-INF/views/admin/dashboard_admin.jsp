@@ -1,5 +1,7 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
+<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
+<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -41,8 +43,13 @@
             }
             .chart-container {
                 position: relative;
-                height: 300px;
+                height: 450px;
                 margin-bottom: 20px;
+            }
+            .error-message {
+                color: red;
+                margin-top: 10px;
+                display: none;
             }
         </style>
     </head>
@@ -64,7 +71,7 @@
             <!-- Content -->
             <div class="content">
                 <h1>Admin Dashboard</h1>
-                <p>Overview of your restaurant's performance and management tools. Updated: Wed Jun 18 14:50 ICT 2025</p>
+                <p>Overview of your restaurant's performance and management tools. Updated: <fmt:formatDate value="<%= new java.util.Date()%>" pattern="EEE MMM dd HH:mm zzz yyyy" /></p>
 
                 <!-- Search and Action Bar -->
                 <div class="row g-3 mb-4">
@@ -78,50 +85,41 @@
 
                 <!-- Charts Section -->
                 <div class="row">
-                    <!-- Order Statistics -->
+                    <!-- Order Statistics by Month -->
                     <div class="col-md-6 mb-4">
                         <div class="card p-4">
                             <div class="card-body">
-                                <h5 class="card-title">Order Statistics</h5>
+                                <h5 class="card-title">Order Statistics by Month</h5>
                                 <div class="chart-container">
                                     <canvas id="orderChart"></canvas>
                                 </div>
+                                <div class="error-message" id="orderError"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Ingredient Statistics -->
+                    <!-- Dish Statistics by Month -->
                     <div class="col-md-6 mb-4">
                         <div class="card p-4">
                             <div class="card-body">
-                                <h5 class="card-title">Ingredient Statistics</h5>
-                                <div class="chart-container">
-                                    <canvas id="ingredientChart"></canvas>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Dish Statistics -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card p-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Dish Statistics</h5>
+                                <h5 class="card-title">Dish Statistics by Month</h5>
                                 <div class="chart-container">
                                     <canvas id="dishChart"></canvas>
                                 </div>
+                                <div class="error-message" id="dishError"></div>
                             </div>
                         </div>
                     </div>
 
-                    <!-- Voucher Statistics -->
+                    <!-- Payment Statistics by Month -->
                     <div class="col-md-6 mb-4">
                         <div class="card p-4">
                             <div class="card-body">
-                                <h5 class="card-title">Voucher Statistics</h5>
+                                <h5 class="card-title">Payment Statistics by Month</h5>
                                 <div class="chart-container">
-                                    <canvas id="voucherChart"></canvas>
+                                    <canvas id="paymentChart"></canvas>
                                 </div>
+                                <div class="error-message" id="paymentError"></div>
                             </div>
                         </div>
                     </div>
@@ -134,118 +132,135 @@
         </div>
 
         <script>
-            // Sample data (to be replaced with actual data from servlet)
-            const orderStats = ${orderStats != null ? orderStats : '[]'};
-            const ingredientStats = ${ingredientStats != null ? ingredientStats : '[]'};
-            const dishStats = ${dishStats != null ? dishStats : '[]'};
-            const voucherStats = ${voucherStats != null ? voucherStats : '[]'};
+            // Hàm chuyển đổi List<ChartData> thành chuỗi JSON trong JavaScript
+            function convertToJson(dataList) {
+                if (!dataList || dataList.length === 0)
+                    return '[]';
+                return '[' + dataList.map(item =>
+                        `{ "label": "${item.label}", "value": ${item.value} }`
+                ).join(',') + ']';
+            }
 
-            // Order Chart
-            const orderCtx = document.getElementById('orderChart').getContext('2d');
-            new Chart(orderCtx, {
-                type: 'bar',
-                data: {
-                    labels: orderStats.map(item => item.label),
-                    datasets: [{
-                            label: 'Number of Orders',
-                            data: orderStats.map(item => item.value),
-                            backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                            borderColor: 'rgba(54, 162, 235, 1)',
-                            borderWidth: 1
-                        }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Orders'
-                            }
-                        }
-                    }
-                }
-            });
+            // Dữ liệu thô từ servlet
+            const rawOrderStats = ${orderStats != null ? orderStats : []};
+            const rawDishStats = ${dishStats != null ? dishStats : []};
+            const rawPaymentStats = ${paymentStats != null ? paymentStats : []};
 
-            // Ingredient Chart
-            const ingredientCtx = document.getElementById('ingredientChart').getContext('2d');
-            new Chart(ingredientCtx, {
-                type: 'bar',
-                data: {
-                    labels: ingredientStats.map(item => item.label),
-                    datasets: [{
-                            label: 'Ingredient Usage',
-                            data: ingredientStats.map(item => item.value),
-                            backgroundColor: 'rgba(255, 99, 132, 0.6)',
-                            borderColor: 'rgba(255, 99, 132, 1)',
-                            borderWidth: 1
-                        }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Usage (kg)'
-                            }
-                        }
-                    }
-                }
-            });
+            // Chuyển đổi thành chuỗi JSON
+            const orderStatsData = convertToJson(rawOrderStats);
+            const dishStatsData = convertToJson(rawDishStats);
+            const paymentStatsData = convertToJson(rawPaymentStats);
 
-            // Dish Chart
-            const dishCtx = document.getElementById('dishChart').getContext('2d');
-            new Chart(dishCtx, {
-                type: 'bar',
-                data: {
-                    labels: dishStats.map(item => item.label),
-                    datasets: [{
-                            label: 'Dish Sales',
-                            data: dishStats.map(item => item.value),
-                            backgroundColor: 'rgba(75, 192, 192, 0.6)',
-                            borderColor: 'rgba(75, 192, 192, 1)',
-                            borderWidth: 1
-                        }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Sales'
-                            }
-                        }
-                    }
-                }
-            });
+            // Chuyển đổi thành mảng JavaScript với kiểm tra lỗi
+            let orderStats, dishStats, paymentStats;
+            try {
+                orderStats = JSON.parse(orderStatsData);
+                dishStats = JSON.parse(dishStatsData);
+                paymentStats = JSON.parse(paymentStatsData);
+            } catch (e) {
+                console.error('JSON Parse Error:', e.message);
+                console.log('OrderStatsData:', orderStatsData);
+                console.log('DishStatsData:', dishStatsData);
+                console.log('PaymentStatsData:', paymentStatsData);
+                orderStats = [];
+                dishStats = [];
+                paymentStats = [];
+            }
 
-            // Voucher Chart
-            const voucherCtx = document.getElementById('voucherChart').getContext('2d');
-            new Chart(voucherCtx, {
-                type: 'bar',
-                data: {
-                    labels: voucherStats.map(item => item.label),
-                    datasets: [{
-                            label: 'Voucher Usage',
-                            data: voucherStats.map(item => item.value),
-                            backgroundColor: 'rgba(255, 206, 86, 0.6)',
-                            borderColor: 'rgba(255, 206, 86, 1)',
-                            borderWidth: 1
-                        }]
-                },
-                options: {
-                    scales: {
-                        y: {
-                            beginAtZero: true,
-                            title: {
-                                display: true,
-                                text: 'Usage Count'
-                            }
-                        }
+            // Debug log
+            console.log('OrderStats:', orderStats);
+            console.log('DishStats:', dishStats);
+            console.log('PaymentStats:', paymentStats);
+
+            // Hàm tạo biểu đồ với trục ngang là tháng, trục đứng là số lượng/tổng, thêm nhãn giá trị
+            function createChart(ctxId, data, label, yAxisLabel, errorId) {
+                try {
+                    if (!Array.isArray(data) || data.length === 0) {
+                        document.getElementById(errorId).textContent = 'No data available for ' + label.toLowerCase() + '.';
+                        document.getElementById(errorId).style.display = 'block';
+                        return;
                     }
+
+                    new Chart(document.getElementById(ctxId).getContext('2d'), {
+                        type: 'bar',
+                        data: {
+                            labels: data.map(item => item.label), // Trục ngang: Tháng
+                            datasets: [{
+                                    label: label,
+                                    data: data.map(item => item.value), // Trục đứng: Số lượng/tổng
+                                    backgroundColor: [
+                                        'rgba(54, 162, 235, 0.6)', // Màu xanh dương
+                                        'rgba(75, 192, 192, 0.6)', // Màu xanh lá
+                                        'rgba(255, 99, 132, 0.6)', // Màu hồng
+                                        'rgba(255, 205, 86, 0.6)'  // Màu vàng
+                                    ],
+                                    borderColor: [
+                                        'rgba(54, 162, 235, 1)',
+                                        'rgba(75, 192, 192, 1)',
+                                        'rgba(255, 99, 132, 1)',
+                                        'rgba(255, 205, 86, 1)'
+                                    ],
+                                    borderWidth: 1
+                                }]
+                        },
+                        options: {
+                            indexAxis: 'x', // Trục ngang là x
+                            scales: {
+                                x: {
+                                    title: {
+                                        display: true,
+                                        text: 'Month'
+                                    },
+                                    ticks: {
+                                        autoSkip: false,
+                                        maxRotation: 0,
+                                        minRotation: 0
+                                    }
+                                },
+                                y: {
+                                    beginAtZero: true,
+                                    title: {
+                                        display: true,
+                                        text: yAxisLabel
+                                    }
+                                }
+                            },
+                            plugins: {
+                                legend: {
+                                    display: true
+                                },
+                                tooltip: {
+                                    enabled: true
+                                },
+                                datalabels: {
+                                    anchor: 'end',
+                                    align: 'top',
+                                    formatter: (value) => value,
+                                    color: '#000',
+                                    font: {
+                                        weight: 'bold'
+                                    }
+                                }
+                            },
+                            maintainAspectRatio: false
+                        }
+                    });
+                } catch (e) {
+                    document.getElementById(errorId).textContent = 'Error loading ' + label.toLowerCase() + ' chart: ' + e.message;
+                    document.getElementById(errorId).style.display = 'block';
                 }
+            }
+
+            // Tải plugin Chart.js Data Labels
+            Chart.register(ChartDataLabels);
+
+            // Tạo các biểu đồ khi DOM sẵn sàng
+            document.addEventListener('DOMContentLoaded', function () {
+                createChart('orderChart', orderStats, 'Number of Orders', 'Orders', 'orderError');
+                createChart('dishChart', dishStats, 'Number of Dishes', 'Dishes', 'dishError');
+                createChart('paymentChart', paymentStats, 'Payment Amount (USD)', 'Amount (USD)', 'paymentError');
             });
         </script>
+        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
+    </body>
 </html>

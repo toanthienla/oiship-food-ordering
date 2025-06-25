@@ -5,6 +5,8 @@ import model.Account;
 import model.Staff;
 import utils.DBContext;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 
 public class CustomerDAO extends DBContext {
 
@@ -17,10 +19,10 @@ public class CustomerDAO extends DBContext {
             System.out.println("login: email or plainPassword is null, email=" + email);
             return null;
         }
-        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, " +
-                     "c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? AND a.status = 1";
+        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+                + "c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? AND a.status = 1";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -70,9 +72,9 @@ public class CustomerDAO extends DBContext {
             System.out.println("getCustomerByEmail: email is null");
             return null;
         }
-        String sql = "SELECT a.accountID AS customerID, c.phone, c.address " +
-                     "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID " +
-                     "WHERE a.email = ? AND a.role = 'customer'";
+        String sql = "SELECT a.accountID AS customerID, c.phone, c.address "
+                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+                + "WHERE a.email = ? AND a.role = 'customer'";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             try (ResultSet rs = ps.executeQuery()) {
@@ -92,8 +94,8 @@ public class CustomerDAO extends DBContext {
     }
 
     public boolean insertCustomer(Customer customer, String fullName, String email, String hashedPassword) {
-        if (customer == null || customer.getPhone() == null || customer.getAddress() == null ||
-            fullName == null || email == null || hashedPassword == null) {
+        if (customer == null || customer.getPhone() == null || customer.getAddress() == null
+                || fullName == null || email == null || hashedPassword == null) {
             System.out.println("insertCustomer: Customer or required fields are null");
             return false;
         }
@@ -192,64 +194,4 @@ public class CustomerDAO extends DBContext {
         }
     }
 
-    public boolean deleteCustomer(int customerID) {
-        if (customerID <= 0) {
-            System.out.println("deleteCustomer: Invalid customerID: " + customerID);
-            return false;
-        }
-
-        String customerSql = "DELETE FROM Customer WHERE customerID = ?";
-        String accountSql = "DELETE FROM Account WHERE accountID = ? AND role = 'customer'";
-
-        Connection conn = null;
-        try {
-            conn = getConnection();
-            conn.setAutoCommit(false); // Start transaction
-
-            // Delete from Customer
-            try (PreparedStatement psCustomer = conn.prepareStatement(customerSql)) {
-                psCustomer.setInt(1, customerID);
-                int customerRows = psCustomer.executeUpdate();
-                if (customerRows == 0) {
-                    conn.rollback();
-                    return false;
-                }
-            }
-
-            // Delete from Account
-            try (PreparedStatement psAccount = conn.prepareStatement(accountSql)) {
-                psAccount.setInt(1, customerID);
-                int accountRows = psAccount.executeUpdate();
-                if (accountRows > 0) {
-                    conn.commit();
-                    return true;
-                } else {
-                    conn.rollback();
-                    return false;
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error deleting customer: " + e.getMessage());
-            e.printStackTrace();
-            if (conn != null) {
-                try {
-                    conn.rollback();
-                } catch (SQLException ex) {
-                    System.out.println("Error rolling back: " + ex.getMessage());
-                    ex.printStackTrace();
-                }
-            }
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    System.out.println("Error closing connection: " + e.getMessage());
-                    e.printStackTrace();
-                }
-            }
-        }
-        return false;
-    }
 }

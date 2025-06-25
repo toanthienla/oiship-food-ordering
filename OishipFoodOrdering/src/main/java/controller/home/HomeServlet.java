@@ -5,7 +5,6 @@ import dao.DishDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
 import java.util.List;
 import model.Category;
@@ -28,7 +27,7 @@ public class HomeServlet extends HttpServlet {
         request.setAttribute("userId", null);
         request.setAttribute("userName", null);
         request.setAttribute("error", null);
- // Get list of categories
+        // Get list of categories
         CategoryDAO categoryDAO = new CategoryDAO();
         List<Category> categories = categoryDAO.getAllCategories();
 

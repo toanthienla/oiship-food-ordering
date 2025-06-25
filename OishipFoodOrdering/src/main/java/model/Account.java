@@ -8,7 +8,7 @@ public class Account {
     private String fullName;
     private String email;
     private String password;
-    private int status; // 1 = active, 0 = inactive, 2 = suspended
+    private int status; // 1 = active, 0 = inactive, -1 = banned
     private String role; // 'admin', 'staff', 'customer'
     private Timestamp createAt;
     private Customer customer; // Added field for customer details
@@ -21,8 +21,8 @@ public class Account {
         this.fullName = fullName;
         this.email = email;
         this.password = password;
-        setStatus(status);
-        setRole(role);
+        setStatus(status); // Use setter to enforce constraints
+        setRole(role);     // Use setter to enforce constraints
         this.createAt = createAt;
     }
 
@@ -73,8 +73,8 @@ public class Account {
     }
 
     public void setStatus(int status) {
-        if (status != 1 && status != 0 && status != 2) {
-            throw new IllegalArgumentException("Status must be 1 (active), 0 (inactive), or 2 (suspended)");
+        if (status != 1 && status != 0 && status != -1) {
+            throw new IllegalArgumentException("Status must be 1 (active), 0 (inactive), or -1 (banned)");
         }
         this.status = status;
     }

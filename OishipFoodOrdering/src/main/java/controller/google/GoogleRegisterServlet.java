@@ -45,15 +45,18 @@ public class GoogleRegisterServlet extends HttpServlet {
             String email = googleAccount.getEmail();
             String fullName = googleAccount.getName();
 
-            Account existingAccount = accountDAO.findByEmail(email); // Use findByEmail
+            Account existingAccount = accountDAO.findByEmail(email);
 
             HttpSession session = request.getSession();
 
             if (existingAccount != null) {
+                // Nếu tài khoản đã tồn tại và active (status = 1)
                 if (existingAccount.getStatus() == 1) {
                     session.setAttribute("userId", existingAccount.getAccountID());
                     session.setAttribute("role", existingAccount.getRole().toLowerCase());
-                    session.setAttribute("userName", fullName);
+                    session.setAttribute("userName", fullName); // Sử dụng fullName từ Google
+                    session.setAttribute("email", email);
+                    LOGGER.info("Existing account logged in: userId=" + existingAccount.getAccountID() + ", email=" + email);
                     response.sendRedirect("home");
                     return;
                 } else {
@@ -63,7 +66,7 @@ public class GoogleRegisterServlet extends HttpServlet {
                 }
             }
 
-            // Lưu email và fullName vào session
+            // Tài khoản không tồn tại, lưu email và fullName vào session để hoàn thành đăng ký
             session.setAttribute("regEmail", email);
             session.setAttribute("regFullName", fullName);
             request.getRequestDispatcher("/WEB-INF/views/auth/complete_google_register.jsp").forward(request, response);
@@ -132,6 +135,7 @@ public class GoogleRegisterServlet extends HttpServlet {
                 session.setAttribute("userId", accountId);
                 session.setAttribute("role", "customer");
                 session.setAttribute("userName", fullName);
+                session.setAttribute("email", email);
                 LOGGER.info("Account created: userId=" + accountId + ", email=" + email);
                 response.sendRedirect("home");
             } else {
