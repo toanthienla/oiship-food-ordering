@@ -206,10 +206,6 @@ public class OrderDAO extends DBContext {
         }
     }
 
-
-
-
-
 public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
     List<Order> orders = new ArrayList<>();
     String sql = "SELECT orderID, orderCreatedAt, amount, orderStatus, paymentStatus " +
