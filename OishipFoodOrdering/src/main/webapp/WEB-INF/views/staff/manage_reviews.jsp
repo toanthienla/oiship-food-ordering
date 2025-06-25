@@ -189,7 +189,7 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>#</th>
-                                <th>Order ID</th>
+                                <th>Review ID</th>
                                 <th>Dish</th>
                                 <th>Category</th>
                                 <th>Customer</th>
@@ -203,7 +203,7 @@
                             <c:forEach var="r" items="${reviews}" varStatus="loop">
                                 <tr data-category="${r.catName}">
                                     <td class="fw-bold">${loop.index + 1}</td>
-                                    <td>${r.orderId}</td>
+                                    <td>${r.reviewID}</td>
                                     <td>${r.dishName}</td>
                                     <td>${r.catName}</td>
                                     <td>${r.customerName}</td>

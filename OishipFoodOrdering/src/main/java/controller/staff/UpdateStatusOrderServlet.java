@@ -12,6 +12,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.List;
+import model.OrderDetail;
 
 /**
  *
@@ -59,17 +61,27 @@ public class UpdateStatusOrderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
         try {
-            int orderID = Integer.parseInt(request.getParameter("orderID"));
+            String orderIDParam = request.getParameter("orderID");
+
+            if (orderIDParam == null) {
+                response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Missing orderID");
+                return;
+            }
+
+            int orderID = Integer.parseInt(orderIDParam);
             OrderDAO dao = new OrderDAO();
+
             int orderStatus = dao.getOrderStatusByOrderId(orderID);
+            List<OrderDetail> details = dao.getOrderDetailsByOrderID(orderID);
 
             request.setAttribute("orderID", orderID);
             request.setAttribute("orderStatus", orderStatus);
+            request.setAttribute("orderDetails", details);
 
             request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
-
         } catch (Exception e) {
-            response.sendRedirect(request.getContextPath() + "/staff/manage-orders/order-detail?orderID=" + request.getParameter("orderID"));
+            e.printStackTrace();
+            response.sendRedirect(request.getContextPath() + "/staff/manage-orders?error=invalidOrderID");
         }
 
     }
@@ -85,19 +97,46 @@ public class UpdateStatusOrderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        int orderID = Integer.parseInt(request.getParameter("orderID"));
-        int newStatus = Integer.parseInt(request.getParameter("newStatus"));
+        try {
+            String orderIDParam = request.getParameter("orderID");
+            String newStatusParam = request.getParameter("newStatus");
 
-        OrderDAO dao = new OrderDAO();
-        boolean success = dao.updateStatusOrderByOrderId(orderID, newStatus);
+            if (orderIDParam == null || orderIDParam.trim().isEmpty() || newStatusParam == null || newStatusParam.trim().isEmpty()) {
+                request.setAttribute("message", "Error: Missing order ID or status.");
+                request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
+                return;
+            }
 
-        String message = success ? "Order status updated successfully." : "Failed to update order status.";
+            int orderID = Integer.parseInt(orderIDParam);
+            int newStatus = Integer.parseInt(newStatusParam);
 
-        request.setAttribute("orderID", orderID);
-        request.setAttribute("orderStatus", newStatus);
-        request.setAttribute("message", message);
+            OrderDAO dao = new OrderDAO();
+            boolean success = dao.updateStatusOrderByOrderId(orderID, newStatus);
 
-        request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
+            // Lấy lại dữ liệu để hiển thị
+            int orderStatus = dao.getOrderStatusByOrderId(orderID);
+            List<OrderDetail> details = dao.getOrderDetailsByOrderID(orderID);
+
+            request.setAttribute("orderID", orderID);
+            request.setAttribute("orderStatus", orderStatus);
+            request.setAttribute("orderDetails", details);
+
+            if (success) {
+                request.setAttribute("message", "Order status updated successfully!");
+            } else {
+                request.setAttribute("message", "Failed to update order status.");
+            }
+
+            response.sendRedirect(request.getContextPath() + "/staff/manage-orders/update-status?orderID=" + orderID);
+
+        } catch (NumberFormatException e) {
+            request.setAttribute("message", "Error: Invalid order ID or status format.");
+            request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("message", "Error: An unexpected error occurred.");
+            request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
+        }
     }
 
     /**

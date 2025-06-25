@@ -232,7 +232,7 @@
                                     <td><fmt:formatDate value="${o.orderCreatedAt}" pattern="dd-MM-yyyy HH:mm:ss"/></td>
                                     <td>
                                         <a class="btn btn-sm btn-outline-primary"
-                                           href="${pageContext.request.contextPath}/staff/manage-orders/order-detail?orderID=${o.orderID}">
+                                           href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
                                             Detail
                                         </a>
                                     </td>
