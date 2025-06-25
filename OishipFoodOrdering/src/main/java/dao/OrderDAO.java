@@ -207,30 +207,33 @@ public class OrderDAO extends DBContext {
 
 public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
     List<Order> orders = new ArrayList<>();
-    String sql = "SELECT orderID, orderCreatedAt, amount, orderStatus, paymentStatus " +
-                 "FROM [Order] WHERE FK_Order_Customer = ? ORDER BY orderCreatedAt DESC";
+        String sql = "SELECT orderID, orderCreatedAt, amount, orderStatus, paymentStatus "
+                + "FROM [Order] WHERE FK_Order_Customer = ? ORDER BY orderCreatedAt DESC";
 
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, customerId);
-        ResultSet rs = ps.executeQuery();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            ResultSet rs = ps.executeQuery();
 
-        while (rs.next()) {
-            Order order = new Order();
-            order.setOrderID(rs.getInt("orderID"));
-            order.setOrderCreatedAt(rs.getTimestamp("orderCreatedAt"));
-            order.setAmount(rs.getBigDecimal("amount"));
-            order.setOrderStatus(rs.getInt("orderStatus"));
-            order.setPaymentStatus(rs.getInt("paymentStatus"));
+            while (rs.next()) {
+                Order order = new Order();
+                order.setOrderID(rs.getInt("orderID"));
+                order.setOrderCreatedAt(rs.getTimestamp("orderCreatedAt"));
+                order.setAmount(rs.getBigDecimal("amount"));
+                order.setOrderStatus(rs.getInt("orderStatus"));
+                order.setPaymentStatus(rs.getInt("paymentStatus"));
 
-            // Lấy danh sách món ăn cho đơn hàng này
-            List<OrderDetail> details = getOrderDetailsByOrderId(order.getOrderID());
-            order.setOrderDetails(details);
+                // Lấy danh sách món ăn cho đơn hàng này
+                List<OrderDetail> details = getOrderDetailsByOrderId(order.getOrderID());
+                order.setOrderDetails(details);
 
-            orders.add(order);
+                orders.add(order);
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
         return orders;
-    }
+}
 
     public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
         List<OrderDetail> details = new ArrayList<>();
