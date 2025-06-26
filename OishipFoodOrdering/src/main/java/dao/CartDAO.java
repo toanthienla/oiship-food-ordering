@@ -16,40 +16,7 @@ import utils.TotalPriceCalculator;
 public class CartDAO extends DBContext {
 
  
-//  public List<Cart> getCartByCustomerId(int customerId) throws SQLException {
-//    List<Cart> cartItems = new ArrayList<>();
-//
-//    String sql = "SELECT " +
-//                 "c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, " +
-//                 "d.DishName, d.image, d.opCost, d.interestPercentage " +
-//                 "FROM Cart c " +
-//                 "JOIN Dish d ON c.FK_Cart_Dish = d.DishID " +
-//                 "WHERE c.FK_Cart_Customer = ?";
-//
-//    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-//        ps.setInt(1, customerId);
-//        ResultSet rs = ps.executeQuery();
-//        while (rs.next()) {
-//            Cart cart = new Cart();
-//            cart.setCartID(rs.getInt("cartID"));
-//            cart.setCustomerID(rs.getInt("FK_Cart_Customer"));
-//            cart.setDishID(rs.getInt("FK_Cart_Dish"));
-//            cart.setQuantity(rs.getInt("quantity"));
-//
-//            Dish dish = new Dish();
-//            dish.setDishID(rs.getInt("FK_Cart_Dish"));
-//            dish.setDishName(rs.getString("DishName"));
-//            dish.setImage(rs.getString("image"));
-//            dish.setOpCost(rs.getBigDecimal("opCost"));
-//            dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
-//
-//            cart.setDish(dish);
-//            cartItems.add(cart);
-//        }
-//    }
-//
-//    return cartItems;
-//}
+
 
     public List<Cart> getCartByCustomerId(int customerId) throws SQLException {
     List<Cart> cartItems = new ArrayList<>();
@@ -271,6 +238,36 @@ private void loadIngredientsForDish(Dish dish) throws SQLException {
 }
 
 
+public boolean deleteCartsByIDs(String[] cartIDs) {
+    if (cartIDs == null || cartIDs.length == 0) {
+        return false;
+    }
+
+    StringBuilder sqlBuilder = new StringBuilder("DELETE FROM Cart WHERE cartID IN (");
+    for (int i = 0; i < cartIDs.length; i++) {
+        sqlBuilder.append("?");
+        if (i < cartIDs.length - 1) {
+            sqlBuilder.append(",");
+        }
+    }
+    sqlBuilder.append(")");
+
+    try (Connection conn = getConnection();
+         PreparedStatement ps = conn.prepareStatement(sqlBuilder.toString())) {
+
+        for (int i = 0; i < cartIDs.length; i++) {
+            ps.setInt(i + 1, Integer.parseInt(cartIDs[i]));
+        }
+
+        int rowsAffected = ps.executeUpdate();
+        return rowsAffected > 0;
+
+    } catch (Exception e) {
+        e.printStackTrace();
+    }
+
+    return false;
+}
 
 
 }

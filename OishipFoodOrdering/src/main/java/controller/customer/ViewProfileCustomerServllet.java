@@ -57,7 +57,7 @@ public class ViewProfileCustomerServllet extends HttpServlet {
                 RequestDispatcher dispatcher = request.getRequestDispatcher("/WEB-INF/views/customer/customer_profile.jsp");
                 dispatcher.forward(request, response);
             } else {
-                request.setAttribute("error", "Staff profile not found.");
+                request.setAttribute("error", "Customer profile not found.");
                 request.getRequestDispatcher("/error.jsp").forward(request, response);
             }
 
