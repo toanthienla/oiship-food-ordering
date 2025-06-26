@@ -31,15 +31,17 @@ public class ManageIngredientsServlet extends HttpServlet {
         String action = request.getParameter("action");
         try {
             if ("delete".equals(action)) {
-                handleDeleteIngredient(request);
-                response.sendRedirect("manage-ingredients");
+                boolean deleted = handleDeleteIngredient(request);
+                response.sendRedirect("manage-ingredients?success=" + (deleted ? "delete" : "false"));
                 return;
             } else if ("deleteDishIngredient".equals(action)) {
                 handleDeleteDishIngredient(request, response);
-                return; // ✅ Don't redirect again
+                return;
             }
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("manage-ingredients?success=false");
+            return;
         }
 
         List<Ingredient> ingredients = ingredientDAO.getAllIngredients();
@@ -61,29 +63,34 @@ public class ManageIngredientsServlet extends HttpServlet {
         response.setCharacterEncoding("UTF-8");
 
         String action = request.getParameter("action");
+        if (action == null) {
+            response.sendRedirect("manage-ingredients?success=false");
+            return;
+        }
 
         try {
             switch (action) {
                 case "add":
-                    handleAdd(request);
-                    break;
+                    boolean added = handleAdd(request);
+                    response.sendRedirect("manage-ingredients?success=" + (added ? "add" : "exists"));
+                    return;
                 case "update":
-                    handleUpdateIngredient(request);
-                    break;
+                    boolean updated = handleUpdateIngredient(request);
+                    response.sendRedirect("manage-ingredients?success=" + (updated ? "edit" : "false"));
+                    return;
                 case "updateDishIngredient":
                     handleUpdateDishIngredient(request, response);
                     return;
                 default:
-                    break;
+                    response.sendRedirect("manage-ingredients?success=false");
             }
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("manage-ingredients?success=false");
         }
-
-        response.sendRedirect("manage-ingredients");
     }
 
-    private void handleAdd(HttpServletRequest request) {
+    private boolean handleAdd(HttpServletRequest request) {
         try {
             int dishID = Integer.parseInt(request.getParameter("dishID"));
             String ingredientIdParam = request.getParameter("ingredientId");
@@ -93,23 +100,37 @@ public class ManageIngredientsServlet extends HttpServlet {
             if (ingredientIdParam == null || ingredientIdParam.isEmpty()) {
                 String newName = request.getParameter("newName");
                 BigDecimal newCost = new BigDecimal(request.getParameter("newCost"));
+
+                // Check if ingredient name already exists
+                List<Ingredient> existingIngredients = ingredientDAO.getAllIngredients();
+                boolean nameExists = existingIngredients.stream()
+                        .anyMatch(i -> i.getIngredientName().equalsIgnoreCase(newName.trim()));
+
+                if (nameExists) {
+                    // Redirect with error param
+                    return false; // Trigger ?success=exists in redirect
+                }
+
                 Ingredient newIngredient = new Ingredient();
                 newIngredient.setIngredientName(newName);
                 newIngredient.setUnitCost(newCost);
-                newIngredient.setAccountID(1);
+                newIngredient.setAccountID(1); // Placeholder
+
                 ingredientID = ingredientDAO.addIngredient(newIngredient);
             } else {
                 ingredientID = Integer.parseInt(ingredientIdParam);
             }
 
             dishIngredientDAO.addIngredientToDish(dishID, ingredientID, quantity);
+            return true;
 
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
-    private void handleUpdateIngredient(HttpServletRequest request) {
+    private boolean handleUpdateIngredient(HttpServletRequest request) {
         try {
             int id = Integer.parseInt(request.getParameter("ingredientId"));
             String name = request.getParameter("ingredientName");
@@ -120,10 +141,10 @@ public class ManageIngredientsServlet extends HttpServlet {
             ing.setIngredientName(name);
             ing.setUnitCost(cost);
 
-            ingredientDAO.updateIngredient(ing);
-
+            return ingredientDAO.updateIngredient(ing);
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -132,20 +153,23 @@ public class ManageIngredientsServlet extends HttpServlet {
             int dishID = Integer.parseInt(request.getParameter("dishID"));
             int ingredientID = Integer.parseInt(request.getParameter("ingredientID"));
             BigDecimal quantity = new BigDecimal(request.getParameter("quantity"));
+
             dishIngredientDAO.updateDishIngredientQuantity(dishID, ingredientID, quantity);
 
-            response.sendRedirect("manage-ingredients?tab=byDish&dishID=" + dishID);
+            response.sendRedirect("manage-ingredients?tab=byDish&dishID=" + dishID + "&success=dishEdit");
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("manage-ingredients?tab=byDish&success=false");
         }
     }
 
-    private void handleDeleteIngredient(HttpServletRequest request) {
+    private boolean handleDeleteIngredient(HttpServletRequest request) {
         try {
             int id = Integer.parseInt(request.getParameter("id"));
-            ingredientDAO.deleteIngredientById(id);
+            return ingredientDAO.deleteIngredientById(id);
         } catch (Exception e) {
             e.printStackTrace();
+            return false;
         }
     }
 
@@ -153,11 +177,13 @@ public class ManageIngredientsServlet extends HttpServlet {
         try {
             int dishID = Integer.parseInt(request.getParameter("dishID"));
             int ingredientID = Integer.parseInt(request.getParameter("ingredientID"));
+
             dishIngredientDAO.deleteIngredientFromDish(dishID, ingredientID);
 
-            response.sendRedirect("manage-ingredients?tab=byDish&dishID=" + dishID);
+            response.sendRedirect("manage-ingredients?tab=byDish&dishID=" + dishID + "&success=dishDelete");
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("manage-ingredients?tab=byDish&success=false");
         }
     }
 }
