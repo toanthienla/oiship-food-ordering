@@ -5,6 +5,7 @@ import dao.CustomerDAO;
 import dao.NotificationDAO;
 import dao.OrderDAO;
 import dao.VoucherDAO;
+import dao.ApplyVoucherDAO;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
@@ -108,13 +109,57 @@ public class OrderServlet extends HttpServlet {
                     grandTotal = grandTotal.add(dishPrice.multiply(BigDecimal.valueOf(cart.getQuantity())));
                 }
 
-                int orderId = orderDAO.createOrder(customer.getCustomerID(), grandTotal);
+                // ✅ Xử lý giảm giá từ voucher
+                String voucherIdStr = request.getParameter("voucherID");
+                Integer voucherID = null;
+                BigDecimal discountAmount = BigDecimal.ZERO;
+
+                if (voucherIdStr != null && !voucherIdStr.isEmpty()) {
+                    try {
+                        voucherID = Integer.parseInt(voucherIdStr);
+                        VoucherDAO voucherDAO = new VoucherDAO();
+                        Voucher voucher = voucherDAO.getVoucherById(voucherID);
+
+                        if (voucher != null && voucher.isActive()
+                                && voucher.getStartDate().isBefore(java.time.LocalDateTime.now())
+                                && voucher.getEndDate().isAfter(java.time.LocalDateTime.now())
+                                && voucher.getUsageLimit() > voucher.getUsedCount()
+                                && grandTotal.compareTo(voucher.getMinOrderValue()) >= 0) {
+
+                            if ("%".equals(voucher.getDiscountType())) {
+                                discountAmount = grandTotal.multiply(voucher.getDiscount().divide(new BigDecimal(100)));
+                                if (voucher.getMaxDiscountValue() != null &&
+                                        discountAmount.compareTo(voucher.getMaxDiscountValue()) > 0) {
+                                    discountAmount = voucher.getMaxDiscountValue();
+                                }
+                            } else {
+                                discountAmount = voucher.getDiscount();
+                            }
+
+                            // Tăng số lượt dùng
+                            ApplyVoucherDAO applyDAO = new ApplyVoucherDAO();
+                            applyDAO.increaseUsedCount(voucherID);
+                        } else {
+                            voucherID = null;
+                        }
+
+                    } catch (Exception e) {
+                        e.printStackTrace();
+                        voucherID = null;
+                    }
+                }
+
+                BigDecimal finalTotal = grandTotal.subtract(discountAmount);
+
+                // ✅ Lưu đơn hàng
+                int orderId = orderDAO.createOrder(customer.getCustomerID(), finalTotal, voucherID);
                 for (Cart cart : selectedCarts) {
                     orderDAO.addOrderDetail(orderId, cart.getDish().getDishID(), cart.getQuantity());
                 }
 
                 // Optionally: xóa cart
                 // cartDAO.deleteCartsByIDs(selectedCartIDs);
+
                 request.setAttribute("message", "Đặt hàng thành công!");
                 response.sendRedirect(request.getContextPath() + "/customer/order");
 
@@ -125,7 +170,6 @@ public class OrderServlet extends HttpServlet {
             }
 
         } else {
-
             // Giai đoạn 1: chuẩn bị xác nhận
             String[] selectedCartIDs = request.getParameterValues("selectedItems");
             if (selectedCartIDs == null || selectedCartIDs.length == 0) {
@@ -148,12 +192,15 @@ public class OrderServlet extends HttpServlet {
                     cart.getDish().setTotalPrice(dishPrice); // lưu lại để JSP dùng
                     grandTotal = grandTotal.add(itemTotal);
                 }
+
                 VoucherDAO voucherDAO = new VoucherDAO();
                 List<Voucher> vouchers = voucherDAO.getAllVouchers();
+
                 request.setAttribute("selectedCarts", selectedCarts);
                 request.setAttribute("grandTotal", grandTotal);
                 request.setAttribute("selectedCartIDs", selectedCartIDs);
                 request.setAttribute("vouchers", vouchers);
+
                 request.getRequestDispatcher("/WEB-INF/views/customer/confirm_order.jsp").forward(request, response);
 
             } catch (Exception e) {

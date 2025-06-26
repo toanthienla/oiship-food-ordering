@@ -1,5 +1,6 @@
 package dao;
 
+import java.math.BigDecimal;
 import model.Voucher;
 import utils.DBContext;
 
@@ -13,8 +14,7 @@ public class VoucherDAO extends DBContext {
         List<Voucher> list = new ArrayList<>();
         String sql = "SELECT * FROM Voucher";
 
-        try (PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Voucher v = new Voucher(
@@ -114,36 +114,107 @@ public class VoucherDAO extends DBContext {
 
         return 0;
     }
+
+    public Voucher getVoucherByCode(String code) {
+        String sql = "SELECT * FROM Voucher WHERE code = ?";
+        Voucher voucher = null;
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, code);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                voucher = new Voucher(
+                        rs.getInt("voucherID"),
+                        rs.getString("code"),
+                        rs.getString("voucherDescription"),
+                        rs.getString("discountType"),
+                        rs.getBigDecimal("discount"),
+                        rs.getBigDecimal("maxDiscountValue"),
+                        rs.getBigDecimal("minOrderValue"),
+                        rs.getTimestamp("startDate").toLocalDateTime(),
+                        rs.getTimestamp("endDate").toLocalDateTime(),
+                        rs.getInt("usageLimit"),
+                        rs.getInt("usedCount"),
+                        rs.getInt("active") == 1,
+                        rs.getInt("FK_Voucher_Account")
+                );
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+        return voucher;
+    }
+
+    public Voucher findValidVoucher(String code, BigDecimal cartTotal) {
+        throw new UnsupportedOperationException("Not supported yet."); // Generated from nbfs://nbhost/SystemFileSystem/Templates/Classes/Code/GeneratedMethodBody
+    }
+
+    public Voucher getValidVoucher(String code, BigDecimal orderTotal, int customerID) {
+        String sql = "SELECT * FROM Voucher \n"
+                + "        WHERE code = ? \n"
+                + "          AND active = 1 \n"
+                + "          AND GETDATE() BETWEEN startDate AND endDate \n"
+                + "          AND usageLimit > usedCount \n"
+                + "          AND minOrderValue <= ?\n"
+                + "          AND voucherID IN (\n"
+                + "              SELECT voucherID FROM CustomerVoucher WHERE customerID = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, code);
+            ps.setBigDecimal(2, orderTotal);
+            ps.setInt(3, customerID);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                Voucher voucher = new Voucher();
+                voucher.setVoucherID(rs.getInt("voucherID"));
+                voucher.setCode(rs.getString("code"));
+                voucher.setVoucherDescription(rs.getString("voucherDescription"));
+                voucher.setDiscountType(rs.getString("discountType"));
+                voucher.setDiscount(rs.getBigDecimal("discount"));
+                voucher.setMaxDiscountValue(rs.getBigDecimal("maxDiscountValue"));
+                voucher.setMinOrderValue(rs.getBigDecimal("minOrderValue"));
+                voucher.setStartDate(rs.getTimestamp("startDate").toLocalDateTime());
+                voucher.setEndDate(rs.getTimestamp("endDate").toLocalDateTime());
+                voucher.setUsageLimit(rs.getInt("usageLimit"));
+                voucher.setUsedCount(rs.getInt("usedCount"));
+                voucher.setActive(rs.getInt("active") == 1); // Chuyển INT → boolean
+                voucher.setAccountID(rs.getInt("FK_Voucher_Account"));
+                return voucher;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return null;
+    }
     
-    
-  public Voucher getVoucherByCode(String code) {
-    String sql = "SELECT * FROM Voucher WHERE code = ?";    
-    Voucher voucher = null;
+         public Voucher getVoucherById(int id) {
+    String sql = "SELECT * FROM Voucher WHERE voucherID = ?";
     try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setString(1, code);
+        ps.setInt(1, id);
         ResultSet rs = ps.executeQuery();
         if (rs.next()) {
-            voucher = new Voucher(
-                rs.getInt("voucherID"),
-                rs.getString("code"),
-                rs.getString("voucherDescription"),
-                rs.getString("discountType"),
-                rs.getBigDecimal("discount"),
-                rs.getBigDecimal("maxDiscountValue"),
-                rs.getBigDecimal("minOrderValue"),
-                rs.getTimestamp("startDate").toLocalDateTime(),
-                rs.getTimestamp("endDate").toLocalDateTime(),
-                rs.getInt("usageLimit"),
-                rs.getInt("usedCount"),
-                rs.getInt("active") == 1,
-                rs.getInt("FK_Voucher_Account")
-            );
+            Voucher voucher = new Voucher();
+            voucher.setVoucherID(rs.getInt("voucherID"));
+            voucher.setCode(rs.getString("code"));
+            voucher.setVoucherDescription(rs.getString("voucherDescription"));
+            voucher.setDiscountType(rs.getString("discountType"));
+            voucher.setDiscount(rs.getBigDecimal("discount"));
+            voucher.setMaxDiscountValue(rs.getBigDecimal("maxDiscountValue"));
+            voucher.setMinOrderValue(rs.getBigDecimal("minOrderValue"));
+            voucher.setStartDate(rs.getTimestamp("startDate").toLocalDateTime());
+            voucher.setEndDate(rs.getTimestamp("endDate").toLocalDateTime());
+            voucher.setUsageLimit(rs.getInt("usageLimit"));
+            voucher.setUsedCount(rs.getInt("usedCount"));
+            voucher.setActive(rs.getInt("active") == 1);
+            voucher.setAccountID(rs.getInt("FK_Voucher_Account"));
+            return voucher;
         }
     } catch (Exception e) {
         e.printStackTrace();
     }
-    return voucher;
+    return null;
 }
-
-
-}
+ 
+     
+} 

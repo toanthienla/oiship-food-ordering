@@ -178,17 +178,39 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
-    public int createOrder(int customerId, BigDecimal amount) throws SQLException {
-        String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus, FK_Order_Customer) VALUES (?, 0, 0, ?)";
-        try (
-                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setBigDecimal(1, amount);
-            ps.setInt(2, customerId);
+//    public int createOrder(int customerId, BigDecimal amount) throws SQLException {
+//        String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus, FK_Order_Customer) VALUES (?, 0, 0, ?)";
+//        try (
+//                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+//            ps.setBigDecimal(1, amount);
+//            ps.setInt(2, customerId);
+//            ps.executeUpdate();
+//            ResultSet rs = ps.getGeneratedKeys();
+//            if (rs.next()) {
+//                return rs.getInt(1);
+//            }
+//        }
+//        return -1;
+//    }
+    public int createOrder(int customerId, BigDecimal amount, Integer voucherID) {
+        String sql = "INSERT INTO [Order](amount, orderStatus, FK_Order_Customer, FK_Order_Voucher) VALUES (?, 0, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setBigDecimal(1, amount);         // amount
+            ps.setInt(2, customerId);            // FK_Order_Customer
+            if (voucherID != null) {
+                ps.setInt(3, voucherID);         // FK_Order_Voucher
+            } else {
+                ps.setNull(3, Types.INTEGER);
+            }
+
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1);
+                return rs.getInt(1); // Trả về orderID vừa tạo
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return -1;
     }
@@ -204,9 +226,8 @@ public class OrderDAO extends DBContext {
         }
     }
 
-
-public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
-    List<Order> orders = new ArrayList<>();
+    public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
+        List<Order> orders = new ArrayList<>();
         String sql = "SELECT orderID, orderCreatedAt, amount, orderStatus, paymentStatus "
                 + "FROM [Order] WHERE FK_Order_Customer = ? ORDER BY orderCreatedAt DESC";
 
@@ -233,7 +254,7 @@ public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
         }
 
         return orders;
-}
+    }
 
     public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
         List<OrderDetail> details = new ArrayList<>();
@@ -264,7 +285,6 @@ public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
 
         return details;
     }
-
 
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
