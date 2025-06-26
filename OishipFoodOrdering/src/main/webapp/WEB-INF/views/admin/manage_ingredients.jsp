@@ -46,9 +46,10 @@
                 <div class="tab-content mt-3" id="ingredientTabContent">
                     <div class="tab-pane fade show active" id="allIngredients" role="tabpanel">
                         <form action="manage-ingredients" method="post" class="row">
-                            <div class="col-12 mb-4">
+                            <div class="col-6 mb-3">
                                 <label class="form-label">Select Dish</label>
-                                <select class="form-select" name="dishID" required>
+                                <select class="form-select select2" name="dishID" required style="width: 100%;">
+                                    <option value="">-- Select a Dish --</option>
                                     <c:forEach var="dish" items="${dishes}">
                                         <option value="${dish.dishID}">${dish.dishName}</option>
                                     </c:forEach>
@@ -272,7 +273,17 @@
                 }<c:if test="${!loop.last}">,</c:if>
                 </c:forEach>
                 ];
-
+                
+                // Select dish (Tab 1)
+                $(document).ready(function () {
+                    $('.select2').select2({
+                        placeholder: "-- Select a Dish --",
+                        allowClear: true,
+                        width: 'resolve'
+                    });
+                });
+                
+                // Select dish (Tab 2)
                 $(document).ready(function () {
                     // Init Select2
                     $('#filterDishId').select2({
