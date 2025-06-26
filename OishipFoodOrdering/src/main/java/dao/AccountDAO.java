@@ -162,12 +162,13 @@ public class AccountDAO extends DBContext {
         return -1;
     }
 
-    public int insertAccount(Account account) {
+    public int insertAccount(Account account, String phone, String address) {
         if (account == null || account.getFullName() == null || account.getEmail() == null
                 || account.getPassword() == null || account.getRole() == null) {
             System.out.println("insertAccount: Account or required fields are null");
             return -1;
         }
+
         String sqlAccount = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
         try (Connection conn = getConnection(); PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
             psAccount.setString(1, account.getFullName());
@@ -193,8 +194,8 @@ public class AccountDAO extends DBContext {
                         String sqlCustomer = "INSERT INTO Customer (customerID, phone, address) VALUES (?, ?, ?)";
                         try (PreparedStatement psCustomer = conn.prepareStatement(sqlCustomer)) {
                             psCustomer.setInt(1, accountID);
-                            psCustomer.setString(2, ""); // Default phone
-                            psCustomer.setString(3, ""); // Default address
+                            psCustomer.setString(2, phone); // Sử dụng phone từ tham số
+                            psCustomer.setString(3, address); // Sử dụng address từ tham số
                             psCustomer.executeUpdate();
                         }
                     }
@@ -807,31 +808,41 @@ public class AccountDAO extends DBContext {
     }
 
     public int insertAnonymousCustomerAndReturnCustomerID(String fullName) {
-              String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
-        String insertCustomerSQL = "INSERT INTO Customer (customerID) VALUES (?)";
+        String sqlAccount = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
+        String sqlCustomer = "INSERT INTO Customer (customerID) VALUES (?)";
 
         try (Connection conn = getConnection()) {
-            conn.setAutoCommit(false); // Bắt đầu transaction
+            conn.setAutoCommit(false);
 
-            // Tạo email giả để tránh lỗi UNIQUE
             String fakeEmail = "anon_" + System.currentTimeMillis() + "@anon.com";
 
-            // Insert vào Account
-            try (PreparedStatement psAccount = conn.prepareStatement(insertAccountSQL)) {
-                psAccount.setString(1, fullName);
-                psAccount.setString(2, fakeEmail);
+            try (PreparedStatement ps = conn.prepareStatement(sqlAccount)) {
+                ps.setString(1, fullName);
+                ps.setString(2, fakeEmail);
 
-                ResultSet rs = psAccount.executeQuery();
-                if (rs.next()) {
-                    int accountId = rs.getInt("accountID");
+                try (ResultSet rs = ps.executeQuery()) {
+                    if (rs.next()) {
+                        int accountId = rs.getInt("accountID");
 
-                    // Insert vào Customer
-                    try (PreparedStatement psCustomer = conn.prepareStatement(insertCustomerSQL)) {
-                        psCustomer.setInt(1, accountId);
-                        psCustomer.executeUpdate();
+                        try (PreparedStatement psCustomer = conn.prepareStatement(sqlCustomer)) {
+                            psCustomer.setInt(1, accountId);
+                            psCustomer.executeUpdate();
+                        }
+
+                        conn.commit();
+                        return accountId;
                     }
+                }
+            } catch (SQLException e) {
+                conn.rollback();
+                e.printStackTrace();
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
 
-    
+        return -1;
+    }
 
     public boolean deleteCustomerById(int customerID) {
         if (customerID <= 0) {
@@ -1010,18 +1021,4 @@ public class AccountDAO extends DBContext {
         }
     }
 
-
-                    conn.commit();
-                    return accountId; // Trả về ID đã insert
-                }
-            } catch (SQLException e) {
-                conn.rollback();
-                e.printStackTrace();
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return -1;
-    }
 }
