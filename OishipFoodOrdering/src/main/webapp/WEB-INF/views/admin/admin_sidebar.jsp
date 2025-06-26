@@ -4,7 +4,7 @@
         <div class="brand">
             <i class="bi bi-x-lg close-btn" id="closeSidebar"></i>
         </div>
-        <a class="nav-link" href="dashboard"><ion-icon name="home-outline"></ion-icon>Home</a>
+        <a class="nav-link" href="dashboard"><i class="bi bi-house-door-fill"></i> Home</a>
         <a class="nav-link" href="manage-order"><i class="bi bi-receipt-cutoff"></i>Orders</a>
         <a class="nav-link" href="manage-categories"><i class="bi bi-ui-checks-grid"></i>Categories</a>
         <a class="nav-link" href="manage-dishes"><i class="bi bi-card-list"></i>Dishes</a>
