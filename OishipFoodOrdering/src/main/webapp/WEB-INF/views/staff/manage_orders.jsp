@@ -234,7 +234,7 @@
                                         <a class="btn btn-sm btn-outline-primary"
                                            href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
                                             Detail
-                                        </a>
+                                        </a> 
                                     </td>
                                 </tr>
                             </c:forEach>
