@@ -224,31 +224,99 @@
                     <!-- Update Form -->
                     <form action="${pageContext.request.contextPath}/staff/manage-orders/update-status" method="post" class="text-center">
                         <input type="hidden" name="orderID" value="${orderID}">
-                        <div class="mb-3">
-                            <label class="fw-semibold">Select new status:</label>
-                            <select name="newStatus" class="form-select w-50 mx-auto" required>
-                                <option disabled selected value="">-- Choose status --</option>
-                                <option value="0">Pending</option>
-                                <option value="1">Confirmed</option>
-                                <option value="2">Preparing</option>
-                                <option value="3">Out for Delivery</option>
-                                <option value="4">Delivered</option>
-                                <option value="5">Cancelled</option>
-                                <option value="6">Failed</option>
-                            </select>
+
+                        <div class="row justify-content-center align-items-end g-3">
+                            <!-- Select new status -->
+                            <div class="col-md-6">
+                                <label class="fw-semibold">Select new status:</label>
+                                <select name="newStatus" class="form-select" required>
+                                    <option disabled selected value="">-- Choose status --</option>
+                                    <option value="0">Pending</option>
+                                    <option value="1">Confirmed</option>
+                                    <option value="2">Preparing</option>
+                                    <option value="3">Out for Delivery</option>
+                                    <option value="4">Delivered</option>
+                                    <option value="5">Cancelled</option>
+                                    <option value="6">Failed</option>
+                                </select>
+                            </div>
+
+                            <!-- Update button -->
+                            <div class="col-md-3">
+                                <button type="submit" class="btn btn-primary w-100">Update</button>
+                            </div>
+
+                            <!-- Back button -->
+                            <div class="col-md-3">
+                                <a href="${pageContext.request.contextPath}/staff/manage-orders" class="btn btn-secondary w-100">Back</a>
+                            </div>
                         </div>
-                        <button type="submit" class="btn btn-primary">Update</button>
-                        <a href="${pageContext.request.contextPath}/staff/manage-orders/order-detail?orderID=${orderID}" class="btn btn-secondary">Back</a>
                     </form>
 
                     <!-- Success/Error Message -->
                     <c:if test="${not empty message}">
-                        <script>
-                            alert("${message}");
-                        </script>
+                        <script>alert("${message}");</script>
+                    </c:if>
+                </div>
+
+                <!-- Chi tiết đơn hàng -->
+                <div class="mt-5">
+                    <c:if test="${empty orderDetails}">
+                        <div class="alert alert-info">No details available for this order.</div>
+                    </c:if>
+
+                    <c:if test="${not empty orderDetails}">
+                        <!-- THÔNG TIN CHUNG -->
+                        <div class="border rounded p-3 mb-4 bg-light">
+                            <p><strong>Customer:</strong> ${orderDetails[0].customerName}</p>
+                            <p><strong>Order Created At:</strong>
+                                <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
+                            </p>
+                            <p><strong>Status:</strong>
+                                <c:choose>
+                                    <c:when test="${orderDetails[0].orderStatus == 0}">Pending</c:when>
+                                    <c:when test="${orderDetails[0].orderStatus == 1}">Confirmed</c:when>
+                                    <c:when test="${orderDetails[0].orderStatus == 2}">Preparing</c:when>
+                                    <c:when test="${orderDetails[0].orderStatus == 3}">Out for Delivery</c:when>
+                                    <c:when test="${orderDetails[0].orderStatus == 4}">Delivered</c:when>
+                                    <c:when test="${orderDetails[0].orderStatus == 5}">Cancelled</c:when>
+                                    <c:when test="${orderDetails[0].orderStatus == 6}">Failed</c:when>
+                                    <c:otherwise>Unknown</c:otherwise>
+                                </c:choose>
+                            </p>
+                        </div>
+
+                        <!-- BẢNG MÓN ĂN -->
+                        <table class="table table-bordered table-hover">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Dish</th>
+                                    <th>Image</th>
+                                    <th>Quantity</th>
+                                    <th>Cost (VNĐ)</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <c:forEach var="detail" items="${orderDetails}">
+                                    <tr>
+                                        <td>${detail.dishName}</td>
+                                        <td><img src="${detail.dishImage}" width="80" height="60" /></td>
+                                        <td>${detail.quantity}</td>
+                                        <td>... VNĐ</td>
+                                    </tr>
+                                </c:forEach>
+                            </tbody>
+                        </table>
+
+                        <!-- TỔNG -->
+                        <div class="d-flex justify-content-between align-items-center mt-3">
+                            <h5>Total Cost: ... VNĐ</h5>
+                        </div>
                     </c:if>
                 </div>
             </div>
+
+
 
         </div>
         <!-- JS -->

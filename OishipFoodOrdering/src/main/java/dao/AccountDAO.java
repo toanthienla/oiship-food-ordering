@@ -808,8 +808,13 @@ public class AccountDAO extends DBContext {
     }
 
     public int insertAnonymousCustomerAndReturnCustomerID(String fullName) {
+<<<<<<< PTho_Branches
         String sqlAccount = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
         String sqlCustomer = "INSERT INTO Customer (customerID) VALUES (?)";
+=======
+        String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
+        String insertCustomerSQL = "INSERT INTO Customer (customerID) VALUES (?)";
+>>>>>>> main
 
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false);
@@ -832,6 +837,11 @@ public class AccountDAO extends DBContext {
                         conn.commit();
                         return accountId;
                     }
+<<<<<<< PTho_Branches
+=======
+                    conn.commit();
+                    return accountId; // Trả về ID đã insert
+>>>>>>> main
                 }
             } catch (SQLException e) {
                 conn.rollback();
