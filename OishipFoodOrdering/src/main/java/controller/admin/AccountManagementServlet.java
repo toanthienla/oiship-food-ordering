@@ -64,7 +64,6 @@ public class AccountManagementServlet extends HttpServlet {
                     } else if ("staff".equals(account.getRole())) {
                         success = accountDAO.deleteStaffById(id);
                     } else {
-                        // Nếu là admin hoặc vai trò khác, có thể xử lý riêng hoặc không cho phép xóa qua đây
                         request.setAttribute("message", "Deletion not allowed for this role.");
                     }
 
@@ -261,6 +260,7 @@ public class AccountManagementServlet extends HttpServlet {
                         }
                     }
                 }
+                
             } else if ("edit".equals(action)) {
                 // Sửa tài khoản
                 int id = Integer.parseInt(request.getParameter("id"));
