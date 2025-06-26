@@ -216,6 +216,7 @@ public class AccountManagementServlet extends HttpServlet {
                     String hashedPassword = SecurityDAO.hashPassword(password);
                     Account account = new Account(0, fullName.trim(), email.trim(), hashedPassword, 1, role,
                             new Timestamp(System.currentTimeMillis()));
+
                     if ("customer".equals(role)) {
                         String phone = request.getParameter("phone");
                         String address = request.getParameter("address");
@@ -226,23 +227,37 @@ public class AccountManagementServlet extends HttpServlet {
                                 request.setAttribute("message", "Phone and address are required for customer.");
                             }
                         } else {
-                            Customer customer = new Customer();
-                            customer.setPhone(phone.trim());
-                            customer.setAddress(address.trim());
-                            account.setCustomer(customer);
-                            accountDAO.insertAccount(account); // Sử dụng insertAccount chung
+                            // Gọi phương thức insertAccount với phone và address
+                            int accountId = accountDAO.insertAccount(account, phone.trim(), address.trim());
+                            if (accountId > 0) {
+                                if (isAjax) {
+                                    sendJsonResponse(response, true, role + " added successfully.");
+                                } else {
+                                    request.setAttribute("message", role + " added successfully.");
+                                }
+                            } else {
+                                if (isAjax) {
+                                    sendJsonResponse(response, false, "Failed to add customer.");
+                                } else {
+                                    request.setAttribute("message", "Failed to add customer.");
+                                }
+                            }
+                        }
+                    } else {
+                        // Gọi phương thức insertAccount cho staff mà không cần phone và address
+                        int accountId = accountDAO.insertAccount(account, null, null);
+                        if (accountId > 0) {
                             if (isAjax) {
                                 sendJsonResponse(response, true, role + " added successfully.");
                             } else {
                                 request.setAttribute("message", role + " added successfully.");
                             }
-                        }
-                    } else {
-                        accountDAO.insertAccount(account); // Sử dụng insertAccount chung
-                        if (isAjax) {
-                            sendJsonResponse(response, true, role + " added successfully.");
                         } else {
-                            request.setAttribute("message", role + " added successfully.");
+                            if (isAjax) {
+                                sendJsonResponse(response, false, "Failed to add staff.");
+                            } else {
+                                request.setAttribute("message", "Failed to add staff.");
+                            }
                         }
                     }
                 }
