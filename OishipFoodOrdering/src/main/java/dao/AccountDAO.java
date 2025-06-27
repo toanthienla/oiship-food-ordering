@@ -808,10 +808,6 @@ public class AccountDAO extends DBContext {
 
     //Dùng trong chức năng staff tạo order
     public int insertAnonymousCustomerAndReturnCustomerID(String fullName) {
-<<<<<<< PTho_Branches
-        String sqlAccount = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
-        String sqlCustomer = "INSERT INTO Customer (customerID) VALUES (?)";
-=======
         String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
         String insertCustomerSQL = "INSERT INTO Customer (customerID) VALUES (?)";
 

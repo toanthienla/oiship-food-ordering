@@ -137,7 +137,7 @@
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
-                                    <input type="text" id="qty_<%= item.getCartID()%>" value="<%= quantity%>" readonly class="form-control text-center" style="width: 60px;">
+                                    <input type="text" id="qty_<%= item.getCartID()%>" value="<%= quantity%>" max="10" readonly class="form-control text-center" style="width: 60px;">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
                             </td>
@@ -178,23 +178,26 @@
         </div>
 
         <script>
-            const contextPath = "<%= request.getContextPath()%>";
-
             function updateQuantity(cartId, delta) {
                 const input = document.getElementById("qty_" + cartId);
                 let qty = parseInt(input.value);
                 if (isNaN(qty))
                     qty = 1;
+
                 qty += delta;
+
+                // ✅ Giới hạn từ 1 đến 10
                 if (qty < 1)
                     qty = 1;
+                if (qty > 10)
+                    qty = 10;
+
                 input.value = qty;
 
                 fetch(contextPath + "/customer/view-cart", {
                     method: "POST",
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-
                 }).then(() => {
                     const row = input.closest("tr");
                     const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
