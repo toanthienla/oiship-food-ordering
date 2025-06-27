@@ -326,7 +326,8 @@
                                     <th>Dish</th>
                                     <th>Image</th>
                                     <th>Quantity</th>
-                                    <th>Cost (VNĐ)</th>
+                                    <th>Unit Price</th>
+                                    <th>Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -335,16 +336,27 @@
                                         <td>${detail.dishName}</td>
                                         <td><img src="${detail.dishImage}" width="80" height="60" /></td>
                                         <td>${detail.quantity}</td>
-                                        <td>... VNĐ</td>
+                                        <td><fmt:formatNumber value="${detail.unitPrice}" type="number" groupingUsed="true"/> VNĐ</td>
+                                        <td>
+                                            <fmt:formatNumber value="${detail.unitPrice * detail.quantity}" type="number" groupingUsed="true"/> VNĐ
+                                        </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>
                         </table>
 
                         <!-- TỔNG -->
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <h5>Total Cost: ... VNĐ</h5>
+                        <div class="mt-3 border-top pt-3">
+                            <div class="text-end">
+                                <h5 class="fw-bold">
+                                    Total Cost:
+                                    <span class="text-primary">
+                                        <fmt:formatNumber value="${orderDetails[0].amount}" type="number" groupingUsed="true"/> VNĐ
+                                    </span>
+                                </h5>
+                            </div>
                         </div>
+
                     </c:if>
                 </div>
             </div>

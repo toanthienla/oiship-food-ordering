@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Dish;
+import model.Ingredient;
 import model.OrderDetail;
+import utils.TotalPriceCalculator;
 
 public class OrderDAO extends DBContext {
 
@@ -59,28 +61,35 @@ public class OrderDAO extends DBContext {
 
     //này dùng cho order detail, cẩn thận nhầm ODID và orderID nhé
     public List<OrderDetail> getOrderDetailsByOrderID(int orderID) {
-    List<OrderDetail> list = new ArrayList<>();
+        List<OrderDetail> list = new ArrayList<>();
 
-    String sql = "SELECT od.ODID, od.quantity, "
-            + "d.DishID, d.DishName, d.DishDescription, d.image, "
-            + "o.orderStatus, o.orderCreatedAt, "
-            + "c.customerID, a.fullName AS customerName, c.phone, c.address, "
-            + "v.code AS voucherCode, v.discount, v.discountType "
-            + "FROM OrderDetail od "
-            + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
-            + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
-            + "JOIN Customer c ON o.FK_Order_Customer = c.customerID "
-            + "JOIN Account a ON c.customerID = a.accountID "
-            + "LEFT JOIN Voucher v ON o.FK_Order_Voucher = v.voucherID "
-            + "WHERE o.orderID = ?";
+        String sql = "SELECT od.ODID, od.quantity, "
+                + "d.DishID, d.DishName, d.DishDescription, d.image, d.opCost, d.interestPercentage, "
+                + "o.orderStatus, o.orderCreatedAt, o.amount, " // ✅ Thêm o.amount
+                + "c.customerID, a.fullName AS customerName, c.phone, c.address, "
+                + "v.code AS voucherCode, v.discount, v.discountType "
+                + "FROM OrderDetail od "
+                + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+                + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
+                + "JOIN Customer c ON o.FK_Order_Customer = c.customerID "
+                + "JOIN Account a ON c.customerID = a.accountID "
+                + "LEFT JOIN Voucher v ON o.FK_Order_Voucher = v.voucherID "
+                + "WHERE o.orderID = ?";
 
-    try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, orderID);
-        try (ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            ResultSet rs = ps.executeQuery();
+
+            IngredientDAO ingredientDAO = new IngredientDAO();
+
             while (rs.next()) {
                 OrderDetail detail = new OrderDetail();
+
+                int dishID = rs.getInt("DishID");
+                int quantity = rs.getInt("quantity");
+
                 detail.setODID(rs.getInt("ODID"));
-                detail.setQuantity(rs.getInt("quantity"));
+                detail.setQuantity(quantity);
                 detail.setDishName(rs.getString("DishName"));
                 detail.setDishDescription(rs.getString("DishDescription"));
                 detail.setDishImage(rs.getString("image"));
@@ -94,16 +103,26 @@ public class OrderDAO extends DBContext {
                 detail.setDiscount(rs.getBigDecimal("discount"));
                 detail.setDiscountType(rs.getString("discountType"));
 
+                //Thêm amount
+                detail.setAmount(rs.getBigDecimal("amount"));
+
+                // Tính giá
+                BigDecimal opCost = rs.getBigDecimal("opCost");
+                BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
+                List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishID);
+                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+                BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(opCost, interestPercentage, ingredientCost);
+
+                detail.setUnitPrice(unitPrice);
+
                 list.add(detail);
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+
+        return list;
     }
-
-    return list;
-}
-
 
     public int getOrderStatusByOrderId(int orderID) {
         String sql = "SELECT orderStatus FROM [Order] WHERE orderID = ?";
@@ -312,6 +331,18 @@ public class OrderDAO extends DBContext {
             int rows = ps.executeUpdate();
             return rows > 0;
         }
+    }
+
+    public boolean updateOrderAmount(int orderID, BigDecimal amount) {
+        String sql = "UPDATE [Order] SET amount = ? WHERE orderID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBigDecimal(1, amount);
+            ps.setInt(2, orderID);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
     }
 
     public static void main(String[] args) {

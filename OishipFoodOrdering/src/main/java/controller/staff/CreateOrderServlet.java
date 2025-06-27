@@ -15,6 +15,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.math.BigDecimal;
 import java.util.List;
 import model.Category;
 import model.Dish;
@@ -84,7 +85,6 @@ public class CreateOrderServlet extends HttpServlet {
         request.getRequestDispatcher("/WEB-INF/views/staff/order_create.jsp").forward(request, response);
     }
 
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -116,9 +116,10 @@ public class CreateOrderServlet extends HttpServlet {
             return;
         }
 
-        // Bước 3: Lặp qua danh sách dish từ DishDAO để kiểm tra quantity gửi từ form
+        // Bước 3: Lặp qua danh sách dish từ DishDAO để kiểm tra quantity gửi từ form và tính amount
         List<Dish> dishes = dishDAO.getAllDishes();
         boolean atLeastOneDish = false;
+        BigDecimal amount = BigDecimal.ZERO;
 
         for (Dish dish : dishes) {
             String quantityParam = request.getParameter("quantity_" + dish.getDishID());
@@ -126,12 +127,19 @@ public class CreateOrderServlet extends HttpServlet {
                 try {
                     int quantity = Integer.parseInt(quantityParam);
                     if (quantity > 0) {
+                        // Tính tổng tiền từng món
+                        BigDecimal price = dish.getTotalPrice(); // đã tính sẵn trong dishDAO
+                        BigDecimal lineTotal = price.multiply(BigDecimal.valueOf(quantity));
+                        amount = amount.add(lineTotal);
+
+                        // Thêm vào OrderDetail
                         boolean success = orderDAO.insertOrderDetail(orderID, dish.getDishID(), quantity);
                         if (!success) {
                             message = "Failed to insert order detail for dish: " + dish.getDishName();
                             loadAndReturn(request, response, message, dishDAO);
                             return;
                         }
+
                         atLeastOneDish = true;
                     }
                 } catch (NumberFormatException e) {
@@ -147,6 +155,9 @@ public class CreateOrderServlet extends HttpServlet {
             loadAndReturn(request, response, message, dishDAO);
             return;
         }
+
+        // Sau khi đã có amount, cập nhật vào đơn hàng
+        orderDAO.updateOrderAmount(orderID, amount);
 
         // Thành công
         request.setAttribute("success", "Order created successfully!");

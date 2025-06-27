@@ -26,6 +26,8 @@ public class OrderDetail {
     private String voucherCode;
     private String discountType;
     private BigDecimal discount;
+    private BigDecimal unitPrice;
+    private BigDecimal amount;
 
     public OrderDetail() {
     }
@@ -171,6 +173,22 @@ public class OrderDetail {
 
     public void setDiscount(BigDecimal discount) {
         this.discount = discount;
+    }
+
+    public BigDecimal getUnitPrice() {
+        return unitPrice;
+    }
+
+    public void setUnitPrice(BigDecimal unitPrice) {
+        this.unitPrice = unitPrice;
+    }
+
+    public BigDecimal getAmount() {
+        return amount;
+    }
+
+    public void setAmount(BigDecimal amount) {
+        this.amount = amount;
     }
 
 }
