@@ -269,6 +269,19 @@
                         <!-- THÔNG TIN CHUNG -->
                         <div class="border rounded p-3 mb-4 bg-light">
                             <p><strong>Customer:</strong> ${orderDetails[0].customerName}</p>
+                            <p><strong>Phone:</strong>
+                                <c:choose>
+                                    <c:when test="${empty orderDetails[0].phone}">N/A</c:when>
+                                    <c:otherwise>${orderDetails[0].phone}</c:otherwise>
+                                </c:choose>
+                            </p>
+
+                            <p><strong>Address:</strong>
+                                <c:choose>
+                                    <c:when test="${empty orderDetails[0].address}">N/A</c:when>
+                                    <c:otherwise>${orderDetails[0].address}</c:otherwise>
+                                </c:choose>
+                            </p>
                             <p><strong>Order Created At:</strong>
                                 <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
                             </p>
