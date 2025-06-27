@@ -167,10 +167,10 @@ public class CartDAO extends DBContext {
             return carts;
         }
 
-        // Chuẩn bị truy vấn
+        // Chuẩn bị câu truy vấn
         StringBuilder sql = new StringBuilder(
                 "SELECT c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, "
-                + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage "
+                + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.stock "
                 + "FROM Cart c JOIN Dish d ON c.FK_Cart_Dish = d.DishID "
                 + "WHERE c.cartID IN ("
         );
@@ -197,8 +197,9 @@ public class CartDAO extends DBContext {
                 dish.setImage(rs.getString("image"));
                 dish.setOpCost(rs.getBigDecimal("opCost"));
                 dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
+                dish.setStock(rs.getInt("stock")); // ✅ thêm stock
 
-                // Lấy nguyên liệu cho dish
+                // Gán nguyên liệu
                 loadIngredientsForDish(dish);
 
                 cart.setDish(dish);

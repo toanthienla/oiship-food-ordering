@@ -120,13 +120,24 @@
                                 Dish dish = cart.getDish();
                                 BigDecimal price = dish.getTotalPrice();
                                 BigDecimal total = price.multiply(BigDecimal.valueOf(cart.getQuantity()));
+                                int cartId = cart.getCartID();
                         %>
-                        <div class="d-flex align-items-center mb-3 border p-2 rounded">
-                            <img src="<%= dish.getImage()%>" width="80" class="me-3">
-                            <div>
+                        <div class="d-flex align-items-center mb-3 border p-2 rounded cart-item-row">
+                            <img src="<%= dish.getImage()%>" width="80" class="me-3" style="border-radius: 8px;">
+                            <div class="flex-grow-1">
                                 <strong><%= dish.getDishName()%></strong><br/>
-                                Quantity: <%= cart.getQuantity()%> <br/>
-                                Total: <%= String.format("%,.0f", total)%> VND
+
+                                <!-- Nút tăng giảm -->
+                                <div class="d-flex align-items-center gap-2 mt-1">
+                                    <button  type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, -1)">−</button>
+                                    <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly
+                                           data-stock="<%= dish.getStock()%>"
+                                           class="form-control text-center" style="width: 60px;">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, 1)">+</button>
+                                </div>
+
+                                <!-- Tổng tiền theo món -->
+                                <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> VND</div>
                             </div>
                         </div>
                         <% }%>
@@ -177,263 +188,324 @@
             </div>
         </form>
 
-    </form>      
-    <!-- Modal chỉnh Customer -->
-    <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Customer Information</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Full name</label>
-                        <input type="text" class="form-control" id="modalFullName" placeholder="e.g. Nguyen Van A">
+
+        <!-- Modal chỉnh Customer -->
+        <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Customer Information</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
-                    <div class="mb-3">
-                        <label class="form-label">Phone number</label>
-                        <input type="text" class="form-control" id="modalPhone" placeholder="e.g. 0923473282">
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning" onclick="saveCustomerInfo()">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Modal chỉnh Address -->
-    <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
-        <div class="modal-dialog">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Edit Address</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="mb-3">
-                        <label class="form-label">Address</label>
-                        <textarea class="form-control" id="modalAddress" rows="3"></textarea>
-                    </div>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                    <button type="button" class="btn btn-warning" onclick="saveAddress()">Save changes</button>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- JS xử lý modal -->
-    <script>
-        function openEditCustomer() {
-            document.getElementById('modalFullName').value = '${customer.fullName}';
-            document.getElementById('modalPhone').value = '${customer.phone}';
-            new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
-        }
-
-        function openEditAddress() {
-            document.getElementById('modalAddress').value = '${customer.address}';
-            new bootstrap.Modal(document.getElementById('editAddressModal')).show();
-        }
-
-        function saveCustomerInfo() {
-            const name = document.getElementById('modalFullName').value.trim();
-            const phone = document.getElementById('modalPhone').value.trim();
-            if (!name || !phone) {
-                alert('Please enter all information.');
-                return;
-            }
-            const phoneRegex = /^0(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\d{7}$/;
-
-            if (!phoneRegex.test(phone)) {
-                alert('Phone number must be 10 digits and start with 0 (e.g. 0901234567).');
-                phoneInput.focus();
-                return;
-            }
-            let displayText = "";
-            if (name && phone) {
-                displayText = name + "- " + phone;
-            } else if (name) {
-                displayText = name;
-            } else if (phone) {
-                displayText = phoneRegex;
-            }
-            // ✅ Đảm bảo không hiển thị dấu phẩy nếu chỉ có 1 trong 2 trường
-            document.getElementById("displayCustomerText").textContent = displayText;
-            //   document.getElementById('displayCustomerText').innerText = `${name} - ${phone}`;
-
-            // Gán vào input ẩn để submit form
-            let form = document.querySelector("form");
-
-            let hiddenName = document.getElementById("hiddenFullName");
-            let hiddenPhone = document.getElementById("hiddenPhone");
-
-            if (!hiddenName) {
-                hiddenName = document.createElement("input");
-                hiddenName.type = "hidden";
-                hiddenName.name = "fullname";
-                hiddenName.id = "hiddenFullName";
-                form.appendChild(hiddenName);
-            }
-
-            if (!hiddenPhone) {
-                hiddenPhone = document.createElement("input");
-                hiddenPhone.type = "hidden";
-                hiddenPhone.name = "phone";
-                hiddenPhone.id = "hiddenPhone";
-                form.appendChild(hiddenPhone);
-            }
-
-            hiddenName.value = name;
-            hiddenPhone.value = phone;
-            bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
-        }
-
-        function saveAddress() {
-            const address = document.getElementById('modalAddress').value.trim();
-            if (!address) {
-                alert('Please enter address.');
-                return;
-            }
-            document.getElementById('displayAddressText').innerText = address;
-
-            // Gán vào input ẩn để submit form
-            let form = document.querySelector("form");
-            let hiddenAddress = document.getElementById("hiddenAddress");
-
-
-            if (!hiddenAddress) {
-                hiddenAddress = document.createElement("input");
-                hiddenAddress.type = "hidden";
-                hiddenAddress.name = "address";
-                hiddenAddress.id = "hiddenAddress";
-                form.appendChild(hiddenAddress);
-            }
-
-            hiddenAddress.value = address;
-            bootstrap.Modal.getInstance(document.getElementById('editAddressModal')).hide();
-        }
-    </script>
-    <!-- Modal chọn voucher -->
-    <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
-        <div class="modal-dialog modal-lg modal-dialog-centered">
-            <div class="modal-content p-4">
-                <div class="modal-header">
-                    <h5 class="modal-title">Chọn mã giảm giá</h5>
-                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                </div>
-                <div class="modal-body">
-                    <div class="row">
-                        <%
-                            List<Voucher> vouchers = (List<Voucher>) request.getAttribute("vouchers");
-                            if (vouchers != null && !vouchers.isEmpty()) {
-                                for (Voucher v : vouchers) {
-                        %>
-                        <div class="col-md-6 mb-3">
-                            <div class="border p-3 rounded shadow-sm h-100 voucher-card" style="cursor:pointer;"
-                                 onclick="selectVoucher('<%= v.getVoucherID()%>', '<%= v.getCode()%>')">
-                                <div class="fw-bold text-danger"><%= v.getCode()%></div>
-                                <div>
-                                    <%= v.getDiscountType().equals("%")
-                                            ? ("Giảm " + v.getDiscount() + "%")
-                                            : ("Giảm " + String.format("%,.0f", v.getDiscount()) + "đ")%>
-                                </div>
-                                <div class="text-muted"><%= v.getVoucherDescription()%></div>
-                            </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Full name</label>
+                            <input type="text" class="form-control" id="modalFullName" placeholder="e.g. Nguyen Van A">
                         </div>
-                        <% }
-                        } else { %>
-                        <div class="col-12 text-center text-muted">Không có voucher nào khả dụng</div>
-                        <% } %>
+                        <div class="mb-3">
+                            <label class="form-label">Phone number</label>
+                            <input type="text" class="form-control" id="modalPhone" placeholder="e.g. 0923473282">
+                        </div>
                     </div>
-                </div>
-                <div class="modal-footer">
-                    <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-warning" onclick="saveCustomerInfo()">Save changes</button>
+                    </div>
                 </div>
             </div>
         </div>
-    </div>
-</div>
-<script>
-    const allVouchers = [
-    <% for (Voucher v : vouchers) {%>
-        {
-            voucherID: <%= v.getVoucherID()%>,
-            code: "<%= v.getCode()%>",
-            discountType: "<%= v.getDiscountType()%>",
-            discount: <%= v.getDiscount()%>,
-            maxDiscountValue: <%= v.getMaxDiscountValue() != null ? v.getMaxDiscountValue() : "null"%>,
-            minOrderValue: <%= v.getMinOrderValue()%>
-        },
-    <% }%>
-    ];
 
+        <!-- Modal chỉnh Address -->
+        <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <div class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Edit Address</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="mb-3">
+                            <label class="form-label">Address</label>
+                            <textarea class="form-control" id="modalAddress" rows="3"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="button" class="btn btn-warning" onclick="saveAddress()">Save changes</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Modal chọn voucher -->
+        <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content p-4">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chọn mã giảm giá</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <%
+                                List<Voucher> vouchers = (List<Voucher>) request.getAttribute("vouchers");
+                                if (vouchers != null && !vouchers.isEmpty()) {
+                                    for (Voucher v : vouchers) {
+                            %>
+                            <div class="col-md-6 mb-3">
+                                <div class="border p-3 rounded shadow-sm h-100 voucher-card" style="cursor:pointer;"
+                                     onclick="selectVoucher('<%= v.getVoucherID()%>', '<%= v.getCode()%>')">
+                                    <div class="fw-bold text-danger"><%= v.getCode()%></div>
+                                    <div>
+                                        <%= v.getDiscountType().equals("%")
+                                                ? ("Giảm " + v.getDiscount() + "%")
+                                                : ("Giảm " + String.format("%,.0f", v.getDiscount()) + "đ")%>
+                                    </div>
+                                    <div class="text-muted"><%= v.getVoucherDescription()%></div>
+                                </div>
+                            </div>
+                            <% }
+                            } else { %>
+                            <div class="col-12 text-center text-muted">Không có voucher nào khả dụng</div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-    function selectVoucher(voucherID, code) {
-        const orderTotal = parseFloat(document.getElementById("totalBefore").getAttribute("data-value"));
-        const voucherText = document.getElementById("voucherStatusText");
-        const discountText = document.getElementById("discountAmount");
-        const finalTotalText = document.getElementById("finalAmount");
-        const hiddenInput = document.getElementById("hiddenVoucherID");
-
-        // Tìm voucher theo ID
-        const voucher = allVouchers.find(v => v.voucherID == voucherID);
-
-        if (!voucher) {
-            alert("Không tìm thấy voucher.");
-            return;
-        }
-
-
-        // Kiểm tra điều kiện đơn hàng tối thiểu
-        if (orderTotal < voucher.minOrderValue) {
-            alert("Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã này.");
-            return;
-        }
-        let discountAmount = 0;
-        if (voucher.discountType === "%") {
-            discountAmount = orderTotal * (voucher.discount / 100);
-            if (voucher.maxDiscountValue !== null && discountAmount > voucher.maxDiscountValue) {
-                discountAmount = voucher.maxDiscountValue;
+        <!-- JS xử lý modal -->
+        <script>
+            function openEditCustomer() {
+                document.getElementById('modalFullName').value = '${customer.fullName}';
+                document.getElementById('modalPhone').value = '${customer.phone}';
+                new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
             }
-        } else {
-            discountAmount = voucher.discount;
-        }
 
-        const finalTotal = orderTotal - discountAmount;
-        // Gán giá trị vào form + UI
-        hiddenInput.value = voucherID;
-        voucherText.textContent = "Đã áp dụng: " + code;
-        discountText.textContent = "- " + discountAmount.toLocaleString() + " VND";
-        finalTotalText.textContent = finalTotal.toLocaleString() + " VND";
-        // Đóng modal
-        const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
-        modal.hide();
+            function openEditAddress() {
+                document.getElementById('modalAddress').value = '${customer.address}';
+                new bootstrap.Modal(document.getElementById('editAddressModal')).show();
+            }
+
+            function saveCustomerInfo() {
+                const name = document.getElementById('modalFullName').value.trim();
+                const phone = document.getElementById('modalPhone').value.trim();
+                if (!name || !phone) {
+                    alert('Please enter all information.');
+                    return;
+                }
+                const phoneRegex = /^0(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\d{7}$/;
+
+                if (!phoneRegex.test(phone)) {
+                    alert('Phone number must be 10 digits and start with 0 (e.g. 0901234567).');
+                    phoneInput.focus();
+                    return;
+                }
+                let displayText = "";
+                if (name && phone) {
+                    displayText = name + "- " + phone;
+                } else if (name) {
+                    displayText = name;
+                } else if (phone) {
+                    displayText = phoneRegex;
+                }
+                // ✅ Đảm bảo không hiển thị dấu phẩy nếu chỉ có 1 trong 2 trường
+                document.getElementById("displayCustomerText").textContent = displayText;
+                //   document.getElementById('displayCustomerText').innerText = `${name} - ${phone}`;
+
+                // Gán vào input ẩn để submit form
+                let form = document.querySelector("form");
+
+                let hiddenName = document.getElementById("hiddenFullName");
+                let hiddenPhone = document.getElementById("hiddenPhone");
+
+                if (!hiddenName) {
+                    hiddenName = document.createElement("input");
+                    hiddenName.type = "hidden";
+                    hiddenName.name = "fullname";
+                    hiddenName.id = "hiddenFullName";
+                    form.appendChild(hiddenName);
+                }
+
+                if (!hiddenPhone) {
+                    hiddenPhone = document.createElement("input");
+                    hiddenPhone.type = "hidden";
+                    hiddenPhone.name = "phone";
+                    hiddenPhone.id = "hiddenPhone";
+                    form.appendChild(hiddenPhone);
+                }
+
+                hiddenName.value = name;
+                hiddenPhone.value = phone;
+                bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
+            }
+
+            function saveAddress() {
+                const address = document.getElementById('modalAddress').value.trim();
+                if (!address) {
+                    alert('Please enter address.');
+                    return;
+                }
+                document.getElementById('displayAddressText').innerText = address;
+
+                // Gán vào input ẩn để submit form
+                let form = document.querySelector("form");
+                let hiddenAddress = document.getElementById("hiddenAddress");
+
+
+                if (!hiddenAddress) {
+                    hiddenAddress = document.createElement("input");
+                    hiddenAddress.type = "hidden";
+                    hiddenAddress.name = "address";
+                    hiddenAddress.id = "hiddenAddress";
+                    form.appendChild(hiddenAddress);
+                }
+
+                hiddenAddress.value = address;
+                bootstrap.Modal.getInstance(document.getElementById('editAddressModal')).hide();
+            }
+        </script>
+
+
+        <script>
+            const allVouchers = [
+            <% for (Voucher v : vouchers) {%>
+                {
+                    voucherID: <%= v.getVoucherID()%>,
+                    code: "<%= v.getCode()%>",
+                    discountType: "<%= v.getDiscountType()%>",
+                    discount: <%= v.getDiscount()%>,
+                    maxDiscountValue: <%= v.getMaxDiscountValue() != null ? v.getMaxDiscountValue() : "null"%>,
+                    minOrderValue: <%= v.getMinOrderValue()%>
+                },
+            <% }%>
+            ];
+
+
+            function selectVoucher(voucherID, code) {
+                const orderTotal = parseFloat(document.getElementById("totalBefore").getAttribute("data-value"));
+                const voucherText = document.getElementById("voucherStatusText");
+                const discountText = document.getElementById("discountAmount");
+                const finalTotalText = document.getElementById("finalAmount");
+                const hiddenInput = document.getElementById("hiddenVoucherID");
+
+                // Tìm voucher theo ID
+                const voucher = allVouchers.find(v => v.voucherID == voucherID);
+
+                if (!voucher) {
+                    alert("Không tìm thấy voucher.");
+                    return;
+                }
+
+
+                // Kiểm tra điều kiện đơn hàng tối thiểu
+                if (orderTotal < voucher.minOrderValue) {
+                    alert("Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã này.");
+                    return;
+                }
+                let discountAmount = 0;
+                if (voucher.discountType === "%") {
+                    discountAmount = orderTotal * (voucher.discount / 100);
+                    if (voucher.maxDiscountValue !== null && discountAmount > voucher.maxDiscountValue) {
+                        discountAmount = voucher.maxDiscountValue;
+                    }
+                } else {
+                    discountAmount = voucher.discount;
+                }
+
+                const finalTotal = orderTotal - discountAmount;
+                // Gán giá trị vào form + UI
+                hiddenInput.value = voucherID;
+                voucherText.textContent = "Đã áp dụng: " + code;
+                discountText.textContent = "- " + discountAmount.toLocaleString() + " VND";
+                finalTotalText.textContent = finalTotal.toLocaleString() + " VND";
+                // Đóng modal
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
+                modal.hide();
 
 
 
-    }
-</script>
-<script>
-    function validatePhoneNumber() {
-        const phoneInput = document.getElementById("modalPhone");
-        const phone = phoneInput.value.trim();
+            }
+        </script>
+        <script>
+            function validatePhoneNumber() {
+                const phoneInput = document.getElementById("modalPhone");
+                const phone = phoneInput.value.trim();
 
-        // Regex: Bắt đầu bằng 0, theo sau là 9 chữ số (0-9)
-        const phoneRegex = /^0\d{9}$/;
+                // Regex: Bắt đầu bằng 0, theo sau là 9 chữ số (0-9)
+                const phoneRegex = /^0\d{9}$/;
 
-        if (!phoneRegex.test(phone)) {
-            alert("Phone number must be 10 digits and start with 0 (e.g. 0901234567).");
-            phoneInput.focus();
-            return false;
-        }
+                if (!phoneRegex.test(phone)) {
+                    alert("Phone number must be 10 digits and start with 0 (e.g. 0901234567).");
+                    phoneInput.focus();
+                    return false;
+                }
 
-        return true;
-    }
-</script>
+                return true;
+            }
+        </script>
+        <script>
+            const contextPath = "<%= request.getContextPath()%>";
 
-</body>
+            function updateQuantity(cartId, delta) {
+                const input = document.getElementById("qty_" + cartId);
+                const maxStock = parseInt(input.getAttribute("data-stock"));
+                let qty = parseInt(input.value);
+
+                if (isNaN(qty))
+                    qty = 1;
+                qty += delta;
+
+                if (qty > 10) {
+                    qty = 10;
+                    alert("The maximum quantity for each item is 10.");
+                }
+
+                if (qty > maxStock) {
+                    qty = maxStock;
+                    alert("The quantity exceeds stock: " + maxStock);
+                }
+
+                if (qty < 1)
+                    qty = 1;
+
+                input.value = qty;
+
+                // Gửi request cập nhật quantity (nếu cần)
+                fetch(contextPath + "/customer/view-cart", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                }).then(() => {
+                    // Cập nhật tổng tiền từng món
+                    const row = input.closest(".cart-item-row");
+                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                    const total = qty * price;
+                    row.querySelector(".item-total").textContent = total.toLocaleString();
+
+                    // ✅ Cập nhật lại tổng đơn hàng
+                    recalculateTotal();
+                });
+            }
+
+            function recalculateTotal() {
+                let total = 0;
+                document.querySelectorAll(".item-total").forEach(el => {
+                    const val = el.textContent.replace(/[^\d]/g, "");
+                    if (!isNaN(val))
+                        total += parseInt(val);
+                });
+
+                // Hiển thị lại
+                document.getElementById("totalBefore").textContent = total.toLocaleString() + " VND";
+                document.getElementById("finalAmount").textContent = total.toLocaleString() + " VND";
+                document.getElementById("discountAmount").textContent = "- 0 VND";
+
+                // Nếu có giảm giá (Yến có thể thêm logic nếu dùng voucher)
+            }
+        </script>
+
+    </body>
 </html>

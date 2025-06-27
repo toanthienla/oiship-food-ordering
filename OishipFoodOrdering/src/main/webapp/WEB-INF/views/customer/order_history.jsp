@@ -304,6 +304,18 @@
                 }
             });
         </script>
+        <script>
+            // Tự động ẩn alert sau 3 giây
+            window.addEventListener("DOMContentLoaded", function () {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    setTimeout(() => {
+                        alert.classList.add('fade');
+                        setTimeout(() => alert.remove(), 500); // Xoá khỏi DOM sau khi hiệu ứng hoàn tất
+                    }, 3000); // 3 giây
+                });
+            });
+        </script>
 
 
     </body>
