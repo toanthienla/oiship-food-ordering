@@ -4,7 +4,9 @@
 <%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-
+<%@page import="model.Dish"%>
+<%@page import="java.text.SimpleDateFormat"%>
+<%@page import="java.util.List"%>
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -77,8 +79,11 @@
         <div class="dish-detail-container">
             <%
                 Dish dish = (Dish) request.getAttribute("dish");
+                List<Review> reviews = (List<Review>) request.getAttribute("reviews");
+
                 if (dish == null) {
             %>
+            
             <div class="text-center mt-5">
                 <a href="home.jsp" class="btn btn-secondary mt-3">Back to Home</a>
             </div>
@@ -142,6 +147,32 @@
                         <button type="submit" class="btn-custom">Add to Cart</button>
                     </form>
                 </div>
+            </div>
+                        
+                           <!-- Reviews Section -->
+            <div class="mt-5">
+                <h4>Recent Reviews:</h4>
+                <% if (reviews != null && !reviews.isEmpty()) { %>
+                <ul class="list-group mt-3">
+                    <% for (Review r : reviews) {
+                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
+                    %>
+                    <li class="list-group-item">
+                        <strong><%= r.getCustomerName()%></strong>
+                        <span class="ms-2 text-warning">
+                            <% for (int i = 0; i < r.getRating(); i++) { %>
+                            <i class="fa-solid fa-star"  style="color: #ff6200;"></i>
+                            <% }%>
+                        </span>
+                        <small class="text-muted float-end"><%= sdf.format(r.getReviewCreatedAt())%></small>
+                        <br />
+                        <span><%= r.getComment()%></span>
+                    </li>
+                    <% } %>
+                </ul>
+                <% } else { %>
+                <p class="text-muted mt-3">No reviews yet for this dish.</p>
+                <% } %>
             </div>
             <% }%>
         </div>
