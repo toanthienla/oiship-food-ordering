@@ -1,19 +1,18 @@
-
 package model;
 
 import java.math.BigDecimal;
 import java.util.List;
 
 public class Ingredient {
-    
+
     private int ingredientId;
     private String ingredientName;
     private BigDecimal unitCost;
     private int fkIngredientAccount;
-    private List<DishIngredient> dishIngredients; 
-    private int dishId;    
-    private int accountID; 
-    
+    private List<DishIngredient> dishIngredients;
+    private int dishId;
+    private int accountID;
+
     public Ingredient() {
     }
 
@@ -83,7 +82,8 @@ public class Ingredient {
         this.accountID = accountID;
     }
 
-    
-
-
+    @Override
+    public String toString() {
+        return "Ingredient{" + "ingredientId=" + ingredientId + ", ingredientName=" + ingredientName + ", unitCost=" + unitCost + ", fkIngredientAccount=" + fkIngredientAccount + ", dishIngredients=" + dishIngredients + ", dishId=" + dishId + ", accountID=" + accountID + '}';
+    }
 }

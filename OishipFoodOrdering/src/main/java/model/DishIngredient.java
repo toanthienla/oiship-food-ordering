@@ -1,14 +1,18 @@
 package model;
 
+import model.Dish;
+import java.math.BigDecimal;
+
 public class DishIngredient {
 
     private int dishId;
     private int ingredientId;
     private double quantity;
-    private Dish dish; // Tham chiếu đến Dish (tùy chọn, để lấy dishName)
+    private Dish dish; // Optional, for displaying dish name
+    private String ingredientName; // Helper for display
+    private BigDecimal ingredientCost; // Helper for display
 
-    public DishIngredient() {
-    }
+    public DishIngredient() {}
 
     public DishIngredient(int dishId, int ingredientId, double quantity) {
         this.dishId = dishId;
@@ -16,7 +20,7 @@ public class DishIngredient {
         this.quantity = quantity;
     }
 
-    // Getters and Setters
+    // Getters and setters
     public int getDishId() {
         return dishId;
     }
@@ -47,5 +51,26 @@ public class DishIngredient {
 
     public void setDish(Dish dish) {
         this.dish = dish;
+    }
+
+    public String getIngredientName() {
+        return ingredientName;
+    }
+
+    public void setIngredientName(String ingredientName) {
+        this.ingredientName = ingredientName;
+    }
+
+    public BigDecimal getIngredientCost() {
+        return ingredientCost;
+    }
+
+    public void setIngredientCost(BigDecimal ingredientCost) {
+        this.ingredientCost = ingredientCost;
+    }
+
+    @Override
+    public String toString() {
+        return "DishIngredient{" + "dishId=" + dishId + ", ingredientId=" + ingredientId + ", quantity=" + quantity + ", dish=" + dish + ", ingredientName=" + ingredientName + ", ingredientCost=" + ingredientCost + '}';
     }
 }

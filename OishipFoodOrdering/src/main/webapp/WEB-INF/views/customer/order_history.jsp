@@ -79,13 +79,26 @@
         </style>
     </head>
     <body>
+        <% if ("true".equals(request.getParameter("cancelSuccess"))) { %>
+        <div class="alert alert-success text-center">Order has been cancelled successfully.</div>
+        <% } else if ("true".equals(request.getParameter("cancelFailed"))) { %>
+        <div class="alert alert-danger text-center">Failed to cancel the order. It may no longer be pending.</div>
+        <% } %>
+
+        <% String error = (String) request.getAttribute("error"); %>
+        <% if (error != null) {%>
+        <div class="alert alert-danger text-center"><%= error%></div>
+        <% }%>
+
         <div class="container mt-5">
             <h2 class="text-center mb-4">Your Order History</h2>
-
+            <div class="text-center mt-4">
+                <a href="<%= request.getContextPath()%>/customer" class="btn btn-primary px-4 py-2">&laquo; Back to Menu</a>
+            </div>
             <%
                 List<Order> orderHistory = (List<Order>) request.getAttribute("orderHistory");
                 String[] orderStatusText = (String[]) request.getAttribute("orderStatusText");
-                String[] paymentStatusText = (String[]) request.getAttribute("paymentStatusText");
+                //String[] paymentStatusText = (String[]) request.getAttribute("paymentStatusText");
 
                 SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy HH:mm");
                 int orderIndex = 0;
@@ -123,13 +136,29 @@
             <div class="order-card">
                 <div class="order-header mb-2">
                     <h5>Order ID: <%= order.getOrderID()%></h5>
+
+
                     <p class="text-muted">Date: <%= sdf.format(order.getOrderCreatedAt())%></p>
-                    <span class="status-label <%= orderClass%>">
-                        Status: <%= orderStatusText[os]%>
-                    </span>
-                    <span class="status-label status-confirmed ms-2">
-                        Payment: <%= paymentStatusText[ps]%>
-                    </span>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="status-label <%= orderClass%>">
+                            Status: <%= orderStatusText[os]%>
+                        </span>
+
+                        <% if (order.getOrderStatus() == 0) {%>
+                        <form action="<%= request.getContextPath()%>/customer/cancel-order" method="post"
+                              onsubmit="return confirm('Are you sure you want to cancel this order?');" class="ms-2">
+                            <input type="hidden" name="orderID" value="<%= order.getOrderID()%>">
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel Order</button>
+                        </form>
+                        <% }%>
+                    </div>
+
+                    <%--  
+                   <span class="status-label status-confirmed ms-2">
+                       Payment: <%= paymentStatusText[ps]%>
+                   </span>
+                    --%>
                 </div>
 
                 <div id="dishList-<%= orderIndex%>">
@@ -150,17 +179,17 @@
                         </div>
 
                         <%-- ✅ Nếu đơn đã giao, hiển thị nút Review --%>
-                        <% if (order.getOrderStatus() == 4) {%>
-                        <!-- Thay phần nút Review bằng: -->
-                        <button type="button"
-                                class="btn btn-outline-primary btn-sm"
+                        <% if (order.getOrderStatus() == 4 && !detail.isReviewed()) {%>
+                        <button type="button" class="btn btn-outline-primary btn-sm"
+                                id="review-btn-<%= detail.getODID()%>"
                                 data-bs-toggle="modal"
                                 data-bs-target="#reviewModal"
                                 data-odid="<%= detail.getODID()%>"
                                 data-dishname="<%= dish.getDishName()%>">
                             Review
                         </button>
-
+                        <% } else if (detail.isReviewed()) { %>
+                        <span class="badge bg-success">Reviewed</span>
                         <% } %>
                     </div>
 
@@ -201,10 +230,12 @@
                 <a href="<%= request.getContextPath()%>/customer" class="btn btn-primary px-4 py-2">&laquo; Back to Menu</a>
             </div>
         </div>
+
+
         <!-- Review Modal -->
         <div class="modal fade" id="reviewModal" tabindex="-1" aria-labelledby="reviewModalLabel" aria-hidden="true">
             <div class="modal-dialog">
-                <form method="post" action="${pageContext.request.contextPath}/customer/review" class="modal-content">
+                <form id="reviewForm" method="post" action="${pageContext.request.contextPath}/customer/review" class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title" id="reviewModalLabel">Review Dish</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -221,8 +252,9 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Comment:</label>
-                            <textarea name="comment" class="form-control" required></textarea>
+                            <textarea name="comment" class="form-control" required ></textarea>
                         </div>
+
                     </div>
                     <div class="modal-footer">
                         <button type="submit" class="btn btn-primary">Submit Review</button>
@@ -252,6 +284,37 @@
                             document.getElementById('modalOdid').value = odid;
                             document.getElementById('modalDishName').value = dishName;
                         });
+        </script>
+
+        <% if (request.getAttribute("error") != null) { %>
+        <script>
+            const reviewModal = document.getElementById('reviewModal');
+            reviewModal.show();
+        </script>
+        <% }%>
+        <script>
+            // Bắt sự kiện submit của form review
+            const reviewForm = document.querySelector('#reviewModal form');
+            reviewForm.addEventListener('submit', function (e) {
+                const comment = reviewForm.querySelector('textarea[name="comment"]').value.trim();
+
+                if (comment.length > 255) {
+                    e.preventDefault(); // Ngăn form gửi về server
+                    alert("Comment cannot exceed 255 characters.");
+                }
+            });
+        </script>
+        <script>
+            // Tự động ẩn alert sau 3 giây
+            window.addEventListener("DOMContentLoaded", function () {
+                const alerts = document.querySelectorAll('.alert');
+                alerts.forEach(alert => {
+                    setTimeout(() => {
+                        alert.classList.add('fade');
+                        setTimeout(() => alert.remove(), 500); // Xoá khỏi DOM sau khi hiệu ứng hoàn tất
+                    }, 3000); // 3 giây
+                });
+            });
         </script>
 
 

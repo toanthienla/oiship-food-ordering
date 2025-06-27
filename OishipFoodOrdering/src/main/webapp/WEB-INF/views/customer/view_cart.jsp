@@ -24,11 +24,6 @@
             h2 {
                 color: #ff6600;
             }
-            .table {
-                background-color: #ffffff;
-                border-radius: 10px;
-                overflow: hidden;
-            }
             .table th {
                 background-color: #ff6600;
                 color: white;
@@ -56,11 +51,6 @@
             .btn-custom-back:hover {
                 background-color: #ff8800;
             }
-            .alert-warning {
-                background-color: #fff3cd;
-                border-color: #ffeeba;
-                color: #856404;
-            }
             .img-thumbnail {
                 border-radius: 8px;
             }
@@ -69,17 +59,6 @@
                 width: 20px;
                 height: 20px;
                 accent-color: #ff6600;
-                cursor: pointer;
-            }
-            th input[type="checkbox"],
-            td input[type="checkbox"] {
-                transform: scale(1.2);
-            }
-            td:first-child, th:first-child {
-                width: 60px;
-            }
-            .table td, .table th {
-                vertical-align: middle;
             }
         </style>
     </head>
@@ -96,14 +75,16 @@
             <div class="alert alert-danger"><%= error%></div>
             <% } %>
 
-            <% if (cartItems != null && !cartItems.isEmpty()) { %>
+            <% if (cartItems != null && !cartItems.isEmpty()) {
+                    BigDecimal grandTotal = BigDecimal.ZERO;
+            %>
             <div class="table-responsive">
-                <table class="table table-bordered align-middle text-center">
+                <table class="table table-bordered text-center align-middle">
                     <thead>
                         <tr>
                             <th><input type="checkbox" id="selectAll" onclick="toggleAll(this)"></th>
                             <th>Image</th>
-                            <th>Dish Name</th>
+                            <th>Dish</th>
                             <th>Quantity</th>
                             <th>Total</th>
                             <th>Action</th>
@@ -113,41 +94,29 @@
                         <% for (Cart item : cartItems) {
                                 Dish dish = item.getDish();
                                 int quantity = item.getQuantity();
-                                BigDecimal unitPrice = dish.getTotalPrice(); // đã tính từ DAO
+                                BigDecimal unitPrice = dish.getTotalPrice();
                                 BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
+                                grandTotal = grandTotal.add(itemTotal);
                         %>
                         <tr>
-                            <!-- Checkbox chọn món -->
-                            <td>
-                                <input type="checkbox" class="item-checkbox" value="<%= item.getCartID()%>">
-                            </td>
-
-                            <!-- Hình ảnh món -->
-                            <td>
-                                <img src="<%= dish.getImage()%>" width="100" height="80" class="img-thumbnail">
-                            </td>
-
-                            <!-- Tên món ăn -->
+                            <td><input type="checkbox" class="item-checkbox" value="<%= item.getCartID()%>"></td>
+                            <td><img src="<%= dish.getImage()%>" width="90" class="img-thumbnail"></td>
                             <td>
                                 <%= dish.getDishName()%><br>
-                                <small class="text-muted">Đơn giá: <%= dish.getFormattedPrice()%> đ</small>
+                                <small class="text-muted">Price: <%= dish.getFormattedPrice()%> đ</small>
                             </td>
-
-                            <!-- Số lượng có nút tăng/giảm -->
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
-                                    <input type="text" id="qty_<%= item.getCartID()%>" value="<%= quantity%>" max="10" readonly class="form-control text-center" style="width: 60px;">
+
+                                    <input type="text" id="qty_<%= item.getCartID()%>" data-stock="<%= dish.getStock()%>" value="<%= quantity%>" readonly class="form-control text-center" style="width: 60px;">
+
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
                             </td>
-
-                            <!-- Tổng tiền của món -->
                             <td class="item-total" data-price="<%= unitPrice.intValue()%>">
                                 <%= String.format("%,.0f", itemTotal)%> đ
                             </td>
-
-                            <!-- Nút xoá -->
                             <td>
                                 <form action="<%= request.getContextPath()%>/customer/view-cart" method="post" onsubmit="return confirm('Are you sure you want to remove this item?');">
                                     <input type="hidden" name="cartID" value="<%= item.getCartID()%>">
@@ -157,9 +126,10 @@
                         </tr>
                         <% } %>
                     </tbody>
-
                 </table>
             </div>
+
+
             <% } else { %>
             <div class="alert alert-warning text-center">Your cart is currently empty.</div>
             <% }%>
@@ -170,78 +140,78 @@
                     <button type="submit" class="btn btn-success text-white" onclick="prepareOrder()">
                         <i class="fa-solid fa-cart-shopping me-1"></i> Order Now
                     </button>
-
                 </div>
             </form>
-
-
         </div>
 
         <script>
-            function updateQuantity(cartId, delta) {
-                const input = document.getElementById("qty_" + cartId);
-                let qty = parseInt(input.value);
-                if (isNaN(qty))
-                    qty = 1;
+    const contextPath = "<%= request.getContextPath()%>";
+    function updateQuantity(cartId, delta) {
+        const input = document.getElementById("qty_" + cartId);
+        const maxStock = parseInt(input.getAttribute("data-stock"));
+        let qty = parseInt(input.value);
 
-                qty += delta;
+        qty += delta;
+        if (qty > 10) {
+            qty = 10;
+            alert("The maximum quantity is 10.");
+        }
+        if (qty > maxStock) {
+            qty = maxStock;
+            alert("Only " + maxStock + " items in stock.");
+        }
+        if (qty < 1)
+            qty = 1;
+        input.value = qty;
 
-                // ✅ Giới hạn từ 1 đến 10
-                if (qty < 1)
-                    qty = 1;
-                if (qty > 10)
-                    qty = 10;
+        fetch(contextPath + "/customer/view-cart", {
+            method: "POST",
+            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+            body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+        }).then(() => {
+            const row = input.closest("tr");
+            const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+            const total = qty * price;
+            row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
 
-                input.value = qty;
+            // Cập nhật lại tổng tiền toàn bộ đơn hàng
+            recalculateGrandTotal();
+        });
+    }
 
-                fetch(contextPath + "/customer/view-cart", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-                }).then(() => {
-                    const row = input.closest("tr");
-                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                    const total = qty * price;
-                    row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
-                });
-            }
+    function recalculateGrandTotal() {
+        let total = 0;
+        document.querySelectorAll(".item-total").forEach(el => {
+            const text = el.textContent.replace(/[^\d]/g, '');
+            if (!isNaN(text))
+                total += parseInt(text);
+        });
+        document.getElementById("grandTotalAmount").textContent = total.toLocaleString() + " đ";
+    }
 
+    function prepareOrder() {
+        const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+        if (checkedItems.length === 0) {
+            alert("Vui lòng chọn ít nhất một món để đặt hàng.");
+            event.preventDefault();
+            return false;
+        }
+        document.querySelectorAll('#orderForm input[name="selectedItems"]').forEach(e => e.remove());
+        checkedItems.forEach(cb => {
+            const hidden = document.createElement('input');
+            hidden.type = 'hidden';
+            hidden.name = 'selectedItems';
+            hidden.value = cb.value;
+            document.getElementById('orderForm').appendChild(hidden);
+        });
+        return true;
+    }
 
+    function toggleAll(source) {
+        const checkboxes = document.querySelectorAll('.item-checkbox');
+        checkboxes.forEach(cb => cb.checked = source.checked);
+    }
         </script>
-        <script>
-            function prepareOrder() {
-                const checkedItems = document.querySelectorAll('.item-checkbox:checked');
-
-                // Nếu không chọn món nào
-                if (checkedItems.length === 0) {
-                    alert("Vui lòng chọn ít nhất một món để đặt hàng.");
-                    event.preventDefault();
-                    return false;
-                }
-
-                // Xóa input cũ
-                document.querySelectorAll('#orderForm input[name="selectedItems"]').forEach(e => e.remove());
-
-                // Thêm input ẩn
-                checkedItems.forEach(cb => {
-                    const hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = 'selectedItems';
-                    hidden.value = cb.value;
-                    document.getElementById('orderForm').appendChild(hidden);
-                });
-
-                return true;
-            }
-        </script>
-        <script>
-            function toggleAll(source) {
-                const checkboxes = document.querySelectorAll('.item-checkbox');
-                checkboxes.forEach(cb => cb.checked = source.checked);
-            }
-        </script>
-
-
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

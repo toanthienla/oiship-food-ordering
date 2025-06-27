@@ -235,6 +235,17 @@
                                            href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
                                             Detail
                                         </a>
+                                        <!-- Dropdown Update Status -->
+                                        <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;">
+                                            <input type="hidden" name="orderId" value="${o.orderID}" />
+                                            <select name="status" class="form-select form-select-sm w-auto d-inline-block" onchange="this.form.submit()">
+                                                <c:forEach var="entry" items="${statusMap}">
+                                                    <c:set var="key" value="${entry.key}" />
+                                                    <c:set var="value" value="${entry.value}" />
+                                                    <option value="${key}" <c:if test="${key == o.orderStatus}">selected</c:if>>${value}</option>
+                                                </c:forEach>
+                                            </select>
+                                        </form>
                                     </td>
                                 </tr>
                             </c:forEach>

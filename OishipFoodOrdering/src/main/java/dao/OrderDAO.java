@@ -61,7 +61,8 @@ public class OrderDAO extends DBContext {
         String sql = "SELECT od.ODID, od.quantity, "
                 + "d.DishID, d.DishName, d.DishDescription, "
                 + "o.orderStatus, o.orderCreatedAt, d.image, "
-                + "c.customerID, a.fullName AS customerName "
+                + "c.customerID, a.fullName AS customerName, "
+                + "c.phone, c.address "
                 + "FROM OrderDetail od "
                 + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
                 + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
@@ -83,6 +84,8 @@ public class OrderDAO extends DBContext {
                     detail.setDishImage(rs.getString("image"));
                     detail.setCustomerName(rs.getString("customerName"));
                     detail.setOrderId(orderID);
+                    detail.setPhone(rs.getString("phone"));
+                    detail.setAddress(rs.getString("address"));
                     list.add(detail);
                 }
             }
@@ -178,17 +181,39 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
-    public int createOrder(int customerId, BigDecimal amount) throws SQLException {
-        String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus, FK_Order_Customer) VALUES (?, 0, 0, ?)";
-        try (
-                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setBigDecimal(1, amount);
-            ps.setInt(2, customerId);
+//    public int createOrder(int customerId, BigDecimal amount) throws SQLException {
+//        String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus, FK_Order_Customer) VALUES (?, 0, 0, ?)";
+//        try (
+//                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+//            ps.setBigDecimal(1, amount);
+//            ps.setInt(2, customerId);
+//            ps.executeUpdate();
+//            ResultSet rs = ps.getGeneratedKeys();
+//            if (rs.next()) {
+//                return rs.getInt(1);
+//            }
+//        }
+//        return -1;
+//    }
+    public int createOrder(int customerId, BigDecimal amount, Integer voucherID) {
+        String sql = "INSERT INTO [Order](amount, orderStatus, FK_Order_Customer, FK_Order_Voucher) VALUES (?, 0, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setBigDecimal(1, amount);         // amount
+            ps.setInt(2, customerId);            // FK_Order_Customer
+            if (voucherID != null) {
+                ps.setInt(3, voucherID);         // FK_Order_Voucher
+            } else {
+                ps.setNull(3, Types.INTEGER);
+            }
+
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1);
+                return rs.getInt(1); // Trả về orderID vừa tạo
             }
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
         return -1;
     }
@@ -204,9 +229,8 @@ public class OrderDAO extends DBContext {
         }
     }
 
-
-public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
-    List<Order> orders = new ArrayList<>();
+    public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
+        List<Order> orders = new ArrayList<>();
         String sql = "SELECT orderID, orderCreatedAt, amount, orderStatus, paymentStatus "
                 + "FROM [Order] WHERE FK_Order_Customer = ? ORDER BY orderCreatedAt DESC";
 
@@ -233,13 +257,15 @@ public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
         }
 
         return orders;
-}
+    }
 
     public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
         List<OrderDetail> details = new ArrayList<>();
-        String sql = "SELECT od.ODID, od.quantity, d.DishName, d.image AS DishImage "
+        String sql = "SELECT od.ODID, od.quantity, d.DishName, d.image AS DishImage, "
+                + "CASE WHEN r.ReviewID IS NOT NULL THEN 1 ELSE 0 END AS isReviewed "
                 + "FROM OrderDetail od "
                 + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+                + "LEFT JOIN Review r ON r.FK_Review_OrderDetail = od.ODID "
                 + "WHERE od.FK_OD_Order = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -251,10 +277,15 @@ public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
                 detail.setODID(rs.getInt("ODID"));
                 detail.setQuantity(rs.getInt("quantity"));
 
+                // Gán Dish
                 Dish dish = new Dish();
                 dish.setDishName(rs.getString("DishName"));
                 dish.setImage(rs.getString("DishImage"));
                 detail.setDish(dish);
+
+                // Gán đã review hay chưa
+                boolean isReviewed = rs.getInt("isReviewed") == 1;
+                detail.setReviewed(isReviewed);
 
                 details.add(detail);
             }
@@ -265,20 +296,26 @@ public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
         return details;
     }
 
+    public boolean cancelOrder(int orderId) throws SQLException {
+        String sql = "UPDATE [Order] SET orderStatus = 5 WHERE orderID = ? AND orderStatus = 0"; // 5 = Hủy
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        }
+    }
 
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
+        List<OrderDetail> list = dao.getOrderDetailsByOrderID(24);
 
-        int orderID = 12;
-        int dishID = 3;
-        int quantity = 2;
-
-        boolean success = dao.insertOrderDetail(orderID, dishID, quantity);
-
-        if (success) {
-            System.out.println("✅ Inserted OrderDetail successfully.");
-        } else {
-            System.out.println("❌ Failed to insert OrderDetail.");
+        for (OrderDetail od : list) {
+            System.out.println("Dish: " + od.getDishName());
+            System.out.println("Qty: " + od.getQuantity());
+            System.out.println("Customer: " + od.getCustomerName());
+            System.out.println("Phone: " + od.getPhone());
+            System.out.println("Address: " + od.getAddress());
+            System.out.println("-----------");
         }
     }
 }

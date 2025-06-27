@@ -9,7 +9,6 @@ import java.math.BigDecimal;
 import java.util.List;
 import model.Cart;
 
-
 @WebServlet(name = "ViewCartServlet", urlPatterns = {"/customer/view-cart"})
 public class ViewCartServlet extends HttpServlet {
 
@@ -26,10 +25,9 @@ public class ViewCartServlet extends HttpServlet {
 
         try {
             CartDAO cartDAO = new CartDAO();
-            List<Cart> cartItems = cartDAO.getCartByCustomerId(customerID);           
+            List<Cart> cartItems = cartDAO.getCartByCustomerId(customerID);
 
             request.setAttribute("cartItems", cartItems);
-        
 
             request.getRequestDispatcher("/WEB-INF/views/customer/view_cart.jsp").forward(request, response);
         } catch (Exception e) {
@@ -66,6 +64,14 @@ public class ViewCartServlet extends HttpServlet {
                 int quantity = Integer.parseInt(quantityStr);
                 if (quantity < 1) {
                     quantity = 1;
+                }
+
+                int stock = cartDAO.getDishStockByCartId(cartID);
+                if (quantity > stock) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Số lượng vượt quá tồn kho. Chỉ còn " + stock + " món.\"}");
+                    return;
                 }
                 cartDAO.updateCartQuantity(cartID, quantity);
 

@@ -288,4 +288,15 @@ public class DishDAO extends DBContext {
 
         return dishes;
     }
+
+    public boolean decreaseStock(int dishId, int quantity) throws SQLException {
+        String sql = "UPDATE Dish SET stock = stock - ? WHERE dishID = ? AND stock >= ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, dishId);
+            stmt.setInt(3, quantity);
+            return stmt.executeUpdate() > 0; // nếu trả về 0 thì tức là không đủ tồn kho
+        }
+    }
+
 }

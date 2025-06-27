@@ -169,7 +169,7 @@
                                         <!--<td>${dish.interestPercentage}</td>-->
                                         <td style="max-width: 200px;">${dish.dishDescription}</td>
                                         <td class="align-middle">
-                                            <img src="${dish.image}" alt="${dish.dishName}" class="img-fluid" style="max-height: 80px; object-fit: cover; border-radius: 1px" />
+                                            <img src="${dish.image}" alt="${dish.dishName}" class="img-fluid" style="max-height: 80px; width: 120px; object-fit: cover; border-radius: 1px" />
                                         </td>
                                         <td class="text-center">
                                             <div class="d-flex flex-column gap-1 align-items-center">

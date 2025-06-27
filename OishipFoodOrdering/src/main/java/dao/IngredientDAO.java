@@ -1,17 +1,16 @@
 package dao;
 
-import model.Ingredient;
 import model.Dish;
 import model.DishIngredient;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 import java.math.BigDecimal;
-import model.DishIngredient;
 import model.Ingredient;
 import utils.DBContext;
 
 public class IngredientDAO extends DBContext {
+
     private static final int DEFAULT_ACCOUNT_ID = 1; // Default to admin account ID
     private static final int DEFAULT_DISH_CATEGORY_ID = 1; // Default category, adjust as needed
 
@@ -473,39 +472,102 @@ public class IngredientDAO extends DBContext {
         return -1; // Indicate failure
     }
 
-   public List<Ingredient> getIngredientsByDishId(int dishId) {
-    List<Ingredient> ingredients = new ArrayList<>();
-    String sql = "SELECT i.ingredientID, i.name, i.unitCost, di.dishID, di.quantity " +
-                 "FROM DishIngredient di " +
-                 "JOIN Ingredient i ON di.ingredientID = i.ingredientID " +
-                 "WHERE di.dishID = ?";
+    public List<Ingredient> getIngredientsByDishId(int dishId) {
+        List<Ingredient> ingredients = new ArrayList<>();
+        String sql = "SELECT i.ingredientID, i.name, i.unitCost, di.dishID, di.quantity "
+                + "FROM DishIngredient di "
+                + "JOIN Ingredient i ON di.ingredientID = i.ingredientID "
+                + "WHERE di.dishID = ?";
 
-    try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-        stmt.setInt(1, dishId);
-        try (ResultSet rs = stmt.executeQuery()) {
-            while (rs.next()) {
-                Ingredient ing = new Ingredient();
-                ing.setIngredientId(rs.getInt("ingredientID"));
-                ing.setIngredientName(rs.getString("name"));
-                ing.setUnitCost(rs.getBigDecimal("unitCost"));
-                ing.setDishId(rs.getInt("dishID"));
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, dishId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    Ingredient ing = new Ingredient();
+                    ing.setIngredientId(rs.getInt("ingredientID"));
+                    ing.setIngredientName(rs.getString("name"));
+                    ing.setUnitCost(rs.getBigDecimal("unitCost"));
+                    ing.setDishId(rs.getInt("dishID"));
 
-                // Tạo DishIngredient và gán vào Ingredient
-                DishIngredient di = new DishIngredient();
-                di.setDishId(rs.getInt("dishID"));
-                di.setIngredientId(rs.getInt("ingredientID"));
-                di.setQuantity(rs.getDouble("quantity"));
+                    // Tạo DishIngredient và gán vào Ingredient
+                    DishIngredient di = new DishIngredient();
+                    di.setDishId(rs.getInt("dishID"));
+                    di.setIngredientId(rs.getInt("ingredientID"));
+                    di.setQuantity(rs.getDouble("quantity"));
 
-                List<DishIngredient> dishIngredients = new ArrayList<>();
-                dishIngredients.add(di);
-                ing.setDishIngredients(dishIngredients);
+                    List<DishIngredient> dishIngredients = new ArrayList<>();
+                    dishIngredients.add(di);
+                    ing.setDishIngredients(dishIngredients);
 
-                ingredients.add(ing);
+                    ingredients.add(ing);
+                }
             }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-    } catch (SQLException e) {
-        e.printStackTrace();
+        return ingredients;
     }
-    return ingredients;
-}
+
+    public int addIngredient(Ingredient ingredient) {
+        String sql = "INSERT INTO Ingredient (name, unitCost, FK_Ingredient_Account) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+            ps.setString(1, ingredient.getIngredientName());
+            ps.setBigDecimal(2, ingredient.getUnitCost());
+            ps.setInt(3, ingredient.getAccountID());
+
+            int affectedRows = ps.executeUpdate();
+            if (affectedRows == 0) {
+                throw new SQLException("Creating ingredient failed, no rows affected.");
+            }
+
+            try (ResultSet generatedKeys = ps.getGeneratedKeys()) {
+                if (generatedKeys.next()) {
+                    return generatedKeys.getInt(1); // Return the generated ingredientID
+                } else {
+                    throw new SQLException("Creating ingredient failed, no ID obtained.");
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return -1; // If failed
+    }
+
+    public boolean updateIngredient(Ingredient ingredient) {
+        String sql = "UPDATE Ingredient SET name = ?, unitCost = ? WHERE ingredientID = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setString(1, ingredient.getIngredientName());
+            ps.setBigDecimal(2, ingredient.getUnitCost());
+            ps.setInt(3, ingredient.getIngredientId());
+
+            return ps.executeUpdate() > 0;
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
+    public boolean deleteIngredientById(int ingredientId) throws SQLException {
+        String deleteDishIngredientSql = "DELETE FROM DishIngredient WHERE ingredientID = ?";
+        String deleteIngredientSql = "DELETE FROM Ingredient WHERE ingredientID = ?";
+
+        try (
+                PreparedStatement ps1 = conn.prepareStatement(deleteDishIngredientSql); PreparedStatement ps2 = conn.prepareStatement(deleteIngredientSql)) {
+            ps1.setInt(1, ingredientId);
+            ps1.executeUpdate();
+
+            ps2.setInt(1, ingredientId);
+            int affected = ps2.executeUpdate();
+
+            conn.commit();
+            return affected > 0;
+        } catch (SQLException ex) {
+            conn.rollback();
+            ex.printStackTrace();
+        }
+        return false;
+    }
 }

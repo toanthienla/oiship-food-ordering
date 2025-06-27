@@ -13,10 +13,14 @@ public class OrderDetail {
     private String customerName;
     private Date createAt;
     private String dishDescription;
+    private String phone;
+    private String address;
 
     private String dishImage;
 
     private Order order;
+
+    private boolean reviewed;
 
 
     public OrderDetail() {
@@ -26,6 +30,14 @@ public class OrderDetail {
         this.ODID = ODID;
         this.quantity = quantity;
         this.dish = dish;
+    }
+
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
     }
 
     public int getODID() {
@@ -100,7 +112,6 @@ public class OrderDetail {
         this.dishDescription = dishDescription;
     }
 
-
     public String getDishImage() {
         return dishImage;
     }
@@ -108,16 +119,35 @@ public class OrderDetail {
     public void setDishImage(String dishImage) {
         this.dishImage = dishImage;
     }
-    
-    
 
 // Getter Setter cho order
-public Order getOrder() {
-    return order;
-}
+    public Order getOrder() {
+        return order;
+    }
 
-public void setOrder(Order order) {
-    this.order = order;
-}
+    public void setOrder(Order order) {
+        this.order = order;
+    }
 
+
+
+    public String getPhone() {
+        return phone;
+    }
+
+    public void setPhone(String phone) {
+        this.phone = phone;
+    }
+
+    public String getAddress() {
+        return address;
+    }
+
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    
+    
 }
