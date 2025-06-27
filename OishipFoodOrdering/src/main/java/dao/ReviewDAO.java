@@ -100,4 +100,13 @@ public class ReviewDAO extends DBContext {
         return reviews;
     }
 
+    public void deleteReviewById(int reviewID) throws SQLException {
+    String sql = "DELETE FROM Review WHERE reviewID = ?";
+    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+        ps.setInt(1, reviewID);
+        ps.executeUpdate();
+    }
+}
+
+    
 }
