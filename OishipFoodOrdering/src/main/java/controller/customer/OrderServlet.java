@@ -7,6 +7,7 @@ import dao.OrderDAO;
 import dao.VoucherDAO;
 import dao.ApplyVoucherDAO;
 import dao.CustomerProfileDAO;
+import dao.DishDAO;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.List;
@@ -47,13 +48,12 @@ public class OrderServlet extends HttpServlet {
                 "Delivered", "Cancelled", "Failed"
             };
 
-            String[] paymentStatusText = {
-                "Unpaid", "Paid", "Refunded"
-            };
-
+//            String[] paymentStatusText = {
+//                "Unpaid", "Paid", "Refunded"
+//            };
             request.setAttribute("orderHistory", orderList);
             request.setAttribute("orderStatusText", orderStatusText);
-            request.setAttribute("paymentStatusText", paymentStatusText);
+            // request.setAttribute("paymentStatusText", paymentStatusText);
 
             request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
 
@@ -166,8 +166,19 @@ public class OrderServlet extends HttpServlet {
 
                 // ✅ Lưu đơn hàng
                 int orderId = orderDAO.createOrder(customer.getCustomerID(), finalTotal, voucherID);
+                DishDAO dishDAO = new DishDAO();
                 for (Cart cart : selectedCarts) {
                     orderDAO.addOrderDetail(orderId, cart.getDish().getDishID(), cart.getQuantity());
+
+                    // ✅ Decrease stock
+                    boolean updated = dishDAO.decreaseStock(cart.getDish().getDishID(), cart.getQuantity());
+                    if (!updated) {
+                        // Trường hợp stock không đủ, có thể rollback hoặc thông báo lỗi
+                        request.setAttribute("error", "One or more items do not have enough stock.");
+                        request.getRequestDispatcher("/WEB-INF/views/customer/confirm_order.jsp").forward(request, response);
+                        return;
+                    }
+
                 }
 
                 // Optionally: xóa cart

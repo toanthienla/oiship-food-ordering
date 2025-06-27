@@ -137,7 +137,7 @@
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
-                                    <input type="text" id="qty_<%= item.getCartID()%>" value="<%= quantity%>" readonly class="form-control text-center" style="width: 60px;">
+                                    <input type="text" id="qty_<%= item.getCartID()%>"  data-stock="<%= dish.getStock()%>" value="<%= quantity%>" readonly class="form-control text-center" style="width: 60px;">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
                             </td>
@@ -178,23 +178,39 @@
         </div>
 
         <script>
-            const contextPath = "<%= request.getContextPath()%>";
-
             function updateQuantity(cartId, delta) {
                 const input = document.getElementById("qty_" + cartId);
+                const maxStock = parseInt(input.getAttribute("data-stock"));
                 let qty = parseInt(input.value);
+
                 if (isNaN(qty))
                     qty = 1;
+
                 qty += delta;
+
+                // ✅ Nếu vượt quá 10
+                if (qty > 10) {
+                    qty = 10;
+                    alert("The maximum quantity for each item is 10.");
+                }
+
+                // ✅ Nếu vượt quá tồn kho
+                if (qty > maxStock) {
+                    qty = maxStock;
+                    alert("The quantity you selected exceeds the available stock (" + maxStock + ").");
+                }
+
+                // ✅ Nếu nhỏ hơn 1
                 if (qty < 1)
                     qty = 1;
+
                 input.value = qty;
 
+                // ✅ Gửi request cập nhật
                 fetch(contextPath + "/customer/view-cart", {
                     method: "POST",
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-
                 }).then(() => {
                     const row = input.closest("tr");
                     const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
@@ -202,6 +218,8 @@
                     row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
                 });
             }
+
+
 
 
         </script>
