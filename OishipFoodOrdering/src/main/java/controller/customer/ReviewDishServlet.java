@@ -1,11 +1,14 @@
 package controller.customer;
 
+import dao.OrderDAO;
 import dao.ReviewDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
+import java.util.List;
+import model.Order;
 
 /**
  * Servlet dùng để hiển thị form đánh giá món ăn.
@@ -30,6 +33,37 @@ public class ReviewDishServlet extends HttpServlet {
             }
 
             int customerId = (int) session.getAttribute("userId");
+
+            if (comment != null && comment.length() > 255) {
+                request.setAttribute("error", "Comment cannot exceed 255 characters.");
+                
+                
+                  try {
+            OrderDAO orderDAO = new OrderDAO();
+            List<Order> orderList = orderDAO.getAllOrdersWithDetailsByCustomerId(customerId);
+
+            // ✅ Chuẩn bị mô tả trạng thái để hiển thị đẹp ở JSP
+            String[] orderStatusText = {
+                "Pending", "Confirmed", "Preparing", "Out for Delivery",
+                "Delivered", "Cancelled", "Failed"
+            };
+
+//            String[] paymentStatusText = {
+//                "Unpaid", "Paid", "Refunded"
+//            };
+
+            request.setAttribute("orderHistory", orderList);
+            request.setAttribute("orderStatusText", orderStatusText);
+           // request.setAttribute("paymentStatusText", paymentStatusText);
+
+            request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
+
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Không thể hiển thị lịch sử đơn hàng.");
+            request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
+        }
+            }
 
             // ✅ Gọi DAO để thêm đánh giá
             ReviewDAO dao = new ReviewDAO();

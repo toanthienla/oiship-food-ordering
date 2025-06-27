@@ -20,6 +20,9 @@ public class OrderDetail {
 
     private Order order;
 
+    private boolean reviewed;
+
+
     public OrderDetail() {
     }
 
@@ -27,6 +30,14 @@ public class OrderDetail {
         this.ODID = ODID;
         this.quantity = quantity;
         this.dish = dish;
+    }
+
+    public boolean isReviewed() {
+        return reviewed;
+    }
+
+    public void setReviewed(boolean reviewed) {
+        this.reviewed = reviewed;
     }
 
     public int getODID() {
@@ -118,6 +129,8 @@ public class OrderDetail {
         this.order = order;
     }
 
+
+
     public String getPhone() {
         return phone;
     }
@@ -129,6 +142,7 @@ public class OrderDetail {
     public String getAddress() {
         return address;
     }
+
 
     public void setAddress(String address) {
         this.address = address;

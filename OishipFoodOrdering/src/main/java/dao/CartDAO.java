@@ -15,60 +15,59 @@ import utils.TotalPriceCalculator;
 
 public class CartDAO extends DBContext {
 
- 
-
-
     public List<Cart> getCartByCustomerId(int customerId) throws SQLException {
-    List<Cart> cartItems = new ArrayList<>();
+        List<Cart> cartItems = new ArrayList<>();
 
-    String sql = "SELECT " +
-                 "c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, " +
-                 "d.DishName, d.image, d.opCost, d.interestPercentage " +
-                 "FROM Cart c " +
-                 "JOIN Dish d ON c.FK_Cart_Dish = d.DishID " +
-                 "WHERE c.FK_Cart_Customer = ?";
+        String sql = "SELECT "
+                + "c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, "
+                + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.stock " // ➕ Thêm d.stock
+                + "FROM Cart c "
+                + "JOIN Dish d ON c.FK_Cart_Dish = d.DishID "
+                + "WHERE c.FK_Cart_Customer = ?";
 
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, customerId);
-        ResultSet rs = ps.executeQuery();
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            ResultSet rs = ps.executeQuery();
 
-        IngredientDAO ingredientDAO = new IngredientDAO();
+            IngredientDAO ingredientDAO = new IngredientDAO();
 
-        while (rs.next()) {
-            Cart cart = new Cart();
-            cart.setCartID(rs.getInt("cartID"));
-            cart.setCustomerID(rs.getInt("FK_Cart_Customer"));
-            cart.setDishID(rs.getInt("FK_Cart_Dish"));
-            cart.setQuantity(rs.getInt("quantity"));
+            while (rs.next()) {
+                Cart cart = new Cart();
+                cart.setCartID(rs.getInt("cartID"));
+                cart.setCustomerID(rs.getInt("FK_Cart_Customer"));
+                cart.setDishID(rs.getInt("FK_Cart_Dish"));
+                cart.setQuantity(rs.getInt("quantity"));
 
-            Dish dish = new Dish();
-            int dishId = rs.getInt("FK_Cart_Dish");
+                Dish dish = new Dish();
+                int dishId = rs.getInt("FK_Cart_Dish");
 
-            dish.setDishID(dishId);
-            dish.setDishName(rs.getString("DishName"));
-            dish.setImage(rs.getString("image"));
-            dish.setOpCost(rs.getBigDecimal("opCost"));
-            dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
+                dish.setDishID(dishId);
+                dish.setDishName(rs.getString("DishName"));
+                dish.setImage(rs.getString("image"));
+                dish.setOpCost(rs.getBigDecimal("opCost"));
+                dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
 
-            // ✅ Tính giá từ nguyên liệu
-            List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
-            BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
-            BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
-                    dish.getOpCost(), dish.getInterestPercentage(), ingredientCost);
+                // ✅ Thêm stock vào
+                dish.setStock(rs.getInt("stock"));
 
-            dish.setIngredients(ingredients);
-            dish.setTotalPrice(totalPrice);
-            dish.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
+                // ✅ Tính giá từ nguyên liệu
+                List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
+                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+                BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
+                        dish.getOpCost(), dish.getInterestPercentage(), ingredientCost);
 
-            cart.setDish(dish);
-            cartItems.add(cart);
+                dish.setIngredients(ingredients);
+                dish.setTotalPrice(totalPrice);
+                dish.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
+
+                cart.setDish(dish);
+                cartItems.add(cart);
+            }
         }
+
+        return cartItems;
     }
 
-    return cartItems;
-}
-
-    
     // Thêm món mới vào giỏ hàng
     public void addToCart(int customerId, int dishId, int quantity) throws SQLException {
         String sql = "INSERT INTO Cart (quantity, FK_Cart_Customer, FK_Cart_Dish) VALUES (?, ?, ?)";
@@ -91,28 +90,29 @@ public class CartDAO extends DBContext {
         }
     }
 //  phương thức edit quantity nếu đã có cartID
-public void updateCartQuantity(int cartID, int quantity) throws SQLException {
-    String sql = "UPDATE Cart SET quantity = ? WHERE cartID = ?";
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, quantity);
-        ps.setInt(2, cartID);
-        ps.executeUpdate();
+
+    public void updateCartQuantity(int cartID, int quantity) throws SQLException {
+        String sql = "UPDATE Cart SET quantity = ? WHERE cartID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, quantity);
+            ps.setInt(2, cartID);
+            ps.executeUpdate();
+        }
     }
-}
 
-public void updateQuantity(int cartID, int quantity) {
-    String sql = "UPDATE Cart SET quantity = ? WHERE cartID = ?";
-    try (
-         PreparedStatement ps = conn.prepareStatement(sql)) {
+    public void updateQuantity(int cartID, int quantity) {
+        String sql = "UPDATE Cart SET quantity = ? WHERE cartID = ?";
+        try (
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        ps.setInt(1, quantity);
-        ps.setInt(2, cartID);
-        ps.executeUpdate();
+            ps.setInt(1, quantity);
+            ps.setInt(2, cartID);
+            ps.executeUpdate();
 
-    } catch (Exception e) {
-        e.printStackTrace();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
     }
-}
 
     // Xóa một món trong giỏ hàng   
     public void deleteCartItem(int cartId) throws SQLException {
@@ -141,133 +141,147 @@ public void updateQuantity(int cartID, int quantity) {
         }
         return null;
     }
-public int getTotalCartItems(int customerId) throws SQLException {
-    String sql = "SELECT COUNT(*) AS totalCart FROM Cart WHERE FK_Cart_Customer = ?";
-    int totalCart = 0;
 
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
+    public int getTotalCartItems(int customerId) throws SQLException {
+        String sql = "SELECT COUNT(*) AS totalCart FROM Cart WHERE FK_Cart_Customer = ?";
+        int totalCart = 0;
 
-        ps.setInt(1, customerId);
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
 
-        try (ResultSet rs = ps.executeQuery()) {
-            if (rs.next()) {
-                totalCart = rs.getInt("totalCart");
+            ps.setInt(1, customerId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    totalCart = rs.getInt("totalCart");
+                }
             }
         }
+
+        return totalCart;
     }
 
-    return totalCart;
-}
+    public List<Cart> getCartsByIDs(String[] cartIDs) throws SQLException {
+        List<Cart> carts = new ArrayList<>();
 
-public List<Cart> getCartsByIDs(String[] cartIDs) throws SQLException {
-    List<Cart> carts = new ArrayList<>();
+        if (cartIDs == null || cartIDs.length == 0) {
+            return carts;
+        }
 
-    if (cartIDs == null || cartIDs.length == 0) return carts;
+        // Chuẩn bị câu truy vấn
+        StringBuilder sql = new StringBuilder(
+                "SELECT c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, "
+                + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.stock "
+                + "FROM Cart c JOIN Dish d ON c.FK_Cart_Dish = d.DishID "
+                + "WHERE c.cartID IN ("
+        );
+        sql.append("?,".repeat(cartIDs.length));
+        sql.setLength(sql.length() - 1); // xóa dấu phẩy cuối
+        sql.append(")");
 
-    // Chuẩn bị truy vấn
-    StringBuilder sql = new StringBuilder(
-        "SELECT c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, " +
-        "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage " +
-        "FROM Cart c JOIN Dish d ON c.FK_Cart_Dish = d.DishID " +
-        "WHERE c.cartID IN ("
-    );
-    sql.append("?,".repeat(cartIDs.length));
-    sql.setLength(sql.length() - 1); // xóa dấu phẩy cuối
-    sql.append(")");
+        try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            for (int i = 0; i < cartIDs.length; i++) {
+                ps.setInt(i + 1, Integer.parseInt(cartIDs[i]));
+            }
 
-    try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
+            ResultSet rs = ps.executeQuery();
+            while (rs.next()) {
+                Cart cart = new Cart();
+                cart.setCartID(rs.getInt("cartID"));
+                cart.setQuantity(rs.getInt("quantity"));
+                cart.setCustomerID(rs.getInt("FK_Cart_Customer"));
+                cart.setDishID(rs.getInt("FK_Cart_Dish"));
+
+                Dish dish = new Dish();
+                dish.setDishID(rs.getInt("DishID"));
+                dish.setDishName(rs.getString("DishName"));
+                dish.setImage(rs.getString("image"));
+                dish.setOpCost(rs.getBigDecimal("opCost"));
+                dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
+                dish.setStock(rs.getInt("stock")); // ✅ thêm stock
+
+                // Gán nguyên liệu
+                loadIngredientsForDish(dish);
+
+                cart.setDish(dish);
+                carts.add(cart);
+            }
+        }
+
+        return carts;
+    }
+
+    private void loadIngredientsForDish(Dish dish) throws SQLException {
+        List<Ingredient> ingredients = new ArrayList<>();
+
+        String sql = "SELECT i.ingredientID, i.name, i.unitCost, \n"
+                + "               di.quantity AS usedQuantity\n"
+                + "        FROM DishIngredient di\n"
+                + "        JOIN Ingredient i ON di.ingredientID = i.ingredientID\n"
+                + "        WHERE di.dishID = ?";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, dish.getDishID());
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Ingredient ingredient = new Ingredient();
+                ingredient.setIngredientId(rs.getInt("ingredientID"));
+                ingredient.setIngredientName(rs.getString("name"));
+                ingredient.setUnitCost(rs.getBigDecimal("unitCost"));
+
+                DishIngredient di = new DishIngredient();
+                di.setDishId(dish.getDishID());
+                di.setIngredientId(rs.getInt("ingredientID"));
+                di.setQuantity(rs.getBigDecimal("usedQuantity").doubleValue());
+
+                ingredient.setDishIngredients(List.of(di));
+                ingredients.add(ingredient);
+            }
+        }
+
+        dish.setIngredients(ingredients);
+    }
+
+    public boolean deleteCartsByIDs(String[] cartIDs) {
+        if (cartIDs == null || cartIDs.length == 0) {
+            return false;
+        }
+
+        StringBuilder sqlBuilder = new StringBuilder("DELETE FROM Cart WHERE cartID IN (");
         for (int i = 0; i < cartIDs.length; i++) {
-            ps.setInt(i + 1, Integer.parseInt(cartIDs[i]));
+            sqlBuilder.append("?");
+            if (i < cartIDs.length - 1) {
+                sqlBuilder.append(",");
+            }
+        }
+        sqlBuilder.append(")");
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sqlBuilder.toString())) {
+
+            for (int i = 0; i < cartIDs.length; i++) {
+                ps.setInt(i + 1, Integer.parseInt(cartIDs[i]));
+            }
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0;
+
+        } catch (Exception e) {
+            e.printStackTrace();
         }
 
-        ResultSet rs = ps.executeQuery();
-        while (rs.next()) {
-            Cart cart = new Cart();
-            cart.setCartID(rs.getInt("cartID"));
-            cart.setQuantity(rs.getInt("quantity"));
-            cart.setCustomerID(rs.getInt("FK_Cart_Customer"));
-            cart.setDishID(rs.getInt("FK_Cart_Dish"));
-
-            Dish dish = new Dish();
-            dish.setDishID(rs.getInt("DishID"));
-            dish.setDishName(rs.getString("DishName"));
-            dish.setImage(rs.getString("image"));
-            dish.setOpCost(rs.getBigDecimal("opCost"));
-            dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
-
-            // Lấy nguyên liệu cho dish
-            loadIngredientsForDish(dish);
-
-            cart.setDish(dish);
-            carts.add(cart);
-        }
-    }
-
-    return carts;
-}
-private void loadIngredientsForDish(Dish dish) throws SQLException {
-    List<Ingredient> ingredients = new ArrayList<>();
-
-    String sql = "SELECT i.ingredientID, i.name, i.unitCost, \n" +
-"               di.quantity AS usedQuantity\n" +
-"        FROM DishIngredient di\n" +
-"        JOIN Ingredient i ON di.ingredientID = i.ingredientID\n" +
-"        WHERE di.dishID = ?";
-
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, dish.getDishID());
-        ResultSet rs = ps.executeQuery();
-
-        while (rs.next()) {
-            Ingredient ingredient = new Ingredient();
-            ingredient.setIngredientId(rs.getInt("ingredientID"));
-            ingredient.setIngredientName(rs.getString("name"));
-            ingredient.setUnitCost(rs.getBigDecimal("unitCost"));
-
-            DishIngredient di = new DishIngredient();
-            di.setDishId(dish.getDishID());
-            di.setIngredientId(rs.getInt("ingredientID"));
-            di.setQuantity(rs.getBigDecimal("usedQuantity").doubleValue());
-
-            ingredient.setDishIngredients(List.of(di));
-            ingredients.add(ingredient);
-        }
-    }
-
-    dish.setIngredients(ingredients);
-}
-
-
-public boolean deleteCartsByIDs(String[] cartIDs) {
-    if (cartIDs == null || cartIDs.length == 0) {
         return false;
     }
 
-    StringBuilder sqlBuilder = new StringBuilder("DELETE FROM Cart WHERE cartID IN (");
-    for (int i = 0; i < cartIDs.length; i++) {
-        sqlBuilder.append("?");
-        if (i < cartIDs.length - 1) {
-            sqlBuilder.append(",");
+    public int getDishStockByCartId(int cartID) throws SQLException {
+        String sql = "SELECT d.stock FROM Cart c JOIN Dish d ON c.FK_Cart_Dish = d.DishID WHERE c.cartID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, cartID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("stock");
+            }
         }
+        return 0; // Nếu không tìm thấy, coi như hết hàng
     }
-    sqlBuilder.append(")");
-
-    try (Connection conn = getConnection();
-         PreparedStatement ps = conn.prepareStatement(sqlBuilder.toString())) {
-
-        for (int i = 0; i < cartIDs.length; i++) {
-            ps.setInt(i + 1, Integer.parseInt(cartIDs[i]));
-        }
-
-        int rowsAffected = ps.executeUpdate();
-        return rowsAffected > 0;
-
-    } catch (Exception e) {
-        e.printStackTrace();
-    }
-
-    return false;
-}
-
 
 }

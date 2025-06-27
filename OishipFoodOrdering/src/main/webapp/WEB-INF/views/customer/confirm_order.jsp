@@ -16,168 +16,179 @@
     </head>
     <body class="container py-4">
 
-      <h2 class="mb-4">Confirm Order</h2>
+        <h2 class="mb-4">Confirm Order</h2>
 
-<form action="${pageContext.request.contextPath}/customer/order" method="post">
-    <input type="hidden" name="action" value="confirm"/>
-    <input type="hidden" name="voucherID" id="hiddenVoucherID"/>
-<input type="hidden" name="fullname" id="hiddenFullName" value="${customer.fullName}" />
-<input type="hidden" name="phone" id="hiddenPhone" value="${customer.phone}" />
-<input type="hidden" name="address" id="hiddenAddress" value="${customer.address}" />
+        <form action="${pageContext.request.contextPath}/customer/order" method="post">
+            <input type="hidden" name="action" value="confirm"/>
+            <input type="hidden" name="voucherID" id="hiddenVoucherID"/>
+            <input type="hidden" name="fullname" id="hiddenFullName" value="${customer.fullName}" />
+            <input type="hidden" name="phone" id="hiddenPhone" value="${customer.phone}" />
+            <input type="hidden" name="address" id="hiddenAddress" value="${customer.address}" />
 
-    <div class="row">
-        <!-- LEFT COLUMN: Customer Information -->
-        <div class="col-lg-7">
-            <div class="accordion" id="deliveryAccordion">
+            <div class="row">
+                <!-- LEFT COLUMN: Customer Information -->
+                <div class="col-lg-7">
+                    <div class="accordion" id="deliveryAccordion">
 
-                <!-- DELIVERY INFORMATION -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingDelivery">
-                        <button class="accordion-button" type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapseDelivery"
-                                aria-expanded="true"
-                                aria-controls="collapseDelivery">
-                            Delivery Information
-                        </button>
-                    </h2>
-                    <div id="collapseDelivery" class="accordion-collapse collapse show"
-                         aria-labelledby="headingDelivery">
-                        <div class="accordion-body">
-
-                            <!-- Customer Info -->
-                            <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                                <div>
-                                    <p class="mb-1 fw-bold">Customer Information</p>
-                                    <span id="displayCustomerText" onclick="openEditCustomer()" style="cursor:pointer;">
-                                        ${customer.fullName} - ${customer.phone}
-                                    </span>
-                                </div>
-                                <button type="button" class="btn btn-link text-decoration-none"
-                                        onclick="openEditCustomer()">
-                                    <i class="bi bi-chevron-right fs-4"></i>
+                        <!-- DELIVERY INFORMATION -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingDelivery">
+                                <button class="accordion-button" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapseDelivery"
+                                        aria-expanded="true"
+                                        aria-controls="collapseDelivery">
+                                    Delivery Information
                                 </button>
-                            </div>
+                            </h2>
+                            <div id="collapseDelivery" class="accordion-collapse collapse show"
+                                 aria-labelledby="headingDelivery">
+                                <div class="accordion-body">
 
-                            <!-- Address -->
-                            <div class="d-flex justify-content-between align-items-center py-2">
-                                <div>
-                                    <p class="mb-1 fw-bold">Address</p>
-                                    <span onclick="openEditAddress()" style="cursor:pointer;" id="displayAddressText">
-                                        ${customer.address}
-                                    </span>
+                                    <!-- Customer Info -->
+                                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
+                                        <div>
+                                            <p class="mb-1 fw-bold">Customer Information</p>
+                                            <span id="displayCustomerText" onclick="openEditCustomer()" style="cursor:pointer;">
+                                                ${customer.fullName} - ${customer.phone}
+                                            </span>
+                                        </div>
+                                        <button type="button" class="btn btn-link text-decoration-none"
+                                                onclick="openEditCustomer()">
+                                            <i class="bi bi-chevron-right fs-4"></i>
+                                        </button>
+                                    </div>
+
+                                    <!-- Address -->
+                                    <div class="d-flex justify-content-between align-items-center py-2">
+                                        <div>
+                                            <p class="mb-1 fw-bold">Address</p>
+                                            <span onclick="openEditAddress()" style="cursor:pointer;" id="displayAddressText">
+                                                ${customer.address}
+                                            </span>
+                                        </div>
+                                        <button type="button" class="btn btn-link text-decoration-none"
+                                                onclick="openEditAddress()">
+                                            <i class="bi bi-chevron-right fs-4"></i>
+                                        </button>
+                                    </div>
+
                                 </div>
-                                <button type="button" class="btn btn-link text-decoration-none"
-                                        onclick="openEditAddress()">
-                                    <i class="bi bi-chevron-right fs-4"></i>
+                            </div>
+                        </div>
+
+                        <!-- PAYMENT OPTION -->
+                        <div class="accordion-item">
+                            <h2 class="accordion-header" id="headingPayment">
+                                <button class="accordion-button collapsed" type="button"
+                                        data-bs-toggle="collapse"
+                                        data-bs-target="#collapsePayment"
+                                        aria-expanded="false"
+                                        aria-controls="collapsePayment">
+                                    Payment Option
                                 </button>
-                            </div>
-
-                        </div>
-                    </div>
-                </div>
-
-                <!-- PAYMENT OPTION -->
-                <div class="accordion-item">
-                    <h2 class="accordion-header" id="headingPayment">
-                        <button class="accordion-button collapsed" type="button"
-                                data-bs-toggle="collapse"
-                                data-bs-target="#collapsePayment"
-                                aria-expanded="false"
-                                aria-controls="collapsePayment">
-                            Payment Option
-                        </button>
-                    </h2>
-                    <div id="collapsePayment" class="accordion-collapse collapse"
-                         aria-labelledby="headingPayment">
-                        <div class="accordion-body">
-                            <div class="form-check mb-2">
-                                <input class="form-check-input" type="radio" name="payment" value="cash" id="cash" checked>
-                                <label class="form-check-label" for="cash">Pay with Cash</label>
-                            </div>
-                            <div class="form-check">
-                                <input class="form-check-input" type="radio" name="payment" value="bank" id="bank">
-                                <label class="form-check-label" for="bank">Bank Transfer</label>
+                            </h2>
+                            <div id="collapsePayment" class="accordion-collapse collapse"
+                                 aria-labelledby="headingPayment">
+                                <div class="accordion-body">
+                                    <div class="form-check mb-2">
+                                        <input class="form-check-input" type="radio" name="payment" value="cash" id="cash" checked>
+                                        <label class="form-check-label" for="cash">Pay with Cash</label>
+                                    </div>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="radio" name="payment" value="bank" id="bank">
+                                        <label class="form-check-label" for="bank">Bank Transfer</label>
+                                    </div>
+                                </div>
                             </div>
                         </div>
+
                     </div>
                 </div>
 
-            </div>
-        </div>
+                <!-- RIGHT COLUMN: Selected Dishes + Voucher + Total -->
+                <div class="col-lg-5">
+                    <!-- Selected Dishes -->
+                    <h4 class="mb-3">Selected Dishes</h4>
+                    <%
+                        List<Cart> selectedCarts = (List<Cart>) request.getAttribute("selectedCarts");
+                        BigDecimal grandTotal = (BigDecimal) request.getAttribute("grandTotal");
+                    %>
 
-        <!-- RIGHT COLUMN: Selected Dishes + Voucher + Total -->
-        <div class="col-lg-5">
-            <!-- Selected Dishes -->
-            <h4 class="mb-3">Selected Dishes</h4>
-            <%
-                List<Cart> selectedCarts = (List<Cart>) request.getAttribute("selectedCarts");
-                BigDecimal grandTotal = (BigDecimal) request.getAttribute("grandTotal");
-            %>
+                    <div class="mb-4">
+                        <% for (Cart cart : selectedCarts) {
+                                Dish dish = cart.getDish();
+                                BigDecimal price = dish.getTotalPrice();
+                                BigDecimal total = price.multiply(BigDecimal.valueOf(cart.getQuantity()));
+                                int cartId = cart.getCartID();
+                        %>
+                        <div class="d-flex align-items-center mb-3 border p-2 rounded cart-item-row">
+                            <img src="<%= dish.getImage()%>" width="80" class="me-3" style="border-radius: 8px;">
+                            <div class="flex-grow-1">
+                                <strong><%= dish.getDishName()%></strong><br/>
 
-            <div class="mb-4">
-                <% for (Cart cart : selectedCarts) {
-                        Dish dish = cart.getDish();
-                        BigDecimal price = dish.getTotalPrice();
-                        BigDecimal total = price.multiply(BigDecimal.valueOf(cart.getQuantity()));
-                %>
-                <div class="d-flex align-items-center mb-3 border p-2 rounded">
-                    <img src="<%= dish.getImage()%>" width="80" class="me-3">
-                    <div>
-                        <strong><%= dish.getDishName()%></strong><br/>
-                        Quantity: <%= cart.getQuantity()%> <br/>
-                        Total: <%= String.format("%,.0f", total)%> VND
-                    </div>
-                </div>
-                <% } %>
-            </div>
+                                <!-- Nút tăng giảm -->
+                                <div class="d-flex align-items-center gap-2 mt-1">
+                                    <button  type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, -1)">−</button>
+                                    <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly
+                                           data-stock="<%= dish.getStock()%>"
+                                           class="form-control text-center" style="width: 60px;">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, 1)">+</button>
+                                </div>
 
-            <!-- Voucher -->
-            <div class="mb-4">
-                <label class="form-label fw-bold">Discount Code</label>
-                <div class="p-2 border rounded bg-light" style="cursor:pointer;" data-bs-toggle="modal"
-                     data-bs-target="#voucherModal">
-                    <div class="d-flex justify-content-between">
-                        <div>
-                            <p class="mb-0">Choose a discount code</p>
-                            <small class="text-muted" id="voucherStatusText">Not applied</small>
+                                <!-- Tổng tiền theo món -->
+                                <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> VND</div>
+                            </div>
                         </div>
-                        <i class="bi bi-chevron-right fs-5"></i>
+                        <% }%>
+                    </div>
+
+                    <!-- Voucher -->
+                    <div class="mb-4">
+                        <label class="form-label fw-bold">Discount Code</label>
+                        <div class="p-2 border rounded bg-light" style="cursor:pointer;" data-bs-toggle="modal"
+                             data-bs-target="#voucherModal">
+                            <div class="d-flex justify-content-between">
+                                <div>
+                                    <p class="mb-0">Choose a discount code</p>
+                                    <small class="text-muted" id="voucherStatusText">Not applied</small>
+                                </div>
+                                <i class="bi bi-chevron-right fs-5"></i>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Total Summary -->
+                    <div class="mb-3">
+                        <div class="d-flex justify-content-between">
+                            <span>Subtotal:</span>
+                            <span id="totalBefore" data-value="<%= grandTotal%>"><%= String.format("%,.0f", grandTotal)%> VND</span>
+                        </div>
+                        <div class="d-flex justify-content-between">
+                            <span>Discount:</span>
+                            <span id="discountAmount">- 0 VND</span>
+                        </div>
+                        <div class="d-flex justify-content-between fw-bold fs-5">
+                            <span>Total Amount:</span>
+                            <span id="finalAmount"><%= String.format("%,.0f", grandTotal)%> VND</span>
+                        </div>
+                    </div>
+
+                    <!-- Hidden cart ID -->
+                    <c:forEach var="id" items="${selectedCartIDs}">
+                        <input type="hidden" name="selectedItems" value="${id}" />
+                    </c:forEach>
+
+                    <!-- Confirm button -->
+                    <div class="d-grid">
+                        <button type="submit" class="btn btn-primary">Place Order</button>
+                        <a href="${pageContext.request.contextPath}/customer/view-cart" class="btn btn-outline-secondary mt-2">Back to Cart</a>
                     </div>
                 </div>
             </div>
+        </form>
 
-            <!-- Total Summary -->
-            <div class="mb-3">
-                <div class="d-flex justify-content-between">
-                    <span>Subtotal:</span>
-                    <span id="totalBefore" data-value="<%= grandTotal%>"><%= String.format("%,.0f", grandTotal)%> VND</span>
-                </div>
-                <div class="d-flex justify-content-between">
-                    <span>Discount:</span>
-                    <span id="discountAmount">- 0 VND</span>
-                </div>
-                <div class="d-flex justify-content-between fw-bold fs-5">
-                    <span>Total Amount:</span>
-                    <span id="finalAmount"><%= String.format("%,.0f", grandTotal)%> VND</span>
-                </div>
-            </div>
 
-            <!-- Hidden cart ID -->
-            <c:forEach var="id" items="${selectedCartIDs}">
-                <input type="hidden" name="selectedItems" value="${id}" />
-            </c:forEach>
-
-            <!-- Confirm button -->
-            <div class="d-grid">
-                <button type="submit" class="btn btn-primary">Place Order</button>
-                <a href="${pageContext.request.contextPath}/customer/view-cart" class="btn btn-outline-secondary mt-2">Back to Cart</a>
-            </div>
-        </div>
-    </div>
-</form>
-
-        </form>      
         <!-- Modal chỉnh Customer -->
         <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
             <div class="modal-dialog">
@@ -225,6 +236,45 @@
                 </div>
             </div>
         </div>
+        <!-- Modal chọn voucher -->
+        <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
+            <div class="modal-dialog modal-lg modal-dialog-centered">
+                <div class="modal-content p-4">
+                    <div class="modal-header">
+                        <h5 class="modal-title">Chọn mã giảm giá</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="row">
+                            <%
+                                List<Voucher> vouchers = (List<Voucher>) request.getAttribute("vouchers");
+                                if (vouchers != null && !vouchers.isEmpty()) {
+                                    for (Voucher v : vouchers) {
+                            %>
+                            <div class="col-md-6 mb-3">
+                                <div class="border p-3 rounded shadow-sm h-100 voucher-card" style="cursor:pointer;"
+                                     onclick="selectVoucher('<%= v.getVoucherID()%>', '<%= v.getCode()%>')">
+                                    <div class="fw-bold text-danger"><%= v.getCode()%></div>
+                                    <div>
+                                        <%= v.getDiscountType().equals("%")
+                                                ? ("Giảm " + v.getDiscount() + "%")
+                                                : ("Giảm " + String.format("%,.0f", v.getDiscount()) + "đ")%>
+                                    </div>
+                                    <div class="text-muted"><%= v.getVoucherDescription()%></div>
+                                </div>
+                            </div>
+                            <% }
+                            } else { %>
+                            <div class="col-12 text-center text-muted">Không có voucher nào khả dụng</div>
+                            <% } %>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                    </div>
+                </div>
+            </div>
+        </div>
 
         <!-- JS xử lý modal -->
         <script>
@@ -246,13 +296,20 @@
                     alert('Please enter all information.');
                     return;
                 }
+                const phoneRegex = /^0(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\d{7}$/;
+
+                if (!phoneRegex.test(phone)) {
+                    alert('Phone number must be 10 digits and start with 0 (e.g. 0901234567).');
+                    phoneInput.focus();
+                    return;
+                }
                 let displayText = "";
                 if (name && phone) {
                     displayText = name + "- " + phone;
                 } else if (name) {
                     displayText = name;
                 } else if (phone) {
-                    displayText = phone;
+                    displayText = phoneRegex;
                 }
                 // ✅ Đảm bảo không hiển thị dấu phẩy nếu chỉ có 1 trong 2 trường
                 document.getElementById("displayCustomerText").textContent = displayText;
@@ -310,106 +367,145 @@
                 bootstrap.Modal.getInstance(document.getElementById('editAddressModal')).hide();
             }
         </script>
-        <!-- Modal chọn voucher -->
-        <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg modal-dialog-centered">
-                <div class="modal-content p-4">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Chọn mã giảm giá</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="row">
-                            <%
-                                List<Voucher> vouchers = (List<Voucher>) request.getAttribute("vouchers");
-                                if (vouchers != null && !vouchers.isEmpty()) {
-                                    for (Voucher v : vouchers) {
-                            %>
-                            <div class="col-md-6 mb-3">
-                                <div class="border p-3 rounded shadow-sm h-100 voucher-card" style="cursor:pointer;"
-                                     onclick="selectVoucher('<%= v.getVoucherID()%>', '<%= v.getCode()%>')">
-                                    <div class="fw-bold text-danger"><%= v.getCode()%></div>
-                                    <div>
-                                        <%= v.getDiscountType().equals("%")
-                                                ? ("Giảm " + v.getDiscount() + "%")
-                                                : ("Giảm " + String.format("%,.0f", v.getDiscount()) + "đ")%>
-                                    </div>
-                                    <div class="text-muted"><%= v.getVoucherDescription()%></div>
-                                </div>
-                            </div>
-                            <% }
-                            } else { %>
-                            <div class="col-12 text-center text-muted">Không có voucher nào khả dụng</div>
-                            <% } %>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </div>
-    <script>
-        const allVouchers = [
-        <% for (Voucher v : vouchers) {%>
-            {
-                voucherID: <%= v.getVoucherID()%>,
-                code: "<%= v.getCode()%>",
-                discountType: "<%= v.getDiscountType()%>",
-                discount: <%= v.getDiscount()%>,
-                maxDiscountValue: <%= v.getMaxDiscountValue() != null ? v.getMaxDiscountValue() : "null"%>,
-                minOrderValue: <%= v.getMinOrderValue()%>
-            },
-        <% }%>
-        ];
 
 
-        function selectVoucher(voucherID, code) {
-            const orderTotal = parseFloat(document.getElementById("totalBefore").getAttribute("data-value"));
-            const voucherText = document.getElementById("voucherStatusText");
-            const discountText = document.getElementById("discountAmount");
-            const finalTotalText = document.getElementById("finalAmount");
-            const hiddenInput = document.getElementById("hiddenVoucherID");
+        <script>
+            const allVouchers = [
+            <% for (Voucher v : vouchers) {%>
+                {
+                    voucherID: <%= v.getVoucherID()%>,
+                    code: "<%= v.getCode()%>",
+                    discountType: "<%= v.getDiscountType()%>",
+                    discount: <%= v.getDiscount()%>,
+                    maxDiscountValue: <%= v.getMaxDiscountValue() != null ? v.getMaxDiscountValue() : "null"%>,
+                    minOrderValue: <%= v.getMinOrderValue()%>
+                },
+            <% }%>
+            ];
 
-            // Tìm voucher theo ID
-            const voucher = allVouchers.find(v => v.voucherID == voucherID);
 
-            if (!voucher) {
-                alert("Không tìm thấy voucher.");
-                return;
-            }
+            function selectVoucher(voucherID, code) {
+                const orderTotal = parseFloat(document.getElementById("totalBefore").getAttribute("data-value"));
+                const voucherText = document.getElementById("voucherStatusText");
+                const discountText = document.getElementById("discountAmount");
+                const finalTotalText = document.getElementById("finalAmount");
+                const hiddenInput = document.getElementById("hiddenVoucherID");
 
+                // Tìm voucher theo ID
+                const voucher = allVouchers.find(v => v.voucherID == voucherID);
 
-            // Kiểm tra điều kiện đơn hàng tối thiểu
-            if (orderTotal < voucher.minOrderValue) {
-                alert("Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã này.");
-                return;
-            }
-            let discountAmount = 0;
-            if (voucher.discountType === "%") {
-                discountAmount = orderTotal * (voucher.discount / 100);
-                if (voucher.maxDiscountValue !== null && discountAmount > voucher.maxDiscountValue) {
-                    discountAmount = voucher.maxDiscountValue;
+                if (!voucher) {
+                    alert("Không tìm thấy voucher.");
+                    return;
                 }
-            } else {
-                discountAmount = voucher.discount;
+
+
+                // Kiểm tra điều kiện đơn hàng tối thiểu
+                if (orderTotal < voucher.minOrderValue) {
+                    alert("Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã này.");
+                    return;
+                }
+                let discountAmount = 0;
+                if (voucher.discountType === "%") {
+                    discountAmount = orderTotal * (voucher.discount / 100);
+                    if (voucher.maxDiscountValue !== null && discountAmount > voucher.maxDiscountValue) {
+                        discountAmount = voucher.maxDiscountValue;
+                    }
+                } else {
+                    discountAmount = voucher.discount;
+                }
+
+                const finalTotal = orderTotal - discountAmount;
+                // Gán giá trị vào form + UI
+                hiddenInput.value = voucherID;
+                voucherText.textContent = "Đã áp dụng: " + code;
+                discountText.textContent = "- " + discountAmount.toLocaleString() + " VND";
+                finalTotalText.textContent = finalTotal.toLocaleString() + " VND";
+                // Đóng modal
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
+                modal.hide();
+
+
+
+            }
+        </script>
+        <script>
+            function validatePhoneNumber() {
+                const phoneInput = document.getElementById("modalPhone");
+                const phone = phoneInput.value.trim();
+
+                // Regex: Bắt đầu bằng 0, theo sau là 9 chữ số (0-9)
+                const phoneRegex = /^0\d{9}$/;
+
+                if (!phoneRegex.test(phone)) {
+                    alert("Phone number must be 10 digits and start with 0 (e.g. 0901234567).");
+                    phoneInput.focus();
+                    return false;
+                }
+
+                return true;
+            }
+        </script>
+        <script>
+            const contextPath = "<%= request.getContextPath()%>";
+
+            function updateQuantity(cartId, delta) {
+                const input = document.getElementById("qty_" + cartId);
+                const maxStock = parseInt(input.getAttribute("data-stock"));
+                let qty = parseInt(input.value);
+
+                if (isNaN(qty))
+                    qty = 1;
+                qty += delta;
+
+                if (qty > 10) {
+                    qty = 10;
+                    alert("The maximum quantity for each item is 10.");
+                }
+
+                if (qty > maxStock) {
+                    qty = maxStock;
+                    alert("The quantity exceeds stock: " + maxStock);
+                }
+
+                if (qty < 1)
+                    qty = 1;
+
+                input.value = qty;
+
+                // Gửi request cập nhật quantity (nếu cần)
+                fetch(contextPath + "/customer/view-cart", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                }).then(() => {
+                    // Cập nhật tổng tiền từng món
+                    const row = input.closest(".cart-item-row");
+                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                    const total = qty * price;
+                    row.querySelector(".item-total").textContent = total.toLocaleString();
+
+                    // ✅ Cập nhật lại tổng đơn hàng
+                    recalculateTotal();
+                });
             }
 
-            const finalTotal = orderTotal - discountAmount;
-            // Gán giá trị vào form + UI
-            hiddenInput.value = voucherID;
-            voucherText.textContent = "Đã áp dụng: " + code;
-            discountText.textContent = "- " + discountAmount.toLocaleString() + " VND";
-            finalTotalText.textContent = finalTotal.toLocaleString() + " VND";
-            // Đóng modal
-            const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
-            modal.hide();
+            function recalculateTotal() {
+                let total = 0;
+                document.querySelectorAll(".item-total").forEach(el => {
+                    const val = el.textContent.replace(/[^\d]/g, "");
+                    if (!isNaN(val))
+                        total += parseInt(val);
+                });
 
+                // Hiển thị lại
+                document.getElementById("totalBefore").textContent = total.toLocaleString() + " VND";
+                document.getElementById("finalAmount").textContent = total.toLocaleString() + " VND";
+                document.getElementById("discountAmount").textContent = "- 0 VND";
 
+                // Nếu có giảm giá (Yến có thể thêm logic nếu dùng voucher)
+            }
+        </script>
 
-        }
-    </script>
-
-</body>
+    </body>
 </html>

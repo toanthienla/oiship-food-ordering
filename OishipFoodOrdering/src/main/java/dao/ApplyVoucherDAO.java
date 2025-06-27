@@ -29,7 +29,7 @@ public class ApplyVoucherDAO extends DBContext {
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, code);
-            ps.setBigDecimal(2, orderTotal); // ✅ chỉ 2 tham số
+            ps.setBigDecimal(2, orderTotal); 
 
             ResultSet rs = ps.executeQuery();
 

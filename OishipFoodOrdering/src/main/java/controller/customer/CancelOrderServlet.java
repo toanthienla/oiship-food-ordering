@@ -4,7 +4,7 @@
  */
 package controller.customer;
 
-import dao.ReviewDAO;
+import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
 import jakarta.servlet.ServletException;
@@ -13,17 +13,15 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import java.sql.SQLException;
-import java.util.List;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import model.Review;
 
 /**
  *
  * @author Phi Yen
  */
-@WebServlet(name = "ViewReviewServlet", urlPatterns = {"/customer/view-review"})
-public class ViewReviewServlet extends HttpServlet {
+@WebServlet(name = "CancelOrderServlet", urlPatterns = {"/customer/cancel-order"})
+public class CancelOrderServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
@@ -42,75 +40,47 @@ public class ViewReviewServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ViewReviewServlet</title>");
+            out.println("<title>Servlet CancelOrderServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ViewReviewServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet CancelOrderServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
     }
 
+  
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Có thể redirect hoặc ẩn hoàn toàn tùy bạn
-        response.sendRedirect(request.getContextPath() + "/customer/order");
-
+        processRequest(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        String orderIdParam = request.getParameter("orderID");
 
-        // Nếu có tham số deleteReviewID => xử lý xóa review
-        String deleteIdParam = request.getParameter("reviewID");
-        if (deleteIdParam != null) {
+        if (orderIdParam != null) {
             try {
-                int reviewID = Integer.parseInt(deleteIdParam);
-                ReviewDAO reviewDAO = new ReviewDAO();
-                reviewDAO.deleteReviewById(reviewID);
-           
-                // Lấy lại orderID để reload danh sách review
-                String orderID = request.getParameter("orderID");
-                if (orderID != null) {
-                        response.sendRedirect(request.getContextPath() + "/customer/view-review");
+                int orderId = Integer.parseInt(orderIdParam);
+                OrderDAO orderDAO = new OrderDAO();
+                boolean success = orderDAO.cancelOrder(orderId);
+
+                if (success) {
+                    response.sendRedirect(request.getContextPath() + "/customer/order?cancelSuccess=true");
                 } else {
-                    response.sendRedirect(request.getContextPath() + "/customer/order");
+                    response.sendRedirect(request.getContextPath() + "/customer/order?cancelFailed=true");
                 }
-                return;
             } catch (NumberFormatException e) {
-                e.printStackTrace();
                 response.sendRedirect(request.getContextPath() + "/customer/order");
-                return;
             } catch (SQLException ex) {
-                Logger.getLogger(ViewReviewServlet.class.getName()).log(Level.SEVERE, null, ex);
+                Logger.getLogger(CancelOrderServlet.class.getName()).log(Level.SEVERE, null, ex);
             }
-        }
-
-        // Nếu không phải xóa => xử lý xem review
-        String odidParam = request.getParameter("orderID");
-        if (odidParam == null) {
-            response.sendRedirect(request.getContextPath() + "/customer/order");
-            return;
-        }
-
-        try {
-            int odid = Integer.parseInt(odidParam);
-
-            ReviewDAO reviewDAO = new ReviewDAO();
-            List<Review> review = reviewDAO.getReviewsByOrderId(odid);
-
-            request.setAttribute("reviews", review);
-            request.setAttribute("orderID", odid); // Gửi lại orderID để xoá
-
-            request.getRequestDispatcher("/WEB-INF/views/customer/view_review.jsp").forward(request, response);
-
-        } catch (NumberFormatException e) {
+        } else {
             response.sendRedirect(request.getContextPath() + "/customer/order");
         }
     }
-
     @Override
     public String getServletInfo() {
         return "Short description";

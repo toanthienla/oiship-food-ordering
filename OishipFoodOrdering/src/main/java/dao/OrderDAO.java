@@ -261,9 +261,11 @@ public class OrderDAO extends DBContext {
 
     public List<OrderDetail> getOrderDetailsByOrderId(int orderId) {
         List<OrderDetail> details = new ArrayList<>();
-        String sql = "SELECT od.ODID, od.quantity, d.DishName, d.image AS DishImage "
+        String sql = "SELECT od.ODID, od.quantity, d.DishName, d.image AS DishImage, "
+                + "CASE WHEN r.ReviewID IS NOT NULL THEN 1 ELSE 0 END AS isReviewed "
                 + "FROM OrderDetail od "
                 + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+                + "LEFT JOIN Review r ON r.FK_Review_OrderDetail = od.ODID "
                 + "WHERE od.FK_OD_Order = ?";
 
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -275,10 +277,15 @@ public class OrderDAO extends DBContext {
                 detail.setODID(rs.getInt("ODID"));
                 detail.setQuantity(rs.getInt("quantity"));
 
+                // Gán Dish
                 Dish dish = new Dish();
                 dish.setDishName(rs.getString("DishName"));
                 dish.setImage(rs.getString("DishImage"));
                 detail.setDish(dish);
+
+                // Gán đã review hay chưa
+                boolean isReviewed = rs.getInt("isReviewed") == 1;
+                detail.setReviewed(isReviewed);
 
                 details.add(detail);
             }
@@ -287,6 +294,15 @@ public class OrderDAO extends DBContext {
         }
 
         return details;
+    }
+
+    public boolean cancelOrder(int orderId) throws SQLException {
+        String sql = "UPDATE [Order] SET orderStatus = 5 WHERE orderID = ? AND orderStatus = 0"; // 5 = Hủy
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        }
     }
 
     public static void main(String[] args) {
