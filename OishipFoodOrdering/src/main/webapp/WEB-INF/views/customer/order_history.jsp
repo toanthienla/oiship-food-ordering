@@ -79,6 +79,12 @@
         </style>
     </head>
     <body>
+        <% if ("true".equals(request.getParameter("cancelSuccess"))) { %>
+        <div class="alert alert-success text-center">Order has been cancelled successfully.</div>
+        <% } else if ("true".equals(request.getParameter("cancelFailed"))) { %>
+        <div class="alert alert-danger text-center">Failed to cancel the order. It may no longer be pending.</div>
+        <% } %>
+
         <% String error = (String) request.getAttribute("error"); %>
         <% if (error != null) {%>
         <div class="alert alert-danger text-center"><%= error%></div>
@@ -130,10 +136,24 @@
             <div class="order-card">
                 <div class="order-header mb-2">
                     <h5>Order ID: <%= order.getOrderID()%></h5>
+
+
                     <p class="text-muted">Date: <%= sdf.format(order.getOrderCreatedAt())%></p>
-                    <span class="status-label <%= orderClass%>">
-                        Status: <%= orderStatusText[os]%>
-                    </span>
+
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="status-label <%= orderClass%>">
+                            Status: <%= orderStatusText[os]%>
+                        </span>
+
+                        <% if (order.getOrderStatus() == 0) {%>
+                        <form action="<%= request.getContextPath()%>/customer/cancel-order" method="post"
+                              onsubmit="return confirm('Are you sure you want to cancel this order?');" class="ms-2">
+                            <input type="hidden" name="orderID" value="<%= order.getOrderID()%>">
+                            <button type="submit" class="btn btn-danger btn-sm">Cancel Order</button>
+                        </form>
+                        <% }%>
+                    </div>
+
                     <%--  
                    <span class="status-label status-confirmed ms-2">
                        Payment: <%= paymentStatusText[ps]%>

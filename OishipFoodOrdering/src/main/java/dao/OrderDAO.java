@@ -293,6 +293,15 @@ public class OrderDAO extends DBContext {
         return details;
     }
 
+    public boolean cancelOrder(int orderId) throws SQLException {
+        String sql = "UPDATE [Order] SET orderStatus = 5 WHERE orderID = ? AND orderStatus = 0"; // 5 = Hủy
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        }
+    }
+
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
 
