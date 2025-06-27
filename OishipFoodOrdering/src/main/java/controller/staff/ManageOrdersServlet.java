@@ -13,7 +13,12 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import java.util.AbstractMap;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.LinkedHashMap;
 import java.util.List;
+import java.util.Map;
 import model.Order;
 
 /**
@@ -65,8 +70,17 @@ public class ManageOrdersServlet extends HttpServlet {
         OrderDAO orderDAO = new OrderDAO();
         List<Order> orderList = orderDAO.getAllOrders();
 
-        // Đưa dữ liệu vào request scope
+        Map<Integer, String> statusMap = new LinkedHashMap<>();
+        statusMap.put(0, "Pending");
+        statusMap.put(1, "Confirmed");
+        statusMap.put(2, "Preparing");
+        statusMap.put(3, "Out for Delivery");
+        statusMap.put(4, "Delivered");
+        statusMap.put(5, "Cancelled");
+        statusMap.put(6, "Failed");
+
         request.setAttribute("orders", orderList);
+        request.setAttribute("statusMap", statusMap);
 
         // Chuyển tiếp sang JSP để hiển thị
         request.getRequestDispatcher("/WEB-INF/views/staff/manage_orders.jsp").forward(request, response);
@@ -84,7 +98,20 @@ public class ManageOrdersServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        processRequest(request, response);
+        try {
+            int orderId = Integer.parseInt(request.getParameter("orderId"));
+            int newStatus = Integer.parseInt(request.getParameter("status"));
+
+            OrderDAO dao = new OrderDAO();
+            boolean updated = dao.updateStatusOrderByOrderId(orderId, newStatus);
+
+            // Có thể log kết quả hoặc set attribute để hiển thị
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        // Redirect về lại danh sách
+        response.sendRedirect(request.getContextPath() + "/staff/manage-orders");
     }
 
     /**

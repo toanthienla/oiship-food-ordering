@@ -155,6 +155,7 @@
                 <div class="container">
                     <h2 class="mb-4 text-center">Create New Order</h2>
 
+
                     <!-- Hiển thị lỗi nếu có -->
                     <c:if test="${not empty error}">
                         <div class="alert alert-danger text-center">${error}</div>
@@ -186,6 +187,7 @@
                                 </div>
                             </div>
                         </div>
+
 
                         <!-- Search + Filter -->
                         <div class="row mb-4 justify-content-center align-items-end">
@@ -235,7 +237,7 @@
                                                 <img src="${dish.image}" alt="${dish.dishName}" width="60" height="60" class="dish-image" />
                                             </td>
                                             <td>${dish.formattedPrice}</td>
-                                            <td>${dish.stock}</td>
+                                            <td class="stock-cell">${dish.stock}</td>
                                             <td>
                                                 <input type="number" name="quantity_${dish.dishID}" class="form-control" min="0" max="${dish.stock}" value="0" />
                                             </td>
@@ -243,8 +245,6 @@
                                     </c:forEach>
                                 </tbody>
                             </table>
-                            <div id="pagination" class="mt-4 d-flex justify-content-center"></div>
-
                         </div>
 
                     </form>
@@ -259,65 +259,27 @@
                 }
 
                 document.addEventListener("DOMContentLoaded", () => {
-                    const rowsPerPage = 20;
-                    const tableBody = document.getElementById("dishTableBody");
-                    const rows = Array.from(tableBody.querySelectorAll("tr"));
-                    const pagination = document.getElementById("pagination");
                     const searchInput = document.getElementById("dishSearch");
                     const categoryFilter = document.getElementById("categoryFilter");
+                    const rows = document.querySelectorAll("table tbody tr");
 
-                    function filterRows() {
+                    function filterDishes() {
                         const keyword = removeVietnameseTones(searchInput.value.trim().toLowerCase());
-                        const selectedCategory = categoryFilter.value;
+                        const selectedCat = categoryFilter.value;
 
-                        return rows.filter(row => {
-                            const dishName = removeVietnameseTones(row.dataset.dish?.toLowerCase() || "");
-                            const category = row.dataset.category;
-                            const matchDish = dishName.includes(keyword);
-                            const matchCat = selectedCategory === "all" || category === selectedCategory;
-                            return matchDish && matchCat;
+                        rows.forEach(row => {
+                            const dishName = removeVietnameseTones(row.getAttribute("data-dish")?.toLowerCase() || "");
+                            const category = row.getAttribute("data-category");
+
+                            const matchSearch = dishName.includes(keyword);
+                            const matchCategory = selectedCat === "all" || category === selectedCat;
+
+                            row.style.display = (matchSearch && matchCategory) ? "" : "none";
                         });
                     }
 
-                    function showPage(filteredRows, page) {
-                        tableBody.innerHTML = "";
-                        const start = (page - 1) * rowsPerPage;
-                        const paginated = filteredRows.slice(start, start + rowsPerPage);
-                        paginated.forEach(row => tableBody.appendChild(row));
-                        renderPagination(filteredRows.length, page);
-                    }
-
-                    function renderPagination(totalRows, currentPage) {
-                        pagination.innerHTML = "";
-                        const totalPages = Math.ceil(totalRows / rowsPerPage);
-                        if (totalPages <= 1)
-                            return;
-
-                        const createBtn = (text, page, active = false, disabled = false) => {
-                            const btn = document.createElement("button");
-                            btn.className = "btn btn-sm mx-1 " + (active ? "btn-primary" : "btn-outline-primary");
-                            btn.textContent = text;
-                            btn.disabled = disabled;
-                            btn.onclick = () => showPage(filterRows(), page);
-                            pagination.appendChild(btn);
-                        };
-
-                        createBtn("«", currentPage - 1, false, currentPage === 1);
-
-                        for (let i = 1; i <= totalPages; i++) {
-                            createBtn(i, i, i === currentPage);
-                        }
-
-                        createBtn("»", currentPage + 1, false, currentPage === totalPages);
-                    }
-
-                    function init() {
-                        showPage(filterRows(), 1);
-                    }
-
-                    searchInput.addEventListener("input", () => showPage(filterRows(), 1));
-                    categoryFilter.addEventListener("change", () => showPage(filterRows(), 1));
-                    init();
+                    searchInput.addEventListener("input", filterDishes);
+                    categoryFilter.addEventListener("change", filterDishes);
                 });
             </script>
 
