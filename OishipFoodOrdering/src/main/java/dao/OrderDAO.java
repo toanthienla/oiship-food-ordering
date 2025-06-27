@@ -61,7 +61,8 @@ public class OrderDAO extends DBContext {
         String sql = "SELECT od.ODID, od.quantity, "
                 + "d.DishID, d.DishName, d.DishDescription, "
                 + "o.orderStatus, o.orderCreatedAt, d.image, "
-                + "c.customerID, a.fullName AS customerName "
+                + "c.customerID, a.fullName AS customerName, "
+                + "c.phone, c.address "
                 + "FROM OrderDetail od "
                 + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
                 + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
@@ -83,6 +84,8 @@ public class OrderDAO extends DBContext {
                     detail.setDishImage(rs.getString("image"));
                     detail.setCustomerName(rs.getString("customerName"));
                     detail.setOrderId(orderID);
+                    detail.setPhone(rs.getString("phone"));
+                    detail.setAddress(rs.getString("address"));
                     list.add(detail);
                 }
             }
@@ -304,17 +307,15 @@ public class OrderDAO extends DBContext {
 
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
+        List<OrderDetail> list = dao.getOrderDetailsByOrderID(24);
 
-        int orderID = 12;
-        int dishID = 3;
-        int quantity = 2;
-
-        boolean success = dao.insertOrderDetail(orderID, dishID, quantity);
-
-        if (success) {
-            System.out.println("✅ Inserted OrderDetail successfully.");
-        } else {
-            System.out.println("❌ Failed to insert OrderDetail.");
+        for (OrderDetail od : list) {
+            System.out.println("Dish: " + od.getDishName());
+            System.out.println("Qty: " + od.getQuantity());
+            System.out.println("Customer: " + od.getCustomerName());
+            System.out.println("Phone: " + od.getPhone());
+            System.out.println("Address: " + od.getAddress());
+            System.out.println("-----------");
         }
     }
 }
