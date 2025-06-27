@@ -70,6 +70,59 @@
         </style>
     </head>
     <body>
+        <%
+            String message = (String) request.getAttribute("message");
+            String messageType = (String) request.getAttribute("messageType");
+        %>
+
+        <% if (message != null) {%>
+        <div id="alertMessage" class="alert <%= "success".equals(messageType) ? "alert-success" : "alert-error"%>">
+            <%= message%>
+        </div>
+        <% }%>
+
+        <style>
+            .alert {
+                padding: 12px 24px;
+                border-radius: 8px;
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                z-index: 9999;
+                font-weight: bold;
+                color: white;
+                opacity: 0.95;
+                animation: fadeIn 0.5s ease-in;
+            }
+
+            .alert-success {
+                background-color: #28a745;
+            }
+
+            .alert-error {
+                background-color: #dc3545;
+            }
+
+            @keyframes fadeOut {
+                from {
+                    opacity: 0.95;
+                }
+                to {
+                    opacity: 0;
+                }
+            }
+        </style>
+
+        <script>
+            setTimeout(function () {
+                const alert = document.getElementById('alertMessage');
+                if (alert) {
+                    alert.style.animation = "fadeOut 1s forwards";
+                    setTimeout(() => alert.remove(), 1000);
+                }
+            }, 3000);
+        </script>
+
         <!-- Sidebar -->
         <jsp:include page="admin_sidebar.jsp" />
 
@@ -87,6 +140,12 @@
             <div class="content">
                 <h1>Account Management</h1>
                 <p>Manage staff and customer accounts. Updated: <fmt:formatDate value="<%= new java.util.Date()%>" pattern="EEE MMM dd HH:mm zzz yyyy" /></p>
+                <c:if test="${not empty message}">
+                    <div class="alert alert-info alert-dismissible fade show" role="alert">
+                        ${message}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                    </div>
+                </c:if>
 
                 <!-- Success or Error Message Alerts -->
                 <c:if test="${not empty message}">
@@ -152,17 +211,50 @@
                                             <td>${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}</td>
                                             <td>
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-info btn-sm" onclick="toggleDetails(${account.accountID})">Details</button>
-                                                    <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-${account.accountID}">Edit</a>
-                                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Change Status</button>
+                                                    <!-- Dropdown 1: Actions -->
+                                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Actions
+                                                    </button>
                                                     <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=1&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">Active</a></li>
-                                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=0&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">Inactive</a></li>
-                                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=-1&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">Banned</a></li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="toggleDetails(${account.accountID})">Details</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal-${account.accountID}">Edit</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/admin/accounts?action=delete&id=${account.accountID}&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}" onclick="return confirm('Are you sure you want to delete account ID ${account.accountID}?')">
+                                                                Delete
+                                                            </a>
+                                                        </li>
                                                     </ul>
                                                 </div>
-                                                <a href="${pageContext.request.contextPath}/admin/accounts?action=delete&id=${account.accountID}&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete account ID ${account.accountID}?')">Delete</a>
+
+                                                <div class="btn-group ms-1">
+                                                    <!-- Dropdown 2: Change Status -->
+                                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Change Status
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=1&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">
+                                                                Active
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=0&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">
+                                                                Inactive
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=-1&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">
+                                                                Banned
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
+
                                         </tr>
                                         <tr id="detailsRow-${account.accountID}" class="details-row" style="display: none;">
                                             <td colspan="4">
@@ -204,17 +296,50 @@
                                             <td>${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}</td>
                                             <td>
                                                 <div class="btn-group">
-                                                    <button type="button" class="btn btn-info btn-sm" onclick="toggleDetails(${account.accountID})">Details</button>
-                                                    <a href="#" class="btn btn-primary btn-sm" data-bs-toggle="modal" data-bs-target="#editModal-${account.accountID}">Edit</a>
-                                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">Change Status</button>
+                                                    <!-- Dropdown 1: Actions -->
+                                                    <button type="button" class="btn btn-primary btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Actions
+                                                    </button>
                                                     <ul class="dropdown-menu">
-                                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=1&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">Active</a></li>
-                                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=0&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">Inactive</a></li>
-                                                        <li><a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=-1&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">Banned</a></li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" onclick="toggleDetails(${account.accountID})">Details</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal-${account.accountID}">Edit</a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item text-danger" href="${pageContext.request.contextPath}/admin/accounts?action=delete&id=${account.accountID}&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}" onclick="return confirm('Are you sure you want to delete account ID ${account.accountID}?')">
+                                                                Delete
+                                                            </a>
+                                                        </li>
                                                     </ul>
                                                 </div>
-                                                <a href="${pageContext.request.contextPath}/admin/accounts?action=delete&id=${account.accountID}&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}" class="btn btn-danger btn-sm" onclick="return confirm('Are you sure you want to delete account ID ${account.accountID}?')">Delete</a>
+
+                                                <div class="btn-group ms-1">
+                                                    <!-- Dropdown 2: Change Status -->
+                                                    <button type="button" class="btn btn-warning btn-sm dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
+                                                        Change Status
+                                                    </button>
+                                                    <ul class="dropdown-menu">
+                                                        <li>
+                                                            <a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=1&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">
+                                                                Active
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=0&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">
+                                                                Inactive
+                                                            </a>
+                                                        </li>
+                                                        <li>
+                                                            <a class="dropdown-item" href="${pageContext.request.contextPath}/admin/accounts?action=updateStatus&id=${account.accountID}&status=-1&filterStatus=${param.filterStatus}&search=${param.search}&tab=${param.tab}">
+                                                                Banned
+                                                            </a>
+                                                        </li>
+                                                    </ul>
+                                                </div>
                                             </td>
+
                                         </tr>
                                         <tr id="detailsRow-${account.accountID}" class="details-row" style="display: none;">
                                             <td colspan="4">
@@ -737,6 +862,33 @@
                         });
                     });
                 });
+
             </script>
+
+
+
+            <script>
+                // Khi click vào một tab hoặc phần, lưu lại ID
+                document.addEventListener("DOMContentLoaded", function () {
+                    const buttons = document.querySelectorAll("[data-section-target]");
+                    buttons.forEach(btn => {
+                        btn.addEventListener("click", () => {
+                            const target = btn.getAttribute("data-section-target");
+                            localStorage.setItem("activeSection", target);
+                        });
+                    });
+
+                    // Khi reload, hiển thị lại phần cũ
+                    const sectionId = localStorage.getItem("activeSection");
+                    if (sectionId) {
+                        const allSections = document.querySelectorAll(".section");
+                        allSections.forEach(sec => sec.style.display = "none");
+                        const currentSection = document.getElementById(sectionId);
+                        if (currentSection)
+                            currentSection.style.display = "block";
+                    }
+                });
+            </script>
+
     </body>
 </html>

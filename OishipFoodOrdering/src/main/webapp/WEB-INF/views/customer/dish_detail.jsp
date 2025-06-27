@@ -1,4 +1,3 @@
-<!<!--dis_detail.jsp -->
 <%@page import="model.Review"%>
 <%@page import="model.Dish"%>
 <%@page import="java.text.SimpleDateFormat"%>
@@ -16,8 +15,8 @@
 
         <style>
             .dish-detail-img {
-                width: 100%;
-                height: auto;
+                max-width: 350px;
+                max-height: 350px;
                 border-radius: 10px;
                 box-shadow: 0 0 10px rgba(0,0,0,0.2);
                 object-fit: cover;
@@ -28,20 +27,49 @@
             }
 
             .star {
-                color: #ffc107;
+                color: #ff6200;
                 font-size: 1.3rem;
             }
 
             .btn-custom {
-                background-color: #ff6200;
-                color: #fff;
-                border: none;
+                background-color: transparent;
+                color: #ff6200;
+                border: 2px solid #ff6200;
                 padding: 10px 20px;
-                transition: background-color 0.3s ease;
+                transition: all 0.3s ease;
+                width: 100%;
             }
 
             .btn-custom:hover {
+                background-color: #fff5e6;
+                transform: translateY(-2px);
+            }
+
+            .btn-custom:active {
+                background-color: #ffe0b3;
+                transform: translateY(0);
+            }
+
+            .quantity-btn {
+                background-color: #ff6200;
+                color: #fff;
+                border: none;
+                padding: 0.25rem 0.75rem;
+                border-radius: 5px;
+                transition: all 0.3s ease;
+                font-size: 1rem;
+                margin: 0 0.25rem;
+                cursor: pointer;
+            }
+
+            .quantity-btn:hover {
                 background-color: #e65c00;
+                transform: translateY(-2px);
+            }
+
+            .quantity-btn:active {
+                background-color: #d35400;
+                transform: translateY(0);
             }
         </style>
     </head>
@@ -49,12 +77,9 @@
         <div class="dish-detail-container">
             <%
                 Dish dish = (Dish) request.getAttribute("dish");
-                List<Review> reviews = (List<Review>) request.getAttribute("reviews");
-
                 if (dish == null) {
             %>
             <div class="text-center mt-5">
-                <h3 class="text-danger">Dish not found.</h3>
                 <a href="home.jsp" class="btn btn-secondary mt-3">Back to Home</a>
             </div>
             <%
@@ -66,7 +91,7 @@
 
             <div class="row g-5">
                 <!-- Dish Image -->
-                <div class="col-md-6">
+                <div class="col-md-6 text-center">
                     <img src="<%= imageUrl%>" alt="<%= dish.getDishName()%>" class="dish-detail-img" />
                 </div>
 
@@ -75,91 +100,53 @@
                     <h2 class="mb-3"><%= dish.getDishName()%></h2>
                     <p><strong>Description:</strong> <%= dish.getDishDescription() != null ? dish.getDishDescription() : "No description."%></p>
                     <p><strong>Ingredients:</strong> <%= dish.getIngredientNames() != null ? dish.getIngredientNames() : "Unknown."%></p>
-                    <p><strong>Price:</strong> 
+                    <p><strong>Price:</strong>
                         <span class="text-success fw-bold"><%= dish.getFormattedPrice()%> đ</span>
                     </p>
 
                     <% if (dish.getAvgRating() != null) {%>
-                    <p><strong>Average Rating:</strong> <%= dish.getAvgRating()%>/5 
+                    <p><strong>Average Rating:</strong> <%= dish.getAvgRating()%>/5
+                        <% for (int i = 1; i <= 5; i++) {
+                                if (dish.getAvgRating() != null && i <= dish.getAvgRating().intValue()) { %>
                         <i class="fa-solid fa-star star"></i>
+                        <% } else { %>
+                        <i class="fa-regular fa-star star"></i>
+                        <% } %>
+                        <% } %>
                     </p>
                     <% }%>
+
+                    <!-- Form Add to Cart -->
                     <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3">
                         <input type="hidden" name="dishID" value="<%= dish.getDishID()%>" />
-                        <div class="d-flex justify-content-center align-items-center gap-2 mb-3">
-                            <input type="text" id="qty_<%= dish.getDishID()%>" name="quantity" value="1"
-                                   class="form-control text-center" style="width: 60px;" >
+
+                        <div class="mb-3 d-flex align-items-center gap-2">
+                            <label for="quantityInput" class="form-label mb-0 me-2">Quantity:</label>
+                            <!-- Quantity input -->
+                            <input type="number" name="quantity" id="quantityInput" value="1" min="1" max="10"
+                                   class="form-control text-center" style="width: 80px;" required>
+                            <script>
+                                function changeQty(delta, event) {
+                                    if (event)
+                                        event.preventDefault(); // NGĂN hành vi mặc định
+
+                                    const input = document.getElementById("quantityInput");
+                                    let value = parseInt(input.value) || 1;
+                                    value += delta;
+                                    if (value < 1)
+                                        value = 1;
+                                    input.value = value;
+                                }
+                            </script>
                         </div>
-
-                        <button type="submit" class="btn btn-custom w-100">Add to Cart</button>
+                        <button type="submit" class="btn-custom">Add to Cart</button>
                     </form>
-
-
                 </div>
-            </div>
-
-            <!-- Reviews Section -->
-            <div class="mt-5">
-                <h4>Recent Reviews:</h4>
-                <% if (reviews != null && !reviews.isEmpty()) { %>
-                <ul class="list-group mt-3">
-                    <% for (Review r : reviews) {
-                            SimpleDateFormat sdf = new SimpleDateFormat("yyyy-MM-dd");
-                    %>
-                    <li class="list-group-item">
-                        <strong><%= r.getCustomerName()%></strong>
-                        <span class="ms-2 text-warning">
-                            <% for (int i = 0; i < r.getRating(); i++) { %>
-                            <i class="fa-solid fa-star"></i>
-                            <% }%>
-                        </span>
-                        <small class="text-muted float-end"><%= sdf.format(r.getReviewCreatedAt())%></small>
-                        <br />
-                        <span><%= r.getComment()%></span>
-                    </li>
-                    <% } %>
-                </ul>
-                <% } else { %>
-                <p class="text-muted mt-3">No reviews yet for this dish.</p>
-                <% } %>
             </div>
             <% }%>
         </div>
 
-
-
-
-        <script>
-            const contextPath = "<%= request.getContextPath()%>";
-
-            function updateQuantity(dishId, delta) {
-                const input = document.getElementById("qty_" + dishId);
-                let qty = parseInt(input.value);
-                if (isNaN(qty))
-                    qty = 1;
-                qty += delta;
-                if (qty < 1)
-                    qty = 1;
-                input.value = qty;
-
-                fetch(contextPath + "/customer/add-cart", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                    body: "dishID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-
-                }).then(() => {
-                    const row = input.closest("tr");
-                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                    const total = qty * price;
-                    row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
-                });
-            }
-
-
-        </script>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-
 
     </body>
 </html>

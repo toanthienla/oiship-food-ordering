@@ -10,10 +10,10 @@ import jakarta.servlet.http.*;
 import model.Account;
 import model.Category;
 import model.Dish;
+import model.Notification;
 
 import java.io.IOException;
 import java.util.List;
-import model.Notification;
 
 @WebServlet(name = "CustomerServlet", urlPatterns = {"/customer"})
 public class CustomerServlet extends HttpServlet {
@@ -44,9 +44,6 @@ public class CustomerServlet extends HttpServlet {
             request.setAttribute("error", "Failed to load menu items.");
         }
 
-        // int userId = (int) session.getAttribute("userId");
-        AccountDAO dao = new AccountDAO();
-
         // Get customer information using email stored in session
         int userId = (int) session.getAttribute("userId");
         AccountDAO accountDAO = new AccountDAO();
@@ -72,9 +69,17 @@ public class CustomerServlet extends HttpServlet {
             }
         }
 
-       NotificationDAO notificationDAO = new NotificationDAO();
-       List<Notification> no = notificationDAO.getAllNotifications();
-      request.setAttribute("notifications", no);    
+        // Get existing notifications
+        NotificationDAO notificationDAO = new NotificationDAO();
+        List<Notification> notifications = notificationDAO.getAllNotifications();
+        request.setAttribute("notifications", notifications);
+
+        // Pass cart success message if present
+        String cartSuccessMessage = (String) request.getAttribute("cartSuccessMessage");
+        if (cartSuccessMessage != null) {
+            request.setAttribute("cartSuccessMessage", cartSuccessMessage);
+        }
+
         request.getRequestDispatcher("/WEB-INF/views/customer/customer.jsp").forward(request, response);
     }
 

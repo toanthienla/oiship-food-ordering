@@ -108,7 +108,9 @@
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
+
                                     <input type="text" id="qty_<%= item.getCartID()%>" data-stock="<%= dish.getStock()%>" value="<%= quantity%>" readonly class="form-control text-center" style="width: 60px;">
+
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
                             </td>
@@ -144,7 +146,6 @@
 
         <script>
     const contextPath = "<%= request.getContextPath()%>";
-
     function updateQuantity(cartId, delta) {
         const input = document.getElementById("qty_" + cartId);
         const maxStock = parseInt(input.getAttribute("data-stock"));

@@ -10,7 +10,8 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 
 import java.io.IOException;
-import java.sql.SQLException;
+import java.util.HashMap;
+import java.util.Map;
 
 @WebServlet(name = "AddCart", urlPatterns = {"/customer/add-cart"})
 public class AddCartServlet extends HttpServlet {
@@ -18,53 +19,29 @@ public class AddCartServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
-        String dishIdStr = request.getParameter("dishID");
-
-        if (dishIdStr == null || dishIdStr.trim().isEmpty()) {
-            request.setAttribute("error", "Bạn chưa chọn món ăn nào.");
-            request.getRequestDispatcher("/WEB-INF/views/customer/add_cart.jsp").forward(request, response);
-            return;
-        }
-
-        try {
-            int dishID = Integer.parseInt(dishIdStr);
-            DishDAO dishDAO = new DishDAO();
-            Dish dish = dishDAO.getDishById(dishID);
-
-            if (dish == null || !dish.isIsAvailable()) {
-                request.setAttribute("error", "Món ăn không tồn tại hoặc hiện không có sẵn.");
-            } else {
-                request.setAttribute("addedDish", dish);
-                request.setAttribute("quantity", 1); // Mặc định 1 khi chỉ mới GET
-            }
-
-        } catch (NumberFormatException e) {
-            request.setAttribute("error", "Mã món ăn không hợp lệ.");
-        }
-
-        request.getRequestDispatcher("/WEB-INF/views/customer/add_cart.jsp").forward(request, response);
+        String dishId = request.getParameter("dishID");
+        request.setAttribute("errorMessage", "GET method is not supported. Please use the form submission.");
+        request.getRequestDispatcher("/customer/dish-detail?dishId=" + (dishId != null ? dishId : "")).forward(request, response);
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-
         String dishIdStr = request.getParameter("dishID");
         String quantityStr = request.getParameter("quantity");
         HttpSession session = request.getSession();
 
-       // Kiểm tra đăng nhập
+        // Check login
         if (session.getAttribute("userId") == null) {
             session.setAttribute("redirectAfterLogin", "/customer/add-cart?dishID=" + dishIdStr);
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
- 
-        // Kiểm tra thiếu dữ liệu
+
+        // Validate input
         if (dishIdStr == null || quantityStr == null || dishIdStr.trim().isEmpty() || quantityStr.trim().isEmpty()) {
-            request.setAttribute("error", "Thiếu dữ liệu món ăn hoặc số lượng.");
-            request.getRequestDispatcher("/WEB-INF/views/customer/add_cart.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "Missing dish or quantity data.");
+            response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
             return;
         }
 
@@ -73,8 +50,8 @@ public class AddCartServlet extends HttpServlet {
             int quantity = Integer.parseInt(quantityStr);
 
             if (quantity <= 0) {
-                request.setAttribute("error", "Số lượng phải lớn hơn 0.");
-                request.getRequestDispatcher("/WEB-INF/views/customer/add_cart.jsp").forward(request, response);
+                session.setAttribute("errorMessage", "Quantity must be greater than 0.");
+                response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
                 return;
             }
 
@@ -82,34 +59,38 @@ public class AddCartServlet extends HttpServlet {
             Dish dish = dishDAO.getDishById(dishID);
 
             if (dish == null || !dish.isIsAvailable()) {
-                request.setAttribute("error", "Món ăn không hợp lệ hoặc đã ngưng bán.");
-                request.getRequestDispatcher("/WEB-INF/views/customer/add_cart.jsp").forward(request, response);
+                session.setAttribute("errorMessage", "Invalid or unavailable dish.");
+                response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
                 return;
             }
 
             int customerID = (int) session.getAttribute("userId");
             CartDAO cartDAO = new CartDAO();
-            Cart existing = cartDAO.getCartItem(customerID, dishID);
+            Cart existingItem = cartDAO.getCartItem(customerID, dishID);
 
-            if (existing != null) {
-                cartDAO.updateQuantity(customerID, dishID, existing.getQuantity() + quantity);
+            if (existingItem != null) {
+                cartDAO.updateQuantity(customerID, dishID, existingItem.getQuantity() + quantity);
             } else {
                 cartDAO.addToCart(customerID, dishID, quantity);
             }
-             response.setStatus(HttpServletResponse.SC_OK);
 
-            request.setAttribute("addedDish", dish);
-            request.setAttribute("quantity", quantity);
-            request.getRequestDispatcher("/WEB-INF/views/customer/add_cart.jsp").forward(request, response);
+            // Flash message with dish details
+            Map<String, Object> cartSuccessDetails = new HashMap<>();
+            cartSuccessDetails.put("image", dish.getImage() != null ? dish.getImage() : "");
+            cartSuccessDetails.put("name", dish.getDishName());
+            cartSuccessDetails.put("quantity", quantity);
+            cartSuccessDetails.put("price", dish.getFormattedPrice() + " đ");
+
+            session.setAttribute("cartSuccessDetails", cartSuccessDetails);
+            response.sendRedirect(request.getContextPath() + "/customer");
 
         } catch (NumberFormatException e) {
-            request.setAttribute("error", "Dữ liệu nhập không hợp lệ.");
-            request.getRequestDispatcher("/WEB-INF/views/customer/add_cart.jsp").forward(request, response);
-
-        } catch (SQLException e) {
+            session.setAttribute("errorMessage", "Invalid input data.");
+            response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
+        } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Lỗi hệ thống khi thêm vào giỏ hàng.");
-            request.getRequestDispatcher("/WEB-INF/views/customer/add_cart.jsp").forward(request, response);
+            session.setAttribute("errorMessage", "System error while adding to cart: " + e.getMessage());
+            response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
         }
     }
 }
