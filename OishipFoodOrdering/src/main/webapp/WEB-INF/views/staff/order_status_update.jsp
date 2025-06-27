@@ -285,6 +285,26 @@
                             <p><strong>Order Created At:</strong>
                                 <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
                             </p>
+                            <p><strong>Voucher:</strong>
+                                <c:choose>
+                                    <c:when test="${empty orderDetails[0].voucherCode}">
+                                        <span class="text-muted fst-italic">N/A</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        ${orderDetails[0].voucherCode}
+                                        <br/>
+                                        <small class="text-success fst-italic">
+                                            (${orderDetails[0].discount}
+                                            <c:choose>
+                                                <c:when test="${orderDetails[0].discountType eq '%'}">%</c:when>
+                                                <c:when test="${orderDetails[0].discountType eq 'VND'}"> VNĐ</c:when>
+                                                <c:otherwise></c:otherwise>
+                                            </c:choose>
+                                            off)
+                                        </small>
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
                             <p><strong>Status:</strong>
                                 <c:choose>
                                     <c:when test="${orderDetails[0].orderStatus == 0}">Pending</c:when>

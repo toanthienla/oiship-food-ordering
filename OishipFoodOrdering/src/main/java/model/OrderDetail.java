@@ -1,5 +1,6 @@
 package model;
 
+import java.math.BigDecimal;
 import java.util.Date;
 
 public class OrderDetail {
@@ -22,6 +23,9 @@ public class OrderDetail {
 
     private boolean reviewed;
 
+    private String voucherCode;
+    private String discountType;
+    private BigDecimal discount;
 
     public OrderDetail() {
     }
@@ -129,8 +133,6 @@ public class OrderDetail {
         this.order = order;
     }
 
-
-
     public String getPhone() {
         return phone;
     }
@@ -143,11 +145,32 @@ public class OrderDetail {
         return address;
     }
 
-
     public void setAddress(String address) {
         this.address = address;
     }
 
-    
-    
+    public String getVoucherCode() {
+        return voucherCode;
+    }
+
+    public void setVoucherCode(String voucherCode) {
+        this.voucherCode = voucherCode;
+    }
+
+    public String getDiscountType() {
+        return discountType;
+    }
+
+    public void setDiscountType(String discountType) {
+        this.discountType = discountType;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
+    }
+
 }
