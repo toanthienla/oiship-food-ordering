@@ -16,9 +16,10 @@ public class Order {
     private int customerID;
     private String voucherCode;
     private String customerName;
-   
+    private String discountType;
+    private BigDecimal discount;
 
-    private List<OrderDetail> orderDetails; 
+    private List<OrderDetail> orderDetails;
 
     public List<OrderDetail> getOrderDetails() {
         return orderDetails;
@@ -27,7 +28,6 @@ public class Order {
     public void setOrderDetails(List<OrderDetail> orderDetails) {
         this.orderDetails = orderDetails;
     }
-    
 
     // Getters and setters
     public int getOrderID() {
@@ -108,6 +108,22 @@ public class Order {
 
     public void setVoucherCode(String voucherCode) {
         this.voucherCode = voucherCode;
+    }
+
+    public String getDiscountType() {
+        return discountType;
+    }
+
+    public void setDiscountType(String discountType) {
+        this.discountType = discountType;
+    }
+
+    public BigDecimal getDiscount() {
+        return discount;
+    }
+
+    public void setDiscount(BigDecimal discount) {
+        this.discount = discount;
     }
 
 }

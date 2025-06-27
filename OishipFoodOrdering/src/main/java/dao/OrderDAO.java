@@ -23,7 +23,8 @@ public class OrderDAO extends DBContext {
 
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.*, a.fullName AS customerName, v.code AS voucherCode "
+        String sql = "SELECT o.*, a.fullName AS customerName, "
+                + "v.code AS voucherCode, v.discountType, v.discount "
                 + "FROM [Order] o "
                 + "JOIN Customer c ON o.FK_Order_Customer = c.customerID "
                 + "JOIN Account a ON c.customerID = a.accountID "
@@ -44,6 +45,8 @@ public class OrderDAO extends DBContext {
                 order.setCustomerID(rs.getInt("FK_Order_Customer"));
                 order.setCustomerName(rs.getString("customerName"));
                 order.setVoucherCode(rs.getString("voucherCode"));
+                order.setDiscountType(rs.getString("discountType"));
+                order.setDiscount(rs.getBigDecimal("discount"));
 
                 orders.add(order);
             }
@@ -307,15 +310,10 @@ public class OrderDAO extends DBContext {
 
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
-        List<OrderDetail> list = dao.getOrderDetailsByOrderID(24);
+        List<Order> orders = dao.getAllOrders();
 
-        for (OrderDetail od : list) {
-            System.out.println("Dish: " + od.getDishName());
-            System.out.println("Qty: " + od.getQuantity());
-            System.out.println("Customer: " + od.getCustomerName());
-            System.out.println("Phone: " + od.getPhone());
-            System.out.println("Address: " + od.getAddress());
-            System.out.println("-----------");
+        for (Order order : orders) {
+            System.out.println(order);
         }
     }
 }

@@ -212,8 +212,12 @@
                                     <td>${o.customerName}</td>
                                     <td>
                                         <c:choose>
-                                            <c:when test="${empty o.voucherCode}">-</c:when>
-                                            <c:otherwise>${o.voucherCode}</c:otherwise>
+                                            <c:when test="${empty o.voucherCode}">
+                                                <span class="text-muted">N/A</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${o.voucherCode}
+                                            </c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/> VNĐ</td>
