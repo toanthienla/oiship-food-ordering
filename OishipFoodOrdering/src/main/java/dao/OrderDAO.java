@@ -11,7 +11,9 @@ import java.util.Map;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import model.Dish;
+import model.Ingredient;
 import model.OrderDetail;
+import utils.TotalPriceCalculator;
 
 public class OrderDAO extends DBContext {
 
@@ -23,7 +25,8 @@ public class OrderDAO extends DBContext {
 
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.*, a.fullName AS customerName, v.code AS voucherCode "
+        String sql = "SELECT o.*, a.fullName AS customerName, "
+                + "v.code AS voucherCode, v.discountType, v.discount "
                 + "FROM [Order] o "
                 + "JOIN Customer c ON o.FK_Order_Customer = c.customerID "
                 + "JOIN Account a ON c.customerID = a.accountID "
@@ -44,6 +47,8 @@ public class OrderDAO extends DBContext {
                 order.setCustomerID(rs.getInt("FK_Order_Customer"));
                 order.setCustomerName(rs.getString("customerName"));
                 order.setVoucherCode(rs.getString("voucherCode"));
+                order.setDiscountType(rs.getString("discountType"));
+                order.setDiscount(rs.getBigDecimal("discount"));
 
                 orders.add(order);
             }
@@ -59,35 +64,57 @@ public class OrderDAO extends DBContext {
         List<OrderDetail> list = new ArrayList<>();
 
         String sql = "SELECT od.ODID, od.quantity, "
-                + "d.DishID, d.DishName, d.DishDescription, "
-                + "o.orderStatus, o.orderCreatedAt, d.image, "
-                + "c.customerID, a.fullName AS customerName, "
-                + "c.phone, c.address "
+                + "d.DishID, d.DishName, d.DishDescription, d.image, d.opCost, d.interestPercentage, "
+                + "o.orderStatus, o.paymentStatus, o.orderCreatedAt, o.amount, "
+                + "c.customerID, a.fullName AS customerName, c.phone, c.address, "
+                + "v.code AS voucherCode, v.discount, v.discountType "
                 + "FROM OrderDetail od "
                 + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
                 + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
                 + "JOIN Customer c ON o.FK_Order_Customer = c.customerID "
                 + "JOIN Account a ON c.customerID = a.accountID "
+                + "LEFT JOIN Voucher v ON o.FK_Order_Voucher = v.voucherID "
                 + "WHERE o.orderID = ?";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, orderID);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    OrderDetail detail = new OrderDetail();
-                    detail.setODID(rs.getInt("ODID"));
-                    detail.setQuantity(rs.getInt("quantity"));
-                    detail.setDishName(rs.getString("DishName"));
-                    detail.setDishDescription(rs.getString("DishDescription"));
-                    detail.setOrderStatus(rs.getInt("orderStatus"));
-                    detail.setCreateAt(rs.getTimestamp("orderCreatedAt"));
-                    detail.setDishImage(rs.getString("image"));
-                    detail.setCustomerName(rs.getString("customerName"));
-                    detail.setOrderId(orderID);
-                    detail.setPhone(rs.getString("phone"));
-                    detail.setAddress(rs.getString("address"));
-                    list.add(detail);
-                }
+            ResultSet rs = ps.executeQuery();
+
+            IngredientDAO ingredientDAO = new IngredientDAO();
+
+            while (rs.next()) {
+                OrderDetail detail = new OrderDetail();
+
+                int dishID = rs.getInt("DishID");
+                int quantity = rs.getInt("quantity");
+
+                detail.setODID(rs.getInt("ODID"));
+                detail.setQuantity(quantity);
+                detail.setDishName(rs.getString("DishName"));
+                detail.setDishDescription(rs.getString("DishDescription"));
+                detail.setDishImage(rs.getString("image"));
+                detail.setOrderStatus(rs.getInt("orderStatus"));
+                detail.setPaymentStatus(rs.getInt("paymentStatus"));
+                detail.setCreateAt(rs.getTimestamp("orderCreatedAt"));
+                detail.setCustomerName(rs.getString("customerName"));
+                detail.setPhone(rs.getString("phone"));
+                detail.setAddress(rs.getString("address"));
+                detail.setOrderId(orderID);
+                detail.setVoucherCode(rs.getString("voucherCode"));
+                detail.setDiscount(rs.getBigDecimal("discount"));
+                detail.setDiscountType(rs.getString("discountType"));
+                detail.setAmount(rs.getBigDecimal("amount"));
+
+                // Tính đơn giá
+                BigDecimal opCost = rs.getBigDecimal("opCost");
+                BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
+                List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishID);
+                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+                BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(opCost, interestPercentage, ingredientCost);
+
+                detail.setUnitPrice(unitPrice);
+
+                list.add(detail);
             }
         } catch (SQLException e) {
             e.printStackTrace();
@@ -305,17 +332,24 @@ public class OrderDAO extends DBContext {
         }
     }
 
+    public boolean updateOrderAmount(int orderID, BigDecimal amount) {
+        String sql = "UPDATE [Order] SET amount = ? WHERE orderID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBigDecimal(1, amount);
+            ps.setInt(2, orderID);
+            return ps.executeUpdate() > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public static void main(String[] args) {
         OrderDAO dao = new OrderDAO();
-        List<OrderDetail> list = dao.getOrderDetailsByOrderID(24);
+        List<Order> orders = dao.getAllOrders();
 
-        for (OrderDetail od : list) {
-            System.out.println("Dish: " + od.getDishName());
-            System.out.println("Qty: " + od.getQuantity());
-            System.out.println("Customer: " + od.getCustomerName());
-            System.out.println("Phone: " + od.getPhone());
-            System.out.println("Address: " + od.getAddress());
-            System.out.println("-----------");
+        for (Order order : orders) {
+            System.out.println(order);
         }
     }
 }

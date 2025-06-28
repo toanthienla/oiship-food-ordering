@@ -285,6 +285,42 @@
                             <p><strong>Order Created At:</strong>
                                 <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
                             </p>
+                            <p><strong>Voucher:</strong>
+                                <c:choose>
+                                    <c:when test="${empty orderDetails[0].voucherCode}">
+                                        <span class="text-muted fst-italic">N/A</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        ${orderDetails[0].voucherCode}
+                                        <br/>
+                                        <small class="text-success fst-italic">
+                                            (${orderDetails[0].discount}
+                                            <c:choose>
+                                                <c:when test="${orderDetails[0].discountType eq '%'}">%</c:when>
+                                                <c:when test="${orderDetails[0].discountType eq 'VND'}"> VNĐ</c:when>
+                                                <c:otherwise></c:otherwise>
+                                            </c:choose>
+                                            off)
+                                        </small>
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
+                            <p><strong>Payment:</strong>
+                                <c:choose>
+                                    <c:when test="${orderDetails[0].paymentStatus == 0}">
+                                        <span class="badge rounded-pill text-bg-danger">Unpaid</span>
+                                    </c:when>
+                                    <c:when test="${orderDetails[0].paymentStatus == 1}">
+                                        <span class="badge rounded-pill text-bg-success">Paid</span>
+                                    </c:when>
+                                    <c:when test="${orderDetails[0].paymentStatus == 2}">
+                                        <span class="badge rounded-pill text-bg-warning text-dark">Refunded</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="badge rounded-pill text-bg-secondary">Unknown</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
                             <p><strong>Status:</strong>
                                 <c:choose>
                                     <c:when test="${orderDetails[0].orderStatus == 0}">Pending</c:when>
@@ -306,7 +342,8 @@
                                     <th>Dish</th>
                                     <th>Image</th>
                                     <th>Quantity</th>
-                                    <th>Cost (VNĐ)</th>
+                                    <th>Unit Price</th>
+                                    <th>Subtotal</th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -315,16 +352,27 @@
                                         <td>${detail.dishName}</td>
                                         <td><img src="${detail.dishImage}" width="80" height="60" /></td>
                                         <td>${detail.quantity}</td>
-                                        <td>... VNĐ</td>
+                                        <td><fmt:formatNumber value="${detail.unitPrice}" type="number" groupingUsed="true"/> VNĐ</td>
+                                        <td>
+                                            <fmt:formatNumber value="${detail.unitPrice * detail.quantity}" type="number" groupingUsed="true"/> VNĐ
+                                        </td>
                                     </tr>
                                 </c:forEach>
                             </tbody>
                         </table>
 
                         <!-- TỔNG -->
-                        <div class="d-flex justify-content-between align-items-center mt-3">
-                            <h5>Total Cost: ... VNĐ</h5>
+                        <div class="mt-3 border-top pt-3">
+                            <div class="text-end">
+                                <h5 class="fw-bold">
+                                    Total Cost:
+                                    <span class="text-primary">
+                                        <fmt:formatNumber value="${orderDetails[0].amount}" type="number" groupingUsed="true"/> VNĐ
+                                    </span>
+                                </h5>
+                            </div>
                         </div>
+
                     </c:if>
                 </div>
             </div>

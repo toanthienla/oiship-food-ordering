@@ -199,8 +199,9 @@
                                 <th>Customer</th>
                                 <th>Voucher</th>
                                 <th>Amount</th>
+                                <th>Payment</th>
                                 <th>Status</th>
-                                <th>Created At</th>
+                                <th>Timestamps</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -212,11 +213,31 @@
                                     <td>${o.customerName}</td>
                                     <td>
                                         <c:choose>
-                                            <c:when test="${empty o.voucherCode}">-</c:when>
-                                            <c:otherwise>${o.voucherCode}</c:otherwise>
+                                            <c:when test="${empty o.voucherCode}">
+                                                <span class="text-muted">N/A</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                ${o.voucherCode}
+                                            </c:otherwise>
                                         </c:choose>
                                     </td>
                                     <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/> VNĐ</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${o.paymentStatus == 0}">
+                                                <span class="badge rounded-pill text-bg-danger">Unpaid</span>
+                                            </c:when>
+                                            <c:when test="${o.paymentStatus == 1}">
+                                                <span class="badge rounded-pill text-bg-success">Paid</span>
+                                            </c:when>
+                                            <c:when test="${o.paymentStatus == 2}">
+                                                <span class="badge rounded-pill text-bg-warning text-dark">Refunded</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge rounded-pill text-bg-secondary">Unknown</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>
                                         <c:choose>
                                             <c:when test="${o.orderStatus == 0}">Pending</c:when>
@@ -229,7 +250,17 @@
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td><fmt:formatDate value="${o.orderCreatedAt}" pattern="dd-MM-yyyy HH:mm:ss"/></td>
+                                    <td class="text-start">
+                                        <small class="text-muted d-block">
+                                            <span class="fw-semibold">C:</span>
+                                            <fmt:formatDate value="${o.orderCreatedAt}" pattern="dd-MM-yyyy HH:mm"/>
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <span class="fw-semibold">U:</span>
+                                            <fmt:formatDate value="${o.orderUpdatedAt}" pattern="dd-MM-yyyy HH:mm"/>
+                                        </small>
+                                    </td>
+
                                     <td>
                                         <a class="btn btn-sm btn-outline-primary"
                                            href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
