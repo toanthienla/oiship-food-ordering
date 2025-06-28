@@ -201,7 +201,7 @@
                                 <th>Amount</th>
                                 <th>Payment</th>
                                 <th>Status</th>
-                                <th>Created At</th>
+                                <th>Timestamps</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
@@ -250,7 +250,17 @@
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td><fmt:formatDate value="${o.orderCreatedAt}" pattern="dd-MM-yyyy HH:mm:ss"/></td>
+                                    <td class="text-start">
+                                        <small class="text-muted d-block">
+                                            <span class="fw-semibold">C:</span>
+                                            <fmt:formatDate value="${o.orderCreatedAt}" pattern="dd-MM-yyyy HH:mm"/>
+                                        </small>
+                                        <small class="text-muted d-block">
+                                            <span class="fw-semibold">U:</span>
+                                            <fmt:formatDate value="${o.orderUpdatedAt}" pattern="dd-MM-yyyy HH:mm"/>
+                                        </small>
+                                    </td>
+
                                     <td>
                                         <a class="btn btn-sm btn-outline-primary"
                                            href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
