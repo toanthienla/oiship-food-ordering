@@ -299,7 +299,6 @@ public class DishDAO extends DBContext {
         }
     }
 
-
     public int getDishStockByDishId(int dishID) throws SQLException {
         String sql = "SELECT stock FROM Dish WHERE DishID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -309,9 +308,10 @@ public class DishDAO extends DBContext {
                 return rs.getInt("stock");
             }
         }
-        return 0; 
-
+        return 0;
+    }
     //for staff create order
+
     public boolean updateStockAfterOrder(int dishID, int quantityOrdered) {
         String sql = "UPDATE Dish SET stock = stock - ? WHERE DishID = ? AND stock >= ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
