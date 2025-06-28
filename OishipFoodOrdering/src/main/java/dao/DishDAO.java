@@ -299,4 +299,16 @@ public class DishDAO extends DBContext {
         }
     }
 
+    public int getDishStockByDishId(int dishID) throws SQLException {
+        String sql = "SELECT stock FROM Dish WHERE DishID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, dishID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("stock");
+            }
+        }
+        return 0; // Không tìm thấy -> coi như hết hàng
+    }
+
 }

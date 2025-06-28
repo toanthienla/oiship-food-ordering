@@ -1,4 +1,4 @@
-package controller.cart;
+package controller.customer;
 
 import dao.CartDAO;
 import jakarta.servlet.ServletException;
@@ -28,6 +28,7 @@ public class ViewCartServlet extends HttpServlet {
             List<Cart> cartItems = cartDAO.getCartByCustomerId(customerID);
 
             request.setAttribute("cartItems", cartItems);
+
 
             request.getRequestDispatcher("/WEB-INF/views/customer/view_cart.jsp").forward(request, response);
         } catch (Exception e) {

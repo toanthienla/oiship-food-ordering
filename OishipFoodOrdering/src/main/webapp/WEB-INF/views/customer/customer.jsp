@@ -368,506 +368,551 @@
             .notification-link {
                 display: none;
             }
+            .sidebar .position-relative {
+                display: inline-block;
+                margin-bottom: 10px;
+            }
+            .cart-link {
+                position: relative;
+                display: inline-block;
+            }
+
+            .cart-badge {
+                position: absolute;
+                top: -3px;
+                left: 20px;
+                background-color: #c0392b;
+                color: white;
+                font-size: 12px;
+                padding: 2px 6px;
+                border-radius: 50%;
+                font-weight: bold;
+                line-height: 1;
+                min-width: 20px;
+                text-align: center;
+                box-shadow: 0 0 0 2px white;
+            }
+
+
+
         </style>
 
+    </style>
 
-    </head>
-    <body>
-        <div class="sidebar">
-            <div class="text-center mb-4">
-                <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
-                <h5 class="mt-2 text-orange">OISHIP</h5>
-            </div>
-            <a href="customer/view-vouchers-list"><i class="fas fa-tags me-2"></i>Vouchers</a>
-            <%
-                List<Cart> cartItems = (List<Cart>) session.getAttribute("cartItems");
-                int cartCount = (cartItems != null) ? cartItems.size() : 0;
-            %>
-            <a href="customer/view-cart">
-                <i class="fas fa-shopping-cart me-2"></i>
-                Cart
-                <span id="cart-count" class="badge bg-danger ms-1"></span>
-            </a>
-            <a href="customer/order"><i class="fas fa-list me-2"></i> Order</a>  
-            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>
 
+</head>
+<body>
+    <div class="sidebar">
+        <div class="text-center mb-4">
+            <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
+            <h5 class="mt-2 text-orange">OISHIP</h5>
         </div>
 
+        <a href="customer/view-vouchers-list">
+            <i class="fas fa-tags me-2"></i> Vouchers
+        </a>
+
+        <%
+            List<Cart> cartItems = (List<Cart>) session.getAttribute("cartItems");
+            int totalDishes = (cartItems != null) ? cartItems.size() : 0;
+        %>
+
+        <!-- Cart with badge -->
+        <a href="${pageContext.request.contextPath}/customer/view-cart" class="cart-link text-decoration-none position-relative">
+            <i class="fas fa-shopping-cart me-2"></i> Cart
+            <% if (totalDishes > 0) {%>
+            <span class="cart-badge">
+                <%= (totalDishes > 7) ? "5+" : totalDishes%>
+            </span>
+            <% }%>
+        </a>
 
 
 
-        <div class="main-content">
-            <nav class="navbar navbar-light bg-light p-2 mb-3">
-                <form id="dishSearchForm" class="d-flex search-bar" role="search">
-                    <input class="form-control me-2" type="text" id="searchQuery" placeholder="Search for dishes..." />
-                    <button class="btn btn-outline-success" type="submit">Find</button>
-                </form>
+        <a href="customer/order">
+            <i class="fas fa-list me-2"></i> Order
+        </a>
+
+        <a href="#contact">
+            <i class="fas fa-phone me-2"></i> Contact
+        </a>
+    </div>
 
 
-                <div class="d-flex align-items-center">
-                    <div class="dropdown me-3">
-                        <a class="text-decoration-none position-relative dropdown-toggle" href="#" role="button"
-                           id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-bell fa-lg"></i>
-                            <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
-                                <%= ((List<?>) request.getAttribute("notifications")) != null ? ((List<?>) request.getAttribute("notifications")).size() : 0%>
-                            </span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificationDropdown" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
-                            <%
-                                List<?> notifications = (List<?>) request.getAttribute("notifications");
-                                if (notifications != null && !notifications.isEmpty()) {
-                                    for (Object obj : notifications) {
-                                        model.Notification n = (model.Notification) obj;
-                            %>
-                            <li class="mb-1">
-                                <a href="#" 
-                                   class="dropdown-item text-wrap text-decoration-none" 
-                                   data-bs-toggle="modal" 
-                                   data-bs-target="#notificationModal"
-                                   data-title="<%= n.getNotTitle()%>"  
-                                   data-description="<%= n.getNotDescription()%>" 
-                                   data-id="<%= n.getNotID()%>">
-                                    <strong><%= n.getNotTitle()%></strong>
-                                </a>
-                            </li>
-                            <li><hr class="dropdown-divider"></li>
 
+
+    <div class="main-content">
+        <nav class="navbar navbar-light bg-light p-2 mb-3">
+            <form id="dishSearchForm" class="d-flex search-bar" role="search">
+                <input class="form-control me-2" type="text" id="searchQuery" placeholder="Search for dishes..." />
+                <button class="btn btn-outline-success" type="submit">Find</button>
+            </form>
+
+
+            <div class="d-flex align-items-center">
+                <div class="dropdown me-3">
+                    <a class="text-decoration-none position-relative dropdown-toggle" href="#" role="button"
+                       id="notificationDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-bell fa-lg"></i>
+                        <span class="badge rounded-pill bg-danger position-absolute top-0 start-100 translate-middle">
+                            <%= ((List<?>) request.getAttribute("notifications")) != null ? ((List<?>) request.getAttribute("notifications")).size() : 0%>
+                        </span>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end p-2" aria-labelledby="notificationDropdown" style="min-width: 300px; max-height: 400px; overflow-y: auto;">
+                        <%
+                            List<?> notifications = (List<?>) request.getAttribute("notifications");
+                            if (notifications != null && !notifications.isEmpty()) {
+                                for (Object obj : notifications) {
+                                    model.Notification n = (model.Notification) obj;
+                        %>
+                        <li class="mb-1">
+                            <a href="#" 
+                               class="dropdown-item text-wrap text-decoration-none" 
+                               data-bs-toggle="modal" 
+                               data-bs-target="#notificationModal"
+                               data-title="<%= n.getNotTitle()%>"  
+                               data-description="<%= n.getNotDescription()%>" 
+                               data-id="<%= n.getNotID()%>">
+                                <strong><%= n.getNotTitle()%></strong>
+                            </a>
+                        </li>
+                        <li><hr class="dropdown-divider"></li>
+
+                        <%
+                            }
+                        } else {
+                        %>
+                        <li><span class="dropdown-item-text text-muted">No new notifications.</span></li>
                             <%
                                 }
-                            } else {
                             %>
-                            <li><span class="dropdown-item-text text-muted">No new notifications.</span></li>
-                                <%
-                                    }
-                                %>
-                        </ul>
-                        <!-- Notification Modal -->
-                        <!-- Notification Modal -->
-                        <!-- Modal Thông Báo -->
-                        <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content rounded-4 shadow border-0">
-                                    <div class="modal-header" style="background-color: #ff6f00; color: white;">
-                                        <h5 class="modal-title fw-bold" id="modalTitle"></h5>
-                                        <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </ul>
+                    <!-- Notification Modal -->
+                    <!-- Notification Modal -->
+                    <!-- Modal Thông Báo -->
+                    <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+                        <div class="modal-dialog modal-dialog-centered">
+                            <div class="modal-content rounded-4 shadow border-0">
+                                <div class="modal-header" style="background-color: #ff6f00; color: white;">
+                                    <h5 class="modal-title fw-bold" id="modalTitle"></h5>
+                                    <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+                                </div>
+
+                                <form action="${pageContext.request.contextPath}/customer/mark-read" method="post">
+                                    <input type="hidden" name="notID" id="hiddenNotID" />
+                                    <div class="modal-body">
+                                        <p id="modalDescription" style="font-size: 1rem;"></p>
+                                        <!-- Input ẩn để gửi notID -->
+
                                     </div>
 
-                                    <form action="${pageContext.request.contextPath}/customer/mark-read" method="post">
-                                        <input type="hidden" name="notID" id="hiddenNotID" />
-                                        <div class="modal-body">
-                                            <p id="modalDescription" style="font-size: 1rem;"></p>
-                                            <!-- Input ẩn để gửi notID -->
-
-                                        </div>
-
-                                        <div class="modal-footer bg-light">
-                                            <button type="submit" class="btn" style="background-color: #ff6f00; color: white; font-weight: 500;">
-                                                Đã đọc
-                                            </button>
-                                        </div>
-                                    </form>
-                                </div>
+                                    <div class="modal-footer bg-light">
+                                        <button type="submit" class="btn" style="background-color: #ff6f00; color: white; font-weight: 500;">
+                                            Đã đọc
+                                        </button>
+                                    </div>
+                                </form>
                             </div>
                         </div>
-
-
-
                     </div>
 
 
-                    <div class="dropdown">
-                        <a class="dropdown-toggle text-decoration-none user-account" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user"></i>
-                            <div class="welcome-text">
-                                Welcome, <span><c:out value="${userName}" default="Guest" /></span>!
-                            </div>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <li><a class="dropdown-item" href="customer/profile">Profile</a></li>
-                            <li><a class="dropdown-item" href="logout">Log out</a></li>
-                        </ul>
-                    </div>
+
                 </div>
-            </nav>
 
 
-            <div class="hero-section">
-                <div class="content">
-                    <h1>Delicious meals delivered in just 30 minutes!</h1>
-                    <p>Discover hundreds of Vietnamese and international dishes with fast, reliable delivery service.</p>
-                    <button class="btn btn-custom me-2">Order Now</button>
-                    <button class="btn btn-outline-custom me-2">View Menu</button>
-                    <button class="btn btn-outline-custom">Download App</button>
+                <div class="dropdown">
+                    <a class="dropdown-toggle text-decoration-none user-account" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fas fa-user"></i>
+                        <div class="welcome-text">
+                            Welcome, <span><c:out value="${userName}" default="Guest" /></span>!
+                        </div>
+                    </a>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                        <li><a class="dropdown-item" href="customer/profile">Profile</a></li>
+                        <li><a class="dropdown-item" href="logout">Log out</a></li>
+                    </ul>
                 </div>
             </div>
+        </nav>
 
-            <!-- Menu Section -->
-            <div id="menu" class="menu-section">
-                <h2 class="mb-4">MENU</h2>
-                <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
-                    <button class="btn btn-outline-primary menu-btn active" onclick="loadDishesByCategory('all')">All</button>
 
-                    <%
-                        List<Category> categories = (List<Category>) request.getAttribute("categories");
-                        if (categories != null) {
-                            for (model.Category cat : categories) {
-                    %>
-                    <button class="btn btn-outline-primary menu-btn"
-                            onclick="loadDishesByCategory(<%= cat.getCatID()%>)">
-                        <%= cat.getCatName()%>
-                    </button>
-                    <%
-                            }
-                        }
-                    %>
-                </div>
+        <div class="hero-section">
+            <div class="content">
+                <h1>Delicious meals delivered in just 30 minutes!</h1>
+                <p>Discover hundreds of Vietnamese and international dishes with fast, reliable delivery service.</p>
+                <button class="btn btn-custom me-2">Order Now</button>
+                <button class="btn btn-outline-custom me-2">View Menu</button>
+                <button class="btn btn-outline-custom">Download App</button>
             </div>
-            <div id="dish-container">
-                <jsp:include page="dish_category.jsp" />
-            </div>
-
-            <!-- Pagination Controls -->
-            <div class="pagination-container">
-                <button id="prevPageBtn" class="page-btn rounded">&laquo;</button>
-                <div id="pageNumbers" class="d-flex gap-2"></div>
-                <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
-            </div>
-
-            <!-- Location Map Section -->
-            <div id="location" class="menu-section mt-4">
-                <h2 class="mb-4">Location Map</h2>
-                <div class="mb-3">
-                    <label for="locationInput" class="form-label">Enter Location:</label>
-                    <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
-                    <button class="btn btn-custom mt-2" onclick="geocodeAddress()">Search Location</button>
-                </div>
-                <div id="map"></div>
-            </div>
-
-            <!-- ... (phần cuối file giữ nguyên) ... -->
-
-            <!-- Thêm vào <head> -->
-            <style>
-                #map {
-                    height: 400px;
-                    width: 100%;
-                    margin-top: 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }
-            </style>
-            <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
-
-
-
-
-            <!-- Top Cart Success Alert with Animation -->
-            <%
-                Map<String, Object> cartSuccessDetails = (Map<String, Object>) session.getAttribute("cartSuccessDetails");
-                if (cartSuccessDetails != null) {
-                    session.removeAttribute("cartSuccessDetails"); // Clear session to avoid repeated display
-            %>
-            <div class="cart-success-alert" id="cartSuccessAlert">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <img src="<%= cartSuccessDetails.get("image")%>" alt="Dish Image" class="img-fluid">
-                    <div class="details">
-                        <span><strong><%= cartSuccessDetails.get("name")%></strong></span>
-                        <span>Quantity: <%= cartSuccessDetails.get("quantity")%></span>
-                        <br>
-                        <span>has been added to cart!</span>
-                    </div>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
-            </div>
-            <%
-                }
-            %>
-
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-            <script>
-                        // Animate and auto-disappear cart success alert
-                        document.addEventListener('DOMContentLoaded', function () {
-                            const alert = document.getElementById('cartSuccessAlert');
-                            if (alert) {
-                                // Add show class for animation
-                                setTimeout(() => alert.classList.add('show'), 10); // Slight delay to trigger transition
-
-                                // Auto-disappear after 3 seconds
-                                setTimeout(() => {
-                                    alert.classList.remove('show');
-                                    setTimeout(() => alert.remove(), 300); // Remove after fade-out
-                                }, 3000);
-                            }
-                        });
-            </script>
-
-
-
-            <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-            <!-- Thêm vào cuối <body> -->
-            <script>
-                        let map;
-                        function initMap() {
-                            const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
-                            map = new google.maps.Map(document.getElementById("map"), {
-                                center: defaultLocation,
-                                zoom: 12,
-                            });
-
-                            const input = document.getElementById("locationInput");
-                            const searchBox = new google.maps.places.SearchBox(input);
-
-                            map.addListener("bounds_changed", () => {
-                                searchBox.setBounds(map.getBounds());
-                            });
-
-                            searchBox.addListener("places_changed", () => {
-                                const places = searchBox.getPlaces();
-                                if (places.length == 0)
-                                    return;
-                                const place = places[0];
-                                if (!place.geometry || !place.geometry.location) {
-                                    console.log("No geometry available for this place");
-                                    return;
-                                }
-                                map.setCenter(place.geometry.location);
-                                map.setZoom(15);
-                                new google.maps.Marker({map, position: place.geometry.location});
-                            });
-                        }
-
-                        function geocodeAddress() {
-                            const geocoder = new google.maps.Geocoder();
-                            const address = document.getElementById("locationInput").value;
-                            geocoder.geocode({address: address}, (results, status) => {
-                                if (status === "OK") {
-                                    map.setCenter(results[0].geometry.location);
-                                    map.setZoom(15);
-                                    new google.maps.Marker({map: map, position: results[0].geometry.location});
-                                } else {
-                                    alert("Geocode was not successful for the following reason: " + status);
-                                }
-                            });
-                        }
-            </script>
-
         </div>
 
+        <!-- Menu Section -->
+        <div id="menu" class="menu-section">
+            <h2 class="mb-4">MENU</h2>
+            <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
+                <button class="btn btn-outline-primary menu-btn active" onclick="loadDishesByCategory('all')">All</button>
 
-
-        <!-- 💡 Đặt modal rỗng tại đây -->
-        <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-                <div class="modal-content" id="dishDetailContent">
-                    <!-- Nội dung chi tiết sẽ được load bằng AJAX -->
-                </div>
+                <%
+                    List<Category> categories = (List<Category>) request.getAttribute("categories");
+                    if (categories != null) {
+                        for (model.Category cat : categories) {
+                %>
+                <button class="btn btn-outline-primary menu-btn"
+                        onclick="loadDishesByCategory(<%= cat.getCatID()%>)">
+                    <%= cat.getCatName()%>
+                </button>
+                <%
+                        }
+                    }
+                %>
             </div>
         </div>
-        <script>
-            function openDishDetail(dishId) {
-                fetch('<%=request.getContextPath()%>/customer/dish-detail', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                    body: 'dishId=' + dishId
-                })
-                        .then(response => response.text())
-                        .then(html => {
-                            document.getElementById('dishDetailContent').innerHTML = html;
-                            new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
-                        })
-                        .catch(error => console.error('Error loading dish detail:', error));
+        <div id="dish-container">
+            <jsp:include page="dish_category.jsp" />
+        </div>
+
+        <!-- Pagination Controls -->
+        <div class="pagination-container">
+            <button id="prevPageBtn" class="page-btn rounded">&laquo;</button>
+            <div id="pageNumbers" class="d-flex gap-2"></div>
+            <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
+        </div>
+
+        <!-- Location Map Section -->
+        <div id="location" class="menu-section mt-4">
+            <h2 class="mb-4">Location Map</h2>
+            <div class="mb-3">
+                <label for="locationInput" class="form-label">Enter Location:</label>
+                <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
+                <button class="btn btn-custom mt-2" onclick="geocodeAddress()">Search Location</button>
+            </div>
+            <div id="map"></div>
+        </div>
+
+        <!-- ... (phần cuối file giữ nguyên) ... -->
+
+        <!-- Thêm vào <head> -->
+        <style>
+            #map {
+                height: 400px;
+                width: 100%;
+                margin-top: 20px;
+                border-radius: 10px;
+                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             }
+        </style>
+        <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
+
+
+
+
+        <!-- Top Cart Success Alert with Animation -->
+        <%
+            Map<String, Object> cartSuccessDetails = (Map<String, Object>) session.getAttribute("cartSuccessDetails");
+            if (cartSuccessDetails != null) {
+                session.removeAttribute("cartSuccessDetails"); // Clear session to avoid repeated display
+%>
+        <div class="cart-success-alert" id="cartSuccessAlert">
+            <div class="alert alert-success alert-dismissible fade show" role="alert">
+                <img src="<%= cartSuccessDetails.get("image")%>" alt="Dish Image" class="img-fluid">
+                <div class="details">
+                    <span><strong><%= cartSuccessDetails.get("name")%></strong></span>
+                    <span>Quantity: <%= cartSuccessDetails.get("quantity")%></span>
+                    <br>
+                    <span>has been added to cart!</span>
+                </div>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            </div>
+        </div>
+        <%
+            }
+        %>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+                    // Animate and auto-disappear cart success alert
+                    document.addEventListener('DOMContentLoaded', function () {
+                        const alert = document.getElementById('cartSuccessAlert');
+                        if (alert) {
+                            // Add show class for animation
+                            setTimeout(() => alert.classList.add('show'), 10); // Slight delay to trigger transition
+
+                            // Auto-disappear after 3 seconds
+                            setTimeout(() => {
+                                alert.classList.remove('show');
+                                setTimeout(() => alert.remove(), 300); // Remove after fade-out
+                            }, 3000);
+                        }
+                    });
         </script>
 
-        <!-- 💡 xử lí load category -->
-        <script>
-            function loadDishesByCategory(catId) {
-                document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-                event.target.classList.add('active');
 
-                fetch('<%= request.getContextPath()%>/customer/dish-detail', {
-                    method: 'POST',
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Thêm vào cuối <body> -->
+        <script>
+                    let map;
+                    function initMap() {
+                        const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
+                        map = new google.maps.Map(document.getElementById("map"), {
+                            center: defaultLocation,
+                            zoom: 12,
+                        });
+
+                        const input = document.getElementById("locationInput");
+                        const searchBox = new google.maps.places.SearchBox(input);
+
+                        map.addListener("bounds_changed", () => {
+                            searchBox.setBounds(map.getBounds());
+                        });
+
+                        searchBox.addListener("places_changed", () => {
+                            const places = searchBox.getPlaces();
+                            if (places.length == 0)
+                                return;
+                            const place = places[0];
+                            if (!place.geometry || !place.geometry.location) {
+                                console.log("No geometry available for this place");
+                                return;
+                            }
+                            map.setCenter(place.geometry.location);
+                            map.setZoom(15);
+                            new google.maps.Marker({map, position: place.geometry.location});
+                        });
+                    }
+
+                    function geocodeAddress() {
+                        const geocoder = new google.maps.Geocoder();
+                        const address = document.getElementById("locationInput").value;
+                        geocoder.geocode({address: address}, (results, status) => {
+                            if (status === "OK") {
+                                map.setCenter(results[0].geometry.location);
+                                map.setZoom(15);
+                                new google.maps.Marker({map: map, position: results[0].geometry.location});
+                            } else {
+                                alert("Geocode was not successful for the following reason: " + status);
+                            }
+                        });
+                    }
+        </script>
+
+    </div>
+
+
+
+    <!-- 💡 Đặt modal rỗng tại đây -->
+    <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content" id="dishDetailContent">
+                <!-- Nội dung chi tiết sẽ được load bằng AJAX -->
+            </div>
+        </div>
+    </div>
+    <script>
+        function openDishDetail(dishId) {
+            fetch('<%=request.getContextPath()%>/customer/dish-detail', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'dishId=' + dishId
+            })
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('dishDetailContent').innerHTML = html;
+                        new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
+                    })
+                    .catch(error => console.error('Error loading dish detail:', error));
+        }
+    </script>
+
+    <!-- 💡 xử lí load category -->
+    <script>
+        function loadDishesByCategory(catId) {
+            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+
+            fetch('<%= request.getContextPath()%>/customer/dish-detail', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded'
+                },
+                body: 'catId=' + catId
+            })
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('dish-container').innerHTML = html;
+                    })
+                    .catch(error => {
+                        console.error('Error loading dishes:', error);
+                    });
+        }
+
+    </script>      
+
+
+
+
+
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("dishSearchForm");
+            const input = document.getElementById("searchQuery");
+            const dishContainer = document.getElementById("dish-container");
+
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // Ngăn form reload
+
+                const query = input.value.trim();
+
+                fetch("<%=request.getContextPath()%>/customer/search-dish", {
+                    method: "POST",
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded'
+                        "Content-Type": "application/x-www-form-urlencoded"
                     },
-                    body: 'catId=' + catId
+                    body: new URLSearchParams({
+                        searchQuery: query
+                    })
                 })
                         .then(response => response.text())
-                        .then(html => {
-                            document.getElementById('dish-container').innerHTML = html;
+                        .then(data => {
+                            dishContainer.innerHTML = data;
                         })
                         .catch(error => {
-                            console.error('Error loading dishes:', error);
+                            console.error("Search error:", error);
                         });
+            });
+        });
+    </script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            const itemsPerPage = 15;
+            const dishes = Array.from(document.querySelectorAll(".dish-item"));
+            const totalPages = Math.ceil(dishes.length / itemsPerPage);
+            let currentPage = 1;
+
+            const prevBtn = document.getElementById("prevPageBtn");
+            const nextBtn = document.getElementById("nextPageBtn");
+            const pageNumbers = document.getElementById("pageNumbers");
+
+            function showPage(page) {
+                dishes.forEach((item, index) => {
+                    item.style.display = "none";
+                });
+                const start = (page - 1) * itemsPerPage;
+                const end = start + itemsPerPage;
+                dishes.slice(start, end).forEach(item => {
+                    item.style.display = "block";
+                });
+
+                // Update active page button
+                document.querySelectorAll("#pageNumbers button").forEach(btn => {
+                    btn.classList.remove("btn-primary");
+                    btn.classList.add("btn-outline-primary");
+                });
+                const activeBtn = document.querySelector(`#pageBtn${page}`);
+                if (activeBtn) {
+                    activeBtn.classList.add("btn-primary");
+                    activeBtn.classList.remove("btn-outline-primary");
+                }
+
+                // Disable prev/next
+                prevBtn.disabled = page === 1;
+                nextBtn.disabled = page === totalPages;
             }
 
-        </script>      
+            function createPagination() {
+                pageNumbers.innerHTML = "";
 
+                const maxVisible = 5;
+                let startPage = Math.max(currentPage - 2, 1);
+                let endPage = Math.min(startPage + maxVisible - 1, totalPages);
 
-
-
-
-        <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const form = document.getElementById("dishSearchForm");
-                const input = document.getElementById("searchQuery");
-                const dishContainer = document.getElementById("dish-container");
-
-                form.addEventListener("submit", function (event) {
-                    event.preventDefault(); // Ngăn form reload
-
-                    const query = input.value.trim();
-
-                    fetch("<%=request.getContextPath()%>/customer/search-dish", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: new URLSearchParams({
-                            searchQuery: query
-                        })
-                    })
-                            .then(response => response.text())
-                            .then(data => {
-                                dishContainer.innerHTML = data;
-                            })
-                            .catch(error => {
-                                console.error("Search error:", error);
-                            });
-                });
-            });
-        </script>
-
-        <script>
-            document.addEventListener('DOMContentLoaded', () => {
-                const itemsPerPage = 15;
-                const dishes = Array.from(document.querySelectorAll(".dish-item"));
-                const totalPages = Math.ceil(dishes.length / itemsPerPage);
-                let currentPage = 1;
-
-                const prevBtn = document.getElementById("prevPageBtn");
-                const nextBtn = document.getElementById("nextPageBtn");
-                const pageNumbers = document.getElementById("pageNumbers");
-
-                function showPage(page) {
-                    dishes.forEach((item, index) => {
-                        item.style.display = "none";
-                    });
-                    const start = (page - 1) * itemsPerPage;
-                    const end = start + itemsPerPage;
-                    dishes.slice(start, end).forEach(item => {
-                        item.style.display = "block";
-                    });
-
-                    // Update active page button
-                    document.querySelectorAll("#pageNumbers button").forEach(btn => {
-                        btn.classList.remove("btn-primary");
-                        btn.classList.add("btn-outline-primary");
-                    });
-                    const activeBtn = document.querySelector(`#pageBtn${page}`);
-                    if (activeBtn) {
-                        activeBtn.classList.add("btn-primary");
-                        activeBtn.classList.remove("btn-outline-primary");
-                    }
-
-                    // Disable prev/next
-                    prevBtn.disabled = page === 1;
-                    nextBtn.disabled = page === totalPages;
+                if (endPage - startPage < maxVisible - 1) {
+                    startPage = Math.max(endPage - maxVisible + 1, 1);
                 }
 
-                function createPagination() {
-                    pageNumbers.innerHTML = "";
-
-                    const maxVisible = 5;
-                    let startPage = Math.max(currentPage - 2, 1);
-                    let endPage = Math.min(startPage + maxVisible - 1, totalPages);
-
-                    if (endPage - startPage < maxVisible - 1) {
-                        startPage = Math.max(endPage - maxVisible + 1, 1);
-                    }
-
-                    if (startPage > 1) {
-                        appendPageButton(1);
-                        if (startPage > 2) {
-                            pageNumbers.appendChild(createDots());
-                        }
-                    }
-
-                    for (let i = startPage; i <= endPage; i++) {
-                        appendPageButton(i);
-                    }
-
-                    if (endPage < totalPages) {
-                        if (endPage < totalPages - 1) {
-                            pageNumbers.appendChild(createDots());
-                        }
-                        appendPageButton(totalPages);
+                if (startPage > 1) {
+                    appendPageButton(1);
+                    if (startPage > 2) {
+                        pageNumbers.appendChild(createDots());
                     }
                 }
 
-                function appendPageButton(i) {
-                    const btn = document.createElement("button");
-                    btn.textContent = i;
-                    btn.className = (i === currentPage) ? "active" : "";
-                    btn.addEventListener("click", () => {
-                        currentPage = i;
-                        showPage(currentPage);
-                        createPagination();
-                    });
-                    pageNumbers.appendChild(btn);
+                for (let i = startPage; i <= endPage; i++) {
+                    appendPageButton(i);
                 }
 
-                function createDots() {
-                    const dots = document.createElement("span");
-                    dots.textContent = "...";
-                    dots.className = "pagination-dots";
-                    return dots;
+                if (endPage < totalPages) {
+                    if (endPage < totalPages - 1) {
+                        pageNumbers.appendChild(createDots());
+                    }
+                    appendPageButton(totalPages);
                 }
-
-
-                prevBtn.addEventListener("click", () => {
-                    if (currentPage > 1) {
-                        currentPage--;
-                        showPage(currentPage);
-                    }
-                });
-
-                nextBtn.addEventListener("click", () => {
-                    if (currentPage < totalPages) {
-                        currentPage++;
-                        showPage(currentPage);
-                    }
-                });
-
-                createPagination();
-                showPage(currentPage);
-            });
-        </script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-        <script>
-            const contextPath = '<%= request.getContextPath()%>';
-
-            const notificationModal = document.getElementById('notificationModal');
-            if (notificationModal) {
-                notificationModal.addEventListener('show.bs.modal', function (event) {
-                    const link = event.relatedTarget;
-                    if (!link)
-                        return;
-
-                    const title = link.getAttribute('data-title');
-                    const desc = link.getAttribute('data-description');
-                    const id = link.getAttribute('data-id');
-
-                    document.getElementById('modalTitle').textContent = title;
-                    document.getElementById('modalDescription').textContent = desc;
-
-
-                });
             }
-        </script>
-        <script>
+
+            function appendPageButton(i) {
+                const btn = document.createElement("button");
+                btn.textContent = i;
+                btn.className = (i === currentPage) ? "active" : "";
+                btn.addEventListener("click", () => {
+                    currentPage = i;
+                    showPage(currentPage);
+                    createPagination();
+                });
+                pageNumbers.appendChild(btn);
+            }
+
+            function createDots() {
+                const dots = document.createElement("span");
+                dots.textContent = "...";
+                dots.className = "pagination-dots";
+                return dots;
+            }
+
+
+            prevBtn.addEventListener("click", () => {
+                if (currentPage > 1) {
+                    currentPage--;
+                    showPage(currentPage);
+                }
+            });
+
+            nextBtn.addEventListener("click", () => {
+                if (currentPage < totalPages) {
+                    currentPage++;
+                    showPage(currentPage);
+                }
+            });
+
+            createPagination();
+            showPage(currentPage);
+        });
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <script>
+        const contextPath = '<%= request.getContextPath()%>';
+
+        const notificationModal = document.getElementById('notificationModal');
+        if (notificationModal) {
+            notificationModal.addEventListener('show.bs.modal', function (event) {
+                const link = event.relatedTarget;
+                if (!link)
+                    return;
+
+                const title = link.getAttribute('data-title');
+                const desc = link.getAttribute('data-description');
+                const id = link.getAttribute('data-id');
+
+                document.getElementById('modalTitle').textContent = title;
+                document.getElementById('modalDescription').textContent = desc;
+
+
+            });
+        }
+    </script>
+    <script>
 //            const notificationModal = document.getElementById('notificationModal');
 //            notificationModal.addEventListener('show.bs.modal', function (event) {
 //                const button = event.relatedTarget;
@@ -885,35 +930,35 @@
 //                // Submit form ngay khi mở modal (hoặc có thể chuyển sang nhấn nút "Đã đọc")
 //                document.getElementById('markReadForm').submit();
 //            });
-        </script>
+    </script>
 
-        <script>
-            document.addEventListener("DOMContentLoaded", function () {
-                const notificationModal = document.getElementById("notificationModal");
-                const modalTitle = document.getElementById("modalTitle");
-                const modalDescription = document.getElementById("modalDescription");
-                const hiddenNotID = document.getElementById("hiddenNotID");
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const notificationModal = document.getElementById("notificationModal");
+            const modalTitle = document.getElementById("modalTitle");
+            const modalDescription = document.getElementById("modalDescription");
+            const hiddenNotID = document.getElementById("hiddenNotID");
 
-                // Lắng nghe sự kiện khi modal được hiển thị
-                notificationModal.addEventListener('show.bs.modal', function (event) {
-                    const triggerElement = event.relatedTarget; // Phần tử a.dropdown-item được click
+            // Lắng nghe sự kiện khi modal được hiển thị
+            notificationModal.addEventListener('show.bs.modal', function (event) {
+                const triggerElement = event.relatedTarget; // Phần tử a.dropdown-item được click
 
-                    const title = triggerElement.getAttribute("data-title");
-                    const description = triggerElement.getAttribute("data-description");
-                    const notID = triggerElement.getAttribute("data-id");
+                const title = triggerElement.getAttribute("data-title");
+                const description = triggerElement.getAttribute("data-description");
+                const notID = triggerElement.getAttribute("data-id");
 
-                    modalTitle.textContent = title;
-                    modalDescription.textContent = description;
-                    hiddenNotID.value = notID;
-                });
+                modalTitle.textContent = title;
+                modalDescription.textContent = description;
+                hiddenNotID.value = notID;
             });
-        </script>
+        });
+    </script>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 
 
 
 
-    </body>
+</body>
 </html>
