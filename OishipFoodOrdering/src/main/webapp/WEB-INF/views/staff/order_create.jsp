@@ -166,22 +166,28 @@
 
                     <!-- Form tạo đơn hàng -->
                     <form action="${pageContext.request.contextPath}/staff/manage-orders/create-order" method="post">
-                        <!-- Nhập tên khách + Nút tạo đơn -->
-                        <div class="mb-4 row">
-                            <!-- Customer Name -->
-                            <div class="col-md-6 mx-auto d-flex align-items-center mb-3">
+                        <!-- Nhập tên khách + Nút tạo đơn + Tổng tiền -->
+                        <div class="row align-items-center mb-4">
+                            <!-- Nhập tên khách -->
+                            <div class="col-md-5 d-flex align-items-center">
                                 <label class="me-2 fw-semibold mb-0 flex-shrink-0">Customer Name:</label>
                                 <input type="text" name="customerName" class="form-control" placeholder="Enter customer full name" required />
                             </div>
 
-                            <!-- Button -->
-                            <div class="col-md-6 mx-auto">
-                                <div class="d-flex justify-content-between">
-                                    <a href="${pageContext.request.contextPath}/staff/manage-orders/create-order"
-                                       class="btn btn-secondary w-50 me-2">
+                            <!-- Tổng tiền -->
+                            <div class="col-md-4 text-end">
+                                <h6 class="mb-0 fw-semibold">
+                                    Total: <span class="text-success fw-bold" id="totalAmount">0</span> VNĐ
+                                </h6>
+                            </div>
+
+                            <!-- Nút tạo đơn -->
+                            <div class="col-md-3 text-end">
+                                <div class="d-flex justify-content-end">
+                                    <a href="${pageContext.request.contextPath}/staff/manage-orders/create-order" class="btn btn-secondary me-2">
                                         Reset
                                     </a>
-                                    <button type="submit" class="btn btn-success w-50">
+                                    <button type="submit" class="btn btn-success">
                                         <i class="bi bi-plus-circle"></i> Create Order
                                     </button>
                                 </div>
@@ -234,9 +240,11 @@
                                             <td>${dish.dishName}</td>
                                             <td>${dish.category.catName}</td>
                                             <td>
-                                                <img src="${dish.image}" alt="${dish.dishName}" width="60" height="60" class="dish-image" />
+                                                <img src="${dish.image}" alt="${dish.dishName}" width="80" height="50" class="dish-image" />
                                             </td>
-                                            <td>${dish.formattedPrice}</td>
+                                            <td data-price="${dish.formattedPrice.replaceAll('[^\\d]', '')}" class="price-cell">
+                                                ${dish.formattedPrice}
+                                            </td>
                                             <td class="stock-cell">${dish.stock}</td>
                                             <td>
                                                 <input type="number" name="quantity_${dish.dishID}" class="form-control" min="0" max="${dish.stock}" value="0" />
@@ -280,6 +288,29 @@
 
                     searchInput.addEventListener("input", filterDishes);
                     categoryFilter.addEventListener("change", filterDishes);
+                });
+                
+                //tính tổng tiền
+                document.addEventListener("DOMContentLoaded", () => {
+                    const quantityInputs = document.querySelectorAll("input[name^='quantity_']");
+                    const totalAmountElement = document.getElementById("totalAmount");
+
+                    function calculateTotal() {
+                        let total = 0;
+                        quantityInputs.forEach(input => {
+                            const quantity = parseInt(input.value) || 0;
+                            const priceCell = input.closest("tr").querySelector(".price-cell");
+                            const price = parseInt(priceCell?.getAttribute("data-price") || "0");
+                            total += quantity * price;
+                        });
+                        totalAmountElement.textContent = total.toLocaleString("vi-VN");
+                    }
+
+                    quantityInputs.forEach(input => {
+                        input.addEventListener("input", calculateTotal);
+                    });
+
+                    calculateTotal(); // tính lần đầu khi trang load
                 });
             </script>
 
