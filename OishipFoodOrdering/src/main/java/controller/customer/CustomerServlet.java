@@ -71,7 +71,7 @@ public class CustomerServlet extends HttpServlet {
 
         // Get existing notifications
         NotificationDAO notificationDAO = new NotificationDAO();
-        List<Notification> notifications = notificationDAO.getAllNotifications();
+        List<Notification> notifications = notificationDAO.getUnreadNotificationsByCustomer(userId);
         request.setAttribute("notifications", notifications);
 
         // Pass cart success message if present
