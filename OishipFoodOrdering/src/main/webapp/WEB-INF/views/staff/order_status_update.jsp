@@ -305,6 +305,22 @@
                                     </c:otherwise>
                                 </c:choose>
                             </p>
+                            <p><strong>Payment:</strong>
+                                <c:choose>
+                                    <c:when test="${orderDetails[0].paymentStatus == 0}">
+                                        <span class="badge rounded-pill text-bg-danger">Unpaid</span>
+                                    </c:when>
+                                    <c:when test="${orderDetails[0].paymentStatus == 1}">
+                                        <span class="badge rounded-pill text-bg-success">Paid</span>
+                                    </c:when>
+                                    <c:when test="${orderDetails[0].paymentStatus == 2}">
+                                        <span class="badge rounded-pill text-bg-warning text-dark">Refunded</span>
+                                    </c:when>
+                                    <c:otherwise>
+                                        <span class="badge rounded-pill text-bg-secondary">Unknown</span>
+                                    </c:otherwise>
+                                </c:choose>
+                            </p>
                             <p><strong>Status:</strong>
                                 <c:choose>
                                     <c:when test="${orderDetails[0].orderStatus == 0}">Pending</c:when>

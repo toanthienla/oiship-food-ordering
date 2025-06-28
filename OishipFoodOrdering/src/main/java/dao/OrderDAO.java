@@ -65,7 +65,7 @@ public class OrderDAO extends DBContext {
 
         String sql = "SELECT od.ODID, od.quantity, "
                 + "d.DishID, d.DishName, d.DishDescription, d.image, d.opCost, d.interestPercentage, "
-                + "o.orderStatus, o.orderCreatedAt, o.amount, " // ✅ Thêm o.amount
+                + "o.orderStatus, o.paymentStatus, o.orderCreatedAt, o.amount, "
                 + "c.customerID, a.fullName AS customerName, c.phone, c.address, "
                 + "v.code AS voucherCode, v.discount, v.discountType "
                 + "FROM OrderDetail od "
@@ -94,6 +94,7 @@ public class OrderDAO extends DBContext {
                 detail.setDishDescription(rs.getString("DishDescription"));
                 detail.setDishImage(rs.getString("image"));
                 detail.setOrderStatus(rs.getInt("orderStatus"));
+                detail.setPaymentStatus(rs.getInt("paymentStatus"));
                 detail.setCreateAt(rs.getTimestamp("orderCreatedAt"));
                 detail.setCustomerName(rs.getString("customerName"));
                 detail.setPhone(rs.getString("phone"));
@@ -102,11 +103,9 @@ public class OrderDAO extends DBContext {
                 detail.setVoucherCode(rs.getString("voucherCode"));
                 detail.setDiscount(rs.getBigDecimal("discount"));
                 detail.setDiscountType(rs.getString("discountType"));
-
-                //Thêm amount
                 detail.setAmount(rs.getBigDecimal("amount"));
 
-                // Tính giá
+                // Tính đơn giá
                 BigDecimal opCost = rs.getBigDecimal("opCost");
                 BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
                 List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishID);

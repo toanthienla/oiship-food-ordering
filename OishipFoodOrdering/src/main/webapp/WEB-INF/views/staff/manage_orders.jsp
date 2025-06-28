@@ -199,6 +199,7 @@
                                 <th>Customer</th>
                                 <th>Voucher</th>
                                 <th>Amount</th>
+                                <th>Payment</th>
                                 <th>Status</th>
                                 <th>Created At</th>
                                 <th>Action</th>
@@ -221,6 +222,22 @@
                                         </c:choose>
                                     </td>
                                     <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/> VNĐ</td>
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${o.paymentStatus == 0}">
+                                                <span class="badge rounded-pill text-bg-danger">Unpaid</span>
+                                            </c:when>
+                                            <c:when test="${o.paymentStatus == 1}">
+                                                <span class="badge rounded-pill text-bg-success">Paid</span>
+                                            </c:when>
+                                            <c:when test="${o.paymentStatus == 2}">
+                                                <span class="badge rounded-pill text-bg-warning text-dark">Refunded</span>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="badge rounded-pill text-bg-secondary">Unknown</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
                                     <td>
                                         <c:choose>
                                             <c:when test="${o.orderStatus == 0}">Pending</c:when>
