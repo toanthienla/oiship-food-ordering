@@ -4,9 +4,7 @@
 <%@page import="java.util.List"%>
 <%@ page contentType="text/html;charset=UTF-8" %>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@page import="model.Dish"%>
-<%@page import="java.text.SimpleDateFormat"%>
-<%@page import="java.util.List"%>
+
 <!DOCTYPE html>
 <html lang="en">
     <head>
@@ -14,7 +12,6 @@
         <title>Dish Detail</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-
         <style>
             .dish-detail-img {
                 max-width: 350px;
@@ -83,7 +80,6 @@
 
                 if (dish == null) {
             %>
-            
             <div class="text-center mt-5">
                 <a href="home.jsp" class="btn btn-secondary mt-3">Back to Home</a>
             </div>
@@ -112,44 +108,40 @@
                     <% if (dish.getAvgRating() != null) {%>
                     <p><strong>Average Rating:</strong> <%= dish.getAvgRating()%>/5
                         <% for (int i = 1; i <= 5; i++) {
-                                if (dish.getAvgRating() != null && i <= dish.getAvgRating().intValue()) { %>
+                                if (i <= dish.getAvgRating().intValue()) { %>
                         <i class="fa-solid fa-star star"></i>
                         <% } else { %>
                         <i class="fa-regular fa-star star"></i>
-                        <% } %>
-                        <% } %>
+                        <% }
+                            } %>
                     </p>
                     <% }%>
 
                     <!-- Form Add to Cart -->
-                    <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3">
+                    <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3"  onsubmit="return validateBeforeSubmit()">
                         <input type="hidden" name="dishID" value="<%= dish.getDishID()%>" />
 
                         <div class="mb-3 d-flex align-items-center gap-2">
-                            <label for="quantityInput" class="form-label mb-0 me-2">Quantity:</label>
-                            <!-- Quantity input -->
-                            <input type="number" name="quantity" id="quantityInput" value="1" min="1" max="10"
-                                   class="form-control text-center" style="width: 80px;" required>
-                            <script>
-                                function changeQty(delta, event) {
-                                    if (event)
-                                        event.preventDefault(); // NGĂN hành vi mặc định
-
-                                    const input = document.getElementById("quantityInput");
-                                    let value = parseInt(input.value) || 1;
-                                    value += delta;
-                                    if (value < 1)
-                                        value = 1;
-                                    input.value = value;
-                                }
-                            </script>
+                            <label for="quantityInput" class="form-label mb-0 me-2">Quantity:</label>                       
+                            <input type="number"
+                                   name="quantity"
+                                   id="quantityInput"
+                                   value="1"
+                                   min="1"
+                                   max="10"
+                                   data-stock="<%= dish.getStock()%>"
+                                   class="form-control text-center"
+                                   style="width: 80px;"
+                                   required
+                                   oninput="validateQty(this)">
                         </div>
+
                         <button type="submit" class="btn-custom">Add to Cart</button>
                     </form>
                 </div>
             </div>
-                        
-                           <!-- Reviews Section -->
+
+            <!-- Reviews Section -->
             <div class="mt-5">
                 <h4>Recent Reviews:</h4>
                 <% if (reviews != null && !reviews.isEmpty()) { %>
@@ -161,7 +153,7 @@
                         <strong><%= r.getCustomerName()%></strong>
                         <span class="ms-2 text-warning">
                             <% for (int i = 0; i < r.getRating(); i++) { %>
-                            <i class="fa-solid fa-star"  style="color: #ff6200;"></i>
+                            <i class="fa-solid fa-star" style="color: #ff6200;"></i>
                             <% }%>
                         </span>
                         <small class="text-muted float-end"><%= sdf.format(r.getReviewCreatedAt())%></small>
@@ -174,10 +166,70 @@
                 <p class="text-muted mt-3">No reviews yet for this dish.</p>
                 <% } %>
             </div>
+
             <% }%>
         </div>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Scripts -->
+        <script>
+            function validateQty(input) {
+                let maxStock = parseInt(input.getAttribute("data-stock"));
+                if (isNaN(maxStock))
+                    maxStock = 0;
 
+                let qty = parseInt(input.value) || 1;
+
+                if (qty > 10) {
+                    qty = 10;
+                    alert("The maximum quantity is 10.");
+                }
+
+                if (qty > maxStock) {
+                    qty = maxStock;
+                    alert("Only " + maxStock + " items in stock.");
+                }
+
+                if (qty < 1) {
+                    qty = 1;
+                    alert("Quantity must be at least 1.");
+                }
+
+                input.value = qty;
+            }
+
+
+            function validateBeforeSubmit() {
+                const input = document.getElementById("quantityInput");
+                let maxStock = parseInt(input.getAttribute("data-stock"));
+                if (isNaN(maxStock))
+                    maxStock = 0;
+
+                let qty = parseInt(input.value);
+
+                if (isNaN(qty) || qty < 1) {
+                    alert("Quantity must be at least 1.");
+                    input.value = 1;
+                    return false;
+                }
+
+                if (qty > 10) {
+                    alert("The maximum quantity is 10.");
+                    input.value = 10;
+                    return false;
+                }
+
+                if (qty > maxStock) {
+                    alert("Only " + maxStock + " items in stock.");
+                    input.value = maxStock;
+                    return false;
+                }
+
+                return true;
+            }
+
+        </script>
+
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

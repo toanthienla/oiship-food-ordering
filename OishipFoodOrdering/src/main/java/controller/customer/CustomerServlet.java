@@ -1,6 +1,7 @@
 package controller.customer;
 
 import dao.AccountDAO;
+import dao.CartDAO;
 import dao.CategoryDAO;
 import dao.DishDAO;
 import dao.NotificationDAO;
@@ -13,7 +14,11 @@ import model.Dish;
 import model.Notification;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
+import java.util.logging.Level;
+import java.util.logging.Logger;
+import model.Cart;
 
 @WebServlet(name = "CustomerServlet", urlPatterns = {"/customer"})
 public class CustomerServlet extends HttpServlet {
@@ -45,7 +50,7 @@ public class CustomerServlet extends HttpServlet {
         }
 
         // Get customer information using email stored in session
-        int userId = (int) session.getAttribute("userId");
+        // int userId = (int) session.getAttribute("userId");
         AccountDAO accountDAO = new AccountDAO();
         Account account = accountDAO.findByEmail((String) session.getAttribute("email"));
         if (account != null) {
@@ -54,7 +59,7 @@ public class CustomerServlet extends HttpServlet {
         } else {
             request.setAttribute("error", "Account not found.");
         }
-
+        int userId = account.getAccountID();
         // Refresh remember_me cookie if present
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -71,7 +76,7 @@ public class CustomerServlet extends HttpServlet {
 
         // Get existing notifications
         NotificationDAO notificationDAO = new NotificationDAO();
-        List<Notification> notifications = notificationDAO.getAllNotifications();
+        List<Notification> notifications = notificationDAO.getUnreadNotificationsByCustomer(userId);
         request.setAttribute("notifications", notifications);
 
         // Pass cart success message if present
@@ -79,6 +84,16 @@ public class CustomerServlet extends HttpServlet {
         if (cartSuccessMessage != null) {
             request.setAttribute("cartSuccessMessage", cartSuccessMessage);
         }
+
+        CartDAO cartDAO = new CartDAO();
+        List<Cart> cartItems = null;
+        try {
+            cartItems = cartDAO.getCartByCustomerId(userId);
+        } catch (SQLException ex) {
+            Logger.getLogger(CustomerServlet.class.getName()).log(Level.SEVERE, null, ex);
+        }
+
+        session.setAttribute("cartItems", cartItems); // ✅
 
         request.getRequestDispatcher("/WEB-INF/views/customer/customer.jsp").forward(request, response);
     }

@@ -1,4 +1,4 @@
-package controller.cart;
+package controller.customer;
 
 import dao.CartDAO;
 import dao.DishDAO;
@@ -71,6 +71,13 @@ public class AddCartServlet extends HttpServlet {
             if (existingItem != null) {
                 cartDAO.updateQuantity(customerID, dishID, existingItem.getQuantity() + quantity);
             } else {
+                int stock = dishDAO.getDishStockByDishId(dishID);
+                if (quantity > stock) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.setContentType("application/json");
+                    response.getWriter().write("{\"error\":\"Số lượng vượt quá tồn kho. Chỉ còn " + stock + " món.\"}");
+                    return;
+                }
                 cartDAO.addToCart(customerID, dishID, quantity);
             }
 

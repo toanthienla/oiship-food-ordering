@@ -183,6 +183,7 @@ CREATE TABLE [Notification] (
 	CREATE TABLE CustomertNotification (
 		customerID INT,
 		notID INT,	
+		isRead BIT DEFAULT 0,
 		PRIMARY KEY (customerID, notID),
 		FOREIGN KEY (customerID) REFERENCES Customer(customerID),
 		FOREIGN KEY (notID) REFERENCES Notification(notID)

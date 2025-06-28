@@ -68,8 +68,46 @@ public class NotificationDAO extends DBContext {
         }
     }
 
- 
+    public List<Notification> getUnreadNotificationsByCustomer(int customerID) {
+        List<Notification> list = new ArrayList<>();
+        String sql = " SELECT n.*\n"
+                + "        FROM Notification n\n"
+                + "        JOIN CustomertNotification cn ON n.notID = cn.notID\n"
+                + "        WHERE cn.customerID = ? AND cn.isRead = 0\n"
+                + "        ORDER BY n.notID DESC ";
 
+        try (
+                PreparedStatement ps = conn.prepareStatement(sql)) {
 
+            ps.setInt(1, customerID);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                Notification noti = new Notification();
+                noti.setNotID(rs.getInt("notID"));
+                noti.setNotTitle(rs.getString("notTitle"));
+                noti.setNotDescription(rs.getString("notDescription"));
+                noti.setAccountID(rs.getInt("FK_Notification_Account"));
+                list.add(noti);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
+    public void markAsRead(int customerID, int notID) {
+        String sql = "UPDATE CustomertNotification SET isRead = 1 WHERE customerID = ? AND notID = ?";
+        try (
+                PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerID);
+            ps.setInt(2, notID);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
 }
