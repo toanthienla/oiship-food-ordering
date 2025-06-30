@@ -265,12 +265,12 @@
                             </div>
                             <% }
                             } else { %>
-                            <div class="col-12 text-center text-muted">Không có voucher nào khả dụng</div>
+                            <div class="col-12 text-center text-muted">No vouchers available</div>
                             <% } %>
                         </div>
                     </div>
                     <div class="modal-footer">
-                        <button class="btn btn-secondary" data-bs-dismiss="modal">Đóng</button>
+                        <button class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
                     </div>
                 </div>
             </div>
@@ -311,7 +311,7 @@
                 } else if (phone) {
                     displayText = phoneRegex;
                 }
-                // ✅ Đảm bảo không hiển thị dấu phẩy nếu chỉ có 1 trong 2 trường
+                // ✅ Đảm bảo không hiển thị dấu - nếu chỉ có 1 trong 2 trường
                 document.getElementById("displayCustomerText").textContent = displayText;
                 //   document.getElementById('displayCustomerText').innerText = `${name} - ${phone}`;
 
@@ -395,14 +395,14 @@
                 const voucher = allVouchers.find(v => v.voucherID == voucherID);
 
                 if (!voucher) {
-                    alert("Không tìm thấy voucher.");
+                    alert("Voucher not found.");
                     return;
                 }
 
 
                 // Kiểm tra điều kiện đơn hàng tối thiểu
                 if (orderTotal < voucher.minOrderValue) {
-                    alert("Đơn hàng chưa đạt giá trị tối thiểu để áp dụng mã này.");
+                    alert("Order has not reached minimum value to apply this code.");
                     return;
                 }
                 let discountAmount = 0;
@@ -418,7 +418,7 @@
                 const finalTotal = orderTotal - discountAmount;
                 // Gán giá trị vào form + UI
                 hiddenInput.value = voucherID;
-                voucherText.textContent = "Đã áp dụng: " + code;
+                voucherText.textContent = "Applied: " + code;
                 discountText.textContent = "- " + discountAmount.toLocaleString() + " VND";
                 finalTotalText.textContent = finalTotal.toLocaleString() + " VND";
                 // Đóng modal
@@ -503,7 +503,7 @@
                 document.getElementById("finalAmount").textContent = total.toLocaleString() + " VND";
                 document.getElementById("discountAmount").textContent = "- 0 VND";
 
-                // Nếu có giảm giá (Yến có thể thêm logic nếu dùng voucher)
+                
             }
         </script>
         <script>
