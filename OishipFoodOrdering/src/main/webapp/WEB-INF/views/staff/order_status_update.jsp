@@ -355,12 +355,20 @@
                                     <c:otherwise>${orderDetails[0].address}</c:otherwise>
                                 </c:choose>
                             </p>
-                            <p><strong>Order Created At:</strong>
-                                <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
+                            <p>
+                                <strong>Timestamps:</strong><br />
+                                <i>- Create:</i>
+                                <span class="text-muted">
+                                    <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
+                                </span><br />
+                                <i>- Update:</i>
+                                <span class="text-muted">
+                                    <fmt:formatDate value="${orderDetails[0].updateAt}" pattern="dd-MM-yyyy HH:mm:ss" />
+                                </span>
                             </p>
-                            <p><strong>Order Updated At:</strong>
-                                <fmt:formatDate value="${orderDetails[0].updateAt}" pattern="dd-MM-yyyy HH:mm:ss" />
-                            </p>
+
+
+
                             <p><strong>Voucher:</strong>
                                 <c:choose>
                                     <c:when test="${empty orderDetails[0].voucherCode}">
