@@ -27,12 +27,35 @@ public class NotificationDAO extends DBContext {
     }
 
     public boolean addNotification(Notification noti) {
-        String sql = "INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account) VALUES (?, ?, ?)";
-        try (PreparedStatement st = conn.prepareStatement(sql)) {
-            st.setString(1, noti.getNotTitle());
-            st.setString(2, noti.getNotDescription());
-            st.setInt(3, noti.getAccountID());
-            return st.executeUpdate() > 0;
+        String insertNotificationSQL = "INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account) VALUES (?, ?, ?)";
+        String insertCustomerNotificationSQL
+                = "INSERT INTO CustomerNotification (customerID, notID) "
+                + "SELECT c.customerID, ? FROM Customer c";
+
+        try (
+            PreparedStatement st1 = conn.prepareStatement(insertNotificationSQL, Statement.RETURN_GENERATED_KEYS);) {
+            st1.setString(1, noti.getNotTitle());
+            st1.setString(2, noti.getNotDescription());
+            st1.setInt(3, noti.getAccountID());
+
+            int rows = st1.executeUpdate();
+            if (rows == 0) {
+                return false;
+            }
+
+            // Get the generated notID
+            ResultSet generatedKeys = st1.getGeneratedKeys();
+            if (generatedKeys.next()) {
+                int newNotID = generatedKeys.getInt(1);
+
+                // Now insert into CustomertNotification
+                try (PreparedStatement st2 = conn.prepareStatement(insertCustomerNotificationSQL)) {
+                    st2.setInt(1, newNotID);
+                    st2.executeUpdate(); // no need to check rows, since 0 customers is still valid
+                }
+
+                return true;
+            }
         } catch (SQLException e) {
             e.printStackTrace();
         }

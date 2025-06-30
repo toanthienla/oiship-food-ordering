@@ -245,82 +245,6 @@ VALUES
     (2, N'Món ăn không giống hình.', GETDATE(), 6, 7),
     (5, N'Tuyệt vời, sẽ đặt lại lần nữa!', GETDATE(), 7, 6);
 
--- Insert Notifications
-DECLARE @notID INT;
-
--- 1
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Chào mừng bạn đến với Oiship', N'Cảm ơn bạn đã đăng ký, hãy khám phá các món ăn hấp dẫn!', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 2
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Tặng mã giảm giá 30K', N'Nhập mã WELCOME30 khi thanh toán để được giảm ngay 30K!', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 3
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Cập nhật menu mới', N'Các món ăn mới đã được thêm vào thực đơn, hãy xem ngay!', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 4
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Bảo trì hệ thống', N'Hệ thống sẽ được bảo trì từ 23:00 đến 02:00 ngày mai.', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 5
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Ưu đãi cuối tuần', N'Giảm 20% cho tất cả món ăn trong thứ 7 và Chủ nhật tuần này!', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 6
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Giao hàng miễn phí', N'Miễn phí vận chuyển cho đơn hàng từ 100K trong tuần này.', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 7
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Khuyến mãi Happy Hour', N'Từ 14h-17h, giảm giá 15% cho mọi đơn hàng.', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 8
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Thử món mới miễn phí', N'Khách hàng thân thiết được tặng 1 phần ăn thử miễn phí tuần này.', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 9
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Điểm thưởng đã được cộng', N'Bạn vừa nhận được 50 điểm thưởng khi hoàn tất đơn hàng.', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
--- 10
-INSERT INTO Notification (notTitle, notDescription, FK_Notification_Account)
-VALUES (N'Chúc mừng sinh nhật 🎉', N'Nhân dịp sinh nhật, bạn được tặng mã giảm 100K, hãy kiểm tra!', 1);
-SET @notID = SCOPE_IDENTITY();
-INSERT INTO CustomerNotification (customerID, notID)
-SELECT customerID, @notID FROM Customer;
-
-
-
-
 -- Insert Contact Requests
 INSERT INTO Contact ([subject], [message], FK_Contact_Customer)
 VALUES
@@ -329,9 +253,6 @@ VALUES
 (N'Service Feedback', N'The delivery person was very polite and helpful. Good job!', 8),
 (N'App Bug', N'The app crashes when I try to view my order history.', 9),
 (N'Suggestion', N'Can you add more vegan options to the menu?', 10);
-
-
-
 
 -- Verification Queries
 SELECT accountID, fullName, email, [password], role, status, createAt
@@ -345,7 +266,6 @@ WHERE role = 'customer';
 SELECT accountID, fullName, email, status, role, createAt
 FROM Account
 WHERE role = 'staff';
-
 
 SELECT catID, catName, catDescription
 FROM Category;
@@ -366,5 +286,3 @@ SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.creat
        c.phone, c.address 
 FROM Account a 
 LEFT JOIN Customer c ON a.accountID = c.customerID;
-
-select * from Dish
