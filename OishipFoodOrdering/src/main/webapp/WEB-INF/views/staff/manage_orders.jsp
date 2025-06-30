@@ -85,6 +85,18 @@
                 padding: 8px;
             }
 
+            .truncate {
+                max-width: 180px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
+            .bg-purple-light {
+                background-color: #e6ccff !important;  /* Tím nhạt */
+                color: #000 !important;                /* Chữ đen */
+                border: 1px solid #d6b3ff !important;  /* Viền tím nhạt */
+            }
+
             @media (max-width: 768px) {
                 .main {
                     margin-left: 0;
@@ -191,8 +203,8 @@
 
                 <!-- Orders Table -->
                 <div class="table-responsive">
-                    <table id="orderTable" class="table table-hover table-bordered text-center align-middle shadow-sm">
-                        <thead class="table-dark">
+                    <table id="orderTable" class="table table-bordered table-hover">
+                        <thead class="table-light">
                             <tr>
                                 <th>#</th>
                                 <th>Order ID</th>
@@ -201,16 +213,16 @@
                                 <th>Amount</th>
                                 <th>Payment</th>
                                 <th>Status</th>
-                                <th>Timestamps</th>
+                                <th>Address</th>
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="orderTableBody">
+                        <tbody id="orderTableBody" class="text-start">
                             <c:forEach var="o" items="${orders}" varStatus="status">
                                 <tr data-customer="${o.customerName}" data-status="${o.orderStatus}">
-                                    <td>${status.index + 1}</td>
-                                    <td class="fw-bold">${o.orderID}</td>
-                                    <td>${o.customerName}</td>
+                                    <td class="fw-bold text-center">${status.index + 1}</td>
+                                    <td class="text-center">${o.orderID}</td>
+                                    <td class="truncate">${o.customerName}</td>
                                     <td>
                                         <c:choose>
                                             <c:when test="${empty o.voucherCode}">
@@ -221,8 +233,8 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/> VNĐ</td>
-                                    <td>
+                                    <td class="text-center"><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/></td>
+                                    <td class="text-center">
                                         <c:choose>
                                             <c:when test="${o.paymentStatus == 0}">
                                                 <span class="badge rounded-pill text-bg-danger">Unpaid</span>
@@ -250,42 +262,57 @@
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td class="text-start">
-                                        <small class="text-muted d-block">
-                                            <span class="fw-semibold">C:</span>
-                                            <fmt:formatDate value="${o.orderCreatedAt}" pattern="dd-MM-yyyy HH:mm"/>
-                                        </small>
-                                        <small class="text-muted d-block">
-                                            <span class="fw-semibold">U:</span>
-                                            <fmt:formatDate value="${o.orderUpdatedAt}" pattern="dd-MM-yyyy HH:mm"/>
-                                        </small>
+                                    <td class="truncate">
+                                        <c:choose>
+                                            <c:when test="${not empty o.address}">
+                                                ${o.address}
+                                            </c:when>
+                                            <c:otherwise>
+                                                N/A
+                                            </c:otherwise>
+                                        </c:choose>
                                     </td>
 
-                                    <td>
-                                        <a class="btn btn-sm btn-outline-primary"
-                                           href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
-                                            Detail
-                                        </a>
-                                        <!-- Dropdown Update Status -->
-                                        <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;">
-                                            <input type="hidden" name="orderId" value="${o.orderID}" />
-                                            <select name="status" class="form-select form-select-sm w-auto d-inline-block" onchange="this.form.submit()">
-                                                <c:forEach var="entry" items="${statusMap}">
-                                                    <c:set var="key" value="${entry.key}" />
-                                                    <c:set var="value" value="${entry.value}" />
-                                                    <option value="${key}" <c:if test="${key == o.orderStatus}">selected</c:if>>${value}</option>
-                                                </c:forEach>
-                                            </select>
-                                        </form>
+                                    <td class="text-center align-middle">
+                                        <div class="d-flex justify-content-center align-items-center flex-wrap gap-2" style="min-width: 350px;">
+                                            <a class="btn btn-sm btn-primary fw-semibold text-white"
+                                               href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
+                                                Detail
+                                            </a>
+                                            <!-- Dropdown Update Status -->
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;">
+                                                <input type="hidden" name="orderId" value="${o.orderID}" />
+                                                <select name="status" class="form-select form-select-sm w-auto d-inline-block fw-semibold text-dark bg-warning border-warning" onchange="this.form.submit()">
+                                                    <c:forEach var="entry" items="${statusMap}">
+                                                        <c:set var="key" value="${entry.key}" />
+                                                        <c:set var="value" value="${entry.value}" />
+                                                        <option value="${key}" <c:if test="${key == o.orderStatus}">selected</c:if>>${value}</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </form>
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;">
+                                                <input type="hidden" name="orderId" value="${o.orderID}" />
+                                                <select name="paymentStatus" class="form-select form-select-sm w-auto d-inline-block fw-semibold bg-purple-light"
+                                                        onchange="this.form.submit()">
+                                                    <c:forEach var="entry" items="${paymentStatusMap}">
+                                                        <c:set var="key" value="${entry.key}" />
+                                                        <c:set var="value" value="${entry.value}" />
+                                                        <option value="${key}" <c:if test="${key == o.paymentStatus}">selected</c:if>>${value}</option>
+                                                    </c:forEach>
+                                                </select>
+                                            </form>
+                                        </div>
                                     </td>
+
+
                                 </tr>
                             </c:forEach>
 
                         </tbody>
                     </table>
-                    <div id="orderPagination" class="mt-4 d-flex justify-content-center"></div>
-
                 </div>
+                <div id="orderPagination" class="mt-4 d-flex justify-content-center"></div>
+
             </div>
 
             <!-- JavaScript Filter -->

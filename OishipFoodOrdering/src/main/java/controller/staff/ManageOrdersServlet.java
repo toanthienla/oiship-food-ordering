@@ -79,8 +79,15 @@ public class ManageOrdersServlet extends HttpServlet {
         statusMap.put(5, "Cancelled");
         statusMap.put(6, "Failed");
 
+        // Map cho trạng thái thanh toán
+        Map<Integer, String> paymentStatusMap = new LinkedHashMap<>();
+        paymentStatusMap.put(0, "Unpaid");
+        paymentStatusMap.put(1, "Paid");
+        paymentStatusMap.put(2, "Refunded");
+
         request.setAttribute("orders", orderList);
         request.setAttribute("statusMap", statusMap);
+        request.setAttribute("paymentStatusMap", paymentStatusMap);
 
         // Chuyển tiếp sang JSP để hiển thị
         request.getRequestDispatcher("/WEB-INF/views/staff/manage_orders.jsp").forward(request, response);
@@ -100,10 +107,21 @@ public class ManageOrdersServlet extends HttpServlet {
             throws ServletException, IOException {
         try {
             int orderId = Integer.parseInt(request.getParameter("orderId"));
-            int newStatus = Integer.parseInt(request.getParameter("status"));
+            String statusStr = request.getParameter("status");
+            String paymentStatusStr = request.getParameter("paymentStatus");
 
             OrderDAO dao = new OrderDAO();
-            boolean updated = dao.updateStatusOrderByOrderId(orderId, newStatus);
+            // Nếu có thay đổi order status
+            if (statusStr != null) {
+                int newStatus = Integer.parseInt(statusStr);
+                dao.updateStatusOrderByOrderId(orderId, newStatus);
+            }
+
+            // Nếu có thay đổi payment status
+            if (paymentStatusStr != null) {
+                int newPaymentStatus = Integer.parseInt(paymentStatusStr);
+                dao.updatePaymentStatusByOrderId(orderId, newPaymentStatus);
+            }
 
             // Có thể log kết quả hoặc set attribute để hiển thị
         } catch (Exception e) {

@@ -18,6 +18,7 @@ public class Order {
     private String customerName;
     private String discountType;
     private BigDecimal discount;
+    private String address;
 
     private List<OrderDetail> orderDetails;
 
@@ -126,4 +127,13 @@ public class Order {
         this.discount = discount;
     }
 
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    
 }
