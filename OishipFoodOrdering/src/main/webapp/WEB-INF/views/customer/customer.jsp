@@ -612,7 +612,7 @@
             Map<String, Object> cartSuccessDetails = (Map<String, Object>) session.getAttribute("cartSuccessDetails");
             if (cartSuccessDetails != null) {
                 session.removeAttribute("cartSuccessDetails"); // Clear session to avoid repeated display
-%>
+        %>
         <div class="cart-success-alert" id="cartSuccessAlert">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <img src="<%= cartSuccessDetails.get("image")%>" alt="Dish Image" class="img-fluid">
@@ -646,69 +646,124 @@
                         }
                     });
         </script>
+        <script>
+            function validateQty(input) {
+                let qty = parseInt(input.value) || 1;
 
+                let stock = parseInt(input.getAttribute("data-stock"));
+
+                if (qty > 10) {
+                    alert("The maximum quantity is 10.");
+                    qty = 10;
+                }
+
+                if (qty > stock) {
+                    alert("Only " + stock + " items in stock.");
+                    qty = stock;
+                }
+
+                if (qty < 1) {
+                    alert("Quantity must be at least 1.");
+                    qty = 1;
+                }
+
+                input.value = qty;
+                const total = qty * price;
+                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
+            }
+
+            function validateBeforeSubmit() {
+                const input = document.getElementById("quantityInput");
+                const stock = parseInt(input.getAttribute("data-stock"));
+
+                let qty = parseInt(input.value);
+
+                if (isNaN(qty) || qty < 1) {
+                    alert("Quantity must be at least 1.");
+                    input.value = 1;
+                    return false;
+                }
+
+                if (qty > 10) {
+                    alert("The maximum quantity is 10.");
+                    input.value = 10;
+                    return false;
+                }
+
+                if (qty > stock) {
+                    alert("Only " + stock + " items in stock.");
+                    input.value = stock;
+                    return false;
+                }
+
+                const total = qty * price;
+                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
+                return true;
+            }
+        </script>
 
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <!-- Thêm vào cuối <body> -->
         <script>
-                    let map;
-                    function initMap() {
-                        const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
-                        map = new google.maps.Map(document.getElementById("map"), {
-                            center: defaultLocation,
-                            zoom: 12,
-                        });
+            let map;
+            function initMap() {
+                const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
+                map = new google.maps.Map(document.getElementById("map"), {
+                    center: defaultLocation,
+                    zoom: 12,
+                });
 
-                        const input = document.getElementById("locationInput");
-                        const searchBox = new google.maps.places.SearchBox(input);
+                const input = document.getElementById("locationInput");
+                const searchBox = new google.maps.places.SearchBox(input);
 
-                        map.addListener("bounds_changed", () => {
-                            searchBox.setBounds(map.getBounds());
-                        });
+                map.addListener("bounds_changed", () => {
+                    searchBox.setBounds(map.getBounds());
+                });
 
-                        searchBox.addListener("places_changed", () => {
-                            const places = searchBox.getPlaces();
-                            if (places.length == 0)
-                                return;
-                            const place = places[0];
-                            if (!place.geometry || !place.geometry.location) {
-                                console.log("No geometry available for this place");
-                                return;
-                            }
-                            map.setCenter(place.geometry.location);
-                            map.setZoom(15);
-                            new google.maps.Marker({map, position: place.geometry.location});
-                        });
+                searchBox.addListener("places_changed", () => {
+                    const places = searchBox.getPlaces();
+                    if (places.length == 0)
+                        return;
+                    const place = places[0];
+                    if (!place.geometry || !place.geometry.location) {
+                        console.log("No geometry available for this place");
+                        return;
                     }
+                    map.setCenter(place.geometry.location);
+                    map.setZoom(15);
+                    new google.maps.Marker({map, position: place.geometry.location});
+                });
+            }
 
-                    function geocodeAddress() {
-                        const geocoder = new google.maps.Geocoder();
-                        const address = document.getElementById("locationInput").value;
-                        geocoder.geocode({address: address}, (results, status) => {
-                            if (status === "OK") {
-                                map.setCenter(results[0].geometry.location);
-                                map.setZoom(15);
-                                new google.maps.Marker({map: map, position: results[0].geometry.location});
-                            } else {
-                                alert("Geocode was not successful for the following reason: " + status);
-                            }
-                        });
+            function geocodeAddress() {
+                const geocoder = new google.maps.Geocoder();
+                const address = document.getElementById("locationInput").value;
+                geocoder.geocode({address: address}, (results, status) => {
+                    if (status === "OK") {
+                        map.setCenter(results[0].geometry.location);
+                        map.setZoom(15);
+                        new google.maps.Marker({map: map, position: results[0].geometry.location});
+                    } else {
+                        alert("Geocode was not successful for the following reason: " + status);
                     }
+                });
+            }
         </script>
 
     </div>
 
 
 
-    <!-- 💡 Đặt modal rỗng tại đây -->
+    <!-- 💡 Modal Dish Detail -->
     <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
         <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
             <div class="modal-content" id="dishDetailContent">
-                <!-- Nội dung chi tiết sẽ được load bằng AJAX -->
+                <!-- AJAX content goes here -->
             </div>
         </div>
     </div>
+
     <script>
         function openDishDetail(dishId) {
             fetch('<%=request.getContextPath()%>/customer/dish-detail', {
@@ -718,12 +773,25 @@
             })
                     .then(response => response.text())
                     .then(html => {
-                        document.getElementById('dishDetailContent').innerHTML = html;
-                        new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
+                        const content = document.getElementById('dishDetailContent');
+                        content.innerHTML = html;
+
+                        const modalEl = document.getElementById('dishDetailModal');
+                        const dishModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                        dishModal.show();
                     })
-                    .catch(error => console.error('Error loading dish detail:', error));
+                    .catch(error => {
+                        alert("Failed to load dish detail. Please try again.");
+                        console.error('Error loading dish detail:', error);
+                    });
         }
+
+        // Optional: clear modal content on close
+        document.getElementById('dishDetailModal').addEventListener('hidden.bs.modal', function () {
+            document.getElementById('dishDetailContent').innerHTML = '';
+        });
     </script>
+
 
     <!-- 💡 xử lí load category -->
     <script>

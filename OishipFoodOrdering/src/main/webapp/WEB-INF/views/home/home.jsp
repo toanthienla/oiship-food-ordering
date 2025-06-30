@@ -301,14 +301,9 @@
                 <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
                 <h5 class="mt-2 text-orange">OISHIP</h5>
             </div>
-            <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>
-            <a href="#menu"><i class="fas fa-utensils me-2"></i> Menu</a>
-            <a href="#dishes"><i class="fas fa-drumstick-bite me-2"></i> Dishes</a>
-            <a href="#"><i class="fas fa-tags me-2"></i> Sale</a>
-            <a href="customer/view-cart"><i class="fas fa-shopping-cart me-2"></i> Cart</a>
-            
-            <a href="login"><i class="fas fa-list me-2"></i> Order</a>
-            <a href="#"><i class="fas fa-map-marker-alt me-2"></i> Location</a>           
+            <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>               
+            <a href="customer/view-cart"><i class="fas fa-shopping-cart me-2"></i> Cart</a>          
+            <a href="login"><i class="fas fa-list me-2"></i> Order</a>                 
             <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>          
         </div>
 

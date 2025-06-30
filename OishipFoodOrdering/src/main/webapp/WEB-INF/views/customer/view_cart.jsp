@@ -108,9 +108,14 @@
                             <td>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
-
-                                    <input type="text" id="qty_<%= item.getCartID()%>" data-stock="<%= dish.getStock()%>" value="<%= quantity%>" readonly class="form-control text-center" style="width: 60px;">
-
+                                    <input type="text"
+                                           id="qty_<%= item.getCartID()%>"
+                                           data-stock="<%= dish.getStock()%>"
+                                           data-name="<%= dish.getDishName()%>"
+                                           value="<%= quantity%>"
+                                           readonly
+                                           class="form-control text-center"
+                                           style="width: 60px;">
                                     <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
                             </td>
@@ -128,8 +133,6 @@
                     </tbody>
                 </table>
             </div>
-
-
             <% } else { %>
             <div class="alert alert-warning text-center">Your cart is currently empty.</div>
             <% }%>
@@ -137,7 +140,7 @@
             <form action="${pageContext.request.contextPath}/customer/order" method="post" id="orderForm">
                 <div class="d-flex justify-content-between mt-4">
                     <a href="<%= request.getContextPath()%>/customer" class="btn btn-custom-back">&laquo; Back to Menu</a>
-                    <button type="submit" class="btn btn-success text-white" onclick="prepareOrder()">
+                    <button type="submit" class="btn btn-success text-white" onclick="return prepareOrder(event)">
                         <i class="fa-solid fa-cart-shopping me-1"></i> Order Now
                     </button>
                 </div>
@@ -145,73 +148,121 @@
         </div>
 
         <script>
-    const contextPath = "<%= request.getContextPath()%>";
-    function updateQuantity(cartId, delta) {
-        const input = document.getElementById("qty_" + cartId);
-        const maxStock = parseInt(input.getAttribute("data-stock"));
-        let qty = parseInt(input.value);
+            const contextPath = "<%= request.getContextPath()%>";
 
-        qty += delta;
-        if (qty > 10) {
-            qty = 10;
-            alert("The maximum quantity is 10.");
-        }
-        if (qty > maxStock) {
-            qty = maxStock;
-            alert("Only " + maxStock + " items in stock.");
-        }
-        if (qty < 1)
-            qty = 1;
-        input.value = qty;
+            function updateQuantity(cartId, delta) {
+               
+                const input = document.getElementById("qty_" + cartId);
+                const maxStock = parseInt(input.getAttribute("data-stock"));
+                let qty = parseInt(input.value);
 
-        fetch(contextPath + "/customer/view-cart", {
-            method: "POST",
-            headers: {"Content-Type": "application/x-www-form-urlencoded"},
-            body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-        }).then(() => {
-            const row = input.closest("tr");
-            const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-            const total = qty * price;
-            row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
+                qty += delta;
+                if (qty > 10) {
+                    qty = 10;
+                    alert("The maximum quantity is 10.");
+                }
+                if (qty > maxStock) {
+                    qty = maxStock;
+                    alert("Only " + maxStock + " items in stock.");
+                }
+                if (qty < 1)
+                    qty = 1;
 
-            // Cập nhật lại tổng tiền toàn bộ đơn hàng
-            recalculateGrandTotal();
-        });
-    }
+                input.value = qty;
 
-    function recalculateGrandTotal() {
-        let total = 0;
-        document.querySelectorAll(".item-total").forEach(el => {
-            const text = el.textContent.replace(/[^\d]/g, '');
-            if (!isNaN(text))
-                total += parseInt(text);
-        });
-        document.getElementById("grandTotalAmount").textContent = total.toLocaleString() + " đ";
-    }
+                fetch(contextPath + "/customer/view-cart", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                }).then(() => {
+                    const row = input.closest("tr");
+                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                    const total = qty * price;
+                    row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
 
-    function prepareOrder() {
-        const checkedItems = document.querySelectorAll('.item-checkbox:checked');
-        if (checkedItems.length === 0) {
-            alert("Vui lòng chọn ít nhất một món để đặt hàng.");
-            event.preventDefault();
-            return false;
-        }
-        document.querySelectorAll('#orderForm input[name="selectedItems"]').forEach(e => e.remove());
-        checkedItems.forEach(cb => {
-            const hidden = document.createElement('input');
-            hidden.type = 'hidden';
-            hidden.name = 'selectedItems';
-            hidden.value = cb.value;
-            document.getElementById('orderForm').appendChild(hidden);
-        });
-        return true;
-    }
+                    recalculateGrandTotal();
+                });
+            }
 
-    function toggleAll(source) {
-        const checkboxes = document.querySelectorAll('.item-checkbox');
-        checkboxes.forEach(cb => cb.checked = source.checked);
-    }
+            function recalculateGrandTotal() {
+                let total = 0;
+                document.querySelectorAll(".item-total").forEach(el => {
+                    const text = el.textContent.replace(/[^\d]/g, '');
+                    if (!isNaN(text))
+                        total += parseInt(text);
+                });
+                // Optional: Hiển thị grand total
+                // document.getElementById("grandTotalAmount").textContent = total.toLocaleString() + " đ";
+            }
+
+            function prepareOrder(event) {
+                const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+
+                if (checkedItems.length === 0) {
+                    alert("Please select at least one dish to place the order.");
+                    event.preventDefault();
+                    return false;
+                }
+
+                let isValid = true;
+                let totalQty = 0;
+
+                checkedItems.forEach(cb => {
+                    const cartId = cb.value;
+                    const qtyInput = document.getElementById("qty_" + cartId);
+                    const qty = parseInt(qtyInput.value);
+                    const maxStock = parseInt(qtyInput.getAttribute("data-stock"));
+                    const dishName = qtyInput.getAttribute("data-name");
+
+                    if (isNaN(qty) || qty < 1) {
+                        alert(`The quantity for "${dishName}" is invalid.`);
+                        qtyInput.value = 1;
+                        isValid = false;
+                    } else if (qty > maxStock) {
+                       alert("Only " + maxStock + " items in stock.");
+                        qtyInput.value = maxStock;
+                        isValid = false;
+                    } else if (qty > 10) {
+                        alert("The maximum quantity is 10.");
+                        qtyInput.value = 10;
+                        isValid = false;
+                    }
+
+                    totalQty += qty;
+                });
+
+                if (totalQty > 50) {
+                    alert("The total quantity of items in the order must not exceed 50.");
+                    isValid = false;
+                }
+
+                if (!isValid) {
+                    event.preventDefault();
+                    return false;
+                }
+
+                // Xóa các input hidden cũ
+                document.querySelectorAll('#orderForm input[name="selectedItems"]').forEach(e => e.remove());
+
+                // Gắn thêm input hidden cho các cartID được chọn
+                checkedItems.forEach(cb => {
+                    const hidden = document.createElement('input');
+                    hidden.type = 'hidden';
+                    hidden.name = 'selectedItems';
+                    hidden.value = cb.value;
+                    document.getElementById('orderForm').appendChild(hidden);
+                });
+
+                return true;
+            }
+
+
+            function toggleAll(source) {
+                const checkboxes = document.querySelectorAll('.item-checkbox');
+                checkboxes.forEach(cb => cb.checked = source.checked);
+            }
         </script>
+
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

@@ -20,16 +20,13 @@
                 box-shadow: 0 0 10px rgba(0,0,0,0.2);
                 object-fit: cover;
             }
-
             .dish-detail-container {
                 padding: 30px;
             }
-
             .star {
                 color: #ff6200;
                 font-size: 1.3rem;
             }
-
             .btn-custom {
                 background-color: transparent;
                 color: #ff6200;
@@ -38,36 +35,12 @@
                 transition: all 0.3s ease;
                 width: 100%;
             }
-
             .btn-custom:hover {
                 background-color: #fff5e6;
                 transform: translateY(-2px);
             }
-
             .btn-custom:active {
                 background-color: #ffe0b3;
-                transform: translateY(0);
-            }
-
-            .quantity-btn {
-                background-color: #ff6200;
-                color: #fff;
-                border: none;
-                padding: 0.25rem 0.75rem;
-                border-radius: 5px;
-                transition: all 0.3s ease;
-                font-size: 1rem;
-                margin: 0 0.25rem;
-                cursor: pointer;
-            }
-
-            .quantity-btn:hover {
-                background-color: #e65c00;
-                transform: translateY(-2px);
-            }
-
-            .quantity-btn:active {
-                background-color: #d35400;
                 transform: translateY(0);
             }
         </style>
@@ -77,7 +50,7 @@
             <%
                 Dish dish = (Dish) request.getAttribute("dish");
                 List<Review> reviews = (List<Review>) request.getAttribute("reviews");
-
+                int stock = dish != null ? dish.getStock() : 0;
                 if (dish == null) {
             %>
             <div class="text-center mt-5">
@@ -101,24 +74,23 @@
                     <h2 class="mb-3"><%= dish.getDishName()%></h2>
                     <p><strong>Description:</strong> <%= dish.getDishDescription() != null ? dish.getDishDescription() : "No description."%></p>
                     <p><strong>Ingredients:</strong> <%= dish.getIngredientNames() != null ? dish.getIngredientNames() : "Unknown."%></p>
-                    <p><strong>Price:</strong>
-                        <span class="text-success fw-bold"><%= dish.getFormattedPrice()%> đ</span>
-                    </p>
+                    <p><strong>Price:</strong> <span class="text-success fw-bold" id="dishTotalPrice"><%= dish.getFormattedPrice()%> đ</span></p>
+                    <p><strong>In Stock:</strong> <%= stock%> items</p>
 
                     <% if (dish.getAvgRating() != null) {%>
                     <p><strong>Average Rating:</strong> <%= dish.getAvgRating()%>/5
                         <% for (int i = 1; i <= 5; i++) {
-                                if (i <= dish.getAvgRating().intValue()) { %>
+                        if (i <= dish.getAvgRating().intValue()) { %>
                         <i class="fa-solid fa-star star"></i>
                         <% } else { %>
                         <i class="fa-regular fa-star star"></i>
                         <% }
-                            } %>
+                    } %>
                     </p>
                     <% }%>
 
                     <!-- Form Add to Cart -->
-                    <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3"  onsubmit="return validateBeforeSubmit()">
+                    <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3" onsubmit="return validateBeforeSubmit()">
                         <input type="hidden" name="dishID" value="<%= dish.getDishID()%>" />
 
                         <div class="mb-3 d-flex align-items-center gap-2">
@@ -129,7 +101,7 @@
                                    value="1"
                                    min="1"
                                    max="10"
-                                   data-stock="<%= dish.getStock()%>"
+                                   data-stock="<%= stock%>"
                                    class="form-control text-center"
                                    style="width: 80px;"
                                    required
@@ -173,37 +145,34 @@
         <!-- Scripts -->
         <script>
             function validateQty(input) {
-                let maxStock = parseInt(input.getAttribute("data-stock"));
-                if (isNaN(maxStock))
-                    maxStock = 0;
-
                 let qty = parseInt(input.value) || 1;
+                let price = parseInt(<%= dish.getTotalPrice().intValue()%>);
+                let stock = parseInt(input.getAttribute("data-stock"));
 
                 if (qty > 10) {
-                    qty = 10;
                     alert("The maximum quantity is 10.");
+                    qty = 10;
                 }
 
-                if (qty > maxStock) {
-                    qty = maxStock;
-                    alert("Only " + maxStock + " items in stock.");
+                if (qty > stock) {
+                    alert("Only " + stock + " items in stock.");
+                    qty = stock;
                 }
 
                 if (qty < 1) {
-                    qty = 1;
                     alert("Quantity must be at least 1.");
+                    qty = 1;
                 }
 
                 input.value = qty;
+                const total = qty * price;
+                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
             }
-
 
             function validateBeforeSubmit() {
                 const input = document.getElementById("quantityInput");
-                let maxStock = parseInt(input.getAttribute("data-stock"));
-                if (isNaN(maxStock))
-                    maxStock = 0;
-
+                const stock = parseInt(input.getAttribute("data-stock"));
+                const price = parseInt(<%= dish.getTotalPrice().intValue()%>);
                 let qty = parseInt(input.value);
 
                 if (isNaN(qty) || qty < 1) {
@@ -218,17 +187,17 @@
                     return false;
                 }
 
-                if (qty > maxStock) {
-                    alert("Only " + maxStock + " items in stock.");
-                    input.value = maxStock;
+                if (qty > stock) {
+                    alert("Only " + stock + " items in stock.");
+                    input.value = stock;
                     return false;
                 }
 
+                const total = qty * price;
+                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
                 return true;
             }
-
         </script>
-
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     </body>
