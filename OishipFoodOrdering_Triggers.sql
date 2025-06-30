@@ -12,3 +12,17 @@ BEGIN
     FROM Dish d
     INNER JOIN inserted i ON d.DishID = i.DishID;
 END;
+GO
+
+-- Trigger to automatically inserts a row into the CustomerNotification
+CREATE TRIGGER trg_AfterInsertNotification
+ON Notification
+AFTER INSERT
+AS
+BEGIN
+    INSERT INTO CustomerNotification (customerID, notID, isRead)
+    SELECT c.customerID, i.notID, 0
+    FROM Customer c
+    CROSS JOIN inserted i;
+END;
+GO

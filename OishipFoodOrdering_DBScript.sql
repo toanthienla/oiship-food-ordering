@@ -179,8 +179,8 @@ CREATE TABLE [Notification] (
 	FK_Notification_Account INT FOREIGN KEY REFERENCES Account(accountID) -- Admin/Staff add notification
 );
 
-	-- Notification - Customer
-	CREATE TABLE CustomertNotification (
+-- Notification - Customer
+CREATE TABLE CustomerNotification (
 		customerID INT,
 		notID INT,	
 		isRead BIT DEFAULT 0,
@@ -188,6 +188,7 @@ CREATE TABLE [Notification] (
 		FOREIGN KEY (customerID) REFERENCES Customer(customerID),
 		FOREIGN KEY (notID) REFERENCES Notification(notID)
 );
+
 -- Contact table
 CREATE TABLE Contact (
 	contactID INT IDENTITY PRIMARY KEY,
