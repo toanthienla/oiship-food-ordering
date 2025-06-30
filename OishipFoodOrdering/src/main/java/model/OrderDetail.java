@@ -29,6 +29,7 @@ public class OrderDetail {
     private BigDecimal unitPrice;
     private BigDecimal amount;
     private int paymentStatus;
+    private Date updateAt;
 
     public OrderDetail() {
     }
@@ -198,6 +199,14 @@ public class OrderDetail {
 
     public void setPaymentStatus(int paymentStatus) {
         this.paymentStatus = paymentStatus;
+    }
+
+    public Date getUpdateAt() {
+        return updateAt;
+    }
+
+    public void setUpdateAt(Date updateAt) {
+        this.updateAt = updateAt;
     }
 
 }

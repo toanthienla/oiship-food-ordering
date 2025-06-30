@@ -72,10 +72,12 @@ public class UpdateStatusOrderServlet extends HttpServlet {
             OrderDAO dao = new OrderDAO();
 
             int orderStatus = dao.getOrderStatusByOrderId(orderID);
+            int paymentStatus = dao.getPaymentStatusByOrderId(orderID);
             List<OrderDetail> details = dao.getOrderDetailsByOrderID(orderID);
 
             request.setAttribute("orderID", orderID);
             request.setAttribute("orderStatus", orderStatus);
+            request.setAttribute("paymentStatus", paymentStatus);
             request.setAttribute("orderDetails", details);
 
             request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
@@ -100,31 +102,37 @@ public class UpdateStatusOrderServlet extends HttpServlet {
         try {
             String orderIDParam = request.getParameter("orderID");
             String newStatusParam = request.getParameter("newStatus");
+            String newPaymentStatusParam = request.getParameter("newPaymentStatus");
 
-            if (orderIDParam == null || orderIDParam.trim().isEmpty() || newStatusParam == null || newStatusParam.trim().isEmpty()) {
-                request.setAttribute("message", "Error: Missing order ID or status.");
+            if (orderIDParam == null || newStatusParam == null || newPaymentStatusParam == null
+                    || orderIDParam.trim().isEmpty() || newStatusParam.trim().isEmpty() || newPaymentStatusParam.trim().isEmpty()) {
+                request.setAttribute("message", "Error: Missing order ID, status or payment status.");
                 request.getRequestDispatcher("/WEB-INF/views/staff/order_status_update.jsp").forward(request, response);
                 return;
             }
 
             int orderID = Integer.parseInt(orderIDParam);
             int newStatus = Integer.parseInt(newStatusParam);
+            int newPaymentStatus = Integer.parseInt(newPaymentStatusParam);
 
             OrderDAO dao = new OrderDAO();
-            boolean success = dao.updateStatusOrderByOrderId(orderID, newStatus);
+            boolean statusSuccess = dao.updateStatusOrderByOrderId(orderID, newStatus);
+            boolean paymentSuccess = dao.updatePaymentStatusByOrderId(orderID, newPaymentStatus);
 
             // Lấy lại dữ liệu để hiển thị
             int orderStatus = dao.getOrderStatusByOrderId(orderID);
+            int paymentStatus = dao.getPaymentStatusByOrderId(orderID);
             List<OrderDetail> details = dao.getOrderDetailsByOrderID(orderID);
 
             request.setAttribute("orderID", orderID);
             request.setAttribute("orderStatus", orderStatus);
+            request.setAttribute("paymentStatus", paymentStatus);
             request.setAttribute("orderDetails", details);
 
-            if (success) {
-                request.setAttribute("message", "Order status updated successfully!");
+            if (statusSuccess || paymentSuccess) {
+                request.setAttribute("message", "Order updated successfully!");
             } else {
-                request.setAttribute("message", "Failed to update order status.");
+                request.setAttribute("message", "No changes were made.");
             }
 
             response.sendRedirect(request.getContextPath() + "/staff/manage-orders/update-status?orderID=" + orderID);

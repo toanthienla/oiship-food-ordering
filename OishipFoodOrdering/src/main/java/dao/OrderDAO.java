@@ -25,7 +25,7 @@ public class OrderDAO extends DBContext {
 
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
-        String sql = "SELECT o.*, a.fullName AS customerName, "
+        String sql = "SELECT o.*, a.fullName AS customerName, c.address, "
                 + "v.code AS voucherCode, v.discountType, v.discount "
                 + "FROM [Order] o "
                 + "JOIN Customer c ON o.FK_Order_Customer = c.customerID "
@@ -46,6 +46,7 @@ public class OrderDAO extends DBContext {
                 order.setVoucherID(rs.getInt("FK_Order_Voucher"));
                 order.setCustomerID(rs.getInt("FK_Order_Customer"));
                 order.setCustomerName(rs.getString("customerName"));
+                order.setAddress(rs.getString("address"));
                 order.setVoucherCode(rs.getString("voucherCode"));
                 order.setDiscountType(rs.getString("discountType"));
                 order.setDiscount(rs.getBigDecimal("discount"));
@@ -65,7 +66,7 @@ public class OrderDAO extends DBContext {
 
         String sql = "SELECT od.ODID, od.quantity, "
                 + "d.DishID, d.DishName, d.DishDescription, d.image, d.opCost, d.interestPercentage, "
-                + "o.orderStatus, o.paymentStatus, o.orderCreatedAt, o.amount, "
+                + "o.orderStatus, o.paymentStatus, o.orderCreatedAt, o.orderUpdatedAt, o.amount, "
                 + "c.customerID, a.fullName AS customerName, c.phone, c.address, "
                 + "v.code AS voucherCode, v.discount, v.discountType "
                 + "FROM OrderDetail od "
@@ -96,6 +97,7 @@ public class OrderDAO extends DBContext {
                 detail.setOrderStatus(rs.getInt("orderStatus"));
                 detail.setPaymentStatus(rs.getInt("paymentStatus"));
                 detail.setCreateAt(rs.getTimestamp("orderCreatedAt"));
+                detail.setUpdateAt(rs.getTimestamp("orderUpdatedAt"));
                 detail.setCustomerName(rs.getString("customerName"));
                 detail.setPhone(rs.getString("phone"));
                 detail.setAddress(rs.getString("address"));
@@ -344,12 +346,54 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
-    public static void main(String[] args) {
-        OrderDAO dao = new OrderDAO();
-        List<Order> orders = dao.getAllOrders();
-
-        for (Order order : orders) {
-            System.out.println(order);
+    //for staff
+    public int getPaymentStatusByOrderId(int orderID) {
+        String sql = "SELECT paymentStatus FROM [Order] WHERE orderID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getInt("paymentStatus");
+            }
+        } catch (Exception e) {
+            e.printStackTrace();
         }
+        return -1; // Trả về -1 nếu không tìm thấy hoặc lỗi
+    }
+
+    public boolean updatePaymentStatusByOrderId(int orderId, int newPaymentStatus) {
+        String sql = "UPDATE [Order] SET paymentStatus = ?, orderUpdatedAt = GETDATE() WHERE orderID = ?";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, newPaymentStatus);
+            ps.setInt(2, orderId);
+
+            int affectedRows = ps.executeUpdate();
+            return affectedRows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return false;
+    }
+
+    public static void main(String[] args) {
+
+        OrderDAO dao = new OrderDAO();
+
+        int testOrderId = 51;           // 👉 thay bằng orderID thật có trong DB
+        int newPaymentStatus = 2;      // 👉 0 = Unpaid, 1 = Paid, 2 = Refunded
+
+        // 1. Trước khi cập nhật
+        int oldStatus = dao.getPaymentStatusByOrderId(testOrderId);
+        System.out.println("Old Payment Status: " + oldStatus);
+
+        // 2. Cập nhật
+        boolean updated = dao.updatePaymentStatusByOrderId(testOrderId, newPaymentStatus);
+        System.out.println(updated ? "✅ Payment status updated successfully." : "❌ Update failed.");
+
+        // 3. Kiểm tra lại
+        int updatedStatus = dao.getPaymentStatusByOrderId(testOrderId);
+        System.out.println("New Payment Status: " + updatedStatus);
     }
 }

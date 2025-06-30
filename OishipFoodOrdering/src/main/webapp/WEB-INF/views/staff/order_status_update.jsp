@@ -88,7 +88,7 @@
                 padding: 8px;
             }
 
-            /*style timeline*/
+            /* Timeline container */
             .timeline {
                 display: flex;
                 justify-content: space-between;
@@ -107,28 +107,62 @@
                 z-index: 0;
             }
 
+            /* Step holder */
             .status-step {
                 text-align: center;
                 position: relative;
                 z-index: 1;
             }
 
+            /* Default dot (gray for inactive) */
             .status-dot {
                 width: 20px;
                 height: 20px;
-                background: #dee2e6;
                 border-radius: 50%;
                 margin: 0 auto 10px;
                 border: 2px solid #6c757d;
+                background: #dee2e6;
             }
 
-            .active {
-                background: red;
-                border-color: darkred;
+            /* Active dot style (only visual effect) */
+            .status-dot.active {
+                box-shadow: 0 0 0 4px rgba(0, 0, 0, 0.1);
+                transform: scale(1.2);
             }
 
+            /* Colored dots by status */
+            .status-step[data-status="0"] .status-dot.active {
+                background: #ffc0cb; /* Pink */
+                border-color: #ff99aa;
+            }
+
+            .status-step[data-status="1"] .status-dot.active,
+            .status-step[data-status="2"] .status-dot.active,
+            .status-step[data-status="3"] .status-dot.active {
+                background: #fd7e14; /* Orange */
+                border-color: #e8590c;
+            }
+
+            .status-step[data-status="4"] .status-dot.active {
+                background: #198754; /* Green */
+                border-color: #146c43;
+            }
+
+            .status-step[data-status="5"] .status-dot.active,
+            .status-step[data-status="6"] .status-dot.active {
+                background: #dc3545; /* Red */
+                border-color: #b02a37;
+            }
+
+            /* Label styling */
             .status-label {
                 font-weight: 500;
+            }
+
+            .bg-purple-light {
+                background-color: #e6ccff !important;  /* Tím nhạt */
+                color: #000 !important;                /* Chữ đen */
+                border: 1px solid #d6b3ff !important;  /* Viền tím nhạt */
             }
 
             @media (max-width: 768px) {
@@ -204,7 +238,7 @@
                     <!-- Timeline -->
                     <div class="timeline">
                         <c:forEach var="i" begin="0" end="6">
-                            <div class="status-step">
+                            <div class="status-step" data-status="${i}">
                                 <div class="status-dot ${orderStatus == i ? 'active' : ''}"></div>
                                 <div class="status-label">
                                     <c:choose>
@@ -221,37 +255,76 @@
                         </c:forEach>
                     </div>
 
+                    <!-- Payment Status Icon Display -->
+                    <div class="payment-status-icons d-flex justify-content-center align-items-center gap-4 mt-4 mb-4">
+
+                        <!-- Unpaid -->
+                        <div class="text-center">
+                            <i class="bi bi-x-circle-fill fs-2 
+                               ${paymentStatus == 0 ? 'text-danger' : 'text-secondary'} 
+                               ${paymentStatus == 0 ? 'opacity-100' : 'opacity-50'}"></i>
+                            <div class="small mt-1 ${paymentStatus == 0 ? 'fw-bold text-danger' : 'text-muted'}">Unpaid</div>
+                        </div>
+
+                        <!-- Paid -->
+                        <div class="text-center">
+                            <i class="bi bi-check-circle-fill fs-2 
+                               ${paymentStatus == 1 ? 'text-success' : 'text-secondary'} 
+                               ${paymentStatus == 1 ? 'opacity-100' : 'opacity-50'}"></i>
+                            <div class="small mt-1 ${paymentStatus == 1 ? 'fw-bold text-success' : 'text-muted'}">Paid</div>
+                        </div>
+
+                        <!-- Refunded -->
+                        <div class="text-center">
+                            <i class="bi bi-arrow-counterclockwise fs-2 
+                               ${paymentStatus == 2 ? 'text-warning' : 'text-secondary'} 
+                               ${paymentStatus == 2 ? 'opacity-100' : 'opacity-50'}"></i>
+                            <div class="small mt-1 ${paymentStatus == 2 ? 'fw-bold text-warning' : 'text-muted'}">Refunded</div>
+                        </div>
+
+                    </div>
+
                     <!-- Update Form -->
                     <form action="${pageContext.request.contextPath}/staff/manage-orders/update-status" method="post" class="text-center">
                         <input type="hidden" name="orderID" value="${orderID}">
 
                         <div class="row justify-content-center align-items-end g-3">
-                            <!-- Select new status -->
-                            <div class="col-md-6">
-                                <label class="fw-semibold">Select new status:</label>
-                                <select name="newStatus" class="form-select" required>
-                                    <option disabled selected value="">-- Choose status --</option>
-                                    <option value="0">Pending</option>
-                                    <option value="1">Confirmed</option>
-                                    <option value="2">Preparing</option>
-                                    <option value="3">Out for Delivery</option>
-                                    <option value="4">Delivered</option>
-                                    <option value="5">Cancelled</option>
-                                    <option value="6">Failed</option>
-                                </select>
-                            </div>
+                            <!-- Select Order Status -->
+                            <div class="col-md-4">
+                                <label class="fw-semibold">Order Status:</label>
+                                <select name="newStatus" class="form-select fw-semibold text-dark bg-warning border-warning" required>
+                                    <option value="0" <c:if test="${orderStatus == 0}">selected</c:if>>Pending</option>
+                                    <option value="1" <c:if test="${orderStatus == 1}">selected</c:if>>Confirmed</option>
+                                    <option value="2" <c:if test="${orderStatus == 2}">selected</c:if>>Preparing</option>
+                                    <option value="3" <c:if test="${orderStatus == 3}">selected</c:if>>Out for Delivery</option>
+                                    <option value="4" <c:if test="${orderStatus == 4}">selected</c:if>>Delivered</option>
+                                    <option value="5" <c:if test="${orderStatus == 5}">selected</c:if>>Cancelled</option>
+                                    <option value="6" <c:if test="${orderStatus == 6}">selected</c:if>>Failed</option>
+                                    </select>
+                                </div>
 
-                            <!-- Update button -->
-                            <div class="col-md-3">
-                                <button type="submit" class="btn btn-primary w-100">Update</button>
-                            </div>
+                                <!-- Select Payment Status -->
+                                <div class="col-md-4">
+                                    <label class="fw-semibold">Payment Status:</label>
+                                    <select name="newPaymentStatus" class="form-select fw-semibold bg-purple-light" required>
+                                        <option value="0" <c:if test="${paymentStatus == 0}">selected</c:if>>Unpaid</option>
+                                    <option value="1" <c:if test="${paymentStatus == 1}">selected</c:if>>Paid</option>
+                                    <option value="2" <c:if test="${paymentStatus == 2}">selected</c:if>>Refunded</option>
+                                    </select>
+                                </div>
 
-                            <!-- Back button -->
-                            <div class="col-md-3">
-                                <a href="${pageContext.request.contextPath}/staff/manage-orders" class="btn btn-secondary w-100">Back</a>
+                                <!-- Update button -->
+                                <div class="col-md-2">
+                                    <button type="submit" class="btn btn-primary w-100">Update</button>
+                                </div>
+
+                                <!-- Back button -->
+                                <div class="col-md-2">
+                                    <a href="${pageContext.request.contextPath}/staff/manage-orders" class="btn btn-secondary w-100">Back</a>
                             </div>
                         </div>
                     </form>
+
 
                     <!-- Success/Error Message -->
                     <c:if test="${not empty message}">
@@ -282,9 +355,20 @@
                                     <c:otherwise>${orderDetails[0].address}</c:otherwise>
                                 </c:choose>
                             </p>
-                            <p><strong>Order Created At:</strong>
-                                <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
+                            <p>
+                                <strong>Timestamps:</strong><br />
+                                <i>- Create:</i>
+                                <span class="text-muted">
+                                    <fmt:formatDate value="${orderDetails[0].createAt}" pattern="dd-MM-yyyy HH:mm:ss" />
+                                </span><br />
+                                <i>- Update:</i>
+                                <span class="text-muted">
+                                    <fmt:formatDate value="${orderDetails[0].updateAt}" pattern="dd-MM-yyyy HH:mm:ss" />
+                                </span>
                             </p>
+
+
+
                             <p><strong>Voucher:</strong>
                                 <c:choose>
                                     <c:when test="${empty orderDetails[0].voucherCode}">
@@ -337,7 +421,7 @@
 
                         <!-- BẢNG MÓN ĂN -->
                         <table class="table table-bordered table-hover">
-                            <thead class="table-dark">
+                            <thead class="table-light">
                                 <tr>
                                     <th>Dish</th>
                                     <th>Image</th>
@@ -350,7 +434,10 @@
                                 <c:forEach var="detail" items="${orderDetails}">
                                     <tr>
                                         <td>${detail.dishName}</td>
-                                        <td><img src="${detail.dishImage}" width="80" height="60" /></td>
+                                        <td><img src="${detail.dishImage}" alt="${detail.dishName}" width="70" height="40"
+                                                 style="cursor: pointer;"
+                                                 onclick="showImageModal('${detail.dishImage}')" />
+                                        </td>
                                         <td>${detail.quantity}</td>
                                         <td><fmt:formatNumber value="${detail.unitPrice}" type="number" groupingUsed="true"/> VNĐ</td>
                                         <td>
@@ -377,10 +464,29 @@
                 </div>
             </div>
 
-
+            <!-- Modal để hiển thị ảnh phóng to -->
+            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- modal-lg để ảnh to -->
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <img id="modalImage" src="" class="img-fluid" alt="Dish Image" />
+                        </div>
+                    </div>
+                </div>
+            </div>
 
         </div>
+
+        <script>
+            function showImageModal(imageSrc) {
+                const modalImage = document.getElementById("modalImage");
+                modalImage.src = imageSrc;
+                const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                modal.show();
+            }
+        </script>
         <!-- JS -->
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
+
     </body>
 </html>

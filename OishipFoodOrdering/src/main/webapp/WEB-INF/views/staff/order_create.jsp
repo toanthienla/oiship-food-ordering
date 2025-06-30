@@ -85,6 +85,12 @@
                 padding: 8px;
             }
 
+            .truncate {
+                max-width: 180px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
             @media (max-width: 768px) {
                 .main {
                     margin-left: 0;
@@ -221,13 +227,13 @@
 
                         <!-- Danh sách món ăn -->
                         <div class="table-responsive">
-                            <table class="table table-bordered table-hover align-middle text-center shadow-sm">
-                                <thead class="table-dark">
+                            <table class="table table-bordered table-hover">
+                                <thead class="table-light">
                                     <tr>
                                         <th>#</th>
                                         <th>Dish</th>
-                                        <th>Category</th>
                                         <th>Image</th>
+                                        <th>Category</th>
                                         <th>Price</th>
                                         <th>Stock</th>
                                         <th>Quantity</th>
@@ -236,16 +242,21 @@
                                 <tbody id="dishTableBody">
                                     <c:forEach var="dish" items="${dishes}" varStatus="loop">
                                         <tr data-dish="${dish.dishName}" data-category="${dish.category.catName}">
-                                            <td>${loop.index + 1}</td>
+                                            <td class="fw-bold text-center">${loop.index + 1}</td>
                                             <td>${dish.dishName}</td>
-                                            <td>${dish.category.catName}</td>
-                                            <td>
-                                                <img src="${dish.image}" alt="${dish.dishName}" width="80" height="50" class="dish-image" />
+                                            <td class="text-center">
+                                                <img src="${dish.image}" alt="${dish.dishName}" width="70" height="40"
+                                                     class="dish-image"
+                                                     style="cursor: pointer;"
+                                                     onclick="showImageModal('${dish.image}')" />
+
                                             </td>
+                                            <td>${dish.category.catName}</td>
+
                                             <td data-price="${dish.formattedPrice.replaceAll('[^\\d]', '')}" class="price-cell">
                                                 ${dish.formattedPrice}
                                             </td>
-                                            <td class="stock-cell">${dish.stock}</td>
+                                            <td class="stock-cell text-center">${dish.stock}</td>
                                             <td>
                                                 <input type="number" name="quantity_${dish.dishID}" class="form-control" min="0" max="${dish.stock}" value="0" />
                                             </td>
@@ -258,6 +269,18 @@
                     </form>
                 </div>
             </div>
+
+            <!-- Modal để hiển thị ảnh phóng to -->
+            <div class="modal fade" id="imageModal" tabindex="-1" aria-labelledby="imageModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered modal-lg"> <!-- modal-lg để ảnh to -->
+                    <div class="modal-content">
+                        <div class="modal-body text-center">
+                            <img id="modalImage" src="" class="img-fluid" alt="Dish Image" />
+                        </div>
+                    </div>
+                </div>
+            </div>
+
 
             <!-- JavaScript Filter -->
             <script>
@@ -289,7 +312,7 @@
                     searchInput.addEventListener("input", filterDishes);
                     categoryFilter.addEventListener("change", filterDishes);
                 });
-                
+
                 //tính tổng tiền
                 document.addEventListener("DOMContentLoaded", () => {
                     const quantityInputs = document.querySelectorAll("input[name^='quantity_']");
@@ -312,8 +335,17 @@
 
                     calculateTotal(); // tính lần đầu khi trang load
                 });
+
+                function showImageModal(imageSrc) {
+                    const modalImage = document.getElementById("modalImage");
+                    modalImage.src = imageSrc;
+                    const modal = new bootstrap.Modal(document.getElementById('imageModal'));
+                    modal.show();
+                }
             </script>
 
         </div>
+        <!-- Bootstrap Bundle JS (có Popper) -->
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </body>
 </html>

@@ -88,6 +88,12 @@
                 padding: 8px;
             }
 
+            .truncate {
+                max-width: 180px;
+                overflow: hidden;
+                text-overflow: ellipsis;
+            }
+
             @media (max-width: 768px) {
                 .main {
                     margin-left: 0;
@@ -185,8 +191,8 @@
 
                 <!-- Reviews Table -->
                 <div class="table-responsive">
-                    <table id="reviewTable" class="table table-hover table-bordered text-center align-middle shadow-sm">
-                        <thead class="table-dark">
+                    <table id="reviewTable" class="table table-bordered table-hover">
+                        <thead class="table-light">
                             <tr>
                                 <th>#</th>
                                 <th>Review ID</th>
@@ -199,27 +205,27 @@
                                 <th>Action</th>
                             </tr>
                         </thead>
-                        <tbody id="reviewTableBody">
+                        <tbody id="reviewTableBody" class="text-start">
                             <c:forEach var="r" items="${reviews}" varStatus="loop">
                                 <tr data-category="${r.catName}">
-                                    <td class="fw-bold">${loop.index + 1}</td>
-                                    <td>${r.reviewID}</td>
+                                    <td class="fw-bold text-center">${loop.index + 1}</td>
+                                    <td class="text-center">${r.reviewID}</td>
                                     <td>${r.dishName}</td>
                                     <td>${r.catName}</td>
-                                    <td>${r.customerName}</td>
+                                    <td class="truncate">${r.customerName}</td>
                                     <td>
                                         <span class="badge bg-warning text-dark fs-6">${r.rating} ★</span>
                                     </td>
-                                    <td class="text-start">${r.comment}</td>
+                                    <td class="text-start truncate">${r.comment}</td>
                                     <td><small class="text-muted">
                                             <fmt:formatDate value="${r.reviewCreatedAt}" pattern="dd-MM-yyyy HH:mm:ss" />
                                         </small>
                                     </td>
                                     <td>
                                         <a href="manage-reviews?action=delete&reviewID=${r.reviewID}"
-                                           class="btn btn-sm btn-outline-danger"
+                                           class="btn btn-sm btn-danger fw-semibold"
                                            onclick="return confirm('Bạn có chắc chắn muốn xóa đánh giá này không?');">
-                                            🗑 Delete
+                                            Delete
                                         </a>
                                     </td>
                                 </tr>
