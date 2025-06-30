@@ -18,7 +18,7 @@
 
         <h2 class="mb-4">Confirm Order</h2>
 
-        <form action="${pageContext.request.contextPath}/customer/order" method="post">
+        <form id="orderForm" action="${pageContext.request.contextPath}/customer/order" method="post">
             <input type="hidden" name="action" value="confirm"/>
             <input type="hidden" name="voucherID" id="hiddenVoucherID"/>
             <input type="hidden" name="fullname" id="hiddenFullName" value="${customer.fullName}" />
@@ -505,6 +505,23 @@
 
                 // Nếu có giảm giá (Yến có thể thêm logic nếu dùng voucher)
             }
+        </script>
+        <script>
+            document.getElementById("orderForm").addEventListener("submit", function (event) {
+                let totalQty = 0;
+
+                document.querySelectorAll("input[id^='qty_']").forEach(input => {
+                    const qty = parseInt(input.value);
+                    if (!isNaN(qty)) {
+                        totalQty += qty;
+                    }
+                });
+
+                if (totalQty > 50) {
+                  alert("The total quantity of items in the order must not exceed 50.");
+                    event.preventDefault(); // Ngăn form submit
+                }
+            });
         </script>
 
     </body>

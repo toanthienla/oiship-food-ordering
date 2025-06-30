@@ -72,7 +72,7 @@ public class NotificationDAO extends DBContext {
         List<Notification> list = new ArrayList<>();
         String sql = " SELECT n.*\n"
                 + "        FROM Notification n\n"
-                + "        JOIN CustomertNotification cn ON n.notID = cn.notID\n"
+                + "        JOIN CustomerNotification cn ON n.notID = cn.notID\n"
                 + "        WHERE cn.customerID = ? AND cn.isRead = 0\n"
                 + "        ORDER BY n.notID DESC ";
 
@@ -99,7 +99,7 @@ public class NotificationDAO extends DBContext {
     }
 
     public void markAsRead(int customerID, int notID) {
-        String sql = "UPDATE CustomertNotification SET isRead = 1 WHERE customerID = ? AND notID = ?";
+        String sql = "UPDATE CustomerNotification SET isRead = 1 WHERE customerID = ? AND notID = ?";
         try (
                 PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, customerID);
