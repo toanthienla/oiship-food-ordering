@@ -426,20 +426,15 @@
             </span>
             <% }%>
         </a>
-
-
-
         <a href="customer/order">
             <i class="fas fa-list me-2"></i> Order
         </a>
 
-        <a href="#contact">
+        <a href="customer/contact">
             <i class="fas fa-phone me-2"></i> Contact
         </a>
+
     </div>
-
-
-
 
     <div class="main-content">
         <nav class="navbar navbar-light bg-light p-2 mb-3">
@@ -590,9 +585,9 @@
             <div id="map"></div>
         </div>
 
-       
 
-        <!-- Thêm vào <head> -->
+
+    
         <style>
             #map {
                 height: 400px;
@@ -612,7 +607,7 @@
             Map<String, Object> cartSuccessDetails = (Map<String, Object>) session.getAttribute("cartSuccessDetails");
             if (cartSuccessDetails != null) {
                 session.removeAttribute("cartSuccessDetails"); // Clear session to avoid repeated display
-        %>
+%>
         <div class="cart-success-alert" id="cartSuccessAlert">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <img src="<%= cartSuccessDetails.get("image")%>" alt="Dish Image" class="img-fluid">
@@ -708,7 +703,7 @@
         <script>
             let map;
             function initMap() {
-                const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
+                const defaultLocation = {lat: 10.7769, lng: 106.7009}; 
                 map = new google.maps.Map(document.getElementById("map"), {
                     center: defaultLocation,
                     zoom: 12,
@@ -786,7 +781,6 @@
                     });
         }
 
-        // Optional: clear modal content on close
         document.getElementById('dishDetailModal').addEventListener('hidden.bs.modal', function () {
             document.getElementById('dishDetailContent').innerHTML = '';
         });
@@ -828,7 +822,7 @@
             const dishContainer = document.getElementById("dish-container");
 
             form.addEventListener("submit", function (event) {
-                event.preventDefault(); // Ngăn form reload
+                event.preventDefault(); 
 
                 const query = input.value.trim();
 
@@ -873,7 +867,7 @@
                     item.style.display = "block";
                 });
 
-                // Update active page button
+               
                 document.querySelectorAll("#pageNumbers button").forEach(btn => {
                     btn.classList.remove("btn-primary");
                     btn.classList.add("btn-outline-primary");
@@ -882,9 +876,7 @@
                 if (activeBtn) {
                     activeBtn.classList.add("btn-primary");
                     activeBtn.classList.remove("btn-outline-primary");
-                }
-
-                // Disable prev/next
+                }            
                 prevBtn.disabled = page === 1;
                 nextBtn.disabled = page === totalPages;
             }
@@ -980,36 +972,15 @@
             });
         }
     </script>
-    <script>
-//            const notificationModal = document.getElementById('notificationModal');
-//            notificationModal.addEventListener('show.bs.modal', function (event) {
-//                const button = event.relatedTarget;
-//                const notID = button.getAttribute('data-id');
-//                const title = button.getAttribute('data-title');
-//                const description = button.getAttribute('data-description');
-//
-//                // Hiển thị nội dung vào modal
-//                document.getElementById('modalTitle').innerText = title;
-//                document.getElementById('modalDescription').innerText = description;
-//
-//                // Gán giá trị vào input ẩn
-//                document.getElementById('hiddenNotID').value = notID;
-//
-//                // Submit form ngay khi mở modal (hoặc có thể chuyển sang nhấn nút "Đã đọc")
-//                document.getElementById('markReadForm').submit();
-//            });
-    </script>
 
     <script>
         document.addEventListener("DOMContentLoaded", function () {
             const notificationModal = document.getElementById("notificationModal");
             const modalTitle = document.getElementById("modalTitle");
             const modalDescription = document.getElementById("modalDescription");
-            const hiddenNotID = document.getElementById("hiddenNotID");
-
-            // Lắng nghe sự kiện khi modal được hiển thị
+            const hiddenNotID = document.getElementById("hiddenNotID");         
             notificationModal.addEventListener('show.bs.modal', function (event) {
-                const triggerElement = event.relatedTarget; // Phần tử a.dropdown-item được click
+                const triggerElement = event.relatedTarget; 
 
                 const title = triggerElement.getAttribute("data-title");
                 const description = triggerElement.getAttribute("data-description");

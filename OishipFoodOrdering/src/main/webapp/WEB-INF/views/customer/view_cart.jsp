@@ -96,34 +96,56 @@
                                 int quantity = item.getQuantity();
                                 BigDecimal unitPrice = dish.getTotalPrice();
                                 BigDecimal itemTotal = unitPrice.multiply(BigDecimal.valueOf(quantity));
-                                grandTotal = grandTotal.add(itemTotal);
+                                int stock = dish.getStock();
+
+                                if (stock > 0) {
+                                    grandTotal = grandTotal.add(itemTotal);
+                                }
                         %>
-                        <tr>
-                            <td><input type="checkbox" class="item-checkbox" value="<%= item.getCartID()%>"></td>
-                            <td><img src="<%= dish.getImage()%>" width="90" class="img-thumbnail"></td>
+                        <tr>                            
+                            <td>
+                                <input type="checkbox"
+                                       class="item-checkbox"
+                                       value="<%= item.getCartID()%>"
+                                       <%= (stock == 0) ? "disabled" : ""%> />
+                            </td>                           
+                            <td><img src="<%= dish.getImage()%>" width="90" class="img-thumbnail"></td>   
                             <td>
                                 <%= dish.getDishName()%><br>
                                 <small class="text-muted">Price: <%= dish.getFormattedPrice()%> đ</small>
                             </td>
+
                             <td>
+                                <% if (stock == 0) { %>
+                                <span class="text-danger fw-semibold">Out of stock – please choose another dish</span>
+                                <% } else {%>
                                 <div class="d-flex justify-content-center align-items-center gap-2">
-                                    <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
+                                    <button class="btn btn-outline-secondary btn-sm"
+                                            onclick="updateQuantity(<%= item.getCartID()%>, -1)">−</button>
                                     <input type="text"
                                            id="qty_<%= item.getCartID()%>"
-                                           data-stock="<%= dish.getStock()%>"
+                                           data-stock="<%= stock%>"
                                            data-name="<%= dish.getDishName()%>"
                                            value="<%= quantity%>"
                                            readonly
                                            class="form-control text-center"
                                            style="width: 60px;">
-                                    <button class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
+                                    <button class="btn btn-outline-secondary btn-sm"
+                                            onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
-                            </td>
+                                <% }%>
+                            </td>                          
                             <td class="item-total" data-price="<%= unitPrice.intValue()%>">
+                                <% if (stock > 0) {%>
                                 <%= String.format("%,.0f", itemTotal)%> đ
-                            </td>
+                                <% } else { %>
+                                <span class="text-muted fst-italic">-</span>
+                                <% }%>
+                            </td>                          
                             <td>
-                                <form action="<%= request.getContextPath()%>/customer/view-cart" method="post" onsubmit="return confirm('Are you sure you want to remove this item?');">
+                                <form action="<%= request.getContextPath()%>/customer/view-cart"
+                                      method="post"
+                                      onsubmit="return confirm('Are you sure you want to remove this item?');">
                                     <input type="hidden" name="cartID" value="<%= item.getCartID()%>">
                                     <button type="submit" class="btn btn-danger btn-sm">Remove</button>
                                 </form>
@@ -131,6 +153,7 @@
                         </tr>
                         <% } %>
                     </tbody>
+
                 </table>
             </div>
             <% } else { %>
@@ -151,7 +174,7 @@
             const contextPath = "<%= request.getContextPath()%>";
 
             function updateQuantity(cartId, delta) {
-               
+
                 const input = document.getElementById("qty_" + cartId);
                 const maxStock = parseInt(input.getAttribute("data-stock"));
                 let qty = parseInt(input.value);
@@ -195,72 +218,96 @@
                 // document.getElementById("grandTotalAmount").textContent = total.toLocaleString() + " đ";
             }
 
-            function prepareOrder(event) {
-                const checkedItems = document.querySelectorAll('.item-checkbox:checked');
+            async function prepareOrder(event) {
+                event.preventDefault(); 
 
+                const checkedItems = document.querySelectorAll('.item-checkbox:checked');
                 if (checkedItems.length === 0) {
                     alert("Please select at least one dish to place the order.");
-                    event.preventDefault();
                     return false;
                 }
 
                 let isValid = true;
                 let totalQty = 0;
 
-                checkedItems.forEach(cb => {
+                for (const cb of checkedItems) {
                     const cartId = cb.value;
                     const qtyInput = document.getElementById("qty_" + cartId);
-                    const qty = parseInt(qtyInput.value);
+                    let qty = parseInt(qtyInput.value);
                     const maxStock = parseInt(qtyInput.getAttribute("data-stock"));
                     const dishName = qtyInput.getAttribute("data-name");
 
                     if (isNaN(qty) || qty < 1) {
-                        alert(`The quantity for "${dishName}" is invalid.`);
+                        alert("The quantity for " + dishName + " is invalid.");
                         qtyInput.value = 1;
                         isValid = false;
                     } else if (qty > maxStock) {
-                       alert("Only " + maxStock + " items in stock.");
+                        alert("Only " + maxStock + " in stock for " + dishName);
                         qtyInput.value = maxStock;
                         isValid = false;
                     } else if (qty > 10) {
-                        alert("The maximum quantity is 10.");
+                        alert("Maximum quantity is 10.");
                         qtyInput.value = 10;
                         isValid = false;
                     }
 
                     totalQty += qty;
-                });
+                }
 
                 if (totalQty > 50) {
-                    alert("The total quantity of items in the order must not exceed 50.");
+                    alert("Total quantity must not exceed 50.");
                     isValid = false;
                 }
 
                 if (!isValid) {
-                    event.preventDefault();
                     return false;
                 }
 
-                // Xóa các input hidden cũ
-                document.querySelectorAll('#orderForm input[name="selectedItems"]').forEach(e => e.remove());
+    
+                const promises = [];
 
-                // Gắn thêm input hidden cho các cartID được chọn
                 checkedItems.forEach(cb => {
-                    const hidden = document.createElement('input');
-                    hidden.type = 'hidden';
-                    hidden.name = 'selectedItems';
-                    hidden.value = cb.value;
-                    document.getElementById('orderForm').appendChild(hidden);
+                    const cartId = cb.value;
+                    const qty = document.getElementById("qty_" + cartId).value;
+
+                    const promise = fetch(contextPath + "/customer/view-cart", {
+                        method: "POST",
+                        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                        body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                    });
+
+
+                    promises.push(promise);
                 });
 
+                try {
+                    await Promise.all(promises); 
+                } catch (err) {
+                    alert("Failed to update quantities. Please try again.");
+                    return false;
+                }
+
+                const form = document.getElementById('orderForm');
+                form.querySelectorAll('input[name="selectedItems"]').forEach(e => e.remove());
+
+                checkedItems.forEach(cb => {
+                    const input = document.createElement('input');
+                    input.type = 'hidden';
+                    input.name = 'selectedItems';
+                    input.value = cb.value;
+                    form.appendChild(input);
+                });
+
+             
+                form.submit();
                 return true;
             }
 
-
             function toggleAll(source) {
-                const checkboxes = document.querySelectorAll('.item-checkbox');
+                const checkboxes = document.querySelectorAll('.item-checkbox:not(:disabled)');
                 checkboxes.forEach(cb => cb.checked = source.checked);
             }
+
         </script>
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>

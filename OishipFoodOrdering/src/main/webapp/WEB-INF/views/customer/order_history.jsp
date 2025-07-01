@@ -108,7 +108,7 @@
                         int os = order.getOrderStatus();
                         int ps = order.getPaymentStatus();
 
-                        // Xác định màu class cho trạng thái
+                       
                         String orderClass = "";
                         switch (os) {
                             case 0:
@@ -274,7 +274,7 @@
                             btn.textContent = btn.textContent === 'See more' ? 'See less' : 'See more';
                         }
 
-                        // Khi modal mở: lấy dữ liệu từ nút đã bấm và gán vào input
+                        
                         const reviewModal = document.getElementById('reviewModal');
                         reviewModal.addEventListener('show.bs.modal', function (event) {
                             const button = event.relatedTarget;
@@ -293,26 +293,26 @@
         </script>
         <% }%>
         <script>
-            // Bắt sự kiện submit của form review
+           
             const reviewForm = document.querySelector('#reviewModal form');
             reviewForm.addEventListener('submit', function (e) {
                 const comment = reviewForm.querySelector('textarea[name="comment"]').value.trim();
 
                 if (comment.length > 255) {
-                    e.preventDefault(); // Ngăn form gửi về server
+                    e.preventDefault(); 
                     alert("Comment cannot exceed 255 characters.");
                 }
             });
         </script>
         <script>
-            // Tự động ẩn alert sau 3 giây
+        
             window.addEventListener("DOMContentLoaded", function () {
                 const alerts = document.querySelectorAll('.alert');
                 alerts.forEach(alert => {
                     setTimeout(() => {
                         alert.classList.add('fade');
-                        setTimeout(() => alert.remove(), 500); // Xoá khỏi DOM sau khi hiệu ứng hoàn tất
-                    }, 3000); // 3 giây
+                        setTimeout(() => alert.remove(), 500); 
+                    }, 3000); //3s
                 });
             });
         </script>

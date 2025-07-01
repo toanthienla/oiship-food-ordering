@@ -5,7 +5,6 @@ import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
 import java.io.IOException;
-import java.math.BigDecimal;
 import java.util.List;
 import model.Cart;
 
@@ -29,11 +28,10 @@ public class ViewCartServlet extends HttpServlet {
 
             request.setAttribute("cartItems", cartItems);
 
-
             request.getRequestDispatcher("/WEB-INF/views/customer/view_cart.jsp").forward(request, response);
         } catch (Exception e) {
             e.printStackTrace();
-            request.setAttribute("error", "Không thể hiển thị giỏ hàng.");
+            request.setAttribute("error", "Unable to display the cart.");
             request.getRequestDispatcher("/WEB-INF/views/customer/view_cart.jsp").forward(request, response);
         }
     }
@@ -48,20 +46,45 @@ public class ViewCartServlet extends HttpServlet {
             return;
         }
 
-        String cartIdStr = request.getParameter("cartID");
-        String quantityStr = request.getParameter("quantity");
-
-        if (cartIdStr == null || cartIdStr.isEmpty()) {
-            response.sendError(HttpServletResponse.SC_BAD_REQUEST, "Thiếu mã giỏ hàng.");
-            return;
-        }
-
         try {
-            int cartID = Integer.parseInt(cartIdStr);
             CartDAO cartDAO = new CartDAO();
 
-            // ✅ Nếu có quantity -> cập nhật
-            if (quantityStr != null) {
+            String[] selectedItems = request.getParameterValues("selectedItems");
+
+            if (selectedItems != null && selectedItems.length > 0) {
+                for (String cartIdStr : selectedItems) {
+                    int cartID = Integer.parseInt(cartIdStr);
+                    String quantityParam = request.getParameter("quantity_" + cartIdStr);
+
+                    if (quantityParam != null) {
+                        try {
+                            int quantity = Integer.parseInt(quantityParam);
+                            if (quantity < 1) {
+                                quantity = 1;
+                            }
+
+                            int stock = cartDAO.getDishStockByCartId(cartID);
+                            if (quantity > stock) {
+                                quantity = stock;
+                            }
+
+                            cartDAO.updateCartQuantity(cartID, quantity);
+                        } catch (NumberFormatException ex) {
+                            // Log lỗi nếu cần
+                            continue;
+                        }
+                    }
+                }
+
+                response.sendRedirect(request.getContextPath() + "/customer/view-cart");
+                return;
+            }
+
+            String cartIdStr = request.getParameter("cartID");
+            String quantityStr = request.getParameter("quantity");
+
+            if (cartIdStr != null && quantityStr != null) {
+                int cartID = Integer.parseInt(cartIdStr);
                 int quantity = Integer.parseInt(quantityStr);
                 if (quantity < 1) {
                     quantity = 1;
@@ -71,16 +94,18 @@ public class ViewCartServlet extends HttpServlet {
                 if (quantity > stock) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.setContentType("application/json");
-                    response.getWriter().write("{\"error\":\"Số lượng vượt quá tồn kho. Chỉ còn " + stock + " món.\"}");
+                    response.getWriter().write("{\"error\":\"Quantity exceeds available stock. Only " + stock + " items left.\"}");
                     return;
                 }
-                cartDAO.updateCartQuantity(cartID, quantity);
 
-                // Gửi JSON nếu cần
+                cartDAO.updateCartQuantity(cartID, quantity);
                 response.setContentType("application/json");
-                response.getWriter().write("{\"message\":\"Cập nhật thành công\"}");
-            } else {
-                // ❌ Không có quantity -> xóa
+                response.getWriter().write("{\"message\":\"Quantity updated successfully.\"}");
+                return;
+            }
+
+            if (cartIdStr != null) {
+                int cartID = Integer.parseInt(cartIdStr);
                 cartDAO.deleteCartItem(cartID);
                 response.sendRedirect(request.getContextPath() + "/customer/view-cart");
             }
@@ -88,7 +113,7 @@ public class ViewCartServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace();
             response.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
-            response.getWriter().write("{\"error\":\"Lỗi xử lý giỏ hàng\"}");
+            response.getWriter().write("{\"error\":\"Failed to process cart operation.\"}");
         }
     }
 }
