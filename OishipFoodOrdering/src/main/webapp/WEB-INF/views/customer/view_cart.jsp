@@ -240,14 +240,17 @@
                     if (isNaN(qty) || qty < 1) {
                         alert("The quantity for " + dishName + " is invalid.");
                         qtyInput.value = 1;
+                       
                         isValid = false;
                     } else if (qty > maxStock) {
                         alert("Only " + maxStock + " in stock for " + dishName);
                         qtyInput.value = maxStock;
+                         
                         isValid = false;
                     } else if (qty > 10) {
                         alert("Maximum quantity is 10.");
                         qtyInput.value = 10;
+                        
                         isValid = false;
                     }
 

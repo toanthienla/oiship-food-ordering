@@ -137,7 +137,7 @@
                                 </div>
 
                                 <!-- Tổng tiền theo món -->
-                                <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> VND</div>
+                                <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> đ</div>
                             </div>
                         </div>
                         <% }%>
@@ -162,15 +162,15 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <span>Subtotal:</span>
-                            <span id="totalBefore" data-value="<%= grandTotal%>"><%= String.format("%,.0f", grandTotal)%> VND</span>
+                            <span id="totalBefore" data-value="<%= grandTotal%>"><%= String.format("%,.0f", grandTotal)%> đ</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span>Discount:</span>
-                            <span id="discountAmount">- 0 VND</span>
+                            <span id="discountAmount">- 0 đ</span>
                         </div>
                         <div class="d-flex justify-content-between fw-bold fs-5">
                             <span>Total Amount:</span>
-                            <span id="finalAmount"><%= String.format("%,.0f", grandTotal)%> VND</span>
+                            <span id="finalAmount"><%= String.format("%,.0f", grandTotal)%> đ</span>
                         </div>
                     </div>
 
@@ -416,8 +416,8 @@
              
                 hiddenInput.value = voucherID;
                 voucherText.textContent = "Applied: " + code;
-                discountText.textContent = "- " + discountAmount.toLocaleString() + " VND";
-                finalTotalText.textContent = finalTotal.toLocaleString() + " VND";
+                discountText.textContent = "- " + discountAmount.toLocaleString() + " đ";
+                finalTotalText.textContent = finalTotal.toLocaleString() + " đ";
             
                 const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
                 modal.hide();
@@ -490,8 +490,8 @@
                         total += parseInt(val);
                 });
           
-                document.getElementById("totalBefore").textContent = total.toLocaleString() + " VND";
-                document.getElementById("finalAmount").textContent = total.toLocaleString() + " VND";
+                document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
+                document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
                 document.getElementById("discountAmount").textContent = "- 0 VND";
             }
         </script>
