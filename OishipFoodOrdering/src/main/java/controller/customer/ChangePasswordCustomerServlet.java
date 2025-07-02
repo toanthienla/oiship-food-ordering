@@ -26,19 +26,16 @@ public class ChangePasswordCustomerServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Bước 1: Nhận email từ session
         String email = (String) request.getSession().getAttribute("email");
         if (email == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
-        // Bước 2: Lấy thông tin từ form
         String currentPassword = request.getParameter("currentPassword");
         String newPassword = request.getParameter("newPassword");
         String confirmPassword = request.getParameter("confirmPassword");
 
-        // Bước 3: Kiểm tra mật khẩu hiện tại có đúng không
         CustomerProfileDAO customer = new CustomerProfileDAO();
         Customer cus = customer.getCustomerByEmail(email);
 
@@ -55,17 +52,14 @@ public class ChangePasswordCustomerServlet extends HttpServlet {
             return;
         }
 
-        // Bước 4: So sánh newPassword và confirmPassword
         if (!newPassword.equals(confirmPassword)) {
             request.setAttribute("error", "New password and confirmation do not match.");
             request.getRequestDispatcher("/WEB-INF/views/customer/customer_change_password.jsp").forward(request, response);
             return;
         }
 
-        // Bước 5: Cập nhật mật khẩu mới nếu hợp lệ
         boolean success = customer.changePasswordCustomerByEmail(email, newPassword);
 
-        // Bước 6: Thông báo
         if (success) {
             request.setAttribute("message", "Password changed successfully.");
         } else {

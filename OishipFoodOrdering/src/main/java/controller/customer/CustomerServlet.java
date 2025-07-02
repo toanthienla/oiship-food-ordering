@@ -66,7 +66,7 @@ public class CustomerServlet extends HttpServlet {
             for (Cookie cookie : cookies) {
                 if ("email".equals(cookie.getName())) {
                     Cookie emailCookie = new Cookie("email", cookie.getValue());
-                    emailCookie.setMaxAge(30 * 24 * 60 * 60); // 30 days
+                    emailCookie.setMaxAge(30 * 24 * 60 * 60); 
                     emailCookie.setPath(request.getContextPath());
                     response.addCookie(emailCookie);
                     break;
@@ -74,12 +74,10 @@ public class CustomerServlet extends HttpServlet {
             }
         }
 
-        // Get existing notifications
         NotificationDAO notificationDAO = new NotificationDAO();
         List<Notification> notifications = notificationDAO.getUnreadNotificationsByCustomer(userId);
         request.setAttribute("notifications", notifications);
 
-        // Pass cart success message if present
         String cartSuccessMessage = (String) request.getAttribute("cartSuccessMessage");
         if (cartSuccessMessage != null) {
             request.setAttribute("cartSuccessMessage", cartSuccessMessage);
@@ -93,7 +91,7 @@ public class CustomerServlet extends HttpServlet {
             Logger.getLogger(CustomerServlet.class.getName()).log(Level.SEVERE, null, ex);
         }
 
-        session.setAttribute("cartItems", cartItems); // ✅
+        session.setAttribute("cartItems", cartItems); 
 
         request.getRequestDispatcher("/WEB-INF/views/customer/customer.jsp").forward(request, response);
     }

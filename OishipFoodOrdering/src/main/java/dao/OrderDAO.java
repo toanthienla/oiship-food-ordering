@@ -59,7 +59,6 @@ public class OrderDAO extends DBContext {
         return orders;
     }
 
-    //này dùng cho order detail, cẩn thận nhầm ODID và orderID nhé
     public List<OrderDetail> getOrderDetailsByOrderID(int orderID) {
         List<OrderDetail> list = new ArrayList<>();
 
@@ -136,7 +135,7 @@ public class OrderDAO extends DBContext {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return -1; // Trả về -1 nếu không tìm thấy
+        return -1;
     }
 
     public boolean updateStatusOrderByOrderId(int orderId, int newStatus) {
@@ -168,7 +167,7 @@ public class OrderDAO extends DBContext {
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
-                    generatedID = rs.getInt(1); // Lấy accountID vừa được tạo
+                    generatedID = rs.getInt(1); 
                 }
             }
         } catch (SQLException e) {
@@ -225,10 +224,10 @@ public class OrderDAO extends DBContext {
     public int createOrder(int customerId, BigDecimal amount, Integer voucherID) {
         String sql = "INSERT INTO [Order](amount, orderStatus, FK_Order_Customer, FK_Order_Voucher) VALUES (?, 0, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setBigDecimal(1, amount);         // amount
-            ps.setInt(2, customerId);            // FK_Order_Customer
+            ps.setBigDecimal(1, amount);         
+            ps.setInt(2, customerId);            
             if (voucherID != null) {
-                ps.setInt(3, voucherID);         // FK_Order_Voucher
+                ps.setInt(3, voucherID);       
             } else {
                 ps.setNull(3, Types.INTEGER);
             }
@@ -236,7 +235,7 @@ public class OrderDAO extends DBContext {
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1); // Trả về orderID vừa tạo
+                return rs.getInt(1); 
             }
 
         } catch (Exception e) {
@@ -272,8 +271,6 @@ public class OrderDAO extends DBContext {
                 order.setAmount(rs.getBigDecimal("amount"));
                 order.setOrderStatus(rs.getInt("orderStatus"));
                 order.setPaymentStatus(rs.getInt("paymentStatus"));
-
-                // Lấy danh sách món ăn cho đơn hàng này
                 List<OrderDetail> details = getOrderDetailsByOrderId(order.getOrderID());
                 order.setOrderDetails(details);
 
@@ -304,13 +301,11 @@ public class OrderDAO extends DBContext {
                 detail.setODID(rs.getInt("ODID"));
                 detail.setQuantity(rs.getInt("quantity"));
 
-                // Gán Dish
                 Dish dish = new Dish();
                 dish.setDishName(rs.getString("DishName"));
                 dish.setImage(rs.getString("DishImage"));
                 detail.setDish(dish);
 
-                // Gán đã review hay chưa
                 boolean isReviewed = rs.getInt("isReviewed") == 1;
                 detail.setReviewed(isReviewed);
 

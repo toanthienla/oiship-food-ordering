@@ -219,7 +219,7 @@
             }
 
             async function prepareOrder(event) {
-                event.preventDefault(); 
+                event.preventDefault();
 
                 const checkedItems = document.querySelectorAll('.item-checkbox:checked');
                 if (checkedItems.length === 0) {
@@ -239,19 +239,36 @@
 
                     if (isNaN(qty) || qty < 1) {
                         alert("The quantity for " + dishName + " is invalid.");
-                        qtyInput.value = 1;
-                       
+                        qty = 1;
+                        qtyInput.value = qty;
                         isValid = false;
+
+                        await fetch(contextPath + "/customer/view-cart", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                            body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                        });
+
                     } else if (qty > maxStock) {
                         alert("Only " + maxStock + " in stock for " + dishName);
-                        qtyInput.value = maxStock;
-                         
+                        qty = maxStock;
+                        qtyInput.value = qty;
                         isValid = false;
+                        await fetch(contextPath + "/customer/view-cart", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                            body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                        });
                     } else if (qty > 10) {
                         alert("Maximum quantity is 10.");
-                        qtyInput.value = 10;
-                        
+                        qty = 10;
+                        qtyInput.value = qty;
                         isValid = false;
+                        await fetch(contextPath + "/customer/view-cart", {
+                            method: "POST",
+                            headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                            body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                        });
                     }
 
                     totalQty += qty;
@@ -266,7 +283,7 @@
                     return false;
                 }
 
-    
+
                 const promises = [];
 
                 checkedItems.forEach(cb => {
@@ -284,7 +301,7 @@
                 });
 
                 try {
-                    await Promise.all(promises); 
+                    await Promise.all(promises);
                 } catch (err) {
                     alert("Failed to update quantities. Please try again.");
                     return false;
@@ -301,7 +318,7 @@
                     form.appendChild(input);
                 });
 
-             
+
                 form.submit();
                 return true;
             }

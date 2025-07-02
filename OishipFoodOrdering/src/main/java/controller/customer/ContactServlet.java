@@ -78,7 +78,6 @@ protected void doPost(HttpServletRequest request, HttpServletResponse response)
         try {
             int customerID = (int) userIdObj;
 
-            // Gọi DAO lưu liên hệ
             ContactDAO dao = new ContactDAO();
             dao.insertContact(customerID, subject, message);
 

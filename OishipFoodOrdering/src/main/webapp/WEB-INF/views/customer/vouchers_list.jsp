@@ -23,13 +23,12 @@
                 height: 100%;
             }
             .voucher-code {
-                font-size: 18px; /* tăng size chữ */
+                font-size: 18px; 
                 font-weight: bold;
                 color: #db672d;
             }
             .voucher-discount, .voucher-description {
-                font-size: 14px; /* cùng size chữ */
-                color: #333;
+                font-size: 14px;
                 margin-top: 8px;
             }
         </style>

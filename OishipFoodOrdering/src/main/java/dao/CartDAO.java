@@ -20,7 +20,7 @@ public class CartDAO extends DBContext {
 
         String sql = "SELECT "
                 + "c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, "
-                + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.stock " // ➕ Thêm d.stock
+                + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.stock " 
                 + "FROM Cart c "
                 + "JOIN Dish d ON c.FK_Cart_Dish = d.DishID "
                 + "WHERE c.FK_Cart_Customer = ?";
@@ -46,11 +46,8 @@ public class CartDAO extends DBContext {
                 dish.setImage(rs.getString("image"));
                 dish.setOpCost(rs.getBigDecimal("opCost"));
                 dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
-
-                // ✅ Thêm stock vào
                 dish.setStock(rs.getInt("stock"));
 
-                // ✅ Tính giá từ nguyên liệu
                 List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
                 BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
                 BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
@@ -166,8 +163,6 @@ public class CartDAO extends DBContext {
         if (cartIDs == null || cartIDs.length == 0) {
             return carts;
         }
-
-        // Chuẩn bị câu truy vấn
         StringBuilder sql = new StringBuilder(
                 "SELECT c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, "
                 + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.stock "
@@ -175,7 +170,7 @@ public class CartDAO extends DBContext {
                 + "WHERE c.cartID IN ("
         );
         sql.append("?,".repeat(cartIDs.length));
-        sql.setLength(sql.length() - 1); // xóa dấu phẩy cuối
+        sql.setLength(sql.length() - 1);
         sql.append(")");
 
         try (PreparedStatement ps = conn.prepareStatement(sql.toString())) {
@@ -197,9 +192,7 @@ public class CartDAO extends DBContext {
                 dish.setImage(rs.getString("image"));
                 dish.setOpCost(rs.getBigDecimal("opCost"));
                 dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
-                dish.setStock(rs.getInt("stock")); // ✅ thêm stock
-
-                // Gán nguyên liệu
+                dish.setStock(rs.getInt("stock")); 
                 loadIngredientsForDish(dish);
 
                 cart.setDish(dish);
@@ -281,7 +274,7 @@ public class CartDAO extends DBContext {
                 return rs.getInt("stock");
             }
         }
-        return 0; // Nếu không tìm thấy, coi như hết hàng
+        return 0; 
     }
 
 }

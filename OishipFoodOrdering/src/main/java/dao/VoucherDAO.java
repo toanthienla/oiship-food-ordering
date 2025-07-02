@@ -49,7 +49,7 @@ public class VoucherDAO extends DBContext {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, v.getCode());
             ps.setString(2, v.getVoucherDescription());
-            ps.setString(3, v.getDiscountType()); // Added
+            ps.setString(3, v.getDiscountType()); 
             ps.setBigDecimal(4, v.getDiscount());
             ps.setBigDecimal(5, v.getMaxDiscountValue());
             ps.setBigDecimal(6, v.getMinOrderValue());
@@ -81,7 +81,7 @@ public class VoucherDAO extends DBContext {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, v.getCode());
             ps.setString(2, v.getVoucherDescription());
-            ps.setString(3, v.getDiscountType()); // Added
+            ps.setString(3, v.getDiscountType()); 
             ps.setBigDecimal(4, v.getDiscount());
             ps.setBigDecimal(5, v.getMaxDiscountValue());
             ps.setBigDecimal(6, v.getMinOrderValue());
@@ -223,7 +223,7 @@ public class VoucherDAO extends DBContext {
             ps.setInt(1, customerId);
             ps.setInt(2, voucherId);
             ResultSet rs = ps.executeQuery();
-            return rs.next(); // Nếu có dòng => đã dùng rồi
+            return rs.next(); 
         } catch (Exception e) {
             e.printStackTrace();
         }

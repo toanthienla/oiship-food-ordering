@@ -62,12 +62,12 @@ public class MarkNotificationReadServlet extends HttpServlet {
         if (notIDStr != null && !notIDStr.trim().isEmpty()) {
             try {
                 int notID = Integer.parseInt(notIDStr);
-                int customerID = (int) session.getAttribute("userId");  // ✅ userId là Integer
+                int customerID = (int) session.getAttribute("userId"); 
 
                 NotificationDAO dao = new NotificationDAO();
                 dao.markAsRead(customerID, notID);
 
-                // ✅ Quay lại trang customer
+                
                 response.sendRedirect(request.getContextPath() + "/customer");
 
             } catch (NumberFormatException e) {

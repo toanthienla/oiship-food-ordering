@@ -38,7 +38,6 @@ public class AddCartServlet extends HttpServlet {
             return;
         }
 
-        // Validate input
         if (dishIdStr == null || quantityStr == null || dishIdStr.trim().isEmpty() || quantityStr.trim().isEmpty()) {
             session.setAttribute("errorMessage", "Missing dish or quantity data.");
             response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
@@ -81,7 +80,6 @@ public class AddCartServlet extends HttpServlet {
                 cartDAO.addToCart(customerID, dishID, quantity);
             }
 
-            // Flash message with dish details
             Map<String, Object> cartSuccessDetails = new HashMap<>();
             cartSuccessDetails.put("image", dish.getImage() != null ? dish.getImage() : "");
             cartSuccessDetails.put("name", dish.getDishName());
