@@ -42,7 +42,7 @@ public class OrderServlet extends HttpServlet {
             OrderDAO orderDAO = new OrderDAO();
             List<Order> orderList = orderDAO.getAllOrdersWithDetailsByCustomerId(customerId);
 
-            // ✅ Chuẩn bị mô tả trạng thái để hiển thị đẹp ở JSP
+            // Chuẩn bị mô tả trạng thái để hiển thị đẹp ở JSP
             String[] orderStatusText = {
                 "Pending", "Confirmed", "Preparing", "Out for Delivery",
                 "Delivered", "Cancelled", "Failed"
@@ -110,7 +110,7 @@ public class OrderServlet extends HttpServlet {
                     grandTotal = grandTotal.add(dishPrice.multiply(BigDecimal.valueOf(cart.getQuantity())));
                 }
 
-                // ✅ Xử lý giảm giá từ voucher
+                //  Xử lý giảm giá từ voucher
                 String voucherIdStr = request.getParameter("voucherID");
                 Integer voucherID = null;
                 BigDecimal discountAmount = BigDecimal.ZERO;
@@ -164,16 +164,15 @@ public class OrderServlet extends HttpServlet {
                     return;
                 }
 
-                // ✅ Lưu đơn hàng
+                //  Lưu đơn hàng
                 int orderId = orderDAO.createOrder(customer.getCustomerID(), finalTotal, voucherID);
                 DishDAO dishDAO = new DishDAO();
                 for (Cart cart : selectedCarts) {
                     orderDAO.addOrderDetail(orderId, cart.getDish().getDishID(), cart.getQuantity());
 
-                    // ✅ Decrease stock
+                    // Decrease stock
                     boolean updated = dishDAO.decreaseStock(cart.getDish().getDishID(), cart.getQuantity());
                     if (!updated) {
-                        // Trường hợp stock không đủ, có thể rollback hoặc thông báo lỗi
                         request.setAttribute("error", "One or more items do not have enough stock.");
                         request.getRequestDispatcher("/WEB-INF/views/customer/confirm_order.jsp").forward(request, response);
                         return;
@@ -181,7 +180,7 @@ public class OrderServlet extends HttpServlet {
 
                 }
 
-                // Optionally: xóa cart
+                //  xóa cart
                 cartDAO.deleteCartsByIDs(selectedCartIDs);
                 request.setAttribute("message", "Đặt hàng thành công!");
                 response.sendRedirect(request.getContextPath() + "/customer/order");
@@ -212,7 +211,7 @@ public class OrderServlet extends HttpServlet {
                     BigDecimal dishPrice = TotalPriceCalculator.calculateTotalPrice(
                             dish.getOpCost(), dish.getInterestPercentage(), ingredientCost);
                     BigDecimal itemTotal = dishPrice.multiply(BigDecimal.valueOf(cart.getQuantity()));
-                    cart.getDish().setTotalPrice(dishPrice); // lưu lại để JSP dùng
+                    cart.getDish().setTotalPrice(dishPrice);
                     grandTotal = grandTotal.add(itemTotal);
                 }
                 CustomerProfileDAO cusPro = new CustomerProfileDAO();

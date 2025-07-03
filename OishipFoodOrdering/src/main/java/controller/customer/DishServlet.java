@@ -25,11 +25,9 @@ public class DishServlet extends HttpServlet {
         ReviewDAO reviewDAO = new ReviewDAO();
         CategoryDAO categoryDAO = new CategoryDAO();
 
-        // Always fetch the category list to display in the menu
         List<Category> categories = categoryDAO.getAllCategories();
         request.setAttribute("categories", categories);
 
-        // Logic: if dishId exists => view dish detail
         String dishIdParam = request.getParameter("dishId");
         if (dishIdParam != null) {
             try {
@@ -40,7 +38,6 @@ public class DishServlet extends HttpServlet {
                     request.setAttribute("dish", dish);
                     request.setAttribute("reviews", reviews);
 
-                    // Identify customer vs. guest
                     HttpSession session = request.getSession(false);
                     boolean isLoggedIn = false;
                     String userName = "Guest";
@@ -48,7 +45,7 @@ public class DishServlet extends HttpServlet {
                     if (session != null && session.getAttribute("userId") != null
                             && "customer".equals(session.getAttribute("role"))) {
                         isLoggedIn = true;
-                        Object name = session.getAttribute("userName"); // or fetch from DB if not set
+                        Object name = session.getAttribute("userName"); 
                         if (name != null) {
                             userName = name.toString();
                         }
@@ -72,7 +69,6 @@ public class DishServlet extends HttpServlet {
             }
         }
 
-        // If catId exists => filter dishes by category
         String catIdParam = request.getParameter("catId");
         request.setAttribute("selectedCatId", catIdParam);
         List<Dish> menuItems;
@@ -81,15 +77,13 @@ public class DishServlet extends HttpServlet {
                 int catId = Integer.parseInt(catIdParam);
                 menuItems = dishDAO.getDishesByCategory(catId);
             } catch (NumberFormatException e) {
-                menuItems = dishDAO.getAllDishes(); // Fallback to all if invalid catId
+                menuItems = dishDAO.getAllDishes(); 
             }
         } else {
             menuItems = dishDAO.getAllDishes();
         }
 
         request.setAttribute("menuItems", menuItems);
-
-        // Check login state and user name
         HttpSession session = request.getSession(false);
         boolean isLoggedIn = false;
         String userName = "Guest";
@@ -105,13 +99,11 @@ public class DishServlet extends HttpServlet {
 
         request.setAttribute("isLoggedIn", isLoggedIn);
         request.setAttribute("userName", userName);
- // ✨ NEW: Gửi category ID active nếu có món ăn
     List<Dish> menuItemResults = new ArrayList<>();
             if (!menuItemResults.isEmpty()) {
                 int activeCategoryId = menuItemResults.get(0).getCategoryId();  // <-- Dish cần có getCategoryID()
                 request.setAttribute("activeCategoryId", activeCategoryId);
             }
-        // Forward to dish category view
         request.getRequestDispatcher("/WEB-INF/views/customer/dish_category.jsp").forward(request, response);
     }
 }

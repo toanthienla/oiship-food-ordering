@@ -59,4 +59,19 @@ public class ContactDAO extends DBContext {
         }
         return list;
     }
+    
+    
+    
+     public void insertContact(int customerID, String subject, String message) {
+        String sql = "INSERT INTO Contact ([subject], [message], FK_Contact_Customer) VALUES (?, ?, ?)";
+        try (
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setString(1, subject);
+            ps.setString(2, message);
+            ps.setInt(3, customerID);
+            ps.executeUpdate();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 }
