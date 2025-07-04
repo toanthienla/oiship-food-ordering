@@ -141,7 +141,6 @@ public class DishDAO extends DBContext {
                 BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
                 BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
                         item.getOpCost(), item.getInterestPercentage(), ingredientCost);
-                System.out.println("Ingredients cost: " + ingredientCost);
                 item.setIngredients(ingredients);
                 item.setFormattedIngredientsPrice(TotalPriceCalculator.formatVND(ingredientCost)); 
                 item.setTotalPrice(totalPrice);
