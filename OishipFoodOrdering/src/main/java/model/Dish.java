@@ -20,6 +20,8 @@ public class Dish {
     private String formattedPrice;
     private boolean isAvailable;
     private List<Ingredient> ingredients;
+    private String formattedIngredientsPrice;
+    private String formattedOpCost;
 
     public Dish() {
     }
@@ -204,4 +206,19 @@ public class Dish {
         this.ingredients = ingredients;
     }
 
+    public String getFormattedIngredientsPrice() {
+        return formattedIngredientsPrice;
+    }
+
+    public void setFormattedIngredientsPrice(String formattedIngredientsPrice) {
+        this.formattedIngredientsPrice = formattedIngredientsPrice;
+    }
+
+    public String getFormattedOpCost() {
+        return formattedOpCost;
+    }
+
+    public void setFormattedOpCost(String formattedOpCost) {
+        this.formattedOpCost = formattedOpCost;
+    }
 }
