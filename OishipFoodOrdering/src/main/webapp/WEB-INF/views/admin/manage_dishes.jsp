@@ -158,7 +158,7 @@
                                         <td><%= index++%></td>
                                         <td>${dish.dishName}</td>
                                         <td>${dish.category.catName}</td>
-                                        <td>...</td>
+                                        <td>${dish.formattedPrice} đ</td>
                                         <td>
                                             <span class="${dish.isAvailable ? 'text-success' : 'text-danger'}">
                                                 ${dish.isAvailable ? 'Yes' : 'No'}
@@ -172,7 +172,7 @@
                                             <img src="${dish.image}" alt="${dish.dishName}" class="img-fluid" style="max-height: 80px; width: 120px; object-fit: cover; border-radius: 1px" />
                                         </td>
                                         <td class="text-center">
-                                            <div class="d-flex flex-column gap-1 align-items-center">
+                                            <div class="d-flex flex-column ga   p-1 align-items-center">
                                                 <!-- Row 1: Edit and Delete side by side -->
                                                 <div class="d-flex gap-1 w-100 justify-content-center">
                                                     <button class="btn btn-sm btn-primary w-50"
@@ -196,11 +196,13 @@
                                                 </div>
 
                                                 <!-- Row 2: Cost Detail full width -->
-                                                <button class="btn btn-sm btn-secondary w-100"
+                                                <button class="btn btn-sm btn-secondary w-100 mt-1"
                                                         onclick="showDishDetail(this); event.stopPropagation();"
                                                         data-id="${dish.dishID}"
                                                         data-cost="${dish.opCost}"
-                                                        data-interest="${dish.interestPercentage}">
+                                                        data-formattedCost="${dish.formattedOpCost}"
+                                                        data-interest="${dish.interestPercentage}"
+                                                        data-formattedIngredientsPrice="${dish.formattedIngredientsPrice}">
                                                     Cost Detail
                                                 </button>
                                             </div>
@@ -430,8 +432,10 @@
                     document.querySelectorAll('.dish-detail-row').forEach(row => row.remove());
 
                     // Get data
-                    const opCost = Number(button.getAttribute("data-cost") || 0).toLocaleString('vi-VN');
+                    const opCost = Number(button.getAttribute("data-cost") || 0);
+                    const formmatedOpCost = button.getAttribute("data-formattedCost") || "0";
                     const interest = button.getAttribute("data-interest") || "0";
+                    const formattedIngredientsPrice = button.getAttribute("data-formattedIngredientsPrice") || "0";
 
                     // Create new row
                     const newRow = document.createElement('tr');
@@ -440,10 +444,9 @@
                             '<td colspan="10">' +
                             '<div class="p-3 bg-light border">' +
                             '<h6 class="mb-2 fw-semibold">Dish Cost Details</h6>' +
-                            '<div><span class="fw-normal">Operation Cost:</span> ' + opCost + ' VND</div>' +
-                            '<div><span class="fw-normal">Ingredient Price:</span> ' + `...` + ' VND</div>' +
+                            '<div><span class="fw-normal">Operation Cost:</span> ' + formmatedOpCost + ' VND</div>' +
+                            '<div><span class="fw-normal">Ingredients Price:</span> ' + formattedIngredientsPrice + ' VND</div>' +
                             '<div><span class="fw-normal">Interest Percentage:</span> ' + interest + ' %</div>' +
-                            '<div><span class="fw-normal">Net Profit:</span> ' + `...` + ' VND</div>' +
                             '</div>' +
                             '</td>';
 
