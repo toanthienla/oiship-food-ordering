@@ -51,7 +51,7 @@ public class ManageDishesServlet extends HttpServlet {
 
         List<Category> categories = categoryDAO.getAllCategories();
         categories.sort(Comparator.comparing(Category::getCatName)); // Sort categories alphabetically by name
-
+        System.out.println("Dishes 1: " + dishes.get(0).toString());
         request.setAttribute("dishes", dishes);
         request.setAttribute("categories", categories);
         request.getRequestDispatcher("/WEB-INF/views/admin/manage_dishes.jsp").forward(request, response);

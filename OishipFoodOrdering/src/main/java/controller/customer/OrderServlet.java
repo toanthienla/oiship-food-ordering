@@ -31,6 +31,8 @@ public class OrderServlet extends HttpServlet {
             OrderDAO orderDAO = new OrderDAO();
             List<Order> orderList = orderDAO.getAllOrdersWithDetailsByCustomerId(customerId);
 
+
+            // Chuẩn bị mô tả trạng thái để hiển thị đẹp ở JSP
             String[] orderStatusText = {
                     "Pending", "Confirmed", "Preparing", "Out for Delivery",
                     "Delivered", "Cancelled", "Failed"
@@ -93,7 +95,8 @@ public class OrderServlet extends HttpServlet {
                     grandTotal = grandTotal.add(dishPrice.multiply(BigDecimal.valueOf(cart.getQuantity())));
                 }
 
-                // Xử lý voucher
+
+                //  Xử lý giảm giá từ voucher
                 String voucherIdStr = request.getParameter("voucherID");
                 Integer voucherID = null;
                 BigDecimal discountAmount = BigDecimal.ZERO;
@@ -148,6 +151,7 @@ public class OrderServlet extends HttpServlet {
                     return;
                 }
 
+
                 // Tạo đơn hàng (status: chưa thanh toán)
                 int orderId = orderDAO.createOrder(customerId, finalTotal, voucherID); // bạn đảm bảo createOrder có status mặc định
 
@@ -157,12 +161,14 @@ public class OrderServlet extends HttpServlet {
                     boolean updated = dishDAO.decreaseStock(cart.getDish().getDishID(), cart.getQuantity());
                     if (!updated) {
                         request.setAttribute("error", "Một hoặc nhiều món không đủ số lượng trong kho.");
+
                         request.getRequestDispatcher("/WEB-INF/views/customer/confirm_order.jsp").forward(request, response);
                         return;
                     }
                 }
 
-                // Xóa giỏ hàng
+
+                //  xóa cart
                 cartDAO.deleteCartsByIDs(selectedCartIDs);
 
                 // Lấy phương thức thanh toán
