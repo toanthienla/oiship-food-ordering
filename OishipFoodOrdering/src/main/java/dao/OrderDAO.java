@@ -372,23 +372,178 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
-    public static void main(String[] args) {
+//    public static void main(String[] args) {
+//
+//        OrderDAO dao = new OrderDAO();
+//
+//        int testOrderId = 51;           // 👉 thay bằng orderID thật có trong DB
+//        int newPaymentStatus = 2;      // 👉 0 = Unpaid, 1 = Paid, 2 = Refunded
+//
+//        // 1. Trước khi cập nhật
+//        int oldStatus = dao.getPaymentStatusByOrderId(testOrderId);
+//        System.out.println("Old Payment Status: " + oldStatus);
+//
+//        // 2. Cập nhật
+//        boolean updated = dao.updatePaymentStatusByOrderId(testOrderId, newPaymentStatus);
+//        System.out.println(updated ? "✅ Payment status updated successfully." : "❌ Update failed.");
+//
+//        // 3. Kiểm tra lại
+//        int updatedStatus = dao.getPaymentStatusByOrderId(testOrderId);
+//        System.out.println("New Payment Status: " + updatedStatus);
+//    }
+    //Payment
+    public Order findById(int orderId) {
+        String sql = "SELECT * FROM [Order] WHERE orderID = ?";
 
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, orderId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToOrder(rs);
+                }
+            }
+
+        } catch (SQLException e) {
+            logger.error("Error finding Order by ID: " + orderId, e);
+        }
+
+        return null;
+    }
+
+    public boolean updatePaymentStatus(int orderId, int paymentStatus) {
+        String sql = "UPDATE [Order] SET paymentStatus = ? WHERE orderID = ?";
+
+        try (Connection conn = new DBContext().getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            ps.setInt(1, paymentStatus);
+            ps.setInt(2, orderId);
+
+            int rowsAffected = ps.executeUpdate();
+            return rowsAffected > 0; // ✅ Trả về true nếu update thành công
+
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update order payment status", e);
+        }
+    }
+
+    public Order findUnpaidOrderByCustomerId(int customerId) {
+        String sql = "SELECT TOP 1 * FROM [Order] WHERE FK_Order_Customer = ? AND paymentStatus = 0 ORDER BY orderCreatedAt DESC";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return mapResultSetToOrder(rs);
+                }
+            }
+        } catch (SQLException e) {
+            logger.error("Error finding unpaid Order by CustomerID: {}", customerId, e);
+        }
+
+        return null;
+    }
+
+    public static void main(String[] args) {
+        // Tạo đối tượng DAO
         OrderDAO dao = new OrderDAO();
 
-        int testOrderId = 51;           // 👉 thay bằng orderID thật có trong DB
-        int newPaymentStatus = 2;      // 👉 0 = Unpaid, 1 = Paid, 2 = Refunded
+        // Nhập ID khách hàng cần kiểm tra
+        int testCustomerId = 16; // Thay bằng ID thực tế trong DB
 
-        // 1. Trước khi cập nhật
-        int oldStatus = dao.getPaymentStatusByOrderId(testOrderId);
-        System.out.println("Old Payment Status: " + oldStatus);
+        // Gọi phương thức để lấy đơn hàng chưa thanh toán
+        Order unpaidOrder = dao.findUnpaidOrderByCustomerId(testCustomerId);
 
-        // 2. Cập nhật
-        boolean updated = dao.updatePaymentStatusByOrderId(testOrderId, newPaymentStatus);
-        System.out.println(updated ? "✅ Payment status updated successfully." : "❌ Update failed.");
-
-        // 3. Kiểm tra lại
-        int updatedStatus = dao.getPaymentStatusByOrderId(testOrderId);
-        System.out.println("New Payment Status: " + updatedStatus);
+        // In kết quả
+        if (unpaidOrder != null) {
+            System.out.println("===== FOUND UNPAID ORDER =====");
+            System.out.println("Order ID       : " + unpaidOrder.getOrderID());
+            System.out.println("Customer ID    : " + unpaidOrder.getCustomerID());
+            System.out.println("Amount         : " + unpaidOrder.getAmount());
+            System.out.println("Order Status   : " + unpaidOrder.getOrderStatus());
+            System.out.println("Payment Status : " + unpaidOrder.getPaymentStatus());
+            System.out.println("Created At     : " + unpaidOrder.getOrderCreatedAt());
+            System.out.println("Updated At     : " + unpaidOrder.getOrderUpdatedAt());
+            System.out.println("Address        : " + unpaidOrder.getAddress());
+            System.out.println("Discount Type  : " + unpaidOrder.getDiscountType());
+            System.out.println("Discount       : " + unpaidOrder.getDiscount());
+            System.out.println("Voucher Code   : " + unpaidOrder.getVoucherCode());
+            System.out.println("Checkout URL   : " + unpaidOrder.getCheckoutUrl());
+        } else {
+            System.out.println("No unpaid order found for customer ID: " + testCustomerId);
+        }
     }
+
+    private Order mapResultSetToOrder(ResultSet rs) throws SQLException {
+        Order order = new Order();
+        order.setOrderID(rs.getInt("orderID"));
+        order.setAmount(rs.getBigDecimal("amount"));
+        order.setOrderStatus(rs.getInt("orderStatus"));
+        order.setPaymentStatus(rs.getInt("paymentStatus"));
+        order.setOrderCreatedAt(rs.getTimestamp("orderCreatedAt"));
+        order.setOrderUpdatedAt(rs.getTimestamp("orderUpdatedAt"));
+        order.setVoucherID(rs.getInt("FK_Order_Voucher"));  // foreign key, may be null
+        order.setCustomerID(rs.getInt("FK_Order_Customer"));
+        order.setCheckoutUrl(rs.getString("checkoutUrl"));
+        return order;
+    }
+
+    // Logger nếu chưa có
+    private static final org.slf4j.Logger logger = org.slf4j.LoggerFactory.getLogger(OrderDAO.class);
+
+    public Order getOrderById(int orderId) {
+        Order order = null;
+        String sql = "SELECT * FROM [Order] WHERE orderID = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    order = new Order();
+                    order.setOrderID(rs.getInt("orderID"));
+                    order.setAmount(rs.getBigDecimal("amount"));
+                    order.setOrderStatus(rs.getInt("orderStatus"));
+                    order.setPaymentStatus(rs.getInt("paymentStatus"));
+                    order.setOrderCreatedAt(rs.getTimestamp("orderCreatedAt"));
+                    order.setOrderUpdatedAt(rs.getTimestamp("orderUpdatedAt"));
+                    order.setCheckoutUrl(rs.getString("getCheckoutUrl"));
+                    order.setVoucherID(rs.getInt("voucherID"));
+                    order.setCustomerID(rs.getInt("customerID"));
+                    order.setAddress(rs.getString("address"));
+                    // Nếu cần, có thể join để lấy thêm customerName, voucherCode...
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return order;
+    }
+
+    public int createPendingOrder(int customerId, int amount) throws SQLException {
+        int orderId = -1;
+        String sql = "INSERT INTO [Order] (FK_Order_Customer, amount, paymentStatus, createdAt) "
+                + "OUTPUT INSERTED.orderID VALUES (?, ?, 0, GETDATE())";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+
+            ps.setInt(1, customerId);
+            ps.setInt(2, amount);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                orderId = rs.getInt(1);
+            }
+        }
+        return orderId;
+    }
+
+    public void updateCheckoutUrl(int orderId, String url) throws SQLException {
+        String sql = "UPDATE [Order] SET checkoutUrl = ? WHERE orderID = ?";
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, url);
+            ps.setInt(2, orderId);
+            ps.executeUpdate();
+        }
+    }
+
 }

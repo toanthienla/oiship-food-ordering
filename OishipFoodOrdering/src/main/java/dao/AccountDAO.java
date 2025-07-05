@@ -7,6 +7,7 @@ import utils.DBContext;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import utils.Util;
 
 public class AccountDAO extends DBContext {
 
@@ -1017,5 +1018,33 @@ public class AccountDAO extends DBContext {
         }
         return false;
     }
+
+      public Account getAccountByEmail(String email) {
+        Account account = null;
+        String sql = "SELECT * FROM Account WHERE email = ?";
+
+        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
+            ps.setString(1, email);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    account = new Account();
+                    account.setAccountID(rs.getInt("accountID"));
+                    account.setFullName(rs.getString("fullName"));
+                    account.setEmail(rs.getString("email"));
+                    account.setPassword(rs.getString("password"));
+                    account.setStatus(rs.getInt("status"));
+                    account.setRole(rs.getString("role"));
+                    account.setCreateAt(rs.getTimestamp("createAt"));
+                }
+            }
+        } catch (SQLException e) {
+            System.out.println("Error retrieving account by email: " + e.getMessage());
+            Util.logError("Error retrieving account by email: " + e.getMessage());
+        }
+
+        return account;
+    }
+      
+      
 
 }

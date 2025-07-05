@@ -14,6 +14,7 @@ public class Order {
     private Date orderUpdatedAt;
     private int voucherID;
     private int customerID;
+    private String checkoutUrl;
     private String voucherCode;
     private String customerName;
     private String discountType;
@@ -95,6 +96,14 @@ public class Order {
         this.customerID = customerID;
     }
 
+    public void setCheckoutUrl(String checkoutUrl) {
+        this.checkoutUrl = checkoutUrl;
+    }
+
+    public String getCheckoutUrl() {
+        return checkoutUrl;
+    }
+
     public String getCustomerName() {
         return customerName;
     }
@@ -135,5 +144,4 @@ public class Order {
         this.address = address;
     }
 
-    
 }

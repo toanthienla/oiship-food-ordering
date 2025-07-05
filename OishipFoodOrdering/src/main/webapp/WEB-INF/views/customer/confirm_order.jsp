@@ -18,34 +18,32 @@
 
         <h2 class="mb-4">Confirm Order</h2>
 
+        <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+        <%@ taglib uri="http://java.sun.com/jsp/jstl/core" prefix="c" %>
+
+        <!-- FORM -->
         <form id="orderForm" action="${pageContext.request.contextPath}/customer/order" method="post">
-            <input type="hidden" name="action" value="confirm"/>
-            <input type="hidden" name="voucherID" id="hiddenVoucherID"/>
+            <input type="hidden" name="action" value="confirm" />
+            <input type="hidden" name="voucherID" id="hiddenVoucherID" />
             <input type="hidden" name="fullname" id="hiddenFullName" value="${customer.fullName}" />
             <input type="hidden" name="phone" id="hiddenPhone" value="${customer.phone}" />
             <input type="hidden" name="address" id="hiddenAddress" value="${customer.address}" />
+            <input type="hidden" name="paymentMethod" id="paymentMethod" value="cash" />
 
             <div class="row">
-                <!-- LEFT COLUMN: Customer Information -->
+                <!-- LEFT COLUMN -->
                 <div class="col-lg-7">
                     <div class="accordion" id="deliveryAccordion">
 
                         <!-- DELIVERY INFORMATION -->
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingDelivery">
-                                <button class="accordion-button" type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#collapseDelivery"
-                                        aria-expanded="true"
-                                        aria-controls="collapseDelivery">
+                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDelivery">
                                     Delivery Information
                                 </button>
                             </h2>
-                            <div id="collapseDelivery" class="accordion-collapse collapse show"
-                                 aria-labelledby="headingDelivery">
+                            <div id="collapseDelivery" class="accordion-collapse collapse show" aria-labelledby="headingDelivery">
                                 <div class="accordion-body">
-
-                                    <!-- Customer Info -->
                                     <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
                                         <div>
                                             <p class="mb-1 fw-bold">Customer Information</p>
@@ -53,13 +51,10 @@
                                                 ${customer.fullName} - ${customer.phone}
                                             </span>
                                         </div>
-                                        <button type="button" class="btn btn-link text-decoration-none"
-                                                onclick="openEditCustomer()">
+                                        <button type="button" class="btn btn-link text-decoration-none" onclick="openEditCustomer()">
                                             <i class="bi bi-chevron-right fs-4"></i>
                                         </button>
                                     </div>
-
-                                    <!-- Address -->
                                     <div class="d-flex justify-content-between align-items-center py-2">
                                         <div>
                                             <p class="mb-1 fw-bold">Address</p>
@@ -67,12 +62,10 @@
                                                 ${customer.address}
                                             </span>
                                         </div>
-                                        <button type="button" class="btn btn-link text-decoration-none"
-                                                onclick="openEditAddress()">
+                                        <button type="button" class="btn btn-link text-decoration-none" onclick="openEditAddress()">
                                             <i class="bi bi-chevron-right fs-4"></i>
                                         </button>
                                     </div>
-
                                 </div>
                             </div>
                         </div>
@@ -80,25 +73,21 @@
                         <!-- PAYMENT OPTION -->
                         <div class="accordion-item">
                             <h2 class="accordion-header" id="headingPayment">
-                                <button class="accordion-button collapsed" type="button"
-                                        data-bs-toggle="collapse"
-                                        data-bs-target="#collapsePayment"
-                                        aria-expanded="false"
-                                        aria-controls="collapsePayment">
+                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment" aria-expanded="false" aria-controls="collapsePayment">
                                     Payment Option
                                 </button>
                             </h2>
-                            <div id="collapsePayment" class="accordion-collapse collapse"
-                                 aria-labelledby="headingPayment">
+                            <div id="collapsePayment" class="accordion-collapse collapse" aria-labelledby="headingPayment">
                                 <div class="accordion-body">
                                     <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="payment" value="cash" id="cash" checked>
-                                        <label class="form-check-label" for="cash">Pay with Cash</label>
+                                        <input class="form-check-input" type="radio" name="payment" value="cash" id="paymentCash" checked>
+                                        <label class="form-check-label" for="paymentCash">Thanh toán khi nhận hàng</label>
                                     </div>
                                     <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="payment" value="bank" id="bank">
-                                        <label class="form-check-label" for="bank">Bank Transfer</label>
+                                        <input class="form-check-input" type="radio" name="payment" value="bank_transfer" id="paymentBankTransfer">
+                                        <label class="form-check-label" for="paymentBankTransfer">Chuyển khoản ngân hàng (PayOS)</label>
                                     </div>
+                                    <div class="text-danger mt-2" id="errorMsg"></div>
                                 </div>
                             </div>
                         </div>
@@ -106,15 +95,13 @@
                     </div>
                 </div>
 
-                <!-- RIGHT COLUMN: Selected Dishes + Voucher + Total -->
+                <!-- RIGHT COLUMN -->
                 <div class="col-lg-5">
-                    <!-- Selected Dishes -->
                     <h4 class="mb-3">Selected Dishes</h4>
                     <%
                         List<Cart> selectedCarts = (List<Cart>) request.getAttribute("selectedCarts");
                         BigDecimal grandTotal = (BigDecimal) request.getAttribute("grandTotal");
                     %>
-
                     <div class="mb-4">
                         <% for (Cart cart : selectedCarts) {
                                 Dish dish = cart.getDish();
@@ -126,18 +113,16 @@
                             <img src="<%= dish.getImage()%>" width="80" class="me-3" style="border-radius: 8px;">
                             <div class="flex-grow-1">
                                 <strong><%= dish.getDishName()%></strong><br/>
-
-                                <!-- Nút tăng giảm -->
                                 <div class="d-flex align-items-center gap-2 mt-1">
-                                    <button  type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, -1)">−</button>
-                                    <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly
-                                           data-stock="<%= dish.getStock()%>"
-                                           class="form-control text-center" style="width: 60px;">
+                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, -1)">−</button>
+                                    <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly data-stock="<%= dish.getStock()%>" class="form-control text-center" style="width: 60px;">
                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, 1)">+</button>
                                 </div>
 
-                                <!-- Tổng tiền theo món -->
-                                <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> đ</div>
+                                <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> VND</div>
+
+
+
                             </div>
                         </div>
                         <% }%>
@@ -146,8 +131,7 @@
                     <!-- Voucher -->
                     <div class="mb-4">
                         <label class="form-label fw-bold">Discount Code</label>
-                        <div class="p-2 border rounded bg-light" style="cursor:pointer;" data-bs-toggle="modal"
-                             data-bs-target="#voucherModal">
+                        <div class="p-2 border rounded bg-light" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#voucherModal">
                             <div class="d-flex justify-content-between">
                                 <div>
                                     <p class="mb-0">Choose a discount code</p>
@@ -158,7 +142,7 @@
                         </div>
                     </div>
 
-                    <!-- Total Summary -->
+                    <!-- Summary -->
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <span>Subtotal:</span>
@@ -174,19 +158,30 @@
                         </div>
                     </div>
 
-                    <!-- Hidden cart ID -->
+                    <!-- Hidden cart IDs -->
                     <c:forEach var="id" items="${selectedCartIDs}">
                         <input type="hidden" name="selectedItems" value="${id}" />
                     </c:forEach>
 
                     <!-- Confirm button -->
                     <div class="d-grid">
-                        <button type="submit" class="btn btn-primary">Place Order</button>
+                        <button type="button" class="btn btn-primary" onclick="handleSubmit()">Place Order</button>
                         <a href="${pageContext.request.contextPath}/customer/view-cart" class="btn btn-outline-secondary mt-2">Back to Cart</a>
                     </div>
                 </div>
             </div>
         </form>
+
+        <!-- SCRIPT xử lý chọn phương thức thanh toán -->
+        <script>
+            function handleSubmit() {
+                const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+                document.getElementById("paymentMethod").value = selectedPayment;
+                document.getElementById("orderForm").submit(); // Submit về /customer/order
+            }
+
+        </script>
+
 
 
         <!-- Modal chỉnh Customer -->
@@ -493,6 +488,7 @@
                 document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
                 document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
                 document.getElementById("discountAmount").textContent = "- 0 VND";
+
             }
         </script>
         <script>
@@ -508,6 +504,7 @@
 
                 if (totalQty > 50) {
                     alert("The total quantity of items in the order must not exceed 50.");
+
                     event.preventDefault();
                 }
             });
@@ -520,6 +517,7 @@
                 if (amount > 2000000) {
                     alert("Sorry, orders over 2,000,000 VND are not allowed.");
                     e.preventDefault();
+
                 }
             });
         </script>
