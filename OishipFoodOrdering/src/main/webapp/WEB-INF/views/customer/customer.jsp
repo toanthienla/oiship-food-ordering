@@ -522,15 +522,27 @@
 
 
                 <div class="dropdown">
-                    <a class="dropdown-toggle text-decoration-none user-account" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                    <a class="dropdown-toggle text-decoration-none user-account" href="#" role="button"
+                       id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                         <i class="fas fa-user"></i>
                         <div class="welcome-text">
                             Welcome, <span><c:out value="${userName}" default="Guest" /></span>!
                         </div>
                     </a>
+
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
                         <li><a class="dropdown-item" href="customer/profile">Profile</a></li>
                         <li><a class="dropdown-item" href="logout">Log out</a></li>
+                        <li><hr class="dropdown-divider"></li>
+                        <li class="px-3">
+                            <h6 class="dropdown-header">🧾 Quản lý đơn hàng & thanh toán</h6>
+                            <a href="${pageContext.request.contextPath}/customer/order" class="btn btn-sm btn-warning w-100 mb-1">
+                                🔄 Đơn hàng chờ thanh toán
+                            </a>
+                            <a href="${pageContext.request.contextPath}/views/customer/order_history.jsp" class="btn btn-sm btn-success w-100">
+                                📜 Lịch sử thanh toán
+                            </a>
+                        </li>
                     </ul>
                 </div>
             </div>
@@ -590,7 +602,7 @@
             <div id="map"></div>
         </div>
 
-       
+
 
         <!-- Thêm vào <head> -->
         <style>

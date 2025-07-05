@@ -18,6 +18,15 @@
 
     <dependencies>
         
+
+        <dependency>
+            <groupId>vn.payos</groupId>
+            <artifactId>payos-java</artifactId>
+            <version>1.0.3</version>
+            <type>jar</type>
+        </dependency>
+
+        
         <dependency>
             <groupId>org.json</groupId>
             <artifactId>json</artifactId>

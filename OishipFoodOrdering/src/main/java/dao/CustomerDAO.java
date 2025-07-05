@@ -194,4 +194,23 @@ public class CustomerDAO extends DBContext {
         }
     }
 
+    public int getAccountIdByCustomerId(int customerId) {
+        String sql = "SELECT customerID FROM Customer WHERE customerID = ?";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, customerId);
+
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt("customerID"); // chính là accountID
+                }
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        throw new IllegalArgumentException("CustomerID not found: " + customerId);
+    }
+
 }
