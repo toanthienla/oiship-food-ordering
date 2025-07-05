@@ -66,7 +66,7 @@ public class CheckoutServlet extends HttpServlet {
                     break;
 
                 case "/customer/payment/cancel":
-                    request.getRequestDispatcher("/WEB-INF/views/customer/confirm_order.jsp").forward(request, response);
+                    response.sendRedirect("http://localhost:9090/OishipFoodOrdering/customer/view-cart");
                     break;
 
                 case "/customer/payment/create-payment-link":
@@ -83,6 +83,7 @@ public class CheckoutServlet extends HttpServlet {
                         resJson.addProperty("message", "success");
                         resJson.add("data", data);
                         writeJsonResponse(response, resJson);
+                        response.sendRedirect(order.getCheckoutUrl());
                         return;
                     }
 
@@ -98,14 +99,7 @@ public class CheckoutServlet extends HttpServlet {
 
                     // Lưu lại checkoutUrl vào DB
                     orderDAO.updateCheckoutUrl(order.getOrderID(), checkoutData.getCheckoutUrl());
-
-                    JsonObject data = new JsonObject();
-                    data.addProperty("checkoutUrl", checkoutData.getCheckoutUrl());
-                    JsonObject resJson = new JsonObject();
-                    resJson.addProperty("error", 0);
-                    resJson.addProperty("message", "success");
-                    resJson.add("data", data);
-                    writeJsonResponse(response, resJson);
+                    response.sendRedirect(checkoutData.getCheckoutUrl());
                     break;
 
                 default:
