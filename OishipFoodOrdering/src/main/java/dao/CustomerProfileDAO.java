@@ -93,7 +93,7 @@ public class CustomerProfileDAO extends DBContext {
         if (rs.next()) {
             int accountId = rs.getInt("accountID");
 
-            conn.setAutoCommit(false); // bắt đầu transaction
+            conn.setAutoCommit(false); 
 
             try (
                 PreparedStatement accountStmt = conn.prepareStatement(updateAccountSQL);
@@ -143,7 +143,7 @@ public class CustomerProfileDAO extends DBContext {
     }
 
     String sql = "UPDATE Account SET [password] = ? WHERE email = ? AND role = 'customer'";
-    String hashedPassword = SecurityDAO.hashPassword(newPassword); // Hàm hashPassword từ lớp SecurityDAO
+    String hashedPassword = SecurityDAO.hashPassword(newPassword); 
 
     try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
         ps.setString(1, hashedPassword);

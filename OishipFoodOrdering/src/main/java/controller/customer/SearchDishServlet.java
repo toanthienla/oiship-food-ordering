@@ -12,9 +12,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
 import model.Dish;
 
-/**
- * Servlet responsible for searching dishes by name. Author: Phi Yen
- */
+
 @WebServlet(name = "SearchDishServlet", urlPatterns = {"/customer/search-dish"})
 public class SearchDishServlet extends HttpServlet {
 
@@ -22,19 +20,15 @@ public class SearchDishServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Get the search query and results from session
         HttpSession session = request.getSession(false);
-        String searchQuery = (String) session.getAttribute("searchQuery");  // Retrieve searchQuery from session
+        String searchQuery = (String) session.getAttribute("searchQuery"); 
 
         List<Dish> menuItemList = (List<Dish>) session.getAttribute("menuItems");
 
         if (menuItemList == null) {
             request.setAttribute("message", "No results found.");
         }
-
-        // Pass results to the request
         request.setAttribute("menuItems", menuItemList);
-        // Pass the search query back to display in the input
         request.setAttribute("searchQuery", searchQuery);
 
         request.getRequestDispatcher("/WEB-INF/views/customer/search_dish.jsp").forward(request, response);
@@ -53,22 +47,18 @@ public class SearchDishServlet extends HttpServlet {
                 menuItemResults = menuItemDAO.searchDishByName(searchQuery);
             }
 
-            // Save the search query to session for use on return
             HttpSession session = request.getSession();
             session.setAttribute("searchQuery", searchQuery);
             session.setAttribute("menuItems", menuItemResults);
 
-            // Gửi danh sách món ăn về request
             request.setAttribute("menuItems", menuItemResults);
             request.setAttribute("searchQuery", searchQuery);
 
-            // ✨ NEW: Gửi category ID active nếu có món ăn
             if (!menuItemResults.isEmpty()) {
-                int activeCategoryId = menuItemResults.get(0).getCategoryId();  // <-- Dish cần có getCategoryID()
+                int activeCategoryId = menuItemResults.get(0).getCategoryId();  
                 request.setAttribute("activeCategoryId", activeCategoryId);
             }
 
-            // Forward
             request.getRequestDispatcher("/WEB-INF/views/customer/search_dish.jsp").forward(request, response);
 
         } catch (Exception e) {

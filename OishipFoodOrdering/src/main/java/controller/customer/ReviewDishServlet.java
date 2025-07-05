@@ -5,14 +5,11 @@ import dao.ReviewDAO;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.*;
-
 import java.io.IOException;
 import java.util.List;
 import model.Order;
 
-/**
- * Servlet dùng để hiển thị form đánh giá món ăn.
- */
+
 @WebServlet(name = "ReviewDishServlet", urlPatterns = {"/customer/review"})
 public class ReviewDishServlet extends HttpServlet {
 
@@ -42,7 +39,6 @@ public class ReviewDishServlet extends HttpServlet {
             OrderDAO orderDAO = new OrderDAO();
             List<Order> orderList = orderDAO.getAllOrdersWithDetailsByCustomerId(customerId);
 
-            // ✅ Chuẩn bị mô tả trạng thái để hiển thị đẹp ở JSP
             String[] orderStatusText = {
                 "Pending", "Confirmed", "Preparing", "Out for Delivery",
                 "Delivered", "Cancelled", "Failed"
@@ -65,11 +61,9 @@ public class ReviewDishServlet extends HttpServlet {
         }
             }
 
-            // ✅ Gọi DAO để thêm đánh giá
             ReviewDAO dao = new ReviewDAO();
             dao.addReview(odid, customerId, rating, comment);
 
-            // ✅ Chuyển hướng về lại trang lịch sử đơn hàng
             response.sendRedirect(request.getContextPath() + "/customer/order");
         } catch (Exception e) {
             e.printStackTrace();
@@ -81,7 +75,6 @@ public class ReviewDishServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Nếu ai truy cập bằng GET thì redirect về homepage
         response.sendRedirect(request.getContextPath() + "/customer");
     }
 

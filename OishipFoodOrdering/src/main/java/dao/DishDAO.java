@@ -141,10 +141,11 @@ public class DishDAO extends DBContext {
                 BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
                 BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
                         item.getOpCost(), item.getInterestPercentage(), ingredientCost);
-
+                item.setIngredients(ingredients);
+                item.setFormattedIngredientsPrice(TotalPriceCalculator.formatVND(ingredientCost)); 
                 item.setTotalPrice(totalPrice);
                 item.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
-                item.setIngredients(ingredients);
+                item.setFormattedOpCost(TotalPriceCalculator.formatVND(item.getOpCost()));
 
                 String catName = rs.getString("catName");
                 if (catName != null) {
@@ -295,7 +296,7 @@ public class DishDAO extends DBContext {
             stmt.setInt(1, quantity);
             stmt.setInt(2, dishId);
             stmt.setInt(3, quantity);
-            return stmt.executeUpdate() > 0; // nếu trả về 0 thì tức là không đủ tồn kho
+            return stmt.executeUpdate() > 0; 
         }
     }
 

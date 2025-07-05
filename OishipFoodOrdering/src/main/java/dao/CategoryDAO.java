@@ -12,7 +12,7 @@ import dao.DishDAO;
 public class CategoryDAO extends DBContext {
 
     public CategoryDAO() {
-        super(); // Call DBContext constructor to init DB connection if needed
+        super();
     }
 
     public boolean addCategory(Category category) {

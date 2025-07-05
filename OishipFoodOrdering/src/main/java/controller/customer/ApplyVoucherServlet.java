@@ -20,7 +20,6 @@ public class ApplyVoucherServlet extends HttpServlet {
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        // Lấy dữ liệu từ request
         String code = request.getParameter("voucher");
         String orderTotalStr = request.getParameter("orderTotal");
 
@@ -49,14 +48,12 @@ public class ApplyVoucherServlet extends HttpServlet {
                     discountAmount = voucher.getDiscount();
                 }
 
-                // Giới hạn giảm tối đa
                 if (voucher.getMaxDiscountValue() != null) {
                     discountAmount = discountAmount.min(voucher.getMaxDiscountValue());
                 }
 
                 BigDecimal discountedTotal = orderTotal.subtract(discountAmount);
 
-                // Đáp ứng cho JS
                 result.put("success", true);
                 result.put("message", "Áp dụng mã giảm giá thành công!");
                 result.put("discountAmount", discountAmount);

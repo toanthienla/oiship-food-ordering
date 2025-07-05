@@ -10,7 +10,7 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Xác nhận đơn hàng</title>
+        <title>Confirm-Order</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
     </head>
@@ -118,7 +118,11 @@
                                     <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly data-stock="<%= dish.getStock()%>" class="form-control text-center" style="width: 60px;">
                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, 1)">+</button>
                                 </div>
+
                                 <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> VND</div>
+
+
+
                             </div>
                         </div>
                         <% }%>
@@ -142,15 +146,15 @@
                     <div class="mb-3">
                         <div class="d-flex justify-content-between">
                             <span>Subtotal:</span>
-                            <span id="totalBefore" data-value="<%= grandTotal%>"><%= String.format("%,.0f", grandTotal)%> VND</span>
+                            <span id="totalBefore" data-value="<%= grandTotal%>"><%= String.format("%,.0f", grandTotal)%> đ</span>
                         </div>
                         <div class="d-flex justify-content-between">
                             <span>Discount:</span>
-                            <span id="discountAmount">- 0 VND</span>
+                            <span id="discountAmount">- 0 đ</span>
                         </div>
                         <div class="d-flex justify-content-between fw-bold fs-5">
                             <span>Total Amount:</span>
-                            <span id="finalAmount"><%= String.format("%,.0f", grandTotal)%> VND</span>
+                            <span id="finalAmount"><%= String.format("%,.0f", grandTotal)%> đ</span>
                         </div>
                     </div>
 
@@ -302,11 +306,11 @@
                 } else if (phone) {
                     displayText = phoneRegex;
                 }
-                // ✅ Đảm bảo không hiển thị dấu - nếu chỉ có 1 trong 2 trường
-                document.getElementById("displayCustomerText").textContent = displayText;
-                //   document.getElementById('displayCustomerText').innerText = `${name} - ${phone}`;
 
-                // Gán vào input ẩn để submit form
+                document.getElementById("displayCustomerText").textContent = displayText;
+
+
+
                 let form = document.querySelector("form");
 
                 let hiddenName = document.getElementById("hiddenFullName");
@@ -341,7 +345,7 @@
                 }
                 document.getElementById('displayAddressText').innerText = address;
 
-                // Gán vào input ẩn để submit form
+
                 let form = document.querySelector("form");
                 let hiddenAddress = document.getElementById("hiddenAddress");
 
@@ -382,7 +386,6 @@
                 const finalTotalText = document.getElementById("finalAmount");
                 const hiddenInput = document.getElementById("hiddenVoucherID");
 
-                // Tìm voucher theo ID
                 const voucher = allVouchers.find(v => v.voucherID == voucherID);
 
                 if (!voucher) {
@@ -390,8 +393,6 @@
                     return;
                 }
 
-
-                // Kiểm tra điều kiện đơn hàng tối thiểu
                 if (orderTotal < voucher.minOrderValue) {
                     alert("Order has not reached minimum value to apply this code.");
                     return;
@@ -407,12 +408,12 @@
                 }
 
                 const finalTotal = orderTotal - discountAmount;
-                // Gán giá trị vào form + UI
+             
                 hiddenInput.value = voucherID;
                 voucherText.textContent = "Applied: " + code;
-                discountText.textContent = "- " + discountAmount.toLocaleString() + " VND";
-                finalTotalText.textContent = finalTotal.toLocaleString() + " VND";
-                // Đóng modal
+                discountText.textContent = "- " + discountAmount.toLocaleString() + " đ";
+                finalTotalText.textContent = finalTotal.toLocaleString() + " đ";
+            
                 const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
                 modal.hide();
 
@@ -425,7 +426,6 @@
                 const phoneInput = document.getElementById("modalPhone");
                 const phone = phoneInput.value.trim();
 
-                // Regex: Bắt đầu bằng 0, theo sau là 9 chữ số (0-9)
                 const phoneRegex = /^0\d{9}$/;
 
                 if (!phoneRegex.test(phone)) {
@@ -463,20 +463,16 @@
                     qty = 1;
 
                 input.value = qty;
-
-                // Gửi request cập nhật quantity (nếu cần)
+                
                 fetch(contextPath + "/customer/view-cart", {
                     method: "POST",
                     headers: {"Content-Type": "application/x-www-form-urlencoded"},
                     body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
                 }).then(() => {
-                    // Cập nhật tổng tiền từng món
                     const row = input.closest(".cart-item-row");
                     const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
                     const total = qty * price;
                     row.querySelector(".item-total").textContent = total.toLocaleString();
-
-                    // ✅ Cập nhật lại tổng đơn hàng
                     recalculateTotal();
                 });
             }
@@ -488,12 +484,10 @@
                     if (!isNaN(val))
                         total += parseInt(val);
                 });
-
-                // Hiển thị lại
-                document.getElementById("totalBefore").textContent = total.toLocaleString() + " VND";
-                document.getElementById("finalAmount").textContent = total.toLocaleString() + " VND";
+          
+                document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
+                document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
                 document.getElementById("discountAmount").textContent = "- 0 VND";
-
 
             }
         </script>
@@ -510,7 +504,20 @@
 
                 if (totalQty > 50) {
                     alert("The total quantity of items in the order must not exceed 50.");
-                    event.preventDefault(); // Ngăn form submit
+
+                    event.preventDefault();
+                }
+            });
+        </script>
+        <script>
+            document.getElementById("orderForm").addEventListener("submit", function (e) {
+                const totalBefore = document.getElementById("totalBefore").getAttribute("data-value");
+                const amount = parseFloat(totalBefore);
+
+                if (amount > 2000000) {
+                    alert("Sorry, orders over 2,000,000 VND are not allowed.");
+                    e.preventDefault();
+
                 }
             });
         </script>
