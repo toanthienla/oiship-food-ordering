@@ -529,15 +529,6 @@
                         <li><a class="dropdown-item" href="customer/profile">Profile</a></li>
                         <li><a class="dropdown-item" href="logout">Log out</a></li>
                         <li><hr class="dropdown-divider"></li>
-                        <li class="px-3">
-                            <h6 class="dropdown-header">🧾 Quản lý đơn hàng & thanh toán</h6>
-                            <a href="${pageContext.request.contextPath}/customer/order" class="btn btn-sm btn-warning w-100 mb-1">
-                                🔄 Đơn hàng chờ thanh toán
-                            </a>
-                            <a href="${pageContext.request.contextPath}/views/customer/order_history.jsp" class="btn btn-sm btn-success w-100">
-                                📜 Lịch sử thanh toán
-                            </a>
-                        </li>
                     </ul>
                 </div>
             </div>
