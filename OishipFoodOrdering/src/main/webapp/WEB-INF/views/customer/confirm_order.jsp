@@ -81,11 +81,11 @@
                                 <div class="accordion-body">
                                     <div class="form-check mb-2">
                                         <input class="form-check-input" type="radio" name="payment" value="cash" id="paymentCash" checked>
-                                        <label class="form-check-label" for="paymentCash">Thanh toán khi nhận hàng</label>
+                                        <label class="form-check-label" for="paymentCash">Cash Payment</label>
                                     </div>
                                     <div class="form-check">
                                         <input class="form-check-input" type="radio" name="payment" value="bank_transfer" id="paymentBankTransfer">
-                                        <label class="form-check-label" for="paymentBankTransfer">Chuyển khoản ngân hàng (PayOS)</label>
+                                        <label class="form-check-label" for="paymentBankTransfer">Bank Transfer (PayOS)</label>
                                     </div>
                                     <div class="text-danger mt-2" id="errorMsg"></div>
                                 </div>
