@@ -33,7 +33,6 @@ public class EditProfileCustomerServlet extends HttpServlet {
         String newName = request.getParameter("fullName");
         String newPhone = request.getParameter("phone");
         String newAddress = request.getParameter("address");
-
         if (email != null
                 && newName != null && !newName.trim().isEmpty()
                 && newPhone != null && !newPhone.trim().isEmpty()

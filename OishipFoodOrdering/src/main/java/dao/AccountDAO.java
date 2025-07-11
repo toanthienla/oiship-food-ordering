@@ -16,7 +16,7 @@ public class AccountDAO extends DBContext {
     }
 
     // Login method
-    public Object login(String email, String plainPassword) {
+    public Object getAuthenticatedUser(String email, String plainPassword) {
         if (email == null || plainPassword == null) {
             System.out.println("login: email or plainPassword is null, email=" + email);
             return null;
