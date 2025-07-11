@@ -5,16 +5,16 @@
             <i class="bi bi-x-lg close-btn" id="closeSidebar"></i>
         </div>
         <a class="nav-link" href="dashboard"><i class="bi bi-house-door-fill"></i> Home</a>
-        <a class="nav-link" href="manage-order"><i class="bi bi-receipt-cutoff"></i>Orders</a>
-        <a class="nav-link" href="manage-categories"><i class="bi bi-ui-checks-grid"></i>Categories</a>
-        <a class="nav-link" href="manage-dishes"><i class="bi bi-card-list"></i>Dishes</a>
-        <a class="nav-link" href="manage-ingredients"><i class="bi bi-basket"></i>Ingredients</a>
-        <a class="nav-link" href="manage-reviews"><i class="bi bi-chat-dots"></i>Dish Reviews</a>
-        <a class="nav-link" href="manage-vouchers"><i class="bi bi-tags"></i>Vouchers</a>
-        <a class="nav-link" href="view-revenue"><i class="bi bi-bar-chart-line"></i>Income Statistics</a>
-        <a class="nav-link" href="contact-requests"><i class="bi bi-envelope"></i>Contact Requests</a>
-        <a class="nav-link" href="manage-notifications"><i class="bi bi-bell"></i>Notifications</a>
-        <a class="nav-link" href="accounts"><i class="bi bi-people"></i> Staff & Customers</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-orders"><i class="bi bi-receipt-cutoff"></i>Orders</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-categories"><i class="bi bi-ui-checks-grid"></i>Categories</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-dishes"><i class="bi bi-card-list"></i>Dishes</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-ingredients"><i class="bi bi-basket"></i>Ingredients</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-reviews"><i class="bi bi-chat-dots"></i>Dish Reviews</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-vouchers"><i class="bi bi-tags"></i>Vouchers</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/view-revenue"><i class="bi bi-bar-chart-line"></i>Income Statistics</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/contact-requests"><i class="bi bi-envelope"></i>Contact Requests</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-notifications"><i class="bi bi-bell"></i>Notifications</a>
+        <a class="nav-link" href="${pageContext.request.contextPath}/admin/accounts"><i class="bi bi-people"></i> Staff & Customers</a>
         <a class="nav-link" href="/OishipFoodOrdering/logout"><i class="bi bi-box-arrow-right"></i>Logout</a>
     </div>
 
