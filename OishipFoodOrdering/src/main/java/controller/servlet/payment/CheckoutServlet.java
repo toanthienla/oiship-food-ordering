@@ -71,7 +71,7 @@ public class CheckoutServlet extends HttpServlet {
 
                 case "/customer/payment/create-payment-link":
                     if (order == null) {
-                        writeJsonResponse(response, buildErrorResponse("Không tìm thấy đơn chưa thanh toán."));
+                        writeJsonResponse(response, buildErrorResponse("No unpaid orders found."));
                         return;
                     }
 
@@ -108,7 +108,7 @@ public class CheckoutServlet extends HttpServlet {
         } catch (Exception e) {
             e.printStackTrace(); // Tạm thời in log lỗi ra console
             logger.error("Error in GET: ", e);
-            writeJsonResponse(response, buildErrorResponse("Đã xảy ra lỗi trong xử lý thanh toán."));
+            writeJsonResponse(response, buildErrorResponse("An error occurred while processing the payment."));
         }
 
     }

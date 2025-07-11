@@ -51,7 +51,7 @@ public class LoginServlet extends HttpServlet {
         }
 
         AccountDAO accountDAO = new AccountDAO();
-        Object user = accountDAO.login(email, password);
+        Object user = accountDAO.getAuthenticatedUser(email, password);
 
         if (user == null) {
             System.out.println("No account found or invalid credentials for email: " + email);

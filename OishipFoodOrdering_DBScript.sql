@@ -106,7 +106,6 @@ CREATE TABLE CustomerVoucher (
 CREATE TABLE [Order] (
     orderID INT IDENTITY(1,1) PRIMARY KEY,
     amount DECIMAL(10,2),
-
     -- Order status:
     -- 0 = Pending       -- Order placed, waiting for confirmation
     -- 1 = Confirmed     -- Order confirmed by staff
@@ -116,16 +115,14 @@ CREATE TABLE [Order] (
     -- 5 = Cancelled     -- Order cancelled by customer or staff
     -- 6 = Failed        -- Order failed due to system or payment issue
     orderStatus INT,
-
     -- Payment status:
     -- 0 = Unpaid
     -- 1 = Paid
     -- 2 = Refunded
     paymentStatus INT DEFAULT 0,
-
+	checkoutUrl NVARCHAR(MAX) NULL,
     orderCreatedAt DATETIME DEFAULT GETDATE(),
     orderUpdatedAt DATETIME DEFAULT GETDATE(),
-
     FK_Order_Voucher INT FOREIGN KEY REFERENCES Voucher(voucherID),
     FK_Order_Customer INT FOREIGN KEY REFERENCES Customer(customerID)
 );
@@ -138,15 +135,13 @@ CREATE TABLE OrderDetail (
     FK_OD_Dish INT FOREIGN KEY REFERENCES Dish(DishID)
 );
 
--- Payment table
 CREATE TABLE Payment (
-    paymentID INT IDENTITY(1,1) PRIMARY KEY,
-    transactionCode NVARCHAR(100),
-    bankName NVARCHAR(100),
-    paymentTime DATETIME DEFAULT GETDATE(),
-    isConfirmed BIT DEFAULT 0,
-    FK_Payment_Order INT FOREIGN KEY REFERENCES [Order](orderID),
-	FK_Notification_Account INT FOREIGN KEY REFERENCES Account(accountID)
+    PaymentID INT IDENTITY(1,1) PRIMARY KEY,
+    PaymentTime DATETIME2 DEFAULT GETDATE(),
+    IsConfirmed BIT NOT NULL DEFAULT 0,
+    OrderID INT NOT NULL FOREIGN KEY REFERENCES [Order](OrderID),
+    AccountID INT NOT NULL FOREIGN KEY REFERENCES Account(AccountID),
+    AmountPaid DECIMAL(18, 2) NOT NULL
 );
 
 -- Review table

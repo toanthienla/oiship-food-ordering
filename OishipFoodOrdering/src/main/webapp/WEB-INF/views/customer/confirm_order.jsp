@@ -13,7 +13,29 @@
         <title>Confirm-Order</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        <!-- Mapbox CSS -->
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
+        <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" rel="stylesheet" />
+
     </head>
+    <style>
+        .customer-info-box .title {
+            font-weight: bold;
+            font-size: 14px;
+            color: #555;
+        }
+
+        .customer-info-box .value {
+            font-size: 16px;
+        }
+
+        .customer-info-box .icon {
+            font-size: 1.4rem;
+            color: #666;
+        }
+
+
+    </style>
     <body class="container py-4">
 
         <h2 class="mb-4">Confirm Order</h2>
@@ -30,87 +52,72 @@
             <input type="hidden" name="address" id="hiddenAddress" value="${customer.address}" />
             <input type="hidden" name="paymentMethod" id="paymentMethod" value="cash" />
 
-            <div class="row">
+            <!-- Row chứa 2 cột -->
+            <div class="row gx-4 gy-4">
                 <!-- LEFT COLUMN -->
-                <div class="col-lg-7">
-                    <div class="accordion" id="deliveryAccordion">
+                <div class="col-lg-7 d-flex flex-column">
+                    <div class="p-4 shadow-sm rounded bg-white h-100">
+                        <h5 class="fw-bold mb-3 text-primary">Delivery Information</h5>
 
-                        <!-- DELIVERY INFORMATION -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingDelivery">
-                                <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapseDelivery">
-                                    Delivery Information
-                                </button>
-                            </h2>
-                            <div id="collapseDelivery" class="accordion-collapse collapse show" aria-labelledby="headingDelivery">
-                                <div class="accordion-body">
-                                    <div class="d-flex justify-content-between align-items-center py-2 border-bottom">
-                                        <div>
-                                            <p class="mb-1 fw-bold">Customer Information</p>
-                                            <span id="displayCustomerText" onclick="openEditCustomer()" style="cursor:pointer;">
-                                                ${customer.fullName} - ${customer.phone}
-                                            </span>
+                        <!-- Customer Info -->
+                        <div class="customer-info-box d-flex justify-content-between align-items-center p-3 mb-3 border rounded" onclick="openEditCustomer()" style="cursor:pointer;">
+                            <div>
+                                <div class="fw-bold">Customer</div>
+                                <div id="displayCustomerText">${customer.fullName} - ${customer.phone}</div>
+                            </div>
+                            <i class="bi bi-pencil-square fs-4 text-secondary"></i>
+                        </div>
+
+                        <!-- Address Info -->
+                        <div class="customer-info-box d-flex justify-content-between align-items-center p-3 border rounded" onclick="openEditCustomer()" style="cursor:pointer;">
+                            <div>
+                                <div class="fw-bold">Delivery Address</div>
+                                <div id="displayAddressText">${customer.address}</div>
+                            </div>
+                            <i class="bi bi-geo-alt fs-4 text-secondary"></i>
+                        </div>
+
+                        <!-- Payment Option -->
+                        <div class="accordion mt-4" id="deliveryAccordion">
+                            <div class="accordion-item">
+                                <h2 class="accordion-header" id="headingPayment">
+                                    <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment">
+                                        Payment Option
+                                    </button>
+                                </h2>
+                                <div id="collapsePayment" class="accordion-collapse collapse" aria-labelledby="headingPayment">
+                                    <div class="accordion-body">
+                                        <div class="form-check mb-2">
+                                            <input class="form-check-input" type="radio" name="payment" value="cash" id="paymentCash" checked>
+                                            <label class="form-check-label" for="paymentCash">Cash on Delivery</label>
                                         </div>
-                                        <button type="button" class="btn btn-link text-decoration-none" onclick="openEditCustomer()">
-                                            <i class="bi bi-chevron-right fs-4"></i>
-                                        </button>
-                                    </div>
-                                    <div class="d-flex justify-content-between align-items-center py-2">
-                                        <div>
-                                            <p class="mb-1 fw-bold">Address</p>
-                                            <span onclick="openEditAddress()" style="cursor:pointer;" id="displayAddressText">
-                                                ${customer.address}
-                                            </span>
+                                        <div class="form-check">
+                                            <input class="form-check-input" type="radio" name="payment" value="bank_transfer" id="paymentBankTransfer">
+                                            <label class="form-check-label" for="paymentBankTransfer">Bank transfer</label>
                                         </div>
-                                        <button type="button" class="btn btn-link text-decoration-none" onclick="openEditAddress()">
-                                            <i class="bi bi-chevron-right fs-4"></i>
-                                        </button>
+                                        <div class="text-danger mt-2" id="errorMsg"></div>
                                     </div>
                                 </div>
                             </div>
                         </div>
-
-                        <!-- PAYMENT OPTION -->
-                        <div class="accordion-item">
-                            <h2 class="accordion-header" id="headingPayment">
-                                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment" aria-expanded="false" aria-controls="collapsePayment">
-                                    Payment Option
-                                </button>
-                            </h2>
-                            <div id="collapsePayment" class="accordion-collapse collapse" aria-labelledby="headingPayment">
-                                <div class="accordion-body">
-                                    <div class="form-check mb-2">
-                                        <input class="form-check-input" type="radio" name="payment" value="cash" id="paymentCash" checked>
-                                        <label class="form-check-label" for="paymentCash">Cash Payment</label>
-                                    </div>
-                                    <div class="form-check">
-                                        <input class="form-check-input" type="radio" name="payment" value="bank_transfer" id="paymentBankTransfer">
-                                        <label class="form-check-label" for="paymentBankTransfer">Bank Transfer (PayOS)</label>
-                                    </div>
-                                    <div class="text-danger mt-2" id="errorMsg"></div>
-                                </div>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
                 <!-- RIGHT COLUMN -->
-                <div class="col-lg-5">
-                    <h4 class="mb-3">Selected Dishes</h4>
-                    <%
-                        List<Cart> selectedCarts = (List<Cart>) request.getAttribute("selectedCarts");
-                        BigDecimal grandTotal = (BigDecimal) request.getAttribute("grandTotal");
-                    %>
-                    <div class="mb-4">
-                        <% for (Cart cart : selectedCarts) {
+                <div class="col-lg-5 d-flex flex-column">
+                    <div class="p-4 shadow-sm rounded bg-white h-100">
+                        <h5 class="fw-bold mb-3 text-primary">Selected Dishes</h5>
+
+                        <% List<Cart> selectedCarts = (List<Cart>) request.getAttribute("selectedCarts");
+                            BigDecimal grandTotal = (BigDecimal) request.getAttribute("grandTotal");
+                            for (Cart cart : selectedCarts) {
                                 Dish dish = cart.getDish();
                                 BigDecimal price = dish.getTotalPrice();
                                 BigDecimal total = price.multiply(BigDecimal.valueOf(cart.getQuantity()));
                                 int cartId = cart.getCartID();
                         %>
-                        <div class="d-flex align-items-center mb-3 border p-2 rounded cart-item-row">
-                            <img src="<%= dish.getImage()%>" width="80" class="me-3" style="border-radius: 8px;">
+                        <div class="d-flex align-items-center mb-3 border p-2 rounded">
+                            <img src="<%= dish.getImage()%>" width="80" class="me-3 rounded">
                             <div class="flex-grow-1">
                                 <strong><%= dish.getDishName()%></strong><br/>
                                 <div class="d-flex align-items-center gap-2 mt-1">
@@ -118,59 +125,56 @@
                                     <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly data-stock="<%= dish.getStock()%>" class="form-control text-center" style="width: 60px;">
                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, 1)">+</button>
                                 </div>
-
                                 <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> VND</div>
-
-
-
                             </div>
                         </div>
                         <% }%>
-                    </div>
 
-                    <!-- Voucher -->
-                    <div class="mb-4">
-                        <label class="form-label fw-bold">Discount Code</label>
-                        <div class="p-2 border rounded bg-light" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#voucherModal">
-                            <div class="d-flex justify-content-between">
-                                <div>
-                                    <p class="mb-0">Choose a discount code</p>
-                                    <small class="text-muted" id="voucherStatusText">Not applied</small>
+                        <!-- Voucher -->
+                        <div class="mb-4 mt-3">
+                            <label class="form-label fw-bold">Discount Code</label>
+                            <div class="p-2 border rounded bg-light" style="cursor:pointer;" data-bs-toggle="modal" data-bs-target="#voucherModal">
+                                <div class="d-flex justify-content-between">
+                                    <div>
+                                        <p class="mb-0">Choose a discount code</p>
+                                        <small class="text-muted" id="voucherStatusText">Not applied</small>
+                                    </div>
+                                    <i class="bi bi-chevron-right fs-5"></i>
                                 </div>
-                                <i class="bi bi-chevron-right fs-5"></i>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Summary -->
-                    <div class="mb-3">
-                        <div class="d-flex justify-content-between">
-                            <span>Subtotal:</span>
-                            <span id="totalBefore" data-value="<%= grandTotal%>"><%= String.format("%,.0f", grandTotal)%> đ</span>
+                        <!-- Summary -->
+                        <div class="mb-3">
+                            <div class="d-flex justify-content-between">
+                                <span>Subtotal:</span>
+                                <span id="totalBefore" data-value="<%= grandTotal%>"><%= String.format("%,.0f", grandTotal)%> đ</span>
+                            </div>
+                            <div class="d-flex justify-content-between">
+                                <span>Discount:</span>
+                                <span id="discountAmount">- 0 đ</span>
+                            </div>
+                            <div class="d-flex justify-content-between fw-bold fs-5">
+                                <span>Total Amount:</span>
+                                <span id="finalAmount"><%= String.format("%,.0f", grandTotal)%> đ</span>
+                            </div>
                         </div>
-                        <div class="d-flex justify-content-between">
-                            <span>Discount:</span>
-                            <span id="discountAmount">- 0 đ</span>
-                        </div>
-                        <div class="d-flex justify-content-between fw-bold fs-5">
-                            <span>Total Amount:</span>
-                            <span id="finalAmount"><%= String.format("%,.0f", grandTotal)%> đ</span>
-                        </div>
-                    </div>
 
-                    <!-- Hidden cart IDs -->
-                    <c:forEach var="id" items="${selectedCartIDs}">
-                        <input type="hidden" name="selectedItems" value="${id}" />
-                    </c:forEach>
+                        <!-- Hidden cart IDs -->
+                        <c:forEach var="id" items="${selectedCartIDs}">
+                            <input type="hidden" name="selectedItems" value="${id}" />
+                        </c:forEach>
 
-                    <!-- Confirm button -->
-                    <div class="d-grid">
-                        <button type="button" class="btn btn-primary" onclick="handleSubmit()">Place Order</button>
-                        <a href="${pageContext.request.contextPath}/customer/view-cart" class="btn btn-outline-secondary mt-2">Back to Cart</a>
+                        <!-- Confirm button -->
+                        <div class="d-grid mt-3">
+                            <button type="button" class="btn btn-primary" onclick="handleSubmit()">Place Order</button>
+                            <a href="${pageContext.request.contextPath}/customer/view-cart" class="btn btn-outline-secondary mt-2">Back to Cart</a>
+                        </div>
                     </div>
                 </div>
             </div>
         </form>
+
 
         <!-- SCRIPT xử lý chọn phương thức thanh toán -->
         <script>
@@ -184,59 +188,49 @@
 
 
 
-        <!-- Modal chỉnh Customer -->
+        <!-- Modal cập nhật thông tin khách -->
         <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
                     <div class="modal-header">
-                        <h5 class="modal-title">Edit Customer Information</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                        <h5 class="modal-title">Edit Customer Info</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                     </div>
                     <div class="modal-body">
+
                         <div class="mb-3">
-                            <label class="form-label">Full name</label>
-                            <input type="text" class="form-control" id="modalFullName" placeholder="e.g. Nguyen Van A">
+                            <label for="modalFullName" class="form-label">Full Name</label>
+                            <input type="text" class="form-control" id="modalFullName" />
                         </div>
+
                         <div class="mb-3">
-                            <label class="form-label">Phone number</label>
-                            <input type="text" class="form-control" id="modalPhone" placeholder="e.g. 0923473282">
+                            <label for="modalPhone" class="form-label">Phone</label>
+                            <input type="text" class="form-control" id="modalPhone" />
                         </div>
+
+                        <div class="mb-3">
+                            <label for="modalAddress" class="form-label">Address</label>
+                            <div id="mapboxAddressInput" class="geocoder"></div> <!-- Chỗ gợi ý địa chỉ -->
+                            <input type="hidden" class="form-control" id="modalAddress" /> <!-- ẩn để giữ giá trị chọn -->
+                        </div>
+
+
                     </div>
                     <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-warning" onclick="saveCustomerInfo()">Save changes</button>
+                        <button type="button" class="btn btn-primary" onclick="saveCustomerInfo()">Save</button>
                     </div>
                 </div>
             </div>
         </div>
 
-        <!-- Modal chỉnh Address -->
-        <div class="modal fade" id="editAddressModal" tabindex="-1" aria-labelledby="editAddressModalLabel" aria-hidden="true">
-            <div class="modal-dialog">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title">Edit Address</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
-                    </div>
-                    <div class="modal-body">
-                        <div class="mb-3">
-                            <label class="form-label">Address</label>
-                            <textarea class="form-control" id="modalAddress" rows="3"></textarea>
-                        </div>
-                    </div>
-                    <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
-                        <button type="button" class="btn btn-warning" onclick="saveAddress()">Save changes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
+
         <!-- Modal chọn voucher -->
         <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content p-4">
                     <div class="modal-header">
-                        <h5 class="modal-title">Chọn mã giảm giá</h5>
+                        <h5 class="modal-title">Select voucher</h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
                     </div>
                     <div class="modal-body">
@@ -259,9 +253,9 @@
                                 </div>
                             </div>
                             <% }
-                            } else { %>
+                        } else { %>
                             <div class="col-12 text-center text-muted">No vouchers available</div>
-                            <% } %>
+                            <% }%>
                         </div>
                     </div>
                     <div class="modal-footer">
@@ -270,98 +264,87 @@
                 </div>
             </div>
         </div>
+        <!-- Mapbox -->
+        <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
+        <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
+        <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" rel="stylesheet">
 
-        <!-- JS xử lý modal -->
         <script>
-            function openEditCustomer() {
-                document.getElementById('modalFullName').value = '${customer.fullName}';
-                document.getElementById('modalPhone').value = '${customer.phone}';
-                new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
-            }
+                                         mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhZmYxIiwiYSI6ImNtYWZndDRjNzAybGUybG44ZWYzdTlsNWQifQ.jSJjwMo8_OQszYjWAAi7iQ';
 
-            function openEditAddress() {
-                document.getElementById('modalAddress').value = '${customer.address}';
-                new bootstrap.Modal(document.getElementById('editAddressModal')).show();
-            }
+                                         const geocoder = new MapboxGeocoder({
+                                             accessToken: mapboxgl.accessToken,
+                                             placeholder: 'Nhập địa chỉ giao hàng...',
+                                             mapboxgl: mapboxgl,
+                                             marker: false
+                                         });
 
-            function saveCustomerInfo() {
-                const name = document.getElementById('modalFullName').value.trim();
-                const phone = document.getElementById('modalPhone').value.trim();
-                if (!name || !phone) {
-                    alert('Please enter all information.');
-                    return;
-                }
-                const phoneRegex = /^0(3[2-9]|5[6|8|9]|7[0|6-9]|8[1-5]|9[0-9])\d{7}$/;
+                                         // Gắn vào đúng vị trí mapboxAddressInput
+                                         document.getElementById('mapboxAddressInput').appendChild(geocoder.onAdd(new mapboxgl.Map({
+                                             container: document.createElement('div'),
+                                             style: 'mapbox://styles/mapbox/streets-v11'
+                                         })));
 
-                if (!phoneRegex.test(phone)) {
-                    alert('Phone number must be 10 digits and start with 0 (e.g. 0901234567).');
-                    phoneInput.focus();
-                    return;
-                }
-                let displayText = "";
-                if (name && phone) {
-                    displayText = name + "- " + phone;
-                } else if (name) {
-                    displayText = name;
-                } else if (phone) {
-                    displayText = phoneRegex;
-                }
+                                         // Khi chọn kết quả → gán vào hidden input
+                                         geocoder.on('result', function (e) {
+                                             const address = e.result.place_name;
+                                             document.getElementById('modalAddress').value = address;
+                                         });
 
-                document.getElementById("displayCustomerText").textContent = displayText;
+                                         // Mở modal → gán giá trị ban đầu
+                                         function openEditCustomer() {
+                                             document.getElementById('modalFullName').value = '${customer.fullName}';
+                                             document.getElementById('modalPhone').value = '${customer.phone}';
+                                             document.getElementById('modalAddress').value = '${customer.address}';
+                                             document.querySelector('.mapboxgl-ctrl-geocoder input').value = '${customer.address}'; // cập nhật gợi ý ban đầu
+                                             new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
+                                         }
 
+                                         function saveCustomerInfo() {
+                                             const name = document.getElementById('modalFullName').value.trim();
+                                             const phone = document.getElementById('modalPhone').value.trim();
+                                             const address = document.getElementById('modalAddress').value.trim();
 
+                                             if (!name || !phone || !address) {
+                                                 alert("Please fill in all fields.");
+                                                 return;
+                                             }
 
-                let form = document.querySelector("form");
-
-                let hiddenName = document.getElementById("hiddenFullName");
-                let hiddenPhone = document.getElementById("hiddenPhone");
-
-                if (!hiddenName) {
-                    hiddenName = document.createElement("input");
-                    hiddenName.type = "hidden";
-                    hiddenName.name = "fullname";
-                    hiddenName.id = "hiddenFullName";
-                    form.appendChild(hiddenName);
-                }
-
-                if (!hiddenPhone) {
-                    hiddenPhone = document.createElement("input");
-                    hiddenPhone.type = "hidden";
-                    hiddenPhone.name = "phone";
-                    hiddenPhone.id = "hiddenPhone";
-                    form.appendChild(hiddenPhone);
-                }
-
-                hiddenName.value = name;
-                hiddenPhone.value = phone;
-                bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
-            }
-
-            function saveAddress() {
-                const address = document.getElementById('modalAddress').value.trim();
-                if (!address) {
-                    alert('Please enter address.');
-                    return;
-                }
-                document.getElementById('displayAddressText').innerText = address;
-
-
-                let form = document.querySelector("form");
-                let hiddenAddress = document.getElementById("hiddenAddress");
-
-
-                if (!hiddenAddress) {
-                    hiddenAddress = document.createElement("input");
-                    hiddenAddress.type = "hidden";
-                    hiddenAddress.name = "address";
-                    hiddenAddress.id = "hiddenAddress";
-                    form.appendChild(hiddenAddress);
-                }
-
-                hiddenAddress.value = address;
-                bootstrap.Modal.getInstance(document.getElementById('editAddressModal')).hide();
-            }
+                                             fetch('${pageContext.request.contextPath}/customer/order', {
+                                                 method: 'POST',
+                                                 headers: {
+                                                     'Content-Type': 'application/x-www-form-urlencoded',
+                                                     'X-Requested-With': 'XMLHttpRequest'
+                                                 },
+                                                 body: new URLSearchParams({
+                                                     action: "updateInfo",
+                                                     fullName: name,
+                                                     phone: phone,
+                                                     address: address
+                                                 })
+                                             })
+                                                     .then(res => res.json())
+                                                     .then(data => {
+                                                         if (data.success) {
+                                                             document.getElementById("displayCustomerText").textContent = name + " - " + phone;
+                                                             document.getElementById("displayAddressText").textContent = address;
+                                                             document.getElementById("hiddenFullName").value = name;
+                                                             document.getElementById("hiddenPhone").value = phone;
+                                                             document.getElementById("hiddenAddress").value = address;
+                                                             bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
+                                                         } else {
+                                                             alert("Failed to update customer info.");
+                                                         }
+                                                     })
+                                                     .catch(err => {
+                                                         console.error(err);
+                                                         alert("Error occurred while updating info.");
+                                                     });
+                                         }
         </script>
+
+
 
 
         <script>
@@ -408,12 +391,12 @@
                 }
 
                 const finalTotal = orderTotal - discountAmount;
-             
+
                 hiddenInput.value = voucherID;
                 voucherText.textContent = "Applied: " + code;
                 discountText.textContent = "- " + discountAmount.toLocaleString() + " đ";
                 finalTotalText.textContent = finalTotal.toLocaleString() + " đ";
-            
+
                 const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
                 modal.hide();
 
@@ -438,58 +421,58 @@
             }
         </script>
         <script>
-            const contextPath = "<%= request.getContextPath()%>";
+        const contextPath = "<%= request.getContextPath()%>";
 
-            function updateQuantity(cartId, delta) {
-                const input = document.getElementById("qty_" + cartId);
-                const maxStock = parseInt(input.getAttribute("data-stock"));
-                let qty = parseInt(input.value);
+        function updateQuantity(cartId, delta) {
+            const input = document.getElementById("qty_" + cartId);
+            const maxStock = parseInt(input.getAttribute("data-stock"));
+            let qty = parseInt(input.value);
 
-                if (isNaN(qty))
-                    qty = 1;
-                qty += delta;
+            if (isNaN(qty))
+                qty = 1;
+            qty += delta;
 
-                if (qty > 10) {
-                    qty = 10;
-                    alert("The maximum quantity for each item is 10.");
-                }
-
-                if (qty > maxStock) {
-                    qty = maxStock;
-                    alert("The quantity exceeds stock: " + maxStock);
-                }
-
-                if (qty < 1)
-                    qty = 1;
-
-                input.value = qty;
-                
-                fetch(contextPath + "/customer/view-cart", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-                }).then(() => {
-                    const row = input.closest(".cart-item-row");
-                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                    const total = qty * price;
-                    row.querySelector(".item-total").textContent = total.toLocaleString();
-                    recalculateTotal();
-                });
+            if (qty > 10) {
+                qty = 10;
+                alert("The maximum quantity for each item is 10.");
             }
 
-            function recalculateTotal() {
-                let total = 0;
-                document.querySelectorAll(".item-total").forEach(el => {
-                    const val = el.textContent.replace(/[^\d]/g, "");
-                    if (!isNaN(val))
-                        total += parseInt(val);
-                });
-          
-                document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
-                document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
-                document.getElementById("discountAmount").textContent = "- 0 VND";
-
+            if (qty > maxStock) {
+                qty = maxStock;
+                alert("The quantity exceeds stock: " + maxStock);
             }
+
+            if (qty < 1)
+                qty = 1;
+
+            input.value = qty;
+
+            fetch(contextPath + "/customer/view-cart", {
+                method: "POST",
+                headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+            }).then(() => {
+                const row = input.closest(".cart-item-row");
+                const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                const total = qty * price;
+                row.querySelector(".item-total").textContent = total.toLocaleString();
+                recalculateTotal();
+            });
+        }
+
+        function recalculateTotal() {
+            let total = 0;
+            document.querySelectorAll(".item-total").forEach(el => {
+                const val = el.textContent.replace(/[^\d]/g, "");
+                if (!isNaN(val))
+                    total += parseInt(val);
+            });
+
+            document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
+            document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
+            document.getElementById("discountAmount").textContent = "- 0 VND";
+
+        }
         </script>
         <script>
             document.getElementById("orderForm").addEventListener("submit", function (event) {
