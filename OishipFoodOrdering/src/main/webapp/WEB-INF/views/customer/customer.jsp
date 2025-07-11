@@ -16,11 +16,9 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-
-
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.css" rel="stylesheet" />
         <!-- Bootstrap JS (modal cần cái này) -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-
         <style>
             .modal-backdrop.show {
                 opacity: 0.1 !important; /* mặc định là 0.5 */
@@ -577,31 +575,6 @@
             <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
         </div>
 
-        <!-- Location Map Section -->
-        <div id="location" class="menu-section mt-4">
-            <h2 class="mb-4">Location Map</h2>
-            <div class="mb-3">
-                <label for="locationInput" class="form-label">Enter Location:</label>
-                <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
-                <button class="btn btn-custom mt-2" onclick="geocodeAddress()">Search Location</button>
-            </div>
-            <div id="map"></div>
-        </div>
-
-
-    
-        <style>
-            #map {
-                height: 400px;
-                width: 100%;
-                margin-top: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            }
-        </style>
-        <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
-
-
 
 
         <!-- Top Cart Success Alert with Animation -->
@@ -609,7 +582,7 @@
             Map<String, Object> cartSuccessDetails = (Map<String, Object>) session.getAttribute("cartSuccessDetails");
             if (cartSuccessDetails != null) {
                 session.removeAttribute("cartSuccessDetails"); // Clear session to avoid repeated display
-%>
+        %>
         <div class="cart-success-alert" id="cartSuccessAlert">
             <div class="alert alert-success alert-dismissible fade show" role="alert">
                 <img src="<%= cartSuccessDetails.get("image")%>" alt="Dish Image" class="img-fluid">
@@ -626,380 +599,359 @@
             }
         %>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+
+        <div id="map" style="height: 400px; width: 100%;"></div>
+
+        <!-- Mapbox JS -->
+        <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
         <script>
-                    // Animate and auto-disappear cart success alert
-                    document.addEventListener('DOMContentLoaded', function () {
-                        const alert = document.getElementById('cartSuccessAlert');
-                        if (alert) {
-                            // Add show class for animation
-                            setTimeout(() => alert.classList.add('show'), 10); // Slight delay to trigger transition
+                            mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhZmYxIiwiYSI6ImNtYWZndDRjNzAybGUybG44ZWYzdTlsNWQifQ.jSJjwMo8_OQszYjWAAi7iQ';
 
-                            // Auto-disappear after 3 seconds
-                            setTimeout(() => {
-                                alert.classList.remove('show');
-                                setTimeout(() => alert.remove(), 300); // Remove after fade-out
-                            }, 3000);
-                        }
-                    });
-        </script>
-        <script>
-            function validateQty(input) {
-                let qty = parseInt(input.value) || 1;
+                            const storeCoordinates = [105.73243159506195, 10.012620837028985]; // [lng, lat]
 
-                let stock = parseInt(input.getAttribute("data-stock"));
+                            const map = new mapboxgl.Map({
+                                container: 'map',
+                                style: 'mapbox://styles/mapbox/streets-v11',
+                                center: storeCoordinates,
+                                zoom: 15
+                            });
 
-                if (qty > 10) {
-                    alert("The maximum quantity is 10.");
-                    qty = 10;
-                }
+                            map.on('load', () => {
+                                new mapboxgl.Marker()
+                                        .setLngLat(storeLocation)
+                                        .setPopup(new mapboxgl.Popup().setText('Oiship Store'))
+                                        .addTo(map);
 
-                if (qty > stock) {
-                    alert("Only " + stock + " items in stock.");
-                    qty = stock;
-                }
+                                // Buộc map render lại sau 500ms
+                                setTimeout(() => {
+                                    map.resize();
+                                    map.setCenter(storeLocation); // đảm bảo giữ đúng vị trí
+                                }, 500);
+                            });
 
-                if (qty < 1) {
-                    alert("Quantity must be at least 1.");
-                    qty = 1;
-                }
-
-                input.value = qty;
-                const total = qty * price;
-                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
-            }
-
-            function validateBeforeSubmit() {
-                const input = document.getElementById("quantityInput");
-                const stock = parseInt(input.getAttribute("data-stock"));
-
-                let qty = parseInt(input.value);
-
-                if (isNaN(qty) || qty < 1) {
-                    alert("Quantity must be at least 1.");
-                    input.value = 1;
-                    return false;
-                }
-
-                if (qty > 10) {
-                    alert("The maximum quantity is 10.");
-                    input.value = 10;
-                    return false;
-                }
-
-                if (qty > stock) {
-                    alert("Only " + stock + " items in stock.");
-                    input.value = stock;
-                    return false;
-                }
-
-                const total = qty * price;
-                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
-                return true;
-            }
         </script>
 
+</body>
 
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Thêm vào cuối <body> -->
-        <script>
-            let map;
-            function initMap() {
-                const defaultLocation = {lat: 10.7769, lng: 106.7009}; 
-                map = new google.maps.Map(document.getElementById("map"), {
-                    center: defaultLocation,
-                    zoom: 12,
-                });
+<script>
+    // Animate and auto-disappear cart success alert
+    document.addEventListener('DOMContentLoaded', function () {
+        const alert = document.getElementById('cartSuccessAlert');
+        if (alert) {
+            // Add show class for animation
+            setTimeout(() => alert.classList.add('show'), 10); // Slight delay to trigger transition
 
-                const input = document.getElementById("locationInput");
-                const searchBox = new google.maps.places.SearchBox(input);
+            // Auto-disappear after 3 seconds
+            setTimeout(() => {
+                alert.classList.remove('show');
+                setTimeout(() => alert.remove(), 300); // Remove after fade-out
+            }, 3000);
+        }
+    });
+</script>
+<script>
+    function validateQty(input) {
+        let qty = parseInt(input.value) || 1;
 
-                map.addListener("bounds_changed", () => {
-                    searchBox.setBounds(map.getBounds());
-                });
+        let stock = parseInt(input.getAttribute("data-stock"));
 
-                searchBox.addListener("places_changed", () => {
-                    const places = searchBox.getPlaces();
-                    if (places.length == 0)
-                        return;
-                    const place = places[0];
-                    if (!place.geometry || !place.geometry.location) {
-                        console.log("No geometry available for this place");
-                        return;
-                    }
-                    map.setCenter(place.geometry.location);
-                    map.setZoom(15);
-                    new google.maps.Marker({map, position: place.geometry.location});
-                });
-            }
+        if (qty > 10) {
+            alert("The maximum quantity is 10.");
+            qty = 10;
+        }
 
-            function geocodeAddress() {
-                const geocoder = new google.maps.Geocoder();
-                const address = document.getElementById("locationInput").value;
-                geocoder.geocode({address: address}, (results, status) => {
-                    if (status === "OK") {
-                        map.setCenter(results[0].geometry.location);
-                        map.setZoom(15);
-                        new google.maps.Marker({map: map, position: results[0].geometry.location});
-                    } else {
-                        alert("Geocode was not successful for the following reason: " + status);
-                    }
-                });
-            }
-        </script>
+        if (qty > stock) {
+            alert("Only " + stock + " items in stock.");
+            qty = stock;
+        }
 
-    </div>
+        if (qty < 1) {
+            alert("Quantity must be at least 1.");
+            qty = 1;
+        }
+
+        input.value = qty;
+        const total = qty * price;
+        document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
+    }
+
+    function validateBeforeSubmit() {
+        const input = document.getElementById("quantityInput");
+        const stock = parseInt(input.getAttribute("data-stock"));
+
+        let qty = parseInt(input.value);
+
+        if (isNaN(qty) || qty < 1) {
+            alert("Quantity must be at least 1.");
+            input.value = 1;
+            return false;
+        }
+
+        if (qty > 10) {
+            alert("The maximum quantity is 10.");
+            input.value = 10;
+            return false;
+        }
+
+        if (qty > stock) {
+            alert("Only " + stock + " items in stock.");
+            input.value = stock;
+            return false;
+        }
+
+        const total = qty * price;
+        document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
+        return true;
+    }
+</script>
+
+</div>
 
 
 
-    <!-- 💡 Modal Dish Detail -->
-    <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" id="dishDetailContent">
-                <!-- AJAX content goes here -->
-            </div>
+<!-- 💡 Modal Dish Detail -->
+<div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+        <div class="modal-content" id="dishDetailContent">
+            <!-- AJAX content goes here -->
         </div>
     </div>
+</div>
 
-    <script>
-        function openDishDetail(dishId) {
-            fetch('<%=request.getContextPath()%>/customer/dish-detail', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'dishId=' + dishId
-            })
-                    .then(response => response.text())
-                    .then(html => {
-                        const content = document.getElementById('dishDetailContent');
-                        content.innerHTML = html;
+<script>
+    function openDishDetail(dishId) {
+        fetch('<%=request.getContextPath()%>/customer/dish-detail', {
+            method: 'POST',
+            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+            body: 'dishId=' + dishId
+        })
+                .then(response => response.text())
+                .then(html => {
+                    const content = document.getElementById('dishDetailContent');
+                    content.innerHTML = html;
 
-                        const modalEl = document.getElementById('dishDetailModal');
-                        const dishModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
-                        dishModal.show();
-                    })
-                    .catch(error => {
-                        alert("Failed to load dish detail. Please try again.");
-                        console.error('Error loading dish detail:', error);
-                    });
-        }
-
-        document.getElementById('dishDetailModal').addEventListener('hidden.bs.modal', function () {
-            document.getElementById('dishDetailContent').innerHTML = '';
-        });
-    </script>
-
-
-    <!-- 💡 xử lí load category -->
-    <script>
-        function loadDishesByCategory(catId) {
-            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
-
-            fetch('<%= request.getContextPath()%>/customer/dish-detail', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'catId=' + catId
-            })
-                    .then(response => response.text())
-                    .then(html => {
-                        document.getElementById('dish-container').innerHTML = html;
-                    })
-                    .catch(error => {
-                        console.error('Error loading dishes:', error);
-                    });
-        }
-
-    </script>      
-
-
-
-
-
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const form = document.getElementById("dishSearchForm");
-            const input = document.getElementById("searchQuery");
-            const dishContainer = document.getElementById("dish-container");
-
-            form.addEventListener("submit", function (event) {
-                event.preventDefault(); 
-
-                const query = input.value.trim();
-
-                fetch("<%=request.getContextPath()%>/customer/search-dish", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: new URLSearchParams({
-                        searchQuery: query
-                    })
+                    const modalEl = document.getElementById('dishDetailModal');
+                    const dishModal = bootstrap.Modal.getInstance(modalEl) || new bootstrap.Modal(modalEl);
+                    dishModal.show();
                 })
-                        .then(response => response.text())
-                        .then(data => {
-                            dishContainer.innerHTML = data;
-                        })
-                        .catch(error => {
-                            console.error("Search error:", error);
-                        });
-            });
+                .catch(error => {
+                    alert("Failed to load dish detail. Please try again.");
+                    console.error('Error loading dish detail:', error);
+                });
+    }
+
+    document.getElementById('dishDetailModal').addEventListener('hidden.bs.modal', function () {
+        document.getElementById('dishDetailContent').innerHTML = '';
+    });
+</script>
+
+
+<!-- 💡 xử lí load category -->
+<script>
+    function loadDishesByCategory(catId) {
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        fetch('<%= request.getContextPath()%>/customer/dish-detail', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'catId=' + catId
+        })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('dish-container').innerHTML = html;
+                })
+                .catch(error => {
+                    console.error('Error loading dishes:', error);
+                });
+    }
+
+</script>      
+
+
+
+
+
+<script>
+    document.addEventListener("DOMContentLoaded", () => {
+        const form = document.getElementById("dishSearchForm");
+        const input = document.getElementById("searchQuery");
+        const dishContainer = document.getElementById("dish-container");
+
+        form.addEventListener("submit", function (event) {
+            event.preventDefault();
+
+            const query = input.value.trim();
+
+            fetch("<%=request.getContextPath()%>/customer/search-dish", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/x-www-form-urlencoded"
+                },
+                body: new URLSearchParams({
+                    searchQuery: query
+                })
+            })
+                    .then(response => response.text())
+                    .then(data => {
+                        dishContainer.innerHTML = data;
+                    })
+                    .catch(error => {
+                        console.error("Search error:", error);
+                    });
         });
-    </script>
+    });
+</script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const itemsPerPage = 15;
-            const dishes = Array.from(document.querySelectorAll(".dish-item"));
-            const totalPages = Math.ceil(dishes.length / itemsPerPage);
-            let currentPage = 1;
+<script>
+    document.addEventListener('DOMContentLoaded', () => {
+        const itemsPerPage = 15;
+        const dishes = Array.from(document.querySelectorAll(".dish-item"));
+        const totalPages = Math.ceil(dishes.length / itemsPerPage);
+        let currentPage = 1;
 
-            const prevBtn = document.getElementById("prevPageBtn");
-            const nextBtn = document.getElementById("nextPageBtn");
-            const pageNumbers = document.getElementById("pageNumbers");
+        const prevBtn = document.getElementById("prevPageBtn");
+        const nextBtn = document.getElementById("nextPageBtn");
+        const pageNumbers = document.getElementById("pageNumbers");
 
-            function showPage(page) {
-                dishes.forEach((item, index) => {
-                    item.style.display = "none";
-                });
-                const start = (page - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                dishes.slice(start, end).forEach(item => {
-                    item.style.display = "block";
-                });
-
-               
-                document.querySelectorAll("#pageNumbers button").forEach(btn => {
-                    btn.classList.remove("btn-primary");
-                    btn.classList.add("btn-outline-primary");
-                });
-                const activeBtn = document.querySelector(`#pageBtn${page}`);
-                if (activeBtn) {
-                    activeBtn.classList.add("btn-primary");
-                    activeBtn.classList.remove("btn-outline-primary");
-                }            
-                prevBtn.disabled = page === 1;
-                nextBtn.disabled = page === totalPages;
-            }
-
-            function createPagination() {
-                pageNumbers.innerHTML = "";
-
-                const maxVisible = 5;
-                let startPage = Math.max(currentPage - 2, 1);
-                let endPage = Math.min(startPage + maxVisible - 1, totalPages);
-
-                if (endPage - startPage < maxVisible - 1) {
-                    startPage = Math.max(endPage - maxVisible + 1, 1);
-                }
-
-                if (startPage > 1) {
-                    appendPageButton(1);
-                    if (startPage > 2) {
-                        pageNumbers.appendChild(createDots());
-                    }
-                }
-
-                for (let i = startPage; i <= endPage; i++) {
-                    appendPageButton(i);
-                }
-
-                if (endPage < totalPages) {
-                    if (endPage < totalPages - 1) {
-                        pageNumbers.appendChild(createDots());
-                    }
-                    appendPageButton(totalPages);
-                }
-            }
-
-            function appendPageButton(i) {
-                const btn = document.createElement("button");
-                btn.textContent = i;
-                btn.className = (i === currentPage) ? "active" : "";
-                btn.addEventListener("click", () => {
-                    currentPage = i;
-                    showPage(currentPage);
-                    createPagination();
-                });
-                pageNumbers.appendChild(btn);
-            }
-
-            function createDots() {
-                const dots = document.createElement("span");
-                dots.textContent = "...";
-                dots.className = "pagination-dots";
-                return dots;
-            }
-
-
-            prevBtn.addEventListener("click", () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    showPage(currentPage);
-                }
+        function showPage(page) {
+            dishes.forEach((item, index) => {
+                item.style.display = "none";
+            });
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            dishes.slice(start, end).forEach(item => {
+                item.style.display = "block";
             });
 
-            nextBtn.addEventListener("click", () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    showPage(currentPage);
-                }
+
+            document.querySelectorAll("#pageNumbers button").forEach(btn => {
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-outline-primary");
             });
-
-            createPagination();
-            showPage(currentPage);
-        });
-    </script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-    <script>
-        const contextPath = '<%= request.getContextPath()%>';
-
-        const notificationModal = document.getElementById('notificationModal');
-        if (notificationModal) {
-            notificationModal.addEventListener('show.bs.modal', function (event) {
-                const link = event.relatedTarget;
-                if (!link)
-                    return;
-
-                const title = link.getAttribute('data-title');
-                const desc = link.getAttribute('data-description');
-                const id = link.getAttribute('data-id');
-
-                document.getElementById('modalTitle').textContent = title;
-                document.getElementById('modalDescription').textContent = desc;
-
-
-            });
+            const activeBtn = document.querySelector(`#pageBtn${page}`);
+            if (activeBtn) {
+                activeBtn.classList.add("btn-primary");
+                activeBtn.classList.remove("btn-outline-primary");
+            }
+            prevBtn.disabled = page === 1;
+            nextBtn.disabled = page === totalPages;
         }
-    </script>
 
-    <script>
-        document.addEventListener("DOMContentLoaded", function () {
-            const notificationModal = document.getElementById("notificationModal");
-            const modalTitle = document.getElementById("modalTitle");
-            const modalDescription = document.getElementById("modalDescription");
-            const hiddenNotID = document.getElementById("hiddenNotID");         
-            notificationModal.addEventListener('show.bs.modal', function (event) {
-                const triggerElement = event.relatedTarget; 
+        function createPagination() {
+            pageNumbers.innerHTML = "";
 
-                const title = triggerElement.getAttribute("data-title");
-                const description = triggerElement.getAttribute("data-description");
-                const notID = triggerElement.getAttribute("data-id");
+            const maxVisible = 5;
+            let startPage = Math.max(currentPage - 2, 1);
+            let endPage = Math.min(startPage + maxVisible - 1, totalPages);
 
-                modalTitle.textContent = title;
-                modalDescription.textContent = description;
-                hiddenNotID.value = notID;
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(endPage - maxVisible + 1, 1);
+            }
+
+            if (startPage > 1) {
+                appendPageButton(1);
+                if (startPage > 2) {
+                    pageNumbers.appendChild(createDots());
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                appendPageButton(i);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pageNumbers.appendChild(createDots());
+                }
+                appendPageButton(totalPages);
+            }
+        }
+
+        function appendPageButton(i) {
+            const btn = document.createElement("button");
+            btn.textContent = i;
+            btn.className = (i === currentPage) ? "active" : "";
+            btn.addEventListener("click", () => {
+                currentPage = i;
+                showPage(currentPage);
+                createPagination();
             });
+            pageNumbers.appendChild(btn);
+        }
+
+        function createDots() {
+            const dots = document.createElement("span");
+            dots.textContent = "...";
+            dots.className = "pagination-dots";
+            return dots;
+        }
+
+
+        prevBtn.addEventListener("click", () => {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+            }
         });
-    </script>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+        nextBtn.addEventListener("click", () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                showPage(currentPage);
+            }
+        });
+
+        createPagination();
+        showPage(currentPage);
+    });
+</script>
+
+<script>
+    const contextPath = '<%= request.getContextPath()%>';
+
+    const notificationModal = document.getElementById('notificationModal');
+    if (notificationModal) {
+        notificationModal.addEventListener('show.bs.modal', function (event) {
+            const link = event.relatedTarget;
+            if (!link)
+                return;
+
+            const title = link.getAttribute('data-title');
+            const desc = link.getAttribute('data-description');
+            const id = link.getAttribute('data-id');
+
+            document.getElementById('modalTitle').textContent = title;
+            document.getElementById('modalDescription').textContent = desc;
 
 
+        });
+    }
+</script>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const notificationModal = document.getElementById("notificationModal");
+        const modalTitle = document.getElementById("modalTitle");
+        const modalDescription = document.getElementById("modalDescription");
+        const hiddenNotID = document.getElementById("hiddenNotID");
+        notificationModal.addEventListener('show.bs.modal', function (event) {
+            const triggerElement = event.relatedTarget;
 
+            const title = triggerElement.getAttribute("data-title");
+            const description = triggerElement.getAttribute("data-description");
+            const notID = triggerElement.getAttribute("data-id");
+
+            modalTitle.textContent = title;
+            modalDescription.textContent = description;
+            hiddenNotID.value = notID;
+        });
+    });
+</script>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+<script src="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.js"></script>
 </body>
 </html>

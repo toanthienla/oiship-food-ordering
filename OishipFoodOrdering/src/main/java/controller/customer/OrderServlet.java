@@ -172,6 +172,9 @@ public class OrderServlet extends HttpServlet {
                 }
 
                 int orderId = orderDAO.createOrder(customerId, finalTotal, voucherID);
+                session.setAttribute("pendingOrderId", orderId); // ✅ lưu orderId vào session
+
+                
 
                 for (Cart cart : selectedCarts) {
                     orderDAO.addOrderDetail(orderId, cart.getDish().getDishID(), cart.getQuantity());

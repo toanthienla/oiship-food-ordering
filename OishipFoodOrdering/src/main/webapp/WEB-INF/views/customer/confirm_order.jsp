@@ -19,6 +19,8 @@
 
     </head>
     <style>
+      
+
         .customer-info-box .title {
             font-weight: bold;
             font-size: 14px;
@@ -64,15 +66,20 @@
                             <div>
                                 <div class="fw-bold">Customer</div>
                                 <div id="displayCustomerText">${customer.fullName} - ${customer.phone}</div>
+                                <div id="phoneError" class="text-danger mt-1" style="display: none;">Please enter a valid phone number.</div>
                             </div>
                             <i class="bi bi-pencil-square fs-4 text-secondary"></i>
                         </div>
+
 
                         <!-- Address Info -->
                         <div class="customer-info-box d-flex justify-content-between align-items-center p-3 border rounded" onclick="openEditCustomer()" style="cursor:pointer;">
                             <div>
                                 <div class="fw-bold">Delivery Address</div>
                                 <div id="displayAddressText">${customer.address}</div>
+                                <div id="addressError" class="text-danger mt-1" style="display: none;">Please enter your delivery address.</div>
+                                <div id="miniMap" style="height: 200px; width: 630px; margin-top: 10px; display: none;"></div>
+
                             </div>
                             <i class="bi bi-geo-alt fs-4 text-secondary"></i>
                         </div>
@@ -176,19 +183,47 @@
         </form>
 
 
-        <!-- SCRIPT xử lý chọn phương thức thanh toán -->
+
         <script>
             function handleSubmit() {
                 const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
-                document.getElementById("paymentMethod").value = selectedPayment;
-                document.getElementById("orderForm").submit(); // Submit về /customer/order
-            }
+                const address = document.getElementById("hiddenAddress").value.trim();
+                const phone = document.getElementById("hiddenPhone").value.trim();
 
+                const addressError = document.getElementById("addressError");
+                const phoneError = document.getElementById("phoneError");
+
+                let valid = true;
+
+
+                if (!address) {
+                    addressError.style.display = "block";
+                    valid = false;
+                } else {
+                    addressError.style.display = "none";
+                }
+
+
+                const phoneRegex = /^0\d{9}$/;
+                if (!phoneRegex.test(phone)) {
+                    phoneError.style.display = "block";
+                    valid = false;
+                } else {
+                    phoneError.style.display = "none";
+                }
+
+                if (!valid)
+                    return;
+
+                document.getElementById("paymentMethod").value = selectedPayment;
+                document.getElementById("orderForm").submit();
+            }
         </script>
 
 
 
-        <!-- Modal cập nhật thông tin khách -->
+
+        <!-- Update Infomation customer -->
         <div class="modal fade" id="editCustomerModal" tabindex="-1" aria-labelledby="editCustomerModalLabel" aria-hidden="true">
             <div class="modal-dialog">
                 <div class="modal-content">
@@ -225,7 +260,7 @@
         </div>
 
 
-        <!-- Modal chọn voucher -->
+        <!-- Modal choose voucher -->
         <div class="modal fade" id="voucherModal" tabindex="-1" aria-labelledby="voucherModalLabel" aria-hidden="true">
             <div class="modal-dialog modal-lg modal-dialog-centered">
                 <div class="modal-content p-4">
@@ -253,7 +288,7 @@
                                 </div>
                             </div>
                             <% }
-                        } else { %>
+                            } else { %>
                             <div class="col-12 text-center text-muted">No vouchers available</div>
                             <% }%>
                         </div>
@@ -333,6 +368,9 @@
                                                              document.getElementById("hiddenPhone").value = phone;
                                                              document.getElementById("hiddenAddress").value = address;
                                                              bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
+
+                                                             // ✅ truyền cả tọa độ nếu có
+                                                             showMiniMap(address, selectedCoordinates);
                                                          } else {
                                                              alert("Failed to update customer info.");
                                                          }
@@ -342,7 +380,75 @@
                                                          alert("Error occurred while updating info.");
                                                      });
                                          }
+
         </script>
+        <!-- Hiển thị bản đồ nhỏ sau khi chọn địa chỉ -->
+        <script>
+            function showMiniMap(address, coordinates = null) {
+                const miniMapDiv = document.getElementById("miniMap");
+                miniMapDiv.innerHTML = ""; // xoá bản đồ cũ
+                miniMapDiv.style.display = "block";
+
+                if (coordinates) {
+                    const [lng, lat] = coordinates;
+                    const map = new mapboxgl.Map({
+                        container: 'miniMap',
+                        style: 'mapbox://styles/mapbox/streets-v11',
+                        center: [lng, lat],
+                        zoom: 14
+                    });
+                    new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+                    return;
+                }
+
+                // fallback nếu không có toạ độ (ít khi dùng tới)
+                const encodedAddress = encodeURIComponent(address);
+                const geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=YOUR_TOKEN_HERE`;
+
+                fetch(geocodingUrl)
+                        .then(res => res.json())
+                        .then(data => {
+                            if (data.features && data.features.length > 0) {
+                                const [lng, lat] = data.features[0].center;
+                                const map = new mapboxgl.Map({
+                                    container: 'miniMap',
+                                    style: 'mapbox://styles/mapbox/streets-v11',
+                                    center: [lng, lat],
+                                    zoom: 14
+                                });
+                                new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+                            } else {
+                                alert("Could not locate the address on map.");
+                                miniMapDiv.style.display = "none";
+                            }
+                        })
+                        .catch(err => {
+                            console.error("Geocoding error:", err);
+                            alert("Error showing map. Try again.");
+                            miniMapDiv.style.display = "none";
+                        });
+            }
+
+
+        </script>
+
+
+        <%
+            Customer customer = (Customer) request.getAttribute("customer");
+            if (customer != null && customer.getAddress() != null && !customer.getAddress().isEmpty()) {
+        %>
+        <script>
+            geocoder.on('result', function (e) {
+                const address = e.result.place_name;
+                selectedCoordinates = e.result.geometry.coordinates; // lấy [lng, lat]
+                document.getElementById('modalAddress').value = address;
+            });
+
+        </script>
+        <% } %>
+
+
+
 
 
 
@@ -421,58 +527,58 @@
             }
         </script>
         <script>
-        const contextPath = "<%= request.getContextPath()%>";
+            const contextPath = "<%= request.getContextPath()%>";
 
-        function updateQuantity(cartId, delta) {
-            const input = document.getElementById("qty_" + cartId);
-            const maxStock = parseInt(input.getAttribute("data-stock"));
-            let qty = parseInt(input.value);
+            function updateQuantity(cartId, delta) {
+                const input = document.getElementById("qty_" + cartId);
+                const maxStock = parseInt(input.getAttribute("data-stock"));
+                let qty = parseInt(input.value);
 
-            if (isNaN(qty))
-                qty = 1;
-            qty += delta;
+                if (isNaN(qty))
+                    qty = 1;
+                qty += delta;
 
-            if (qty > 10) {
-                qty = 10;
-                alert("The maximum quantity for each item is 10.");
+                if (qty > 10) {
+                    qty = 10;
+                    alert("The maximum quantity for each item is 10.");
+                }
+
+                if (qty > maxStock) {
+                    qty = maxStock;
+                    alert("The quantity exceeds stock: " + maxStock);
+                }
+
+                if (qty < 1)
+                    qty = 1;
+
+                input.value = qty;
+
+                fetch(contextPath + "/customer/view-cart", {
+                    method: "POST",
+                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                }).then(() => {
+                    const row = input.closest(".cart-item-row");
+                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                    const total = qty * price;
+                    row.querySelector(".item-total").textContent = total.toLocaleString();
+                    recalculateTotal();
+                });
             }
 
-            if (qty > maxStock) {
-                qty = maxStock;
-                alert("The quantity exceeds stock: " + maxStock);
+            function recalculateTotal() {
+                let total = 0;
+                document.querySelectorAll(".item-total").forEach(el => {
+                    const val = el.textContent.replace(/[^\d]/g, "");
+                    if (!isNaN(val))
+                        total += parseInt(val);
+                });
+
+                document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
+                document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
+                document.getElementById("discountAmount").textContent = "- 0 VND";
+
             }
-
-            if (qty < 1)
-                qty = 1;
-
-            input.value = qty;
-
-            fetch(contextPath + "/customer/view-cart", {
-                method: "POST",
-                headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-            }).then(() => {
-                const row = input.closest(".cart-item-row");
-                const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                const total = qty * price;
-                row.querySelector(".item-total").textContent = total.toLocaleString();
-                recalculateTotal();
-            });
-        }
-
-        function recalculateTotal() {
-            let total = 0;
-            document.querySelectorAll(".item-total").forEach(el => {
-                const val = el.textContent.replace(/[^\d]/g, "");
-                if (!isNaN(val))
-                    total += parseInt(val);
-            });
-
-            document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
-            document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
-            document.getElementById("discountAmount").textContent = "- 0 VND";
-
-        }
         </script>
         <script>
             document.getElementById("orderForm").addEventListener("submit", function (event) {
