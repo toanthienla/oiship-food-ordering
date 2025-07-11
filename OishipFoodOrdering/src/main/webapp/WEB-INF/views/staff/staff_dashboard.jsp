@@ -8,18 +8,18 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Staff Dashboard - Oiship</title>
 
-        <!-- Bootstrap 5 CSS & JS -->
-        <link rel="stylesheet" href="../css/bootstrap.css" />
-        <script src="../js/bootstrap.bundle.js"></script>
+        <!-- Bootstrap CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/bootstrap.css" />
 
-        <!--CSS for Sidebar-->
-        <link rel="stylesheet" href="../css/sidebar.css" />
+        <!-- Sidebar CSS -->
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/sidebar.css" />
 
-        <!--JS for Sidebar-->
-        <script src="../js/sidebar.js"></script>
+        <!-- Sidebar JS -->
+        <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
 
         <!-- Bootstrap Icons -->
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
+
 
         <style>
             body {
