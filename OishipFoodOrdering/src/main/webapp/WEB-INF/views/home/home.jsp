@@ -11,7 +11,7 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-        <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
+        <link href="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.css" rel="stylesheet" />
         <%-- style category --%>
         <style>
             .menu-section .btn {
@@ -385,96 +385,8 @@
                 <div id="pageNumbers" class="d-flex gap-2"></div>
                 <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
             </div>
-            <!-- Location Map Section -->
-            <div id="location" class="menu-section mt-4">
-                <h2 class="mb-4">Location Map</h2>
-                <div class="mb-3">
-                    <label for="locationInput" class="form-label">Enter Location:</label>
-                    <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
-                    <button class="btn btn-custom mt-2" onclick="geocodeAddress()">Search Location</button>
-                </div>
-                <div id="map"></div>
-            </div>
-
-            <!-- Location Map Section -->
-            <div id="location" class="menu-section mt-4">
-                <h2 class="mb-4">Location Map</h2>
-                <div class="mb-3">
-                    <label for="locationInput" class="form-label">Enter Location:</label>
-                    <input type="text" class="form-control" id="locationInput" placeholder="Enter an address (e.g., Ho Chi Minh City, Vietnam)">
-                    <button class="btn btn-custom mt-2" onclick="getDirections()">Get Directions</button>
-                </div>
-                <div id="map"></div>
-            </div>
-
-            <!-- ... (phần cuối file giữ nguyên) ... -->
-
-            <!-- Thêm vào <head> -->
-            <link href="https://api.mapbox.com/mapbox-gl-js/v2.9.1/mapbox-gl.css" rel="stylesheet">
-            <link rel="stylesheet" href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" type="text/css">
-
-            <style>
-                #map {
-                    height: 400px;
-                    width: 100%;
-                    margin-top: 20px;
-                    border-radius: 10px;
-                    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                }
-            </style>
-            <script src="https://maps.googleapis.com/maps/api/js?key=YOUR_API_KEY&callback=initMap&libraries=places&v=weekly" async></script>
-
-            <!-- Thêm vào cuối <body> -->
-            <script>
-                        let map;
-                        function initMap() {
-                            const defaultLocation = {lat: 10.7769, lng: 106.7009}; // Ho Chi Minh City
-                            map = new google.maps.Map(document.getElementById("map"), {
-                                center: defaultLocation,
-                                zoom: 12,
-                            });
-
-                            const input = document.getElementById("locationInput");
-                            const searchBox = new google.maps.places.SearchBox(input);
-
-                            map.addListener("bounds_changed", () => {
-                                searchBox.setBounds(map.getBounds());
-                            });
-
-                            searchBox.addListener("places_changed", () => {
-                                const places = searchBox.getPlaces();
-                                if (places.length == 0)
-                                    return;
-                                const place = places[0];
-                                if (!place.geometry || !place.geometry.location) {
-                                    console.log("No geometry available for this place");
-                                    return;
-                                }
-                                map.setCenter(place.geometry.location);
-                                map.setZoom(15);
-                                new google.maps.Marker({map, position: place.geometry.location});
-                            });
-                        }
-
-                        function geocodeAddress() {
-                            const geocoder = new google.maps.Geocoder();
-                            const address = document.getElementById("locationInput").value;
-                            geocoder.geocode({address: address}, (results, status) => {
-                                if (status === "OK") {
-                                    map.setCenter(results[0].geometry.location);
-                                    map.setZoom(15);
-                                    new google.maps.Marker({map: map, position: results[0].geometry.location});
-                                } else {
-                                    alert("Geocode was not successful for the following reason: " + status);
-                                }
-                            });
-                        }
-            </script>
-
         </div>
-
     </div>
-
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
     <!-- 💡 Đặt modal rỗng tại đây -->
@@ -485,20 +397,56 @@
             </div>
         </div>
     </div>
+
+
+    <div id="map" style="height: 400px; width: 100%;"></div>
+
+    <!-- Mapbox JS -->
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
     <script>
-                    function openDishDetail(dishId) {
-                        fetch('<%=request.getContextPath()%>/customer/dish-detail', {
-                            method: 'POST',
-                            headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                            body: 'dishId=' + dishId
-                        })
-                                .then(response => response.text())
-                                .then(html => {
-                                    document.getElementById('dishDetailContent').innerHTML = html;
-                                    new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
-                                })
-                                .catch(error => console.error('Error loading dish detail:', error));
-                    }
+                                mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhZmYxIiwiYSI6ImNtYWZndDRjNzAybGUybG44ZWYzdTlsNWQifQ.jSJjwMo8_OQszYjWAAi7iQ';
+
+                                const storeCoordinates = [105.73243159506195, 10.012620837028985]; // [lng, lat]
+
+                                const map = new mapboxgl.Map({
+                                    container: 'map',
+                                    style: 'mapbox://styles/mapbox/streets-v11',
+                                    center: storeCoordinates,
+                                    zoom: 15
+                                });
+
+                                map.on('load', () => {
+                                    new mapboxgl.Marker()
+                                            .setLngLat(storeLocation)
+                                            .setPopup(new mapboxgl.Popup().setText('Oiship Store'))
+                                            .addTo(map);
+
+                                    // Buộc map render lại sau 500ms
+                                    setTimeout(() => {
+                                        map.resize();
+                                        map.setCenter(storeLocation); // đảm bảo giữ đúng vị trí
+                                    }, 500);
+                                });
+
+    </script>
+
+
+
+
+    <script>
+        function openDishDetail(dishId) {
+            fetch('<%=request.getContextPath()%>/customer/dish-detail', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                body: 'dishId=' + dishId
+            })
+                    .then(response => response.text())
+                    .then(html => {
+                        document.getElementById('dishDetailContent').innerHTML = html;
+                        new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
+                    })
+                    .catch(error => console.error('Error loading dish detail:', error));
+        }
     </script>
 
     <!-- 💡 xử lí load category -->
@@ -666,7 +614,6 @@
         });
     </script>
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-
-
+    <script src="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.js"></script>
 </body>
 </html>

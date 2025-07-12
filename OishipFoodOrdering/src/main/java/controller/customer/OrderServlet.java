@@ -31,8 +31,6 @@ public class OrderServlet extends HttpServlet {
             OrderDAO orderDAO = new OrderDAO();
             List<Order> orderList = orderDAO.getAllOrdersWithDetailsByCustomerId(customerId);
 
-
-            // Chuẩn bị mô tả trạng thái để hiển thị đẹp ở JSP
             String[] orderStatusText = {
                     "Pending", "Confirmed", "Preparing", "Out for Delivery",
                     "Delivered", "Cancelled", "Failed"
@@ -61,14 +59,39 @@ public class OrderServlet extends HttpServlet {
             return;
         }
 
+        String action = request.getParameter("action");
+
+        // Handle AJAX update info
+        if ("updateInfo".equals(action)) {
+            response.setContentType("application/json");
+            response.setCharacterEncoding("UTF-8");
+
+            String fullName = request.getParameter("fullName");
+            String phone = request.getParameter("phone");
+            String address = request.getParameter("address");
+
+            if (fullName == null || phone == null || address == null) {
+                response.getWriter().write("{\"success\": false}");
+                return;
+            }
+
+            CustomerProfileDAO cus = new CustomerProfileDAO();
+            boolean success = cus.editCustomerInfoByEmail(email, fullName, phone, address);
+
+            if (success) {
+                response.getWriter().write("{\"success\": true}");
+            } else {
+                response.getWriter().write("{\"success\": false}");
+            }
+            return;
+        }
+
         CustomerDAO customerDAO = new CustomerDAO();
         Customer customer = customerDAO.getCustomerByEmail(email);
         if (customer == null) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
-
-        String action = request.getParameter("action");
 
         if ("confirm".equals(action)) {
             String[] selectedCartIDs = request.getParameterValues("selectedItems");
@@ -95,8 +118,6 @@ public class OrderServlet extends HttpServlet {
                     grandTotal = grandTotal.add(dishPrice.multiply(BigDecimal.valueOf(cart.getQuantity())));
                 }
 
-
-                //  Xử lý giảm giá từ voucher
                 String voucherIdStr = request.getParameter("voucherID");
                 Integer voucherID = null;
                 BigDecimal discountAmount = BigDecimal.ZERO;
@@ -138,7 +159,6 @@ public class OrderServlet extends HttpServlet {
 
                 BigDecimal finalTotal = grandTotal.subtract(discountAmount);
 
-                // Cập nhật thông tin người nhận
                 String fullname = request.getParameter("fullname");
                 String phone = request.getParameter("phone");
                 String address = request.getParameter("address");
@@ -151,9 +171,10 @@ public class OrderServlet extends HttpServlet {
                     return;
                 }
 
+                int orderId = orderDAO.createOrder(customerId, finalTotal, voucherID);
+                session.setAttribute("pendingOrderId", orderId); // ✅ lưu orderId vào session
 
-                // Tạo đơn hàng (status: chưa thanh toán)
-                int orderId = orderDAO.createOrder(customerId, finalTotal, voucherID); // bạn đảm bảo createOrder có status mặc định
+                
 
                 for (Cart cart : selectedCarts) {
                     orderDAO.addOrderDetail(orderId, cart.getDish().getDishID(), cart.getQuantity());
@@ -161,27 +182,21 @@ public class OrderServlet extends HttpServlet {
                     boolean updated = dishDAO.decreaseStock(cart.getDish().getDishID(), cart.getQuantity());
                     if (!updated) {
                         request.setAttribute("error", "Một hoặc nhiều món không đủ số lượng trong kho.");
-
                         request.getRequestDispatcher("/WEB-INF/views/customer/confirm_order.jsp").forward(request, response);
                         return;
                     }
                 }
 
-
-                //  xóa cart
                 cartDAO.deleteCartsByIDs(selectedCartIDs);
 
-                // Lấy phương thức thanh toán
                 String paymentMethod = request.getParameter("payment");
 
                 if ("bank_transfer".equalsIgnoreCase(paymentMethod)) {
                     session.setAttribute("pendingOrderId", orderId);
                     response.sendRedirect(request.getContextPath() + "/customer/payment/create-payment-link");
-
                     return;
                 }
 
-                // COD
                 response.sendRedirect(request.getContextPath() + "/customer/order");
 
             } catch (Exception e) {
@@ -191,7 +206,6 @@ public class OrderServlet extends HttpServlet {
             }
 
         } else {
-            // Giai đoạn 1: Hiển thị trang xác nhận
             String[] selectedCartIDs = request.getParameterValues("selectedItems");
             if (selectedCartIDs == null || selectedCartIDs.length == 0) {
                 request.setAttribute("error", "Please select at least one item to order.");

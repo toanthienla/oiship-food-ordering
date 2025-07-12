@@ -169,7 +169,7 @@ public class OrderDAO extends DBContext {
 
             try (ResultSet rs = ps.getGeneratedKeys()) {
                 if (rs.next()) {
-                    generatedID = rs.getInt(1); 
+                    generatedID = rs.getInt(1);
                 }
             }
         } catch (SQLException e) {
@@ -226,10 +226,10 @@ public class OrderDAO extends DBContext {
     public int createOrder(int customerId, BigDecimal amount, Integer voucherID) {
         String sql = "INSERT INTO [Order](amount, orderStatus, FK_Order_Customer, FK_Order_Voucher) VALUES (?, 0, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-            ps.setBigDecimal(1, amount);         
-            ps.setInt(2, customerId);            
+            ps.setBigDecimal(1, amount);
+            ps.setInt(2, customerId);
             if (voucherID != null) {
-                ps.setInt(3, voucherID);       
+                ps.setInt(3, voucherID);
             } else {
                 ps.setNull(3, Types.INTEGER);
             }
@@ -237,7 +237,7 @@ public class OrderDAO extends DBContext {
             ps.executeUpdate();
             ResultSet rs = ps.getGeneratedKeys();
             if (rs.next()) {
-                return rs.getInt(1); 
+                return rs.getInt(1);
             }
 
         } catch (Exception e) {
@@ -545,5 +545,49 @@ public class OrderDAO extends DBContext {
             ps.executeUpdate();
         }
     }
+
+    public String getCheckoutUrl(int orderId) {
+        String sql = "SELECT checkoutUrl FROM [Order] WHERE orderID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                return rs.getString("checkoutUrl");
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            throw new RuntimeException("Error retrieving checkout URL from database.", e);
+        }
+        return null;
+
+    }
+
+//    public int createOrder(Order order, Integer voucherID) throws SQLException {
+//        String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus, orderCreatedAt, orderUpdatedAt, FK_Order_Customer, FK_Order_Voucher) "
+//                + "VALUES (?, ?, ?, GETDATE(), GETDATE(), ?, ?)";
+//
+//        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+//
+//            ps.setBigDecimal(1, order.getAmount());
+//            ps.setInt(2, order.getOrderStatus());
+//            ps.setInt(3, order.getPaymentStatus());
+//            ps.setInt(4, order.getCustomerID());
+//
+//            if (voucherID != null) {
+//                ps.setInt(5, voucherID);
+//            } else {
+//                ps.setNull(5, Types.INTEGER);
+//            }
+//
+//            ps.executeUpdate();
+//
+//            try (ResultSet rs = ps.getGeneratedKeys()) {
+//                if (rs.next()) {
+//                    return rs.getInt(1);
+//                }
+//            }
+//        }
+//        return -1;
+//    }
 
 }

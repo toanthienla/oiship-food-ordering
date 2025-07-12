@@ -21,7 +21,6 @@ import vn.payos.type.PaymentData;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Date;
 
 @WebServlet(name = "CheckoutServlet", urlPatterns = {
     "/customer/payment/create-payment-link",
@@ -55,23 +54,32 @@ public class CheckoutServlet extends HttpServlet {
         String servletPath = request.getServletPath();
 
         try {
-            Order order = orderDAO.findUnpaidOrderByCustomerId(customer.getCustomerID());
-
             switch (servletPath) {
+
                 case "/customer/payment/success":
-                    if (order != null) {
-                        new PaymentService().payOrder(order.getOrderID());
+                    Integer paidOrderId = (Integer) session.getAttribute("pendingOrderId");
+                    if (paidOrderId != null) {
+                        new PaymentService().payOrder(paidOrderId);
+                        session.removeAttribute("pendingOrderId");
                     }
                     request.getRequestDispatcher("/WEB-INF/views/customer/success.jsp").forward(request, response);
                     break;
 
                 case "/customer/payment/cancel":
-                    response.sendRedirect("http://localhost:9090/OishipFoodOrdering/customer/view-cart");
+                    response.sendRedirect(request.getContextPath() + "/customer/view-cart");
                     break;
 
                 case "/customer/payment/create-payment-link":
+                    Integer pendingOrderId = (Integer) session.getAttribute("pendingOrderId");
+
+                    if (pendingOrderId == null) {
+                        writeJsonResponse(response, buildErrorResponse("No pending order found."));
+                        return;
+                    }
+
+                    Order order = orderDAO.getOrderById(pendingOrderId);
                     if (order == null) {
-                        writeJsonResponse(response, buildErrorResponse("Không tìm thấy đơn chưa thanh toán."));
+                        writeJsonResponse(response, buildErrorResponse("Order not found."));
                         return;
                     }
 
@@ -89,8 +97,6 @@ public class CheckoutServlet extends HttpServlet {
 
                     // Tạo mới link PayOS
                     BigDecimal amount = order.getAmount();
-                    System.out.println("amount: " + amount);
-
                     String description = "Order #" + order.getOrderID() + " - Customer: " + customer.getCustomerID();
 
                     CheckoutResponseData checkoutData = payOS.createPaymentLink(
@@ -99,24 +105,33 @@ public class CheckoutServlet extends HttpServlet {
 
                     // Lưu lại checkoutUrl vào DB
                     orderDAO.updateCheckoutUrl(order.getOrderID(), checkoutData.getCheckoutUrl());
+
+                    // Trả kết quả và redirect
+                    JsonObject data = new JsonObject();
+                    data.addProperty("checkoutUrl", checkoutData.getCheckoutUrl());
+                    JsonObject resJson = new JsonObject();
+                    resJson.addProperty("error", 0);
+                    resJson.addProperty("message", "success");
+                    resJson.add("data", data);
+                    writeJsonResponse(response, resJson);
+
                     response.sendRedirect(checkoutData.getCheckoutUrl());
                     break;
 
                 default:
                     response.sendError(HttpServletResponse.SC_NOT_FOUND);
             }
-        } catch (Exception e) {
-            e.printStackTrace(); // Tạm thời in log lỗi ra console
-            logger.error("Error in GET: ", e);
-            writeJsonResponse(response, buildErrorResponse("Đã xảy ra lỗi trong xử lý thanh toán."));
-        }
 
+        } catch (Exception e) {
+            e.printStackTrace();
+            logger.error("Error in GET: ", e);
+            writeJsonResponse(response, buildErrorResponse("An error occurred while processing the payment."));
+        }
     }
 
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-        // POST không hỗ trợ
         response.sendError(HttpServletResponse.SC_METHOD_NOT_ALLOWED);
     }
 
