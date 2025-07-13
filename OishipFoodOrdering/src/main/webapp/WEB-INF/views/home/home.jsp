@@ -274,6 +274,10 @@
             .contact-form .form-control {
                 margin-bottom: 1rem;
             }
+            .hero-section {
+                background-image: url('./images/panner8.jpg'); /* đường dẫn tương đối */
+            }
+
             @media (max-width: 768px) {
                 .sidebar {
                     width: 100%;
