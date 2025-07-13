@@ -19,7 +19,7 @@
 
     </head>
     <style>
-      
+
 
         .customer-info-box .title {
             font-weight: bold;
@@ -123,16 +123,22 @@
                                 BigDecimal total = price.multiply(BigDecimal.valueOf(cart.getQuantity()));
                                 int cartId = cart.getCartID();
                         %>
-                        <div class="d-flex align-items-center mb-3 border p-2 rounded">
-                            <img src="<%= dish.getImage()%>" width="80" class="me-3 rounded">
+                        <div class="d-flex align-items-center mb-3 border p-2 rounded cart-item-row">
+                            <img src="<%= dish.getImage()%>" width="80" class="me-3" style="border-radius: 8px;">
                             <div class="flex-grow-1">
                                 <strong><%= dish.getDishName()%></strong><br/>
+
+                                <!-- Nút tăng giảm -->
                                 <div class="d-flex align-items-center gap-2 mt-1">
-                                    <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, -1)">−</button>
-                                    <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly data-stock="<%= dish.getStock()%>" class="form-control text-center" style="width: 60px;">
+                                    <button  type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, -1)">−</button>
+                                    <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly
+                                           data-stock="<%= dish.getStock()%>"
+                                           class="form-control text-center" style="width: 60px;">
                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, 1)">+</button>
                                 </div>
-                                <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> VND</div>
+
+                                <!-- Tổng tiền theo món -->
+                                <div class="mt-1">Total: <span class="item-total" data-price="<%= price.intValue()%>"><%= String.format("%,.0f", total)%></span> đ</div>
                             </div>
                         </div>
                         <% }%>
@@ -593,7 +599,6 @@
 
                 if (totalQty > 50) {
                     alert("The total quantity of items in the order must not exceed 50.");
-
                     event.preventDefault();
                 }
             });
@@ -606,10 +611,8 @@
                 if (amount > 2000000) {
                     alert("Sorry, orders over 2,000,000 VND are not allowed.");
                     e.preventDefault();
-
                 }
             });
         </script>
-
     </body>
 </html>

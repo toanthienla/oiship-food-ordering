@@ -176,40 +176,25 @@
                 margin-bottom: 20px;
             }
             .hero-section {
-                position: relative;
-                background: url('https://via.placeholder.com/800x400') no-repeat center center;
-                background-size: cover;
+                width: 100%;
                 height: 400px;
-                color: #fff;
-                display: flex;
-                align-items: center;
-                justify-content: center;
-                text-align: center;
+                margin: 0;
+                padding: 0;
                 border-radius: 10px;
                 overflow: hidden;
                 margin-bottom: 2rem;
             }
-            .hero-section::before {
-                content: '';
-                position: absolute;
-                top: 0;
-                left: 0;
+
+            .carousel-inner img {
                 width: 100%;
-                height: 100%;
-                background: rgba(0, 0, 0, 0.5);
+                height: 400px;
+                object-fit: cover;
+                border-radius: 10px;
+                display: block;
             }
-            .hero-section .content {
-                position: relative;
-                z-index: 1;
-            }
-            .hero-section h1 {
-                font-size: 2.5rem;
-                margin-bottom: 1rem;
-            }
-            .hero-section p {
-                font-size: 1.2rem;
-                margin-bottom: 1.5rem;
-            }
+
+
+
             .btn-custom {
                 background-color: #ff6200;
                 color: #fff;
@@ -345,12 +330,24 @@
                 </div>
             </nav>
             <div class="hero-section">
-                <div class="content">
-                    <h1>Delicious meals delivered in just 30 minutes!</h1>
-                    <p>Discover hundreds of Vietnamese and international dishes with fast, reliable delivery service.</p>
-                    <button class="btn btn-custom me-2">Order Now</button>
-                    <button class="btn btn-outline-custom me-2">View Menu</button>
-                    <button class="btn btn-outline-custom">Download App</button>
+                <div id="carouselHero" class="carousel slide w-100" data-bs-ride="carousel">
+                    <div class="carousel-inner">
+                        <div class="carousel-item active">
+                            <img src="images/panner7.jpg" class="d-block w-100" alt="Slide 1" />
+                        </div>
+                        <div class="carousel-item">
+                            <img src="images/panner8.jpg" class="d-block w-100" alt="Slide 2" />
+                        </div>
+                        <div class="carousel-item">
+                            <img src="images/panner9.jpg" class="d-block w-100" alt="Slide 3" />
+                        </div>
+                    </div>
+                    <button class="carousel-control-prev" type="button" data-bs-target="#carouselHero" data-bs-slide="prev">
+                        <span class="carousel-control-prev-icon"></span>
+                    </button>
+                    <button class="carousel-control-next" type="button" data-bs-target="#carouselHero" data-bs-slide="next">
+                        <span class="carousel-control-next-icon"></span>
+                    </button>
                 </div>
             </div>
 
