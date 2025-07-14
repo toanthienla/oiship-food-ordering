@@ -11,7 +11,6 @@
         <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-ingredients"><i class="bi bi-basket"></i>Ingredients</a>
         <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-reviews"><i class="bi bi-chat-dots"></i>Dish Reviews</a>
         <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-vouchers"><i class="bi bi-tags"></i>Vouchers</a>
-        <a class="nav-link" href="${pageContext.request.contextPath}/admin/view-revenue"><i class="bi bi-bar-chart-line"></i>Income Statistics</a>
         <a class="nav-link" href="${pageContext.request.contextPath}/admin/contact-requests"><i class="bi bi-envelope"></i>Contact Requests</a>
         <a class="nav-link" href="${pageContext.request.contextPath}/admin/manage-notifications"><i class="bi bi-bell"></i>Notifications</a>
         <a class="nav-link" href="${pageContext.request.contextPath}/admin/accounts"><i class="bi bi-people"></i> Staff & Customers</a>

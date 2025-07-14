@@ -254,6 +254,28 @@ VALUES
 (N'App Bug', N'The app crashes when I try to view my order history.', 9),
 (N'Suggestion', N'Can you add more vegan options to the menu?', 10);
 
+
+
+-- Admin có accountID = 1
+INSERT INTO [Notification] (notTitle, notDescription, FK_Notification_Account) VALUES
+(N'Nhà hàng tạm đóng cửa', N'Nhà hàng Oishi sẽ tạm ngưng phục vụ từ 01/07 đến 03/07 để bảo trì hệ thống.', 1),
+(N'Voucher mới 50%', N'Nhận ngay voucher giảm giá 50% cho đơn hàng đầu tiên trong tháng 7.', 1),
+(N'Giờ phục vụ thay đổi', N'Giờ phục vụ mới: 8:00 sáng đến 10:00 tối, áp dụng từ ngày 05/07.', 1),
+(N'Thông báo hệ thống', N'Hệ thống sẽ bảo trì vào lúc 23:00 ngày 30/06. Mong quý khách thông cảm.', 1);
+
+
+-- Ví dụ có các customerID là 101, 102, 103
+INSERT INTO CustomerNotification (customerID, notID, isRead) VALUES
+(11, 1, 0), -- Khách 101 được gửi thông báo tạm đóng cửa
+(6, 2, 1), -- Khách 101 đã đọc voucher mới
+(8, 2, 0), -- Khách 102 nhận voucher mới
+(9, 4, 0), -- Khách 102 nhận thông báo hệ thống
+(10, 1, 0), -- Khách 103 nhận thông báo tạm đóng cửa
+(6, 3, 0); -- Khách 103 đã đọc giờ phục vụ thay đổi
+
+
+
+
 -- Verification Queries
 SELECT accountID, fullName, email, [password], role, status, createAt
 FROM Account
