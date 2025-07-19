@@ -188,7 +188,7 @@ VALUES
     (31, 57, 0.3), (31, 36, 0.01), (31, 18, 0.2),
     (32, 58, 0.1), (32, 20, 0.02), (32, 1, 0.1),
     (33, 59, 0.2), (33, 60, 0.1), (33, 30, 0.2);
-
+	select * from Voucher
 -- Insert Vouchers
 INSERT INTO Voucher (code, voucherDescription, discountType, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, usedCount, active, FK_Voucher_Account)
 VALUES 
