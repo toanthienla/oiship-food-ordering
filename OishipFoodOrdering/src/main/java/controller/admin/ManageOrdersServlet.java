@@ -119,7 +119,7 @@ public class ManageOrdersServlet extends HttpServlet {
             Integer accountID = (Integer) request.getSession().getAttribute("userId");
 
             if (accountID == null) {
-                response.sendRedirect(request.getContextPath() + "/login");
+                response.sendRedirect(request.getContextPath() + "/admin/login");
                 return;
             }
 
@@ -156,6 +156,3 @@ public class ManageOrdersServlet extends HttpServlet {
     }// </editor-fold>
 
 }
-
-
-
