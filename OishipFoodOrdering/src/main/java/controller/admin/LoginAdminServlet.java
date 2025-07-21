@@ -9,7 +9,7 @@ import model.Admin;
 
 import java.io.IOException;
 
-@WebServlet(name = "LoginAdminServlet", urlPatterns = {"/admin/login"})
+@WebServlet(name = "LoginAdminServlet", urlPatterns = { "/admin/login" })
 public class LoginAdminServlet extends HttpServlet {
 
     @Override
@@ -49,7 +49,8 @@ public class LoginAdminServlet extends HttpServlet {
         }
 
         if (!SecurityDAO.checkPassword(password, admin.getPassword())) {
-            System.out.println("DEBUG: Password check failed for email=" + email + ", hashed password=" + admin.getPassword());
+            System.out.println(
+                    "DEBUG: Password check failed for email=" + email + ", hashed password=" + admin.getPassword());
             System.out.println("Admin login failed: Invalid password for email=" + email);
             request.setAttribute("error", "Invalid email or password.");
             request.getRequestDispatcher("/WEB-INF/views/admin/login_admin.jsp").forward(request, response);
@@ -59,9 +60,12 @@ public class LoginAdminServlet extends HttpServlet {
         // Login successful
         HttpSession session = request.getSession(true);
         session.setAttribute("adminId", admin.getAdminId());
+        session.setAttribute("userId", admin.getAdminId()); // Thêm userId để compatibility với
+                                                            // UpdateStatusOrderAdminServlet
         session.setAttribute("role", "admin");
         session.setAttribute("userName", admin.getFullName());
         System.out.println("DEBUG: Session after login - adminId=" + session.getAttribute("adminId") +
+                ", userId=" + session.getAttribute("userId") +
                 ", role=" + session.getAttribute("role") + ", userName=" + session.getAttribute("userName"));
         System.out.println("Admin login successful: email=" + email + ", adminId=" + admin.getAdminId()
                 + ", role=admin, userName=" + admin.getFullName()

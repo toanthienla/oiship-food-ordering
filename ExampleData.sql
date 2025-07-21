@@ -6,7 +6,7 @@ INSERT INTO [Account] (fullName, email, [password], role, createAt, status)
 VALUES 
     (N'Admin User', N'oiship.team@gmail.com', '$2a$12$LbQahNHNjDNd3N8QsEIVee/mh4TceoYZJNQoPD1x5aPzN9Zih/pAe', N'admin', '2025-06-18 13:00:00', 1),
     (N'Staff User 1', N'staff1@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', N'staff', '2025-06-18 15:39:00', 1),
-    (N'Staff User 2', N'staff2@example.com', '$2a$12$LbQahNHNjDNd3N8QsEIVee/mh4TceoYZJNQoPD1x5aPzN9Zih/pAe', N'staff', '2025-06-18 15:39:00', 1),
+    (N'Staff User 2', N'staff2@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', N'staff', '2025-06-18 15:39:00', 1),
     (N'Staff User 3', N'staff3@example.com', '$2a$12$9kL5mPx7jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde', N'staff', '2025-06-18 15:52:00', 1),
     (N'Staff User 4', N'staff4@example.com', '$2a$12$QwErTyUiOp9kLmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO', N'staff', '2025-06-18 15:52:00', 1),
     (N'Customer 1', N'customer1@example.com', '$2a$12$LmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLm', N'customer', '2025-06-18 15:52:00', 1),

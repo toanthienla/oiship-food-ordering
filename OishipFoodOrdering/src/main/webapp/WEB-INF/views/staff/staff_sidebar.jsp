@@ -5,6 +5,7 @@
         <div class="brand">
             <i class="bi bi-x-lg close-btn" id="closeSidebar"></i>
         </div>
+        <a class="nav-link" href="${pageContext.request.contextPath}/staff/dashboard"><i class="bi bi-house-door-fill"></i> Home</a>
         <a class="nav-link" href="${pageContext.request.contextPath}/staff/manage-orders"><i class="bi bi-receipt-cutoff"></i>Orders</a>
         <a class="nav-link" href="${pageContext.request.contextPath}/staff/manage-reviews"><i class="bi bi-chat-dots"></i>Reviews</a>
         <a class="nav-link" href="${pageContext.request.contextPath}/staff/manage-dishes"><i class="bi bi-card-list"></i>Dishes</a>

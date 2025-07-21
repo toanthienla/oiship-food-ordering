@@ -20,6 +20,8 @@ public class Order {
     private String discountType;
     private BigDecimal discount;
     private String address;
+    private String lastUpdated;
+
 
     private List<OrderDetail> orderDetails;
 
@@ -144,4 +146,16 @@ public class Order {
         this.address = address;
     }
 
+    public String getLastUpdated() {
+        return lastUpdated;
+    }
+
+    public void setLastUpdated(String lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+    
 }
+
+
+

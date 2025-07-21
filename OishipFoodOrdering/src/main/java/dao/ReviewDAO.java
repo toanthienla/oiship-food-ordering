@@ -101,12 +101,74 @@ public class ReviewDAO extends DBContext {
     }
 
     public void deleteReviewById(int reviewID) throws SQLException {
-    String sql = "DELETE FROM Review WHERE reviewID = ?";
-    try (PreparedStatement ps = conn.prepareStatement(sql)) {
-        ps.setInt(1, reviewID);
-        ps.executeUpdate();
+        String sql = "DELETE FROM Review WHERE reviewID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, reviewID);
+            ps.executeUpdate();
+        }
     }
-}
 
-    
+    // Dashboard Stats Methods for Reviews
+    public void addReviewStatsToday(model.DashboardStats stats) {
+        String todayCondition = "CAST(reviewCreatedAt AS DATE) = CAST(GETDATE() AS DATE)";
+        addReviewStats(stats, todayCondition);
+    }
+
+    public void addReviewStatsMonth(model.DashboardStats stats) {
+        String monthCondition = "YEAR(reviewCreatedAt) = YEAR(GETDATE()) AND MONTH(reviewCreatedAt) = MONTH(GETDATE())";
+        addReviewStats(stats, monthCondition);
+    }
+
+    public void addReviewStatsAll(model.DashboardStats stats) {
+        addReviewStats(stats, "1=1"); // No time condition
+    }
+
+    private void addReviewStats(model.DashboardStats stats, String condition) {
+        // Total reviews
+        String totalSql = "SELECT COUNT(*) FROM Review WHERE " + condition;
+        stats.setTotalReviews(executeCountQuery(totalSql));
+
+        // Reviews by rating
+        String ratingSql = "SELECT rating, COUNT(*) as count FROM Review WHERE " + condition + " GROUP BY rating";
+
+        try (PreparedStatement ps = conn.prepareStatement(ratingSql);
+                ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                int rating = rs.getInt("rating");
+                int count = rs.getInt("count");
+
+                switch (rating) {
+                    case 1:
+                        stats.setStar1(count);
+                        break;
+                    case 2:
+                        stats.setStar2(count);
+                        break;
+                    case 3:
+                        stats.setStar3(count);
+                        break;
+                    case 4:
+                        stats.setStar4(count);
+                        break;
+                    case 5:
+                        stats.setStar5(count);
+                        break;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+    }
+
+    private int executeCountQuery(String sql) {
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next())
+                return rs.getInt(1);
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
 }
