@@ -21,6 +21,7 @@ public class LoginServlet extends HttpServlet {
             response.sendRedirect(request.getContextPath() + "/home");
             return;
         }
+
         // Check for remember_me cookie
         Cookie[] cookies = request.getCookies();
         if (cookies != null) {
@@ -31,6 +32,7 @@ public class LoginServlet extends HttpServlet {
                 }
             }
         }
+
         request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
     }
 
@@ -44,7 +46,6 @@ public class LoginServlet extends HttpServlet {
         System.out.println("Login attempt: email=" + email);
 
         if (email == null || password == null || email.trim().isEmpty() || password.trim().isEmpty()) {
-            System.out.println("Missing email or password");
             request.setAttribute("error", "Please enter email and password.");
             request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
             return;
@@ -54,7 +55,6 @@ public class LoginServlet extends HttpServlet {
         Object user = accountDAO.getAuthenticatedUser(email, password);
 
         if (user == null) {
-            System.out.println("No account found or invalid credentials for email: " + email);
             request.setAttribute("error", "Invalid email or password, please try again.");
             request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
             return;
@@ -76,13 +76,15 @@ public class LoginServlet extends HttpServlet {
             role = ((Staff) user).getRole();
             userId = ((Staff) user).getAccountID();
             accountInfo = (Staff) user;
-        } else if (user instanceof Account) {
-            role = ((Account) user).getRole();
-            userId = ((Account) user).getAccountID();
-            accountInfo = (Account) user;
         } else {
-            System.out.println("Unknown user type for email: " + email);
-            request.setAttribute("error", "Invalid user type.");
+            request.setAttribute("error", "Only staff and customer accounts are allowed.");
+            request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
+            return;
+        }
+
+        // Only allow 'staff' and 'customer' roles
+        if (!"staff".equalsIgnoreCase(role) && !"customer".equalsIgnoreCase(role)) {
+            request.setAttribute("error", "Access denied. Only staff and customer roles are allowed.");
             request.getRequestDispatcher("/WEB-INF/views/auth/login.jsp").forward(request, response);
             return;
         }
@@ -109,14 +111,8 @@ public class LoginServlet extends HttpServlet {
             response.addCookie(emailCookie);
         }
 
-        // Debug
-        System.out.println("Login successful: email=" + email + ", role=" + role + ", userName=" + session.getAttribute("userName") + ", userId=" + session.getAttribute("userId"));
-        System.out.println("Session set: userId=" + session.getAttribute("userId") + ", role=" + session.getAttribute("role") + ", userName=" + session.getAttribute("userName"));
-
-        // Redirect based on role
-        if ("admin".equalsIgnoreCase(role)) {
-            response.sendRedirect(request.getContextPath() + "/admin");
-        } else if ("staff".equalsIgnoreCase(role)) {
+        // Redirect
+        if ("staff".equalsIgnoreCase(role)) {
             response.sendRedirect(request.getContextPath() + "/staff/dashboard");
         } else if ("customer".equalsIgnoreCase(role)) {
             response.sendRedirect(request.getContextPath() + "/home");

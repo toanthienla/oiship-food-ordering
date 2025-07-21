@@ -308,3 +308,31 @@ SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.creat
        c.phone, c.address 
 FROM Account a 
 LEFT JOIN Customer c ON a.accountID = c.customerID;
+
+SELECT * from [dbo].[Order]
+
+
+SELECT o.orderID, o.date_created AS orderDate, o.status AS orderStatus, c.name AS fullName
+FROM [Order] o
+JOIN Customer c ON o.customer_id = c.id
+WHERE o.orderID = 22
+
+
+
+-- Kiểm tra bảng Order
+SELECT COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Order';
+
+-- Kiểm tra bảng Customer
+SELECT COLUMN_NAME
+FROM INFORMATION_SCHEMA.COLUMNS
+WHERE TABLE_NAME = 'Customer';
+
+
+SELECT o.orderID, d.name AS dishName, p.paymentID, p.totalAmount
+FROM Payment p
+JOIN [Order] o ON p.FK_Payment_Order = o.orderID
+JOIN OrderDetail od ON od.FK_OD_Order = o.orderID
+JOIN Dish d ON od.FK_OD_Dish = d.dishID
+WHERE o.orderID = 22
