@@ -14,6 +14,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -26,17 +27,17 @@ import model.Order;
  *
  * @author XPS
  */
-@WebServlet(urlPatterns = {"/admin/manage-orders"})
+@WebServlet(urlPatterns = { "/admin/manage-orders" })
 public class ManageOrdersServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -55,14 +56,15 @@ public class ManageOrdersServlet extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -98,10 +100,10 @@ public class ManageOrdersServlet extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -111,17 +113,27 @@ public class ManageOrdersServlet extends HttpServlet {
             String statusStr = request.getParameter("status");
             String paymentStatusStr = request.getParameter("paymentStatus");
 
+            HttpSession session = request.getSession(); // Tạo hoặc lấy session hiện tại
+            // session.setAttribute("userId", userId); // Đây chính là accountID
+
+            Integer accountID = (Integer) request.getSession().getAttribute("userId");
+
+            if (accountID == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
+
             OrderDAO dao = new OrderDAO();
             // Nếu có thay đổi order status
             if (statusStr != null) {
                 int newStatus = Integer.parseInt(statusStr);
-                dao.updateStatusOrderByOrderId(orderId, newStatus);
+                dao.updateStatusOrderByOrderId(orderId, newStatus, accountID);
             }
 
             // Nếu có thay đổi payment status
             if (paymentStatusStr != null) {
                 int newPaymentStatus = Integer.parseInt(paymentStatusStr);
-                dao.updatePaymentStatusByOrderId(orderId, newPaymentStatus);
+                dao.updatePaymentStatusByOrderId(orderId, newPaymentStatus, accountID);
             }
 
             // Có thể log kết quả hoặc set attribute để hiển thị
@@ -144,3 +156,6 @@ public class ManageOrdersServlet extends HttpServlet {
     }// </editor-fold>
 
 }
+
+
+
