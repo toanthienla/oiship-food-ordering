@@ -127,9 +127,11 @@
                                            data-stock="<%= stock%>"
                                            data-name="<%= dish.getDishName()%>"
                                            value="<%= quantity%>"
-                                           readonly
+                                           required
                                            class="form-control text-center"
-                                           style="width: 60px;">
+                                           style="width: 60px;"
+                                          oninput="updateQuantityByInput(<%= item.getCartID()%>)"                                         
+                                           >
                                     <button class="btn btn-outline-secondary btn-sm"
                                             onclick="updateQuantity(<%= item.getCartID()%>, 1)">+</button>
                                 </div>
@@ -171,6 +173,39 @@
         </div>
 
         <script>
+            function updateQuantityByInput(cartId) {
+    const input = document.getElementById("qty_" + cartId);
+    const maxStock = parseInt(input.getAttribute("data-stock"));
+    let qty = parseInt(input.value);
+
+    
+
+    if (qty > 10) {
+        qty = 10;
+        alert("The maximum quantity is 10.");
+    }
+    if (qty > maxStock) {
+        qty = maxStock;
+        alert("Only " + maxStock + " items in stock.");
+    }
+    if (qty < 1) qty = 1;
+
+    input.value = qty;
+
+    fetch(contextPath + "/customer/view-cart", {
+        method: "POST",
+        headers: {"Content-Type": "application/x-www-form-urlencoded"},
+        body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+    }).then(() => {
+        const row = input.closest("tr");
+        const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+        const total = qty * price;
+        row.querySelector(".item-total").textContent = total.toLocaleString() + " đ";
+
+        recalculateGrandTotal();
+    });
+}
+
             const contextPath = "<%= request.getContextPath()%>";
 
             function updateQuantity(cartId, delta) {
