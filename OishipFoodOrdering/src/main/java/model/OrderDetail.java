@@ -34,10 +34,10 @@ public class OrderDetail {
     public OrderDetail() {
     }
 
-    public OrderDetail(int ODID, int quantity, Dish dish) {
+    public OrderDetail(int ODID, int quantity, String dishName) {
         this.ODID = ODID;
         this.quantity = quantity;
-        this.dish = dish;
+        this.DishName = dishName;
     }
 
     public boolean isReviewed() {

@@ -59,7 +59,7 @@ public class OTPDAO extends DBContext {
     }
 
     public void markOtpAsUsed(String email) {
-        String sql = "UPDATE OTP SET isUsed = 1 WHERE email = ? AND isUsed = 0"; // Sửa tên bảng thành OTP
+        String sql = "UPDATE OTP SET isUsed = 1 WHERE email = ? AND isUsed = 0"; 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, email);
             int rowsAffected = ps.executeUpdate();

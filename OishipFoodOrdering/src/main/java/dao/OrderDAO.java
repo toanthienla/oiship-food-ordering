@@ -257,6 +257,50 @@ public class OrderDAO extends DBContext {
         }
     }
 
+    public boolean deleteOrder(int orderId) {
+        String deleteReview = "DELETE FROM Review WHERE FK_Review_OrderDetail IN "
+                + "(SELECT ODID FROM OrderDetail WHERE FK_OD_Order = ?)";
+        String deleteOrderDetail = "DELETE FROM OrderDetail WHERE FK_OD_Order = ?";
+        String deletePayment = "DELETE FROM Payment WHERE OrderID = ?";
+        String deleteOrder = "DELETE FROM [Order] WHERE orderID = ?";
+
+        try {
+            conn.setAutoCommit(false); // Bắt đầu transaction
+
+            try (PreparedStatement ps1 = conn.prepareStatement(deleteReview); PreparedStatement ps2 = conn.prepareStatement(deleteOrderDetail); PreparedStatement ps3 = conn.prepareStatement(deletePayment); PreparedStatement ps4 = conn.prepareStatement(deleteOrder)) {
+
+                // Xóa Review
+                ps1.setInt(1, orderId);
+                ps1.executeUpdate();
+
+                // Xóa OrderDetail
+                ps2.setInt(1, orderId);
+                ps2.executeUpdate();
+
+                // Xóa Payment
+                ps3.setInt(1, orderId);
+                ps3.executeUpdate();
+
+                // Xóa Order
+                ps4.setInt(1, orderId);
+                int affected = ps4.executeUpdate();
+
+                conn.commit(); // Commit nếu mọi thứ thành công
+
+                return affected > 0;
+            } catch (SQLException ex) {
+                conn.rollback(); // Rollback nếu có lỗi
+                ex.printStackTrace();
+            } finally {
+                conn.setAutoCommit(true);
+            }
+
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return false;
+    }
+
     public List<Order> getAllOrdersWithDetailsByCustomerId(int customerId) {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT orderID, orderCreatedAt, amount, orderStatus, paymentStatus "
@@ -320,8 +364,23 @@ public class OrderDAO extends DBContext {
         return details;
     }
 
+    /**
+     * Cancel a pending order by setting its status to 'Cancelled' (5),
+     * resetting payment status, and updating the last modified timestamp.
+     *
+     * @param orderId The ID of the order to cancel.
+     * @return true if the order was successfully cancelled; false otherwise.
+     * @throws SQLException if a database access error occurs.
+     */
     public boolean cancelOrder(int orderId) throws SQLException {
-        String sql = "UPDATE [Order] SET orderStatus = 5 WHERE orderID = ? AND orderStatus = 0"; // 5 = Hủy
+        String sql = "UPDATE [Order] "
+                + "SET orderStatus = 5, "
+                + // 5 = Cancelled
+                "paymentStatus = 0, "
+                + // 0 = Unpaid
+                "orderUpdatedAt = GETDATE() "
+                + "WHERE orderID = ? AND orderStatus = 0"; // Only allow canceling pending orders
+
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, orderId);
             int rows = ps.executeUpdate();
@@ -589,5 +648,21 @@ public class OrderDAO extends DBContext {
 //        }
 //        return -1;
 //    }
+    private String buildOrderDescription(Order order) {
+        if (order.getOrderDetails() == null || order.getOrderDetails().isEmpty()) {
+            return "No items";
+        }
+        StringBuilder sb = new StringBuilder();
+        for (var detail : order.getOrderDetails()) {
+            sb.append(detail.getDish().getDishName())
+                    .append(" x").append(detail.getQuantity())
+                    .append(", ");
+        }
+        // Remove trailing comma
+        if (sb.length() > 2) {
+            sb.setLength(sb.length() - 2);
+        }
+        return sb.toString();
+    }
 
 }

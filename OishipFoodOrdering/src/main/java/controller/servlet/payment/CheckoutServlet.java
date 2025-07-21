@@ -21,6 +21,7 @@ import vn.payos.type.PaymentData;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
 
 @WebServlet(name = "CheckoutServlet", urlPatterns = {
     "/customer/payment/create-payment-link",
@@ -66,6 +67,21 @@ public class CheckoutServlet extends HttpServlet {
                     break;
 
                 case "/customer/payment/cancel":
+                    Integer cancelledOrderId = (Integer) session.getAttribute("pendingOrderId");
+                    if (cancelledOrderId != null) {
+                        try {
+                            boolean cancelled = orderDAO.cancelOrder(cancelledOrderId);
+                            if (cancelled) {
+                                logger.info("Order #" + cancelledOrderId + " was successfully cancelled.");
+                            } else {
+                                logger.warn("Failed to cancel order #" + cancelledOrderId + ". It might not be in pending state.");
+                            }
+                        } catch (SQLException e) {
+                            logger.error("Error cancelling order #" + cancelledOrderId, e);
+                        } finally {
+                            session.removeAttribute("pendingOrderId");
+                        }
+                    }
                     response.sendRedirect(request.getContextPath() + "/customer/view-cart");
                     break;
 
@@ -85,7 +101,7 @@ public class CheckoutServlet extends HttpServlet {
 
                     // Tạo mới link PayOS (luôn luôn tạo)
                     BigDecimal amount = order.getAmount();
-                    String description = "Order #" + order.getOrderID() + " - Customer: " + customer.getCustomerID();
+                    String description = "Payment for OISHIP system";
                     long orderCode = System.currentTimeMillis(); // hoặc dùng UUID.randomUUID().toString()
 
                     CheckoutResponseData checkoutData = payOS.createPaymentLink(
