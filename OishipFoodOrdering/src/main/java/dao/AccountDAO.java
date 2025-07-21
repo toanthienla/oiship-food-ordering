@@ -663,22 +663,6 @@ public class AccountDAO extends DBContext {
         return staffList;
     }
 
-    public boolean isCustomerExists(int customerID) {
-        String sql = "SELECT COUNT(*) FROM Customer WHERE customerID = ?";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, customerID);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    return rs.getInt(1) > 0; // Trả về true nếu có bản ghi
-                }
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.out.println("Error checking Customer existence for ID: " + customerID + ", Time: " + new java.util.Date() + ", Error: " + e.getMessage());
-        }
-        return false; // Trả về false nếu có lỗi hoặc không tìm thấy
-    }
-
     public boolean updateCustomer(Customer customer) {
         if (customer == null || customer.getCustomerID() <= 0 || customer.getPhone() == null || customer.getAddress() == null) {
             System.out.println("updateCustomer: Customer or required fields are null or invalid");
@@ -781,15 +765,6 @@ public class AccountDAO extends DBContext {
         return account;
     }
 
-    private Account mapAccountWithCustomer(ResultSet rs) throws SQLException {
-        Account account = mapAccount(rs);
-        account.setCustomer(new model.Customer(
-                rs.getInt("customerID"),
-                rs.getString("phone"),
-                rs.getString("address")
-        ));
-        return account;
-    }
 
     private model.Customer getCustomerById(int id) {
         // Giả định có phương thức riêng để lấy Customer

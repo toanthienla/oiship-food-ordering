@@ -596,14 +596,7 @@ public class OrderDAO extends DBContext {
         return orderId;
     }
 
-    public void updateCheckoutUrl(int orderId, String url) throws SQLException {
-        String sql = "UPDATE [Order] SET checkoutUrl = ? WHERE orderID = ?";
-        try (PreparedStatement ps = getConnection().prepareStatement(sql)) {
-            ps.setString(1, url);
-            ps.setInt(2, orderId);
-            ps.executeUpdate();
-        }
-    }
+
 
     public String getCheckoutUrl(int orderId) {
         String sql = "SELECT checkoutUrl FROM [Order] WHERE orderID = ?";
