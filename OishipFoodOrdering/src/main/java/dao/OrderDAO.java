@@ -5,19 +5,14 @@ import model.Order;
 import utils.DBContext;
 import java.sql.*;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import model.DashboardStats;
 import model.Dish;
 import model.Ingredient;
 import model.OrderDetail;
 import utils.TotalPriceCalculator;
 
 public class OrderDAO extends DBContext {
-
-    private static final Logger LOGGER = Logger.getLogger(OrderDAO.class.getName());
 
     public OrderDAO() {
         super();
@@ -664,6 +659,194 @@ public class OrderDAO extends DBContext {
 
     }
 
+    // Hôm nay
+    public DashboardStats getTodayStats() {
+        DashboardStats stats = new DashboardStats();
+        String today = "CAST(GETDATE() AS DATE)";
+
+        // Total orders today
+        String sql1 = "SELECT COUNT(*) FROM [Order] WHERE CAST(orderCreatedAt AS DATE) = " + today;
+        stats.setTotalOrders(executeCountQuery(sql1));
+
+        // Order status counts
+        for (int status = 0; status <= 6; status++) {
+            String sql = "SELECT COUNT(*) FROM [Order] WHERE CAST(orderCreatedAt AS DATE) = " + today
+                    + " AND orderStatus = " + status;
+            int count = executeCountQuery(sql);
+            switch (status) {
+                case 0:
+                    stats.setPending(count);
+                    break;
+                case 1:
+                    stats.setConfirmed(count);
+                    break;
+                case 2:
+                    stats.setPreparing(count);
+                    break;
+                case 3:
+                    stats.setDelivery(count);
+                    break;
+                case 4:
+                    stats.setDelivered(count);
+                    break;
+                case 5:
+                    stats.setCancelled(count);
+                    break;
+                case 6:
+                    stats.setFailed(count);
+                    break;
+            }
+        }
+
+        // Payment status counts
+        for (int payStatus = 0; payStatus <= 2; payStatus++) {
+            String sql = "SELECT COUNT(*) FROM [Order] WHERE CAST(orderCreatedAt AS DATE) = " + today
+                    + " AND paymentStatus = " + payStatus;
+            int count = executeCountQuery(sql);
+            switch (payStatus) {
+                case 0:
+                    stats.setUnpaid(count);
+                    break;
+                case 1:
+                    stats.setPaid(count);
+                    break;
+                case 2:
+                    stats.setRefunded(count);
+                    break;
+            }
+        }
+
+        return stats;
+    }
+
+    // Tháng nay
+    public DashboardStats getMonthStats() {
+        DashboardStats stats = new DashboardStats();
+        String monthCondition = "YEAR(orderCreatedAt) = YEAR(GETDATE()) AND MONTH(orderCreatedAt) = MONTH(GETDATE())";
+
+        // Total orders this month
+        String sql1 = "SELECT COUNT(*) FROM [Order] WHERE " + monthCondition;
+        stats.setTotalOrders(executeCountQuery(sql1));
+
+        // Order status counts
+        for (int status = 0; status <= 6; status++) {
+            String sql = "SELECT COUNT(*) FROM [Order] WHERE " + monthCondition + " AND orderStatus = " + status;
+            int count = executeCountQuery(sql);
+            switch (status) {
+                case 0:
+                    stats.setPending(count);
+                    break;
+                case 1:
+                    stats.setConfirmed(count);
+                    break;
+                case 2:
+                    stats.setPreparing(count);
+                    break;
+                case 3:
+                    stats.setDelivery(count);
+                    break;
+                case 4:
+                    stats.setDelivered(count);
+                    break;
+                case 5:
+                    stats.setCancelled(count);
+                    break;
+                case 6:
+                    stats.setFailed(count);
+                    break;
+            }
+        }
+
+        // Payment status counts
+        for (int payStatus = 0; payStatus <= 2; payStatus++) {
+            String sql = "SELECT COUNT(*) FROM [Order] WHERE " + monthCondition + " AND paymentStatus = " + payStatus;
+            int count = executeCountQuery(sql);
+            switch (payStatus) {
+                case 0:
+                    stats.setUnpaid(count);
+                    break;
+                case 1:
+                    stats.setPaid(count);
+                    break;
+                case 2:
+                    stats.setRefunded(count);
+                    break;
+            }
+        }
+
+        return stats;
+    }
+
+    public DashboardStats getAllStats() {
+        DashboardStats stats = new DashboardStats();
+
+        // Total orders (no time filter)
+        String sql1 = "SELECT COUNT(*) FROM [Order]";
+        stats.setTotalOrders(executeCountQuery(sql1));
+
+        // Order status counts
+        for (int status = 0; status <= 6; status++) {
+            String sql = "SELECT COUNT(*) FROM [Order] WHERE orderStatus = " + status;
+            int count = executeCountQuery(sql);
+            switch (status) {
+                case 0:
+                    stats.setPending(count);
+                    break;
+                case 1:
+                    stats.setConfirmed(count);
+                    break;
+                case 2:
+                    stats.setPreparing(count);
+                    break;
+                case 3:
+                    stats.setDelivery(count);
+                    break;
+                case 4:
+                    stats.setDelivered(count);
+                    break;
+                case 5:
+                    stats.setCancelled(count);
+                    break;
+                case 6:
+                    stats.setFailed(count);
+                    break;
+            }
+        }
+
+        // Payment status counts
+        for (int payStatus = 0; payStatus <= 2; payStatus++) {
+            String sql = "SELECT COUNT(*) FROM [Order] WHERE paymentStatus = " + payStatus;
+            int count = executeCountQuery(sql);
+            switch (payStatus) {
+                case 0:
+                    stats.setUnpaid(count);
+                    break;
+                case 1:
+                    stats.setPaid(count);
+                    break;
+                case 2:
+                    stats.setRefunded(count);
+                    break;
+            }
+        }
+
+        return stats;
+    }
+
+    // Helper method
+    private int executeCountQuery(String sql) {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     // public int createOrder(Order order, Integer voucherID) throws SQLException {
     // String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus,
     // orderCreatedAt, orderUpdatedAt, FK_Order_Customer, FK_Order_Voucher) "
@@ -694,6 +877,3 @@ public class OrderDAO extends DBContext {
     // return -1;
     // }
 }
-
-
-
