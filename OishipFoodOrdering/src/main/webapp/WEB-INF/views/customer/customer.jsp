@@ -350,8 +350,8 @@
                 display: none;
             }
             .sidebar .position-relative {
-                display: inline-block;
-                margin-bottom: 10px;
+                /*display: inline-block;*/
+                /*margin-bottom: 10px;*/
             }
             .cart-link {
                 position: relative;
@@ -394,7 +394,7 @@
         %>
 
         <!-- Cart with badge -->
-        <a href="${pageContext.request.contextPath}/customer/view-cart" class="cart-link text-decoration-none position-relative">
+        <a href="${pageContext.request.contextPath}/customer/view-cart" class="cart-link text-decoration-none position-relative me-2">
             <i class="fas fa-shopping-cart me-2"></i> Cart
             <% if (totalDishes > 0) {%>
             <span class="cart-badge">
