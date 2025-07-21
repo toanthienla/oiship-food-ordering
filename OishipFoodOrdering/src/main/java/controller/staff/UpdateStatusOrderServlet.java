@@ -12,6 +12,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.OrderDetail;
 
@@ -115,9 +116,19 @@ public class UpdateStatusOrderServlet extends HttpServlet {
             int newStatus = Integer.parseInt(newStatusParam);
             int newPaymentStatus = Integer.parseInt(newPaymentStatusParam);
 
+            HttpSession session = request.getSession(); // Tạo hoặc lấy session hiện tại
+//            session.setAttribute("userId", userId); // Đây chính là accountID
+
+            Integer accountID = (Integer) request.getSession().getAttribute("userId");
+
+            if (accountID == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
+
             OrderDAO dao = new OrderDAO();
-            boolean statusSuccess = dao.updateStatusOrderByOrderId(orderID, newStatus);
-            boolean paymentSuccess = dao.updatePaymentStatusByOrderId(orderID, newPaymentStatus);
+            boolean statusSuccess = dao.updateStatusOrderByOrderId(orderID, newStatus, accountID);
+            boolean paymentSuccess = dao.updatePaymentStatusByOrderId(orderID, newPaymentStatus, accountID);
 
             // Lấy lại dữ liệu để hiển thị
             int orderStatus = dao.getOrderStatusByOrderId(orderID);

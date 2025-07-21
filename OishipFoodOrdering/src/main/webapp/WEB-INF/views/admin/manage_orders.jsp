@@ -213,6 +213,7 @@
                                 <th>Amount</th>
                                 <th>Payment</th>
                                 <th>Status</th>
+                                <th>Last Update</th>
                                 <th>Address</th>
                                 <th>Action</th>
                             </tr>
@@ -262,6 +263,17 @@
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
                                     </td>
+                                    <td class="text-center">
+                                        <c:choose>
+                                            <c:when test="${not empty o.lastUpdated}">
+                                                ${o.lastUpdated}
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="text-muted">N/A</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+
                                     <td class="truncate">
                                         <c:choose>
                                             <c:when test="${not empty o.address}">
