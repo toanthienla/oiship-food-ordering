@@ -127,6 +127,37 @@ CREATE TABLE [Order] (
     FK_Order_Customer INT FOREIGN KEY REFERENCES Customer(customerID)
 );
 
+CREATE TABLE OrderStatusHistory (
+    historyID INT IDENTITY(1,1) PRIMARY KEY,
+    orderID INT NOT NULL,
+    oldStatus INT,  -- 0–6 (Pending → Failed)
+    newStatus INT,
+    changedByAccountID INT NOT NULL,
+    changeTime DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT FK_OrderStatusHistory_Order FOREIGN KEY (orderID)
+        REFERENCES [Order](orderID),
+
+    CONSTRAINT FK_OrderStatusHistory_Staff FOREIGN KEY (changedByAccountID)
+        REFERENCES Account(accountID)
+	);
+
+CREATE TABLE PaymentStatusHistory (
+    historyID INT IDENTITY(1,1) PRIMARY KEY,
+    orderID INT NOT NULL,
+
+    oldStatus INT,
+    newStatus INT,
+    changedByAccountID INT NOT NULL,
+    changeTime DATETIME DEFAULT GETDATE(),
+
+    CONSTRAINT FK_PaymentStatusHistory_Order FOREIGN KEY (orderID)
+        REFERENCES [Order](orderID),
+
+    CONSTRAINT FK_PaymentStatusHistory_Staff FOREIGN KEY (changedByAccountID)
+        REFERENCES Account(accountID)
+);
+
 -- OrderDetail table
 CREATE TABLE OrderDetail (
     ODID INT IDENTITY(1,1) PRIMARY KEY,

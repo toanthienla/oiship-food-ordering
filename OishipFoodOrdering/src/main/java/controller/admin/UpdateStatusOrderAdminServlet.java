@@ -13,6 +13,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.servlet.http.HttpSession;
 import java.util.List;
 import model.OrderDetail;
 
@@ -20,17 +21,17 @@ import model.OrderDetail;
  *
  * @author HCT
  */
-@WebServlet(name = "UpdateStatusOrderAdminServlet", urlPatterns = {"/admin/manage-orders/update-status"})
+@WebServlet(name = "UpdateStatusOrderAdminServlet", urlPatterns = { "/admin/manage-orders/update-status" })
 public class UpdateStatusOrderAdminServlet extends HttpServlet {
 
     /**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     protected void processRequest(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -49,14 +50,15 @@ public class UpdateStatusOrderAdminServlet extends HttpServlet {
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
+    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
+    // + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -92,10 +94,10 @@ public class UpdateStatusOrderAdminServlet extends HttpServlet {
     /**
      * Handles the HTTP <code>POST</code> method.
      *
-     * @param request servlet request
+     * @param request  servlet request
      * @param response servlet response
      * @throws ServletException if a servlet-specific error occurs
-     * @throws IOException if an I/O error occurs
+     * @throws IOException      if an I/O error occurs
      */
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
@@ -106,7 +108,8 @@ public class UpdateStatusOrderAdminServlet extends HttpServlet {
             String newPaymentStatusParam = request.getParameter("newPaymentStatus");
 
             if (orderIDParam == null || newStatusParam == null || newPaymentStatusParam == null
-                    || orderIDParam.trim().isEmpty() || newStatusParam.trim().isEmpty() || newPaymentStatusParam.trim().isEmpty()) {
+                    || orderIDParam.trim().isEmpty() || newStatusParam.trim().isEmpty()
+                    || newPaymentStatusParam.trim().isEmpty()) {
                 request.setAttribute("message", "Error: Missing order ID, status or payment status.");
                 request.getRequestDispatcher("/WEB-INF/views/admin/order_status_update.jsp").forward(request, response);
                 return;
@@ -116,9 +119,19 @@ public class UpdateStatusOrderAdminServlet extends HttpServlet {
             int newStatus = Integer.parseInt(newStatusParam);
             int newPaymentStatus = Integer.parseInt(newPaymentStatusParam);
 
+            HttpSession session = request.getSession(); // Tạo hoặc lấy session hiện tại
+            // session.setAttribute("userId", userId); // Đây chính là accountID
+
+            Integer accountID = (Integer) request.getSession().getAttribute("userId");
+
+            if (accountID == null) {
+                response.sendRedirect(request.getContextPath() + "/login");
+                return;
+            }
+
             OrderDAO dao = new OrderDAO();
-            boolean statusSuccess = dao.updateStatusOrderByOrderId(orderID, newStatus);
-            boolean paymentSuccess = dao.updatePaymentStatusByOrderId(orderID, newPaymentStatus);
+            boolean statusSuccess = dao.updateStatusOrderByOrderId(orderID, newStatus, accountID);
+            boolean paymentSuccess = dao.updatePaymentStatusByOrderId(orderID, newPaymentStatus, accountID);
 
             // Lấy lại dữ liệu để hiển thị
             int orderStatus = dao.getOrderStatusByOrderId(orderID);
@@ -159,3 +172,6 @@ public class UpdateStatusOrderAdminServlet extends HttpServlet {
     }// </editor-fold>
 
 }
+
+
+

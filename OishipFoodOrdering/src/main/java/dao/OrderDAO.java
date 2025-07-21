@@ -26,14 +26,31 @@ public class OrderDAO extends DBContext {
     public List<Order> getAllOrders() {
         List<Order> orders = new ArrayList<>();
         String sql = "SELECT o.*, a.fullName AS customerName, c.address, "
-                + "v.code AS voucherCode, v.discountType, v.discount "
+                + "v.code AS voucherCode, v.discountType, v.discount, "
+                + "lastUpdate.fullName AS lastUpdated "
                 + "FROM [Order] o "
                 + "JOIN Customer c ON o.FK_Order_Customer = c.customerID "
                 + "JOIN Account a ON c.customerID = a.accountID "
                 + "LEFT JOIN Voucher v ON o.FK_Order_Voucher = v.voucherID "
+                + "OUTER APPLY ( "
+                + "    SELECT TOP 1 acc.fullName "
+                + "    FROM ( "
+                + "        SELECT changedByAccountID, changeTime "
+                + "        FROM OrderStatusHistory "
+                + "        WHERE orderID = o.orderID "
+                + "        UNION ALL "
+                + "        SELECT changedByAccountID, changeTime "
+                + "        FROM PaymentStatusHistory "
+                + "        WHERE orderID = o.orderID "
+                + "    ) combined "
+                + "    JOIN Account acc ON combined.changedByAccountID = acc.accountID "
+                + "    ORDER BY combined.changeTime DESC "
+                + ") lastUpdate "
                 + "ORDER BY o.orderCreatedAt DESC";
 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql);
+                ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Order order = new Order();
@@ -50,9 +67,11 @@ public class OrderDAO extends DBContext {
                 order.setVoucherCode(rs.getString("voucherCode"));
                 order.setDiscountType(rs.getString("discountType"));
                 order.setDiscount(rs.getBigDecimal("discount"));
+                order.setLastUpdated(rs.getString("lastUpdated")); // nullable
 
                 orders.add(order);
             }
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -111,7 +130,8 @@ public class OrderDAO extends DBContext {
                 BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
                 List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishID);
                 BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
-                BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(opCost, interestPercentage, ingredientCost);
+                BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(opCost, interestPercentage,
+                        ingredientCost);
 
                 detail.setUnitPrice(unitPrice);
 
@@ -140,16 +160,44 @@ public class OrderDAO extends DBContext {
         return -1;
     }
 
-    public boolean updateStatusOrderByOrderId(int orderId, int newStatus) {
-        String sql = "UPDATE [Order] SET orderStatus = ?, orderUpdatedAt = GETDATE() WHERE orderID = ?";
+    public boolean updateStatusOrderByOrderId(int orderId, int newOrderStatus, int changedByAccountID) {
+        String updateSql = "UPDATE [Order] SET orderStatus = ?, orderUpdatedAt = GETDATE() WHERE orderID = ?";
+        String logSql = "INSERT INTO OrderStatusHistory (orderID, oldStatus, newStatus, changedByAccountID, changeTime) VALUES (?, ?, ?, ?, GETDATE())";
 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false); // Bắt đầu transaction
 
-            ps.setInt(1, newStatus);
-            ps.setInt(2, orderId);
+            // Lấy trạng thái cũ
+            int oldStatus = -1;
+            String selectSql = "SELECT orderStatus FROM [Order] WHERE orderID = ?";
+            try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+                psSelect.setInt(1, orderId);
+                ResultSet rs = psSelect.executeQuery();
+                if (rs.next()) {
+                    oldStatus = rs.getInt("orderStatus");
+                } else {
+                    return false; // Không tìm thấy đơn
+                }
+            }
 
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
+            // Cập nhật trạng thái mới
+            try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+                psUpdate.setInt(1, newOrderStatus);
+                psUpdate.setInt(2, orderId);
+                psUpdate.executeUpdate();
+            }
+
+            // Lưu vào lịch sử
+            try (PreparedStatement psLog = conn.prepareStatement(logSql)) {
+                psLog.setInt(1, orderId);
+                psLog.setInt(2, oldStatus);
+                psLog.setInt(3, newOrderStatus);
+                psLog.setInt(4, changedByAccountID);
+                psLog.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
 
         } catch (SQLException e) {
             e.printStackTrace();
@@ -162,7 +210,8 @@ public class OrderDAO extends DBContext {
         int generatedID = -1;
         String sql = "INSERT INTO Account(fullName) VALUES (?)";
 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection();
+                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, fullName);
             ps.executeUpdate();
@@ -179,7 +228,7 @@ public class OrderDAO extends DBContext {
         return generatedID;
     }
 
-    //Các method cần cho staff tạo order
+    // Các method cần cho staff tạo order
     public int insertOrder(int customerID) {
         String sql = "INSERT INTO [Order] (FK_Order_Customer, orderStatus, paymentStatus, orderCreatedAt) "
                 + "OUTPUT INSERTED.orderID VALUES (?, 1, 1, GETDATE())";
@@ -209,20 +258,23 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
-//    public int createOrder(int customerId, BigDecimal amount) throws SQLException {
-//        String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus, FK_Order_Customer) VALUES (?, 0, 0, ?)";
-//        try (
-//                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-//            ps.setBigDecimal(1, amount);
-//            ps.setInt(2, customerId);
-//            ps.executeUpdate();
-//            ResultSet rs = ps.getGeneratedKeys();
-//            if (rs.next()) {
-//                return rs.getInt(1);
-//            }
-//        }
-//        return -1;
-//    }
+    // public int createOrder(int customerId, BigDecimal amount) throws SQLException
+    // {
+    // String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus,
+    // FK_Order_Customer) VALUES (?, 0, 0, ?)";
+    // try (
+    // PreparedStatement ps = conn.prepareStatement(sql,
+    // Statement.RETURN_GENERATED_KEYS)) {
+    // ps.setBigDecimal(1, amount);
+    // ps.setInt(2, customerId);
+    // ps.executeUpdate();
+    // ResultSet rs = ps.getGeneratedKeys();
+    // if (rs.next()) {
+    // return rs.getInt(1);
+    // }
+    // }
+    // return -1;
+    // }
     public int createOrder(int customerId, BigDecimal amount, Integer voucherID) {
         String sql = "INSERT INTO [Order](amount, orderStatus, FK_Order_Customer, FK_Order_Voucher) VALUES (?, 0, ?, ?)";
         try (PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
@@ -341,7 +393,7 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
-    //for staff
+    // for staff
     public int getPaymentStatusByOrderId(int orderID) {
         String sql = "SELECT paymentStatus FROM [Order] WHERE orderID = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -356,15 +408,45 @@ public class OrderDAO extends DBContext {
         return -1; // Trả về -1 nếu không tìm thấy hoặc lỗi
     }
 
-    public boolean updatePaymentStatusByOrderId(int orderId, int newPaymentStatus) {
-        String sql = "UPDATE [Order] SET paymentStatus = ?, orderUpdatedAt = GETDATE() WHERE orderID = ?";
+    public boolean updatePaymentStatusByOrderId(int orderId, int newPaymentStatus, int changedByAccountID) {
+        String updateSql = "UPDATE [Order] SET paymentStatus = ?, orderUpdatedAt = GETDATE() WHERE orderID = ?";
+        String logSql = "INSERT INTO PaymentStatusHistory (orderID, oldStatus, newStatus, changedByAccountID, changeTime) VALUES (?, ?, ?, ?, GETDATE())";
 
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, newPaymentStatus);
-            ps.setInt(2, orderId);
+        try (Connection conn = getConnection()) {
+            conn.setAutoCommit(false); // Bắt đầu transaction
 
-            int affectedRows = ps.executeUpdate();
-            return affectedRows > 0;
+            // Lấy trạng thái cũ
+            int oldStatus = -1;
+            String selectSql = "SELECT paymentStatus FROM [Order] WHERE orderID = ?";
+            try (PreparedStatement psSelect = conn.prepareStatement(selectSql)) {
+                psSelect.setInt(1, orderId);
+                ResultSet rs = psSelect.executeQuery();
+                if (rs.next()) {
+                    oldStatus = rs.getInt("paymentStatus");
+                } else {
+                    return false; // Không tìm thấy đơn
+                }
+            }
+
+            // Cập nhật trạng thái mới
+            try (PreparedStatement psUpdate = conn.prepareStatement(updateSql)) {
+                psUpdate.setInt(1, newPaymentStatus);
+                psUpdate.setInt(2, orderId);
+                psUpdate.executeUpdate();
+            }
+
+            // Lưu vào lịch sử
+            try (PreparedStatement psLog = conn.prepareStatement(logSql)) {
+                psLog.setInt(1, orderId);
+                psLog.setInt(2, oldStatus);
+                psLog.setInt(3, newPaymentStatus);
+                psLog.setInt(4, changedByAccountID);
+                psLog.executeUpdate();
+            }
+
+            conn.commit();
+            return true;
+
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -372,26 +454,28 @@ public class OrderDAO extends DBContext {
         return false;
     }
 
-//    public static void main(String[] args) {
-//
-//        OrderDAO dao = new OrderDAO();
-//
-//        int testOrderId = 51;           // 👉 thay bằng orderID thật có trong DB
-//        int newPaymentStatus = 2;      // 👉 0 = Unpaid, 1 = Paid, 2 = Refunded
-//
-//        // 1. Trước khi cập nhật
-//        int oldStatus = dao.getPaymentStatusByOrderId(testOrderId);
-//        System.out.println("Old Payment Status: " + oldStatus);
-//
-//        // 2. Cập nhật
-//        boolean updated = dao.updatePaymentStatusByOrderId(testOrderId, newPaymentStatus);
-//        System.out.println(updated ? "✅ Payment status updated successfully." : "❌ Update failed.");
-//
-//        // 3. Kiểm tra lại
-//        int updatedStatus = dao.getPaymentStatusByOrderId(testOrderId);
-//        System.out.println("New Payment Status: " + updatedStatus);
-//    }
-    //Payment
+    // public static void main(String[] args) {
+    //
+    // OrderDAO dao = new OrderDAO();
+    //
+    // int testOrderId = 51; // 👉 thay bằng orderID thật có trong DB
+    // int newPaymentStatus = 2; // 👉 0 = Unpaid, 1 = Paid, 2 = Refunded
+    //
+    // // 1. Trước khi cập nhật
+    // int oldStatus = dao.getPaymentStatusByOrderId(testOrderId);
+    // System.out.println("Old Payment Status: " + oldStatus);
+    //
+    // // 2. Cập nhật
+    // boolean updated = dao.updatePaymentStatusByOrderId(testOrderId,
+    // newPaymentStatus);
+    // System.out.println(updated ? "✅ Payment status updated successfully." : "❌
+    // Update failed.");
+    //
+    // // 3. Kiểm tra lại
+    // int updatedStatus = dao.getPaymentStatusByOrderId(testOrderId);
+    // System.out.println("New Payment Status: " + updatedStatus);
+    // }
+    // Payment
     public Order findById(int orderId) {
         String sql = "SELECT * FROM [Order] WHERE orderID = ?";
 
@@ -446,33 +530,51 @@ public class OrderDAO extends DBContext {
     }
 
     public static void main(String[] args) {
-        // Tạo đối tượng DAO
-        OrderDAO dao = new OrderDAO();
+        // // Tạo đối tượng DAO
+        // OrderDAO dao = new OrderDAO();
+        //
+        // // Nhập ID khách hàng cần kiểm tra
+        // int testCustomerId = 16; // Thay bằng ID thực tế trong DB
+        //
+        // // Gọi phương thức để lấy đơn hàng chưa thanh toán
+        // Order unpaidOrder = dao.findUnpaidOrderByCustomerId(testCustomerId);
+        //
+        // // In kết quả
+        // if (unpaidOrder != null) {
+        // System.out.println("===== FOUND UNPAID ORDER =====");
+        // System.out.println("Order ID : " + unpaidOrder.getOrderID());
+        // System.out.println("Customer ID : " + unpaidOrder.getCustomerID());
+        // System.out.println("Amount : " + unpaidOrder.getAmount());
+        // System.out.println("Order Status : " + unpaidOrder.getOrderStatus());
+        // System.out.println("Payment Status : " + unpaidOrder.getPaymentStatus());
+        // System.out.println("Created At : " + unpaidOrder.getOrderCreatedAt());
+        // System.out.println("Updated At : " + unpaidOrder.getOrderUpdatedAt());
+        // System.out.println("Address : " + unpaidOrder.getAddress());
+        // System.out.println("Discount Type : " + unpaidOrder.getDiscountType());
+        // System.out.println("Discount : " + unpaidOrder.getDiscount());
+        // System.out.println("Voucher Code : " + unpaidOrder.getVoucherCode());
+        // System.out.println("Checkout URL : " + unpaidOrder.getCheckoutUrl());
+        // } else {
+        // System.out.println("No unpaid order found for customer ID: " +
+        // testCustomerId);
+        // }
+        OrderDAO orderDAO = new OrderDAO();
+        List<Order> orders = orderDAO.getAllOrders();
 
-        // Nhập ID khách hàng cần kiểm tra
-        int testCustomerId = 16; // Thay bằng ID thực tế trong DB
+        for (Order order : orders) {
+            System.out.println("Order ID: " + order.getOrderID());
+            System.out.println("Customer Name: " + order.getCustomerName());
+            System.out.println("Address: " + order.getAddress());
+            System.out.println("Amount: " + order.getAmount());
+            System.out.println("Order Status: " + order.getOrderStatus());
+            System.out.println("Payment Status: " + order.getPaymentStatus());
+            System.out.println("Voucher Code: " + order.getVoucherCode());
+            System.out.println("Discount: " + order.getDiscount());
+            System.out.println("Last Updated By: " + order.getLastUpdated());
+            System.out.println("=======================================");
 
-        // Gọi phương thức để lấy đơn hàng chưa thanh toán
-        Order unpaidOrder = dao.findUnpaidOrderByCustomerId(testCustomerId);
-
-        // In kết quả
-        if (unpaidOrder != null) {
-            System.out.println("===== FOUND UNPAID ORDER =====");
-            System.out.println("Order ID       : " + unpaidOrder.getOrderID());
-            System.out.println("Customer ID    : " + unpaidOrder.getCustomerID());
-            System.out.println("Amount         : " + unpaidOrder.getAmount());
-            System.out.println("Order Status   : " + unpaidOrder.getOrderStatus());
-            System.out.println("Payment Status : " + unpaidOrder.getPaymentStatus());
-            System.out.println("Created At     : " + unpaidOrder.getOrderCreatedAt());
-            System.out.println("Updated At     : " + unpaidOrder.getOrderUpdatedAt());
-            System.out.println("Address        : " + unpaidOrder.getAddress());
-            System.out.println("Discount Type  : " + unpaidOrder.getDiscountType());
-            System.out.println("Discount       : " + unpaidOrder.getDiscount());
-            System.out.println("Voucher Code   : " + unpaidOrder.getVoucherCode());
-            System.out.println("Checkout URL   : " + unpaidOrder.getCheckoutUrl());
-        } else {
-            System.out.println("No unpaid order found for customer ID: " + testCustomerId);
         }
+
     }
 
     private Order mapResultSetToOrder(ResultSet rs) throws SQLException {
@@ -483,7 +585,7 @@ public class OrderDAO extends DBContext {
         order.setPaymentStatus(rs.getInt("paymentStatus"));
         order.setOrderCreatedAt(rs.getTimestamp("orderCreatedAt"));
         order.setOrderUpdatedAt(rs.getTimestamp("orderUpdatedAt"));
-        order.setVoucherID(rs.getInt("FK_Order_Voucher"));  // foreign key, may be null
+        order.setVoucherID(rs.getInt("FK_Order_Voucher")); // foreign key, may be null
         order.setCustomerID(rs.getInt("FK_Order_Customer"));
         order.setCheckoutUrl(rs.getString("checkoutUrl"));
         return order;
@@ -562,32 +664,36 @@ public class OrderDAO extends DBContext {
 
     }
 
-//    public int createOrder(Order order, Integer voucherID) throws SQLException {
-//        String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus, orderCreatedAt, orderUpdatedAt, FK_Order_Customer, FK_Order_Voucher) "
-//                + "VALUES (?, ?, ?, GETDATE(), GETDATE(), ?, ?)";
-//
-//        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-//
-//            ps.setBigDecimal(1, order.getAmount());
-//            ps.setInt(2, order.getOrderStatus());
-//            ps.setInt(3, order.getPaymentStatus());
-//            ps.setInt(4, order.getCustomerID());
-//
-//            if (voucherID != null) {
-//                ps.setInt(5, voucherID);
-//            } else {
-//                ps.setNull(5, Types.INTEGER);
-//            }
-//
-//            ps.executeUpdate();
-//
-//            try (ResultSet rs = ps.getGeneratedKeys()) {
-//                if (rs.next()) {
-//                    return rs.getInt(1);
-//                }
-//            }
-//        }
-//        return -1;
-//    }
-
+    // public int createOrder(Order order, Integer voucherID) throws SQLException {
+    // String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus,
+    // orderCreatedAt, orderUpdatedAt, FK_Order_Customer, FK_Order_Voucher) "
+    // + "VALUES (?, ?, ?, GETDATE(), GETDATE(), ?, ?)";
+    //
+    // try (Connection conn = getConnection(); PreparedStatement ps =
+    // conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+    //
+    // ps.setBigDecimal(1, order.getAmount());
+    // ps.setInt(2, order.getOrderStatus());
+    // ps.setInt(3, order.getPaymentStatus());
+    // ps.setInt(4, order.getCustomerID());
+    //
+    // if (voucherID != null) {
+    // ps.setInt(5, voucherID);
+    // } else {
+    // ps.setNull(5, Types.INTEGER);
+    // }
+    //
+    // ps.executeUpdate();
+    //
+    // try (ResultSet rs = ps.getGeneratedKeys()) {
+    // if (rs.next()) {
+    // return rs.getInt(1);
+    // }
+    // }
+    // }
+    // return -1;
+    // }
 }
+
+
+
