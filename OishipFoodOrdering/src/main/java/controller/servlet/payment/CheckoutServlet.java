@@ -83,28 +83,14 @@ public class CheckoutServlet extends HttpServlet {
                         return;
                     }
 
-                    if (order.getCheckoutUrl() != null && !order.getCheckoutUrl().isEmpty()) {
-                        JsonObject data = new JsonObject();
-                        data.addProperty("checkoutUrl", order.getCheckoutUrl());
-                        JsonObject resJson = new JsonObject();
-                        resJson.addProperty("error", 0);
-                        resJson.addProperty("message", "success");
-                        resJson.add("data", data);
-                        writeJsonResponse(response, resJson);
-                        response.sendRedirect(order.getCheckoutUrl());
-                        return;
-                    }
-
-                    // Tạo mới link PayOS
+                    // Tạo mới link PayOS (luôn luôn tạo)
                     BigDecimal amount = order.getAmount();
                     String description = "Order #" + order.getOrderID() + " - Customer: " + customer.getCustomerID();
+                    long orderCode = System.currentTimeMillis(); // hoặc dùng UUID.randomUUID().toString()
 
                     CheckoutResponseData checkoutData = payOS.createPaymentLink(
-                            buildPaymentData(amount.intValue(), description, order.getOrderID(), getBaseUrl(request))
+                            buildPaymentData(amount.intValue(), description, (int) orderCode, getBaseUrl(request))
                     );
-
-                    // Lưu lại checkoutUrl vào DB
-                    orderDAO.updateCheckoutUrl(order.getOrderID(), checkoutData.getCheckoutUrl());
 
                     // Trả kết quả và redirect
                     JsonObject data = new JsonObject();

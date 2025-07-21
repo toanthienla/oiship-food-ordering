@@ -135,8 +135,7 @@
             %>
             <div class="order-card">
                 <div class="order-header mb-2">
-                    <h5>Order ID: <%= order.getOrderID()%></h5>
-
+                    
 
                     <p class="text-muted">Date: <%= sdf.format(order.getOrderCreatedAt())%></p>
 

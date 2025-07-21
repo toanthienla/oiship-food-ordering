@@ -14,58 +14,58 @@ public class CustomerDAO extends DBContext {
         super();
     }
 
-    public Object getAuthenticatedUser(String email, String plainPassword) {
-        if (email == null || plainPassword == null) {
-            System.out.println("login: email or plainPassword is null, email=" + email);
-            return null;
-        }
-        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
-                + "c.phone, c.address "
-                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
-                + "WHERE a.email = ? AND a.status = 1";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setString(1, email);
-            try (ResultSet rs = ps.executeQuery()) {
-                if (rs.next()) {
-                    String hashedPassword = rs.getString("password");
-                    if (SecurityDAO.checkPassword(plainPassword, hashedPassword)) {
-                        String role = rs.getString("role");
-                        if ("customer".equals(role)) {
-                            return new Customer(
-                                    rs.getInt("accountID"),
-                                    rs.getString("phone") != null ? rs.getString("phone") : "",
-                                    rs.getString("address") != null ? rs.getString("address") : ""
-                            );
-                        } else if ("staff".equals(role)) {
-                            return new Staff(
-                                    rs.getInt("accountID"),
-                                    rs.getString("fullName"),
-                                    rs.getString("email"),
-                                    hashedPassword,
-                                    rs.getInt("status"),
-                                    role,
-                                    rs.getTimestamp("createAt")
-                            );
-                        } else if ("admin".equals(role)) {
-                            return new Account(
-                                    rs.getInt("accountID"),
-                                    rs.getString("fullName"),
-                                    rs.getString("email"),
-                                    hashedPassword,
-                                    rs.getInt("status"),
-                                    role,
-                                    rs.getTimestamp("createAt")
-                            );
-                        }
-                    }
-                }
-            }
-        } catch (SQLException e) {
-            System.out.println("Error during login for email: " + email + ": " + e.getMessage());
-            e.printStackTrace();
-        }
-        return null;
-    }
+//    public Object getAuthenticatedUser(String email, String plainPassword) {
+//        if (email == null || plainPassword == null) {
+//            System.out.println("login: email or plainPassword is null, email=" + email);
+//            return null;
+//        }
+//        String sql = "SELECT a.accountID, a.fullName, a.email, a.[password], a.status, a.role, a.createAt, "
+//                + "c.phone, c.address "
+//                + "FROM Account a LEFT JOIN Customer c ON a.accountID = c.customerID "
+//                + "WHERE a.email = ? AND a.status = 1";
+//        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+//            ps.setString(1, email);
+//            try (ResultSet rs = ps.executeQuery()) {
+//                if (rs.next()) {
+//                    String hashedPassword = rs.getString("password");
+//                    if (SecurityDAO.checkPassword(plainPassword, hashedPassword)) {
+//                        String role = rs.getString("role");
+//                        if ("customer".equals(role)) {
+//                            return new Customer(
+//                                    rs.getInt("accountID"),
+//                                    rs.getString("phone") != null ? rs.getString("phone") : "",
+//                                    rs.getString("address") != null ? rs.getString("address") : ""
+//                            );
+//                        } else if ("staff".equals(role)) {
+//                            return new Staff(
+//                                    rs.getInt("accountID"),
+//                                    rs.getString("fullName"),
+//                                    rs.getString("email"),
+//                                    hashedPassword,
+//                                    rs.getInt("status"),
+//                                    role,
+//                                    rs.getTimestamp("createAt")
+//                            );
+//                        } else if ("admin".equals(role)) {
+//                            return new Account(
+//                                    rs.getInt("accountID"),
+//                                    rs.getString("fullName"),
+//                                    rs.getString("email"),
+//                                    hashedPassword,
+//                                    rs.getInt("status"),
+//                                    role,
+//                                    rs.getTimestamp("createAt")
+//                            );
+//                        }
+//                    }
+//                }
+//            }
+//        } catch (SQLException e) {
+//            System.out.println("Error during login for email: " + email + ": " + e.getMessage());
+//            e.printStackTrace();
+//        }
+//        return null;
+//    }
 
     public Customer getCustomerByEmail(String email) {
         if (email == null) {
@@ -149,28 +149,29 @@ public class CustomerDAO extends DBContext {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error inserting customer: " + e.getMessage());
+            String message = e.getMessage();
+            System.out.println("Error inserting customer: " + message);
             e.printStackTrace();
+
             if (conn != null) {
                 try {
                     conn.rollback();
                 } catch (SQLException ex) {
-                    System.out.println("Error rolling back: " + ex.getMessage());
                     ex.printStackTrace();
                 }
             }
-        } finally {
-            if (conn != null) {
-                try {
-                    conn.setAutoCommit(true);
-                    conn.close();
-                } catch (SQLException e) {
-                    System.out.println("Error closing connection: " + e.getMessage());
-                    e.printStackTrace();
-                }
+
+            // Optional: throw custom exception to tell servlet where it failed
+            if (message.contains("unique_email")) {
+                throw new RuntimeException("Email already exists.");
+            } else if (message.contains("unique_phone")) {
+                throw new RuntimeException("Phone number already exists.");
             }
+
+            return false;
         }
-        return false;
+
+
     }
 
     public boolean updateCustomer(Customer customer) {

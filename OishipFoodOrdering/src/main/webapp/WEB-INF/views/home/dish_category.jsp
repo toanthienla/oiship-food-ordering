@@ -59,9 +59,7 @@
                                 <p class="card-text">Price: <%= menuItem.getFormattedPrice()%> đ</p>
                             </div>
                         </div>
-                    </button>
-
-                   
+                    </button>                  
                 </div>
                 <% }
         } else { %>

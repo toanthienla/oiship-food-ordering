@@ -209,7 +209,7 @@
     </head>
     <body>
         <a href="/OishipFoodOrdering">
-            <img src="images/logo_1.png" alt="Oiship Logo" class="logo" />
+            <img src="../images/logo_1.png" alt="Oiship Logo" class="logo" />
         </a>
 
         <div class="login-container">

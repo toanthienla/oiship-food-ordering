@@ -18,17 +18,20 @@ public class AdminFilter implements Filter {
         String uri = req.getRequestURI();
         String contextPath = req.getContextPath();
         boolean isLoginPage = uri.equals(contextPath + "/admin/login");
+        boolean isDeleteCustomer = uri.equals(contextPath + "/admin/deleteCustomer");
+        boolean isDeleteStaff = uri.equals(contextPath + "/admin/deleteStaff");
         HttpSession session = req.getSession(false);
         String role = (session != null) ? (String) session.getAttribute("role") : null;
         boolean isLoggedIn = session != null && "admin".equals(role);
 
         // Debug logging
         System.out.println("DEBUG: AdminFilter - URI=" + uri + ", isLoginPage=" + isLoginPage
+                + ", isDeleteCustomer=" + isDeleteCustomer + ", isDeleteStaff=" + isDeleteStaff
                 + ", isLoggedIn=" + isLoggedIn + ", role=" + (role != null ? role : "null")
                 + ", time=" + new Date());
 
         try {
-            if (isLoginPage || isLoggedIn) {
+            if (isLoginPage || isDeleteCustomer || isDeleteStaff || isLoggedIn) {
                 chain.doFilter(request, response);
             } else {
                 System.out.println("DEBUG: Redirecting to /admin/login due to unauthorized access at " + new Date());
