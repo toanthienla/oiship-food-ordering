@@ -1,218 +1,165 @@
-<%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@page import="java.util.List"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.LinkedHashMap"%>
+<%@page import="java.util.Arrays"%>
 <%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
-<%@ taglib prefix="fmt" uri="http://java.sun.com/jsp/jstl/fmt" %>
-<%@ taglib prefix="fn" uri="http://java.sun.com/jsp/jstl/functions" %>
+<%@page contentType="text/html" pageEncoding="UTF-8"%>
 <!DOCTYPE html>
 <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <title>Admin Dashboard - Oiship</title>
-        <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css">
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
-        <link rel="stylesheet" href="../css/sidebar.css">
-        <link rel="stylesheet" href="../css/dashboard.css">
-        <script src="../js/sidebar.js"></script>
-        <style>
-            .topbar {
-                padding: 10px 20px;
-                background: #e9ecef;
-                display: flex;
-                justify-content: space-between;
-                align-items: center;
-            }
-            .profile .username {
-                font-weight: 500;
-                margin-right: 10px;
-            }
-            .content {
-                padding: 20px;
-            }
-            .chart-container {
-                position: relative;
-                height: 450px;
-                margin-bottom: 20px;
-            }
-            .error-message {
-                color: red;
-                margin-top: 10px;
-                display: none;
-            }
-        </style>
-    </head>
-    <body>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin - Statistics Dashboard</title>
 
-        <!-- Sidebar -->
-        <jsp:include page="admin_sidebar.jsp" />
+    <!-- Bootstrap 5 CSS & JS -->
+    <link rel="stylesheet" href="<c:url value='/css/bootstrap.css' />" />
+    <script src="<c:url value='/js/bootstrap.bundle.js' />"></script>
 
-        <!-- Main Content -->
-        <div class="main" id="main">
-            <!-- Topbar -->
-            <div class="topbar">
-                <i class="bi bi-list menu-toggle" id="menuToggle"></i>
-                <div class="profile">
-                    <span class="username">Hi, <c:out value="${sessionScope.userName}" default="Admin" /></span>
-                </div>
-            </div>
+    <!--CSS for Dashboard-->
+    <link rel="stylesheet" href="<c:url value='/css/sidebar.css' />" />
+    <link rel="stylesheet" href="<c:url value='/css/dashboard.css' />" />
 
-            <!-- Content -->
-            <div class="content">
-                <h1>Admin Dashboard</h1>
-                <p>Overview of performance. Updated: <fmt:formatDate value="<%= new java.util.Date()%>" pattern="EEE MMM dd HH:mm zzz yyyy" /></p>
+    <!--JS for Sidebar-->
+    <script src="<c:url value='/js/sidebar.js' />"></script>
 
-       
-           
+    <!-- Bootstrap Icons -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons/font/bootstrap-icons.css" />
 
-                <!-- Chart Grid -->
-                <div class="row">
-                    <!-- Order Stats -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card p-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Order Statistics by Month</h5>
-                                <div class="chart-container">
-                                    <canvas id="orderChart"></canvas>
-                                </div>
-                                <div class="error-message" id="orderError"></div>
-                            </div>
-                        </div>
-                    </div>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
-                    <!-- Dish Stats -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card p-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Dish Statistics by Month</h5>
-                                <div class="chart-container">
-                                    <canvas id="dishChart"></canvas>
-                                </div>
-                                <div class="error-message" id="dishError"></div>
-                            </div>
-                        </div>
-                    </div>
+    <style>
+        .year-select-form {
+            margin-bottom: 0;
+        }
+        .year-select {
+            width: 120px;
+            display: inline-block;
+        }
+        .chart-container {
+            position: relative;
+            height: 400px;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
+<body>
+    <!-- Sidebar -->
+    <jsp:include page="admin_sidebar.jsp" />
 
-                    <!-- Payment Stats -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card p-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Payment Statistics by Month</h5>
-                                <div class="chart-container">
-                                    <canvas id="paymentChart"></canvas>
-                                </div>
-                                <div class="error-message" id="paymentError"></div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Total Stats -->
-                    <div class="col-md-6 mb-4">
-                        <div class="card p-4">
-                            <div class="card-body">
-                                <h5 class="card-title">Total Statistics by Month</h5>
-                                <div class="chart-container">
-                                    <canvas id="totalChart"></canvas>
-                                </div>
-                                <div class="error-message" id="totalError"></div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-
-                <!-- Optional message -->
-                <c:if test="${not empty message}">
-                    <div class="alert alert-info mt-3">${message}</div>
-                </c:if>
+    <!-- Main Section -->
+    <div class="main" id="main">
+        <!-- Topbar -->
+        <div class="topbar">
+            <i class="bi bi-list menu-toggle" id="menuToggle"></i>
+            <div class="profile">
+                <span class="username">Hi, Admin</span>
             </div>
         </div>
 
-        <!-- Chart.js Logic -->
-        <script>
-            function convertToJson(dataList) {
-                if (!dataList || dataList.length === 0)
-                    return '[]';
-                return '[' + dataList.map(item => `{ "label": "${item.label}", "value": ${item.value} }`).join(',') + ']';
-            }
+        <!-- Content -->
+        <div class="content">
+            <h1>Statistics Dashboard</h1>
+            <p>Overview of your platform's income trends.</p>
 
-            // Injected Java data
-            const rawOrderStats = ${orderStats != null ? orderStats : []};
-            const rawDishStats = ${dishStats != null ? dishStats : []};
-            const rawPaymentStats = ${paymentStats != null ? paymentStats : []};
-            const rawTotalStats = ${totalStats != null ? totalStats : []};
-
-            // Convert to JSON string
-            const orderStatsData = convertToJson(rawOrderStats);
-            const dishStatsData = convertToJson(rawDishStats);
-            const paymentStatsData = convertToJson(rawPaymentStats);
-            const totalStatsData = convertToJson(rawTotalStats);
-
-            // Parse JSON
-            let orderStats, dishStats, paymentStats, totalStats;
-            try {
-                orderStats = JSON.parse(orderStatsData);
-                dishStats = JSON.parse(dishStatsData);
-                paymentStats = JSON.parse(paymentStatsData);
-                totalStats = JSON.parse(totalStatsData);
-            } catch (e) {
-                console.error("JSON Parse Error:", e.message);
-                orderStats = dishStats = paymentStats = totalStats = [];
-            }
-
-            // Create Chart
-            function createChart(canvasId, data, label, yAxisLabel, errorId) {
-                if (!Array.isArray(data) || data.length === 0) {
-                    document.getElementById(errorId).textContent = `No data available for ${label.toLowerCase()}.`;
-                    document.getElementById(errorId).style.display = 'block';
-                    return;
+            <!-- Income Statistics Chart -->
+            <div class="card mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center">
+                    <h5 class="mb-0">Income Statistics (Monthly)</h5>
+                    <form method="get" action="" class="year-select-form">
+                        <select name="year" onchange="this.form.submit()" class="form-select year-select">
+                            <%
+                                List<Integer> years = (List<Integer>) request.getAttribute("availableYears");
+                                int selectedYear = (request.getAttribute("selectedYear") != null)
+                                        ? (Integer) request.getAttribute("selectedYear")
+                                        : java.time.Year.now().getValue();
+                                if (years != null) {
+                                    for (Integer y : years) {
+                            %>
+                            <option value="<%=y%>" <%= (y == selectedYear) ? "selected" : ""%>><%=y%></option>
+                            <%
+                                    }
+                                }
+                            %>
+                        </select>
+                    </form>
+                </div>
+                <div class="card-body">
+                    <div class="chart-container">
+                        <canvas id="incomeChart"></canvas>
+                    </div>
+                </div>
+            </div>
+            <!-- End Income Chart -->
+        </div>
+    </div>
+    <script>
+        // Prepare chart data from backend attributes
+        <% 
+            Map<Integer, Double> monthlyIncomeMap = (Map<Integer, Double>) request.getAttribute("monthlyIncomeMap");
+            List<String> monthNames = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                                                    "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+            StringBuilder labelsJs = new StringBuilder("[");
+            StringBuilder dataJs = new StringBuilder("[");
+            for (int i = 1; i <= 12; i++) {
+                if (i > 1) {
+                    labelsJs.append(",");
+                    dataJs.append(",");
                 }
-
-                new Chart(document.getElementById(canvasId).getContext('2d'), {
-                    type: 'bar',
-                    data: {
-                        labels: data.map(item => item.label),
-                        datasets: [{
-                                label: label,
-                                data: data.map(item => item.value),
-                                backgroundColor: 'rgba(54, 162, 235, 0.6)',
-                                borderColor: 'rgba(54, 162, 235, 1)',
-                                borderWidth: 1
-                            }]
-                    },
-                    options: {
-                        indexAxis: 'x',
-                        scales: {
-                            x: {
-                                title: {display: true, text: 'Month'}
-                            },
-                            y: {
-                                beginAtZero: true,
-                                title: {display: true, text: yAxisLabel}
-                            }
-                        },
-                        plugins: {
-                            legend: {display: true},
-                            tooltip: {enabled: true},
-                            datalabels: {
-                                anchor: 'end',
-                                align: 'top',
-                                color: '#000',
-                                font: {weight: 'bold'},
-                                formatter: value => value
-                            }
-                        },
-                        maintainAspectRatio: false
-                    },
-                    plugins: [ChartDataLabels]
-                });
+                labelsJs.append("\"").append(monthNames.get(i - 1)).append("\"");
+                double income = (monthlyIncomeMap != null && monthlyIncomeMap.get(i) != null) ? monthlyIncomeMap.get(i) : 0.0;
+                dataJs.append(income);
             }
+            labelsJs.append("]");
+            dataJs.append("]");
+        %>
+        const labels = <%= labelsJs.toString()%>;
+        const data = <%= dataJs.toString()%>;
+        const selectedYear = <%= request.getAttribute("selectedYear") != null ? request.getAttribute("selectedYear") : java.time.Year.now().getValue()%>;
 
-            document.addEventListener('DOMContentLoaded', function () {
-                createChart('orderChart', orderStats, 'Number of Orders', 'Orders', 'orderError');
-                createChart('dishChart', dishStats, 'Number of Dishes', 'Dishes', 'dishError');
-                createChart('paymentChart', paymentStats, 'Payment Amount', 'Amount', 'paymentError');
-                createChart('totalChart', totalStats, 'Total Combined Value', 'Total', 'totalError');
-            });
-        </script>
-
-    </body>
+        const ctx = document.getElementById('incomeChart').getContext('2d');
+        const incomeChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                        label: 'Income in ' + selectedYear,
+                        data: data,
+                        backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                        borderColor: 'rgba(13, 110, 253, 1)',
+                        borderWidth: 1
+                    }]
+            },
+            options: {
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top'
+                    },
+                    datalabels: {
+                        display: true,
+                        color: '#000',
+                        anchor: 'end',
+                        align: 'top',
+                        formatter: function (value) {
+                            return value.toLocaleString();
+                        }
+                    }
+                },
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        title: {
+                            display: true,
+                            text: 'Income (VND)'
+                        }
+                    }
+                }
+            },
+            plugins: [ChartDataLabels]
+        });
+    </script>
+</body>
 </html>
