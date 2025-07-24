@@ -11,6 +11,8 @@ import model.Dish;
 import model.Ingredient;
 import model.OrderDetail;
 import utils.TotalPriceCalculator;
+import java.sql.*;
+import java.util.*;
 
 public class OrderDAO extends DBContext {
 
@@ -943,33 +945,43 @@ public class OrderDAO extends DBContext {
 
     }
 
-    // public int createOrder(Order order, Integer voucherID) throws SQLException {
-    // String sql = "INSERT INTO [Order] (amount, orderStatus, paymentStatus,
-    // orderCreatedAt, orderUpdatedAt, FK_Order_Customer, FK_Order_Voucher) "
-    // + "VALUES (?, ?, ?, GETDATE(), GETDATE(), ?, ?)";
-    //
-    // try (Connection conn = getConnection(); PreparedStatement ps =
-    // conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
-    //
-    // ps.setBigDecimal(1, order.getAmount());
-    // ps.setInt(2, order.getOrderStatus());
-    // ps.setInt(3, order.getPaymentStatus());
-    // ps.setInt(4, order.getCustomerID());
-    //
-    // if (voucherID != null) {
-    // ps.setInt(5, voucherID);
-    // } else {
-    // ps.setNull(5, Types.INTEGER);
-    // }
-    //
-    // ps.executeUpdate();
-    //
-    // try (ResultSet rs = ps.getGeneratedKeys()) {
-    // if (rs.next()) {
-    // return rs.getInt(1);
-    // }
-    // }
-    // }
-    // return -1;
-    // }
+     // Get list of years that have orders
+    public List<Integer> getAvailableOrderYears() {
+        List<Integer> years = new ArrayList<>();
+        String sql = "SELECT DISTINCT YEAR(orderCreatedAt) AS y FROM [Order] ORDER BY y DESC";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            while (rs.next()) {
+                years.add(rs.getInt("y"));
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return years;
+    }
+
+    // Get month->income map for a year
+    public Map<Integer, Double> getMonthlyIncomeMap(int year) {
+        Map<Integer, Double> map = new LinkedHashMap<>();
+        String sql = "SELECT MONTH(orderCreatedAt) AS m, SUM(amount) AS total " +
+                     "FROM [Order] WHERE YEAR(orderCreatedAt)=? AND orderStatus=4 " +
+                     "GROUP BY MONTH(orderCreatedAt)";
+        try (Connection conn = getConnection();
+             PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, year);
+            try (ResultSet rs = ps.executeQuery()) {
+                while (rs.next()) {
+                    map.put(rs.getInt("m"), rs.getDouble("total"));
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        // Ensure all 12 months exist
+        for (int i = 1; i <= 12; i++) {
+            map.putIfAbsent(i, 0.0);
+        }
+        return map;
+    }
 }
