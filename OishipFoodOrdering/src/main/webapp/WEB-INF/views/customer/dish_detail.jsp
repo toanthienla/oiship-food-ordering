@@ -100,7 +100,7 @@
                                    id="quantityInput"
                                    value="1"
                                    min="1"
-                                   max="10"
+                                   max="50"
                                    data-stock="<%= stock%>"
                                    class="form-control text-center"
                                    style="width: 80px;"
@@ -149,9 +149,9 @@
                 let price = parseInt(<%= dish.getTotalPrice().intValue()%>);
                 let stock = parseInt(input.getAttribute("data-stock"));
 
-                if (qty > 10) {
-                    alert("The maximum quantity is 10.");
-                    qty = 10;
+                if (qty > 50) {
+                    alert("The maximum quantity is 50.");
+                    qty = 50;
                 }
 
                 if (qty > stock) {
@@ -181,9 +181,9 @@
                     return false;
                 }
 
-                if (qty > 10) {
-                    alert("The maximum quantity is 10.");
-                    input.value = 10;
+                if (qty > 50) {
+                    alert("The maximum quantity is 50.");
+                    input.value = 50;
                     return false;
                 }
 

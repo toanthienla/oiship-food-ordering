@@ -247,7 +247,7 @@
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Rating:</label>
-                            <input type="number" name="rating" min="1" max="5" class="form-control" required>
+                            <input type="number" name="rating" min ="1" max="5" class="form-control" required>
                         </div>
                         <div class="mb-3">
                             <label class="form-label">Comment:</label>
@@ -285,12 +285,16 @@
                         });
         </script>
 
-        <% if (request.getAttribute("error") != null) { %>
-        <script>
-            const reviewModal = document.getElementById('reviewModal');
-            reviewModal.show();
-        </script>
-        <% }%>
+      
+<% if ("true".equals(String.valueOf(request.getAttribute("showReviewModal")))) { %>
+<script>
+    const reviewModal = new bootstrap.Modal(document.getElementById('reviewModal'));
+    reviewModal.show();
+    document.getElementById("modalOdid").value = "<%= request.getAttribute("odid") %>";
+    document.getElementById("modalDishName").value = "<%= request.getAttribute("dishName") %>";
+</script>
+<% } %>
+
         <script>
            
             const reviewForm = document.querySelector('#reviewModal form');

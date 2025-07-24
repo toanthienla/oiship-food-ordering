@@ -180,9 +180,9 @@
 
     
 
-    if (qty > 10) {
-        qty = 10;
-        alert("The maximum quantity is 10.");
+    if (qty > 50) {
+        qty = 50;
+        alert("The maximum quantity is 50.");
     }
     if (qty > maxStock) {
         qty = maxStock;
@@ -215,9 +215,9 @@
                 let qty = parseInt(input.value);
 
                 qty += delta;
-                if (qty > 10) {
-                    qty = 10;
-                    alert("The maximum quantity is 10.");
+                if (qty > 50) {
+                    qty = 50;
+                    alert("The maximum quantity is 50.");
                 }
                 if (qty > maxStock) {
                     qty = maxStock;
@@ -294,8 +294,8 @@
                             headers: {"Content-Type": "application/x-www-form-urlencoded"},
                             body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
                         });
-                    } else if (qty > 10) {
-                        alert("Maximum quantity is 10.");
+                    } else if (qty > 50) {
+                        alert("Maximum quantity is 50.");
                         qty = 10;
                         qtyInput.value = qty;
                         isValid = false;
