@@ -39,8 +39,28 @@
         }
         .chart-container {
             position: relative;
-            height: 400px;
+            width: 100%;
+            min-width: 350px;
+            height: 420px;
             margin-bottom: 20px;
+        }
+        #incomeChart {
+            width: 100% !important;
+            height: 400px !important;
+            max-width: 100vw;
+            display: block;
+        }
+        .card.mb-4 {
+            border-radius: 10px;
+            box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+        }
+        .card-header {
+            border-radius: 10px 10px 0 0;
+            background: #f8fafc;
+            font-weight: 500;
+            color: #222;
+            font-size: 1.1rem;
+            border-bottom: 1px solid #eaeaea;
         }
     </style>
 </head>
@@ -128,10 +148,12 @@
                         data: data,
                         backgroundColor: 'rgba(13, 110, 253, 0.6)',
                         borderColor: 'rgba(13, 110, 253, 1)',
-                        borderWidth: 1
+                        borderWidth: 1,
+                        maxBarThickness: 38
                     }]
             },
             options: {
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: true,
@@ -149,8 +171,12 @@
                 },
                 responsive: true,
                 scales: {
+                    x: {
+                        grid: { display: false }
+                    },
                     y: {
                         beginAtZero: true,
+                        grid: { color: "#eee" },
                         title: {
                             display: true,
                             text: 'Income (VND)'
