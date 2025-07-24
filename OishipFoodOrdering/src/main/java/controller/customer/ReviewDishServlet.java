@@ -1,3 +1,4 @@
+
 package controller.customer;
 
 import dao.OrderDAO;
@@ -9,7 +10,6 @@ import java.io.IOException;
 import java.util.List;
 import model.Order;
 
-
 @WebServlet(name = "ReviewDishServlet", urlPatterns = {"/customer/review"})
 public class ReviewDishServlet extends HttpServlet {
 
@@ -20,7 +20,7 @@ public class ReviewDishServlet extends HttpServlet {
         try {
             int odid = Integer.parseInt(request.getParameter("odid"));
             String dishName = request.getParameter("dishName");
-            int rating = Integer.parseInt(request.getParameter("rating"));
+            //  int rating = Integer.parseInt(request.getParameter("rating"));
             String comment = request.getParameter("comment");
 
             HttpSession session = request.getSession(false);
@@ -30,35 +30,25 @@ public class ReviewDishServlet extends HttpServlet {
             }
 
             int customerId = (int) session.getAttribute("userId");
+            int rating = Integer.parseInt(request.getParameter("rating"));
+            if (rating < 1 || rating > 5) {
+                prepareOrderHistoryForReview(request, customerId);
+                request.setAttribute("error", "Rating must be between 1 and 5.");
+                request.setAttribute("showReviewModal", true);
+                request.setAttribute("odid", odid);
+                request.setAttribute("dishName", dishName);
+                request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
+                return;
+            }
 
             if (comment != null && comment.length() > 255) {
+                prepareOrderHistoryForReview(request, customerId);
                 request.setAttribute("error", "Comment cannot exceed 255 characters.");
-                
-                
-                  try {
-            OrderDAO orderDAO = new OrderDAO();
-            List<Order> orderList = orderDAO.getAllOrdersWithDetailsByCustomerId(customerId);
-
-            String[] orderStatusText = {
-                "Pending", "Confirmed", "Preparing", "Out for Delivery",
-                "Delivered", "Cancelled", "Failed"
-            };
-
-//            String[] paymentStatusText = {
-//                "Unpaid", "Paid", "Refunded"
-//            };
-
-            request.setAttribute("orderHistory", orderList);
-            request.setAttribute("orderStatusText", orderStatusText);
-           // request.setAttribute("paymentStatusText", paymentStatusText);
-
-            request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
-
-        } catch (Exception e) {
-            e.printStackTrace();
-            request.setAttribute("error", "Không thể hiển thị lịch sử đơn hàng.");
-            request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
-        }
+                request.setAttribute("showReviewModal", true);
+                request.setAttribute("odid", odid);
+                request.setAttribute("dishName", dishName);
+                request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
+                return;
             }
 
             ReviewDAO dao = new ReviewDAO();
@@ -72,6 +62,23 @@ public class ReviewDishServlet extends HttpServlet {
         }
     }
 
+    private void prepareOrderHistoryForReview(HttpServletRequest request, int customerId) {
+        try {
+            OrderDAO orderDAO = new OrderDAO();
+            List<Order> orderList = orderDAO.getAllOrdersWithDetailsByCustomerId(customerId);
+            String[] orderStatusText = {
+                "Pending", "Confirmed", "Preparing", "Out for Delivery",
+                "Delivered", "Cancelled", "Failed"
+            };
+
+            request.setAttribute("orderHistory", orderList);
+            request.setAttribute("orderStatusText", orderStatusText);
+        } catch (Exception e) {
+            e.printStackTrace();
+            request.setAttribute("error", "Không thể hiển thị lịch sử đơn hàng.");
+        }
+    }
+
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -80,6 +87,6 @@ public class ReviewDishServlet extends HttpServlet {
 
     @Override
     public String getServletInfo() {
-        return "Hiển thị form đánh giá món ăn thông qua POST";
+        return "Handles dish review submission";
     }
 }

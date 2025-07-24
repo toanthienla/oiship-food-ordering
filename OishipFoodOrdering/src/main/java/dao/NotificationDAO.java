@@ -98,7 +98,7 @@ public class NotificationDAO extends DBContext {
                 + "        JOIN CustomerNotification cn ON n.notID = cn.notID\n"
                 + "        WHERE cn.customerID = ? AND cn.isRead = 0\n"
                 + "        ORDER BY n.notID DESC ";
-
+        
         try (
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
