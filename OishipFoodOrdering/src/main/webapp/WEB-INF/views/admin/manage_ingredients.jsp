@@ -18,7 +18,12 @@
         <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
-
+        <style>
+        /* Ensure select2 dropdown is above the modal */
+        .select2-container--open {
+            z-index: 9999 !important;
+        }
+        </style>
     </head>
     <body>
         <jsp:include page="admin_sidebar.jsp" />
@@ -33,7 +38,6 @@
 
             <div class="content">
                 <h1>Manage Ingredients for Dishes</h1>
-
                 <ul class="nav nav-tabs" id="ingredientTab" role="tablist">
                     <li class="nav-item" role="presentation">
                         <button class="nav-link active" id="all-tab" data-bs-toggle="tab" data-bs-target="#allIngredients" type="button" role="tab">All Ingredients</button>
@@ -45,81 +49,17 @@
 
                 <div class="tab-content mt-3" id="ingredientTabContent">
                     <div class="tab-pane fade show active" id="allIngredients" role="tabpanel">
-                        <form action="manage-ingredients" method="post" class="row">
-                            <div class="col-6 mb-3">
-                                <label class="form-label">Select Dish</label>
-                                <select class="form-select select2" name="dishID" required style="width: 100%;">
-                                    <option value="">-- Select a Dish --</option>
-                                    <c:forEach var="dish" items="${dishes}">
-                                        <option value="${dish.dishID}">${dish.dishName}</option>
-                                    </c:forEach>
-                                </select>
-                            </div>
-
-                            <div class="col-12">
-                                <!-- Step 1: Choose Mode -->
-                                <label class="form-label">Ingredient Input Mode</label>
-                                <select id="ingredientMode" name="ingredientMode" class="form-select mb-3">
-                                    <option value="new" selected>Create New Ingredient</option>
-                                    <option value="existing">Select Existing Ingredient</option>
-                                </select>
-
-                                <!-- Step 2A: Select Existing Ingredient -->
-                                <div id="existingIngredientSection" class="mb-3" style="display: none;">
-                                    <label for="ingredientSelect" class="form-label fw-semibold">Choose Existing Ingredient</label>
-                                    <select class="form-select select2" id="ingredientSelect" name="ingredientId" style="width: 100%;">
-                                        <option value="">-- Select an Ingredient --</option>
-                                        <c:forEach var="ing" items="${ingredients}">
-                                            <option value="${ing.ingredientId}" data-name="${ing.ingredientName}" data-cost="${ing.unitCost}">
-                                                ${ing.ingredientName} — ${ing.unitCost} vnđ/kg
-                                            </option>
-                                        </c:forEach>
-                                    </select>
-                                </div>
-
-                                <!-- Step 2B: Create New Ingredient -->
-                                <div id="newIngredientSection" class="row g-3">
-                                    <div class="col-md-6">
-                                        <label class="form-label">New Ingredient Name</label>
-                                        <input type="text" class="form-control" name="newName" placeholder="e.g., Garlic, Tofu">
-                                    </div>
-                                    <div class="col-md-6">
-                                        <label class="form-label">Unit Cost (vnđ/kg)</label>
-                                        <input type="number" class="form-control" name="newCost" step="0.01" placeholder="e.g., 12000">
-                                    </div>
-                                </div>
-                            </div>
-
-                            <!-- New Ingredient Input -->
-                            <div id="newIngredientSection" class="row g-3 mt-0" style="display: none;">
-                                <div class="col-md-6">
-                                    <label class="form-label">New Ingredient Name</label>
-                                    <input type="text" name="newName" class="form-control" placeholder="e.g. Bơ, Hành, ..." />
-                                </div>
-                                <div class="col-md-6">
-                                    <label class="form-label">Unit Cost (vnđ/kg)</label>
-                                    <input type="number" step="0.01" name="newCost" class="form-control" placeholder="e.g. 12000" />
-                                </div>
-                            </div>
-
-                            <!-- Quantity -->
-                            <div class="col-md-6 mb-3 mt-3">
-                                <label class="form-label">Quantity (kg/dish)</label>
-                                <input type="number" step="0.01" name="quantity" class="form-control" required placeholder="e.g. 0.1" />
-                            </div>
-
-                            <!-- Submit Button -->
-                            <div class="col-12">
-                                <input type="hidden" name="action" value="add" />
-                                <button type="submit" class="btn btn-success">Add Ingredient to Dish</button>
-                            </div>
-                        </form>
+                        <!-- Add Ingredient Button -->
+                        <div class="mb-3">
+                            <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addIngredientModal">
+                                <i class="bi bi-plus-circle me-1"></i> Add Ingredient to Dish
+                            </button>
+                        </div>
 
                         <!-- Ingredient Alert (Tab 1) -->
                         <div id="ingredientAlert" class="alert mt-3 d-none" role="alert"></div>
 
-                        <h4 class="mt-5">All Ingredients</h4>
-
+                        <h4 class="mt-2">All Ingredients</h4>
                         <!-- Search Box -->
                         <div class="col-md-6 mt-3 mb-3">
                             <div class="d-flex align-items-center">
@@ -199,6 +139,75 @@
                 </div>
             </div>
 
+            <!-- ✅ ADD INGREDIENT MODAL -->
+            <div class="modal fade" id="addIngredientModal" tabindex="-1" aria-labelledby="addIngredientModalLabel" aria-hidden="true">
+                <div class="modal-dialog">
+                    <form action="manage-ingredients" method="post" class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="addIngredientModalLabel">Add Ingredient to Dish</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body row">
+                            <div class="col-12 mb-3">
+                                <label class="form-label">Select Dish</label>
+                                <select class="form-select select2" name="dishID" required style="width: 100%;">
+                                    <option value="">-- Select a Dish --</option>
+                                    <c:forEach var="dish" items="${dishes}">
+                                        <option value="${dish.dishID}">${dish.dishName}</option>
+                                    </c:forEach>
+                                </select>
+                            </div>
+
+                            <div class="col-12">
+                                <!-- Step 1: Choose Mode -->
+                                <label class="form-label">Ingredient Input Mode</label>
+                                <select id="ingredientModeModal" name="ingredientMode" class="form-select mb-3">
+                                    <option value="new" selected>Create New Ingredient</option>
+                                    <option value="existing">Select Existing Ingredient</option>
+                                </select>
+
+                                <!-- Step 2A: Select Existing Ingredient -->
+                                <div id="existingIngredientSectionModal" class="mb-3" style="display: none;">
+                                    <label for="ingredientSelectModal" class="form-label fw-semibold">Choose Existing Ingredient</label>
+                                    <select class="form-select select2" id="ingredientSelectModal" name="ingredientId" style="width: 100%;">
+                                        <option value="">-- Select an Ingredient --</option>
+                                        <c:forEach var="ing" items="${ingredients}">
+                                            <option value="${ing.ingredientId}" data-name="${ing.ingredientName}" data-cost="${ing.unitCost}">
+                                                ${ing.ingredientName} — ${ing.unitCost} vnđ/kg
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                </div>
+
+                                <!-- Step 2B: Create New Ingredient -->
+                                <div id="newIngredientSectionModal" class="row g-3">
+                                    <div class="col-md-6">
+                                        <label class="form-label">New Ingredient Name</label>
+                                        <input type="text" class="form-control" name="newName" placeholder="e.g., Garlic, Tofu">
+                                    </div>
+                                    <div class="col-md-6">
+                                        <label class="form-label">Unit Cost (vnđ/kg)</label>
+                                        <input type="number" class="form-control" name="newCost" step="0.01" placeholder="e.g., 12000">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Quantity -->
+                            <div class="col-md-6 mb-3 mt-3">
+                                <label class="form-label">Quantity (kg/dish)</label>
+                                <input type="number" step="0.01" name="quantity" class="form-control" required placeholder="e.g. 0.1" />
+                            </div>
+
+                            <!-- Submit Button -->
+                            <div class="col-12">
+                                <input type="hidden" name="action" value="add" />
+                                <button type="submit" class="btn btn-success">Add Ingredient to Dish</button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- ✅ EDIT MODAL FOR TAB 1 -->
             <div class="modal fade" id="editModal" tabindex="-1" aria-labelledby="editModalLabel" aria-hidden="true">
                 <div class="modal-dialog">
@@ -273,16 +282,41 @@
                 }<c:if test="${!loop.last}">,</c:if>
                 </c:forEach>
                 ];
-                
-                // Select dish (Tab 1)
+
+                // --- Select2 initialization with dropdownParent for modal ---
                 $(document).ready(function () {
-                    $('.select2').select2({
+                    // Global select2 for outside modal
+                    $('.tab-pane.active .select2').select2({
                         placeholder: "-- Select a Dish --",
                         allowClear: true,
                         width: 'resolve'
                     });
+
+                    // Select2 for modal: Add Ingredient
+                    $('#addIngredientModal').on('shown.bs.modal', function () {
+                        $(this).find('.select2').select2({
+                            dropdownParent: $('#addIngredientModal'),
+                            placeholder: "-- Select a Dish --",
+                            allowClear: true,
+                            width: 'resolve'
+                        });
+                    });
+
+                    // Toggle ingredient section in Add Ingredient Modal
+                    function toggleIngredientSectionsModal() {
+                        const mode = $('#ingredientModeModal').val();
+                        if (mode === "existing") {
+                            $('#existingIngredientSectionModal').show();
+                            $('#newIngredientSectionModal').hide();
+                        } else {
+                            $('#existingIngredientSectionModal').hide();
+                            $('#newIngredientSectionModal').show();
+                        }
+                    }
+                    $('#ingredientModeModal').on('change', toggleIngredientSectionsModal);
+                    toggleIngredientSectionsModal();
                 });
-                
+
                 // Select dish (Tab 2)
                 $(document).ready(function () {
                     // Init Select2
@@ -362,32 +396,6 @@
                     const urlParams = new URLSearchParams(window.location.search);
                     return urlParams.get(param);
                 }
-
-                // Select Ingredient (Tab 1)
-                $(document).ready(function () {
-                    $('#ingredientSelect').select2({
-                        placeholder: "-- Select an Ingredient --",
-                        allowClear: true,
-                        width: 'resolve'
-                    });
-
-                    function toggleIngredientSections() {
-                        const mode = $('#ingredientMode').val();
-                        if (mode === "existing") {
-                            $('#existingIngredientSection').show();
-                            $('#newIngredientSection').hide();
-                        } else {
-                            $('#existingIngredientSection').hide();
-                            $('#newIngredientSection').show();
-                        }
-                    }
-
-                    // Trigger toggle on change
-                    $('#ingredientMode').on('change', toggleIngredientSections);
-
-                    // Initial state on page load
-                    toggleIngredientSections();
-                });
 
                 // Search Ingredient (Tab 1)
                 document.getElementById("ingredientSearch").addEventListener("input", function () {

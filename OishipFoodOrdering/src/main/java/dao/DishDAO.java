@@ -141,11 +141,14 @@ public class DishDAO extends DBContext {
                 BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
                 BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
                         item.getOpCost(), item.getInterestPercentage(), ingredientCost);
+
+                BigDecimal profit = totalPrice.subtract(item.getOpCost().add(ingredientCost));
                 item.setIngredients(ingredients);
-                item.setFormattedIngredientsPrice(TotalPriceCalculator.formatVND(ingredientCost)); 
+                item.setFormattedIngredientsPrice(TotalPriceCalculator.formatVND(ingredientCost));
                 item.setTotalPrice(totalPrice);
                 item.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
                 item.setFormattedOpCost(TotalPriceCalculator.formatVND(item.getOpCost()));
+                item.setFormattedProfit(TotalPriceCalculator.formatVND(profit)); 
 
                 String catName = rs.getString("catName");
                 if (catName != null) {
@@ -296,7 +299,7 @@ public class DishDAO extends DBContext {
             stmt.setInt(1, quantity);
             stmt.setInt(2, dishId);
             stmt.setInt(3, quantity);
-            return stmt.executeUpdate() > 0; 
+            return stmt.executeUpdate() > 0;
         }
     }
 

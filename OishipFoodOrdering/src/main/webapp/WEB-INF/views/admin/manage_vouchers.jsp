@@ -38,83 +38,119 @@
                 <h1>Manage Vouchers</h1>
                 <p>Manage promotional vouchers for your restaurant system.</p>
 
-                <form action="manage-vouchers" method="post" class="row g-3 mt-4" onsubmit="return validateVoucherForm()">
-                    <input type="hidden" name="action" value="add" />
+                <!-- Add Voucher Button -->
+                <div class="mb-4">
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addVoucherModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Voucher
+                    </button>
+                </div>
 
-                    <!-- Row 1: Code + Active -->
-                    <div class="col-md-4">
-                        <label class="form-label">Code</label>
-                        <input type="text" name="code" class="form-control" required />
-                    </div>
-                    <div class="col-md-2">
-                        <label class="form-label">Active</label>
-                        <select name="active" class="form-select">
-                            <option value="1">Yes</option>
-                            <option value="0">No</option>
-                        </select>
-                    </div>
+                <!-- Add Voucher Modal -->
+                <div class="modal fade" id="addVoucherModal" tabindex="-1" aria-labelledby="addVoucherModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <form action="manage-vouchers" method="post" class="modal-content" onsubmit="return validateVoucherFormModal()">
+                            <input type="hidden" name="action" value="add" />
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="addVoucherModalLabel">Add Voucher</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body row g-3">
+                                <!-- Code + Active -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Code</label>
+                                    <input type="text" name="code" class="form-control" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Active</label>
+                                    <select name="active" class="form-select">
+                                        <option value="1">Yes</option>
+                                        <option value="0">No</option>
+                                    </select>
+                                </div>
 
-                    <!-- Row 2: Description -->
-                    <div class="col-md-12">
-                        <label class="form-label">Description</label>
-                        <textarea name="description" class="form-control" rows="3" placeholder="Enter voucher description"></textarea>
-                    </div>
+                                <!-- Description -->
+                                <div class="col-md-12">
+                                    <label class="form-label">Description</label>
+                                    <textarea name="description" class="form-control" rows="3" placeholder="Enter voucher description"></textarea>
+                                </div>
 
-                    <!-- Row 3: Discount Type, Discount Value, Max Discount -->
-                    <div class="col-md-2">
-                        <label class="form-label">Discount Type</label>
-                        <select name="discountType" id="discountType" class="form-select" required onchange="toggleMaxDiscountField()">
-                            <option value="%">Percentage (%)</option>
-                            <option value="VND">Fixed (VND)</option>
-                        </select>
-                    </div>
+                                <!-- Discount Type, Discount Value, Max Discount -->
+                                <div class="col-md-4">
+                                    <label class="form-label">Discount Type</label>
+                                    <select name="discountType" id="discountTypeModal" class="form-select" required onchange="toggleMaxDiscountFieldModal()">
+                                        <option value="%">Percentage (%)</option>
+                                        <option value="VND">Fixed (VND)</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-4">
+                                    <label class="form-label">Discount Value</label>
+                                    <div class="input-group">
+                                        <input type="number" name="discount" step="0.01" class="form-control" required />
+                                        <span class="input-group-text" id="discountSuffixModal">%</span>
+                                    </div>
+                                </div>
+                                <div class="col-md-4" id="maxDiscountGroupModal">
+                                    <label class="form-label">Max Discount (VND)</label>
+                                    <input type="number" name="maxDiscount" id="maxDiscountModal" step="0.01" class="form-control" />
+                                </div>
 
-                    <!-- Discount Value with dynamic suffix -->
-                    <div class="col-md-4">
-                        <label class="form-label">Discount Value</label>
-                        <div class="input-group">
-                            <input type="number" name="discount" step="0.01" class="form-control" required />
-                            <span class="input-group-text" id="discountSuffix">%</span>
+                                <!-- Min Order -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Min Order Value (VND)</label>
+                                    <input type="number" name="minOrder" step="0.01" class="form-control" required />
+                                </div>
+
+                                <!-- Start Date, End Date, Usage Limit -->
+                                <div class="col-md-6">
+                                    <label class="form-label">Start Date</label>
+                                    <input type="date" name="startDate" id="startDateModal" class="form-control" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">End Date</label>
+                                    <input type="date" name="endDate" id="endDateModal" class="form-control" required />
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Usage Limit</label>
+                                    <input type="number" name="usageLimit" class="form-control" required />
+                                </div>
+                            </div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                                <button type="submit" class="btn btn-success">Add Voucher</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Voucher Terms Modal -->
+                <div class="modal fade" id="voucherTermsModal" tabindex="-1" aria-labelledby="voucherTermsModalLabel" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title" id="voucherTermsModalLabel">Voucher Terms</h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                            </div>
+                            <div class="modal-body">
+                                <div class="mb-2">
+                                    <h5 id="voucherTermsTitle" class="fw-bold"></h5>
+                                    <div id="voucherTermsDescription" class="mb-2 text-muted"></div>
+                                </div>
+                                <hr>
+                                <div>
+                                    <div><span class="fw-normal">Minimum Order Value:</span> <span id="voucherTermsMin"></span> VND</div>
+                                    <div id="voucherTermsMaxDiv" style="display:none;"><span class="fw-normal">Maximum Discount Value:</span> <span id="voucherTermsMax"></span> VND</div>
+                                    <div><span class="fw-normal">Start Date:</span> <span id="voucherTermsStart"></span></div>
+                                    <div><span class="fw-normal">End Date:</span> <span id="voucherTermsEnd"></span></div>
+                                </div>
+                            </div>
                         </div>
                     </div>
-
-                    <!-- Max Discount -->
-                    <div class="col-md-3" id="maxDiscountGroup">
-                        <label class="form-label">Max Discount (VND)</label>
-                        <input type="number" name="maxDiscount" id="maxDiscount" step="0.01" class="form-control" />
-                    </div>
-
-                    <!-- Row 4: Min Order -->
-                    <div class="col-md-3">
-                        <label class="form-label">Min Order Value (VND)</label>
-                        <input type="number" name="minOrder" step="0.01" class="form-control" required />
-                    </div>
-
-                    <!-- Row 5: Start Date, End Date, Usage Limit -->
-                    <div class="col-md-4">
-                        <label class="form-label">Start Date</label>
-                        <input type="date" name="startDate" id="startDate" class="form-control" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">End Date</label>
-                        <input type="date" name="endDate" id="endDate" class="form-control" required />
-                    </div>
-                    <div class="col-md-4">
-                        <label class="form-label">Usage Limit</label>
-                        <input type="number" name="usageLimit" class="form-control" required />
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-success">Add Voucher</button>
-                    </div>
-                </form>
+                </div>
 
                 <!-- Alert placeholder -->
                 <div id="actionAlert" class="alert mt-3 d-none" role="alert"></div>
 
                 <!-- Existing Vouchers -->
-                <!-- Voucher Table -->
                 <div class="mt-5">
                     <h4>Existing Vouchers</h4>
                     <div class="col-md-6 mt-3">
@@ -160,7 +196,6 @@
                                         <td>${v.usedCount} / ${v.usageLimit}</td>
                                         <td class="text-center">
                                             <div class="d-flex flex-column gap-1 align-items-center">
-                                                <!-- Row 1: Edit and Delete side by side -->
                                                 <div class="d-flex gap-1 w-100 justify-content-center">
                                                     <button class="btn btn-sm btn-primary w-50"
                                                             data-id="${v.voucherID}"
@@ -184,10 +219,10 @@
                                                         <button type="submit" class="btn btn-sm btn-danger w-100">Delete</button>
                                                     </form>
                                                 </div>
-
-                                                <!-- Row 2: Voucher Terms full width -->
                                                 <button class="btn btn-sm btn-secondary w-100"
                                                         onclick="showVoucherTerms(this); event.stopPropagation();"
+                                                        data-title="${v.code}"
+                                                        data-desc="${v.voucherDescription}"
                                                         data-type="${v.discountType}"
                                                         data-min="${v.minOrderValue}"
                                                         data-max="${v.maxDiscountValue}"
@@ -208,7 +243,7 @@
 
         <!-- Edit Voucher Modal -->
         <div class="modal fade" id="editVoucherModal" tabindex="-1" aria-hidden="true">
-            <div class="modal-dialog">
+            <div class="modal-dialog modal-dialog-centered">
                 <form action="manage-vouchers" method="post" class="modal-content">
                     <input type="hidden" name="action" value="edit" />
                     <input type="hidden" id="editID" name="voucherID" />
@@ -350,13 +385,6 @@
                 }
             });
 
-            function toggleDescription(item) {
-                const desc = item.querySelector('.cat-description');
-                if (desc) {
-                    desc.style.display = (desc.style.display === 'none' || desc.style.display === '') ? 'block' : 'none';
-                }
-            }
-
             function handleEditClick(button) {
                 document.getElementById("editID").value = button.dataset.id;
                 document.getElementById("editCode").value = button.dataset.code;
@@ -394,54 +422,39 @@
                 return true;
             }
 
+            // --- Voucher Terms as Modal ---
             function showVoucherTerms(button) {
-                const mainRow = button.closest('tr');
-                const nextRow = mainRow.nextElementSibling;
+                // Set title and description
+                document.getElementById('voucherTermsTitle').textContent = button.getAttribute('data-title') || '';
+                document.getElementById('voucherTermsDescription').textContent = button.getAttribute('data-desc') || '';
 
-                // Toggle detail row
-                if (nextRow && nextRow.classList.contains('voucher-detail-row')) {
-                    nextRow.remove();
-                    return;
+                // Format numbers and dates
+                function formatVND(num) {
+                    return Number(num || 0).toLocaleString('vi-VN');
                 }
-
-                // Remove any other open detail rows
-                document.querySelectorAll('.voucher-detail-row').forEach(function (row) {
-                    row.remove();
-                });
-
-                const formatDate = function (dateString) {
-                    if (!dateString)
-                        return 'N/A';
+                function formatDate(dateString) {
+                    if (!dateString) return 'N/A';
                     const date = new Date(dateString);
                     return isNaN(date) ? 'N/A' : new Intl.DateTimeFormat('vi-VN').format(date);
-                };
-
-                const min = Number(button.getAttribute("data-min") || 0).toLocaleString('vi-VN');
-                const max = Number(button.getAttribute("data-max") || 0).toLocaleString('vi-VN');
-                const start = formatDate(button.getAttribute("data-start") || 'N/A');
-                const end = formatDate(button.getAttribute("data-end") || 'N/A');
-                const type = button.getAttribute("data-type");
-
-                var html = '';
-                html += '<td colspan="10">';
-                html += '<div class="p-3 bg-light border">';
-                html += '<h6 class="mb-2 fw-semibold">Voucher Terms</h6>';
-                html += '<div><span class="fw-normal">Minimum Order Value:</span> ' + min + ' VND</div>';
-
-                if (type === '%') {
-                    html += '<div><span class="fw-normal">Maximum Discount Value:</span> ' + max + ' VND</div>';
                 }
 
-                html += '<div><span class="fw-normal">Start Date:</span> ' + start + '</div>';
-                html += '<div><span class="fw-normal">End Date:</span> ' + end + '</div>';
-                html += '</div>';
-                html += '</td>';
+                // Set term fields
+                document.getElementById('voucherTermsMin').textContent = formatVND(button.getAttribute("data-min"));
+                document.getElementById('voucherTermsStart').textContent = formatDate(button.getAttribute("data-start"));
+                document.getElementById('voucherTermsEnd').textContent = formatDate(button.getAttribute("data-end"));
 
-                var detailRow = document.createElement('tr');
-                detailRow.className = 'voucher-detail-row';
-                detailRow.innerHTML = html;
+                // Show/hide and set max discount if percentage
+                if (button.getAttribute("data-type") === "%") {
+                    document.getElementById('voucherTermsMaxDiv').style.display = '';
+                    document.getElementById('voucherTermsMax').textContent = formatVND(button.getAttribute("data-max"));
+                } else {
+                    document.getElementById('voucherTermsMaxDiv').style.display = 'none';
+                    document.getElementById('voucherTermsMax').textContent = '';
+                }
 
-                mainRow.parentNode.insertBefore(detailRow, mainRow.nextSibling);
+                // Show modal
+                var modal = new bootstrap.Modal(document.getElementById('voucherTermsModal'));
+                modal.show();
             }
 
             function removeVietnameseTones(str) {
@@ -461,6 +474,26 @@
                 });
             });
 
+            // Modal Add Voucher Form Validation
+            function validateVoucherFormModal() {
+                const start = new Date(document.getElementById("startDateModal").value);
+                const end = new Date(document.getElementById("endDateModal").value);
+                const discountType = document.getElementById("discountTypeModal").value;
+                const maxDiscount = document.getElementById("maxDiscountModal").value;
+
+                if (end < start) {
+                    alert("End Date must be the same as or after the Start Date.");
+                    return false;
+                }
+
+                if (discountType === "%" && (maxDiscount === "" || parseFloat(maxDiscount) <= 0)) {
+                    alert("Max Discount (VND) is required and must be greater than 0 when discount type is %.");
+                    return false;
+                }
+
+                return true;
+            }
+
             function validateVoucherForm() {
                 const start = new Date(document.getElementById("startDate").value);
                 const end = new Date(document.getElementById("endDate").value);
@@ -478,6 +511,21 @@
                 }
 
                 return true;
+            }
+
+            function toggleMaxDiscountFieldModal() {
+                const type = document.getElementById("discountTypeModal").value;
+                const maxInput = document.getElementById("maxDiscountModal");
+                const suffix = document.getElementById("discountSuffixModal");
+
+                if (type === "VND") {
+                    maxInput.disabled = true;
+                    maxInput.value = "";
+                    suffix.textContent = "VND";
+                } else {
+                    maxInput.disabled = false;
+                    suffix.textContent = "%";
+                }
             }
 
             function toggleMaxDiscountField() {
