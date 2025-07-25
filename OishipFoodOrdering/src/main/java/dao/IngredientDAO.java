@@ -425,24 +425,24 @@ public class IngredientDAO extends DBContext {
         return names;
     }
 
-    public List<String> getDishNames() {
-        List<String> names = new ArrayList<>();
-        String sql = "SELECT DISTINCT DishName FROM Dish";
-        if (conn == null) {
-            System.err.println("Database connection is null in getDishNames.");
-            return names;
-        }
-        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
-            while (rs.next()) {
-                names.add(rs.getString("DishName"));
-            }
-            System.out.println("Fetched " + names.size() + " dish names for autocomplete.");
-        } catch (SQLException e) {
-            e.printStackTrace();
-            System.err.println("Error fetching dish names: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
-        }
-        return names;
-    }
+//    public List<String> getDishNames() {
+//        List<String> names = new ArrayList<>();
+//        String sql = "SELECT DISTINCT DishName FROM Dish";
+//        if (conn == null) {
+//            System.err.println("Database connection is null in getDishNames.");
+//            return names;
+//        }
+//        try (Statement stmt = conn.createStatement(); ResultSet rs = stmt.executeQuery(sql)) {
+//            while (rs.next()) {
+//                names.add(rs.getString("DishName"));
+//            }
+//            System.out.println("Fetched " + names.size() + " dish names for autocomplete.");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//            System.err.println("Error fetching dish names: " + e.getMessage() + " (SQLState: " + e.getSQLState() + ", Error Code: " + e.getErrorCode() + ")");
+//        }
+//        return names;
+//    }
 
     public int addDish(String dishName) {
         String sql = "INSERT INTO Dish (DishName, opCost, interestPercentage, FK_Dish_Category) VALUES (?, 0, 0, ?)";
