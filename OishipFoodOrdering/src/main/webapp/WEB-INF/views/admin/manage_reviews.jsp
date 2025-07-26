@@ -161,8 +161,8 @@
             </nav>
 
             <!-- Content -->
-            <div class="content mt-5">
-                <h2 class="mb-4 text-center">Manage Reviews</h2>
+            <div class="content">
+                <h1>Manage Reviews</h1>
 
                 <!-- Search and Filter -->
                 <div class="row mb-4">

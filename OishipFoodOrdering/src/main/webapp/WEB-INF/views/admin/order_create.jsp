@@ -157,9 +157,9 @@
             </nav>
 
             <!--div content-->
-            <div class="content mt-5">
+            <div class="content">
                 <div class="container">
-                    <h2 class="mb-4 text-center">Create New Order</h2>
+                    <h1>Create New Order</h1>
 
 
                     <!-- Hiển thị lỗi nếu có -->

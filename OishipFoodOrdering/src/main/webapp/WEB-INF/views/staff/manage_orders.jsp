@@ -163,8 +163,8 @@
             </nav>
 
             <!-- Content -->
-            <div class="content mt-5">
-                <h2 class="mb-4 text-center">Manage Orders</h2>
+            <div class="content">
+                <h1>Manage Orders</h1>
 
                 <!-- Search + Filter + Create Order -->
                 <div class="row mb-4 align-items-end">

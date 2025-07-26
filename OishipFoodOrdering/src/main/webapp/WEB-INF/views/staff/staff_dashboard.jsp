@@ -237,7 +237,7 @@
 
                 <!--div.content-->
                 <div class="dashboard-container content">
-                    <h3 class="text-center">Staff Dashboard</h3>
+                    <h1 class="text-center">Staff Dashboard</h1>
 
                     <!-- SINGLE TABLE LAYOUT -->
                     <div class="row justify-content-center">

@@ -232,8 +232,8 @@
 
             <!--Content -->
             <div class="content">
-                <div class="container mt-5">
-                    <h2 class="text-center mb-4">Update Order Status - Order #${orderID}</h2>
+                <div class="container">
+                    <h1>Update Order Status - Order #${orderID}</h1>
 
                     <!-- Timeline -->
                     <div class="timeline">
