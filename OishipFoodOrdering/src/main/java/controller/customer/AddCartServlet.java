@@ -66,19 +66,41 @@ public class AddCartServlet extends HttpServlet {
             int customerID = (int) session.getAttribute("userId");
             CartDAO cartDAO = new CartDAO();
             Cart existingItem = cartDAO.getCartItem(customerID, dishID);
-
-            if (existingItem != null) {
-                cartDAO.updateQuantity(customerID, dishID, existingItem.getQuantity() + quantity);
-            } else {
-                int stock = dishDAO.getDishStockByDishId(dishID);
-                if (quantity > stock) {
+            int stock = dishDAO.getDishStockByDishId(dishID);
+            if (quantity > stock) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.setContentType("application/json");
                     response.getWriter().write("{\"error\":\"Số lượng vượt quá tồn kho. Chỉ còn " + stock + " món.\"}");
                     return;
+                } else{
+                if(existingItem != null){
+                    cartDAO.updateQuantity(customerID, dishID, existingItem.getQuantity() + quantity); 
+                } else{
+                 cartDAO.addToCart(customerID, dishID, quantity);
                 }
-                cartDAO.addToCart(customerID, dishID, quantity);
-            }
+                
+                }         
+
+//            if (existingItem != null) {
+//                int stock = dishDAO.getDishStockByDishId(dishID);
+//                if (quantity > stock) {
+//                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+//                    response.setContentType("application/json");
+//                    response.getWriter().write("{\"error\":\"Số lượng vượt quá tồn kho. Chỉ còn " + stock + " món.\"}");
+//                    return;
+//                } else{
+//                cartDAO.updateQuantity(customerID, dishID, existingItem.getQuantity() + quantity);
+//                }                                            
+//            } else {
+//                int stock = dishDAO.getDishStockByDishId(dishID);
+//                if (quantity > stock) {
+//                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+//                    response.setContentType("application/json");
+//                    response.getWriter().write("{\"error\":\"Số lượng vượt quá tồn kho. Chỉ còn " + stock + " món.\"}");
+//                    return;
+//                }
+//                cartDAO.addToCart(customerID, dishID, quantity);
+//            }
 
             Map<String, Object> cartSuccessDetails = new HashMap<>();
             cartSuccessDetails.put("image", dish.getImage() != null ? dish.getImage() : "");

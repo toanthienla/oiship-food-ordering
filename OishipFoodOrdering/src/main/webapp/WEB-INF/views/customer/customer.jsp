@@ -505,7 +505,7 @@
             </div>
         </nav>
 
-        <div class="hero-section">
+<!--        <div class="hero-section">
             <div id="carouselHero" class="carousel slide w-100" data-bs-ride="carousel">
                 <div class="carousel-inner">
                     <div class="carousel-item active">
@@ -525,7 +525,7 @@
                     <span class="carousel-control-next-icon"></span>
                 </button>
             </div>
-        </div>
+        </div>-->
 
 
 
@@ -641,9 +641,9 @@
 
         let stock = parseInt(input.getAttribute("data-stock"));
 
-        if (qty > 10) {
-            alert("The maximum quantity is 10.");
-            qty = 10;
+        if (qty > 50) {
+            alert("The maximum quantity is 50.");
+            qty = 50;
         }
 
         if (qty > stock) {
@@ -673,8 +673,8 @@
             return false;
         }
 
-        if (qty > 10) {
-            alert("The maximum quantity is 10.");
+        if (qty > 50) {
+            alert("The maximum quantity is 50.");
             input.value = 10;
             return false;
         }

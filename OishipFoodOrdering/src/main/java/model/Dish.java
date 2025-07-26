@@ -22,6 +22,7 @@ public class Dish {
     private List<Ingredient> ingredients;
     private String formattedIngredientsPrice;
     private String formattedOpCost;
+    private String formattedProfit;
 
     public Dish() {
     }
@@ -220,5 +221,13 @@ public class Dish {
 
     public void setFormattedOpCost(String formattedOpCost) {
         this.formattedOpCost = formattedOpCost;
+    }
+
+    public String getFormattedProfit() {
+        return formattedProfit;
+    }
+
+    public void setFormattedProfit(String formattedProfit) {
+        this.formattedProfit = formattedProfit;
     }
 }

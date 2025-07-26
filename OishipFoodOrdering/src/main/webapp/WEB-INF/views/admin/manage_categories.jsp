@@ -47,31 +47,18 @@
                 <h1>Manage Categories</h1>
                 <p>Manage your restaurant's menu and menu items.</p>
 
-                <!-- Add Category Form -->
-                <form action="manage-categories" method="post" class="row g-3 mt-4">
-                    <!-- Category Name -->
-                    <div class="col-md-6">
-                        <label for="catName" class="form-label">New Category Name</label>
-                        <input type="text" class="form-control" id="catName" name="catName" required placeholder="Enter category name">
-                    </div>
-
-                    <!-- Category Description -->
-                    <div class="col-12">
-                        <label for="catDescription" class="form-label">New Category Description</label>
-                        <textarea class="form-control" id="catDescription" name="catDescription" rows="3" required placeholder="Describe the category"></textarea>
-                    </div>
-
-                    <!-- Submit Button -->
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-success">Add Category</button>
-                    </div>
-                </form>
+                <!-- Add Category Button -->
+                <div class="mb-4">
+                    <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addCategoryModal">
+                        <i class="bi bi-plus-circle me-1"></i> Add Category
+                    </button>
+                </div>
 
                 <!-- Alert placeholder -->
                 <div id="actionAlert" class="alert mt-3 d-none" role="alert"></div>
 
                 <!-- Category Table -->
-                <div class="mt-5">
+                <div class="mt-2">
                     <h4>Existing Categories</h4>
                     <div class="col-md-6 mt-3">
                         <div class="d-flex align-items-center">
@@ -121,6 +108,34 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Add Category Modal -->
+        <div class="modal fade" id="addCategoryModal" tabindex="-1" aria-labelledby="addCategoryModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form action="manage-categories" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addCategoryModalLabel">Add New Category</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <!-- Category Name -->
+                        <div class="mb-3">
+                            <label for="catName" class="form-label">Category Name</label>
+                            <input type="text" class="form-control" id="catName" name="catName" required placeholder="Enter category name">
+                        </div>
+                        <!-- Category Description -->
+                        <div class="mb-3">
+                            <label for="catDescription" class="form-label">Category Description</label>
+                            <textarea class="form-control" id="catDescription" name="catDescription" rows="3" required placeholder="Describe the category"></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Add Category</button>
+                    </div>
+                </form>
             </div>
         </div>
 

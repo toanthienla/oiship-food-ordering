@@ -131,9 +131,10 @@
                                 <!-- Nút tăng giảm -->
                                 <div class="d-flex align-items-center gap-2 mt-1">
                                     <button  type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, -1)">−</button>
-                                    <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" readonly
+                                    <input type="text" id="qty_<%= cartId%>" value="<%= cart.getQuantity()%>" 
                                            data-stock="<%= dish.getStock()%>"
-                                           class="form-control text-center" style="width: 60px;">
+                                           class="form-control text-center" style="width: 60px;"
+                                            oninput="manualUpdate(<%= cartId %>)">
                                     <button type="button" class="btn btn-outline-secondary btn-sm" onclick="updateQuantity(<%= cartId%>, 1)">+</button>
                                 </div>
 
@@ -191,6 +192,37 @@
 
 
         <script>
+            
+            function manualUpdate(cartId) {
+    const input = document.getElementById("qty_" + cartId);
+    const maxStock = parseInt(input.getAttribute("data-stock"));
+    let qty = parseInt(input.value);
+
+    if (isNaN(qty) || qty < 1) {
+        qty = 1;
+    } else if (qty > 50) {
+        qty = 50;
+        alert("The maximum quantity for each item is 50.");
+    } else if (qty > maxStock) {
+        qty = maxStock;
+        alert("The quantity exceeds stock: " + maxStock);
+    }
+
+    input.value = qty;
+
+    fetch(contextPath + "/customer/view-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+    }).then(() => {
+        const row = input.closest(".cart-item-row");
+        const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+        const total = qty * price;
+        row.querySelector(".item-total").textContent = total.toLocaleString();
+        recalculateTotal();
+    });
+}
+
             function handleSubmit() {
                 const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
                 const address = document.getElementById("hiddenAddress").value.trim();
@@ -544,9 +576,9 @@
                     qty = 1;
                 qty += delta;
 
-                if (qty > 10) {
-                    qty = 10;
-                    alert("The maximum quantity for each item is 10.");
+                if (qty > 50) {
+                    qty = 50;
+                    alert("The maximum quantity for each item is 50.");
                 }
 
                 if (qty > maxStock) {
