@@ -91,9 +91,9 @@
                 background-color: transparent;
                 border: none;
                 color: #666;
-                font-size: 1.25rem;      /* Tăng cỡ chữ */
-                padding: 10px 18px;       /* Tăng khoảng cách trong nút */
-                border-radius: 8px;       /* Bo tròn nút nhiều hơn */
+                font-size: 1.25rem;      
+                padding: 10px 18px;      
+                border-radius: 8px;       
                 cursor: pointer;
                 transition: all 0.3s ease;
             }
@@ -101,14 +101,14 @@
             .pagination-container button:hover {
                 background-color: #f0f0f0;
                 font-weight: bold;
-                transform: scale(1.05);   /* Phóng nhẹ khi hover */
+                transform: scale(1.05);   
             }
 
             .pagination-container button.active {
-                background-color: #d6692a;  /* màu giống nút "Add Cart" */
+                background-color: #d6692a;  
                 color: #fff;
                 font-weight: bold;
-                box-shadow: 0 0 8px rgba(214, 105, 42, 0.4); /* hiệu ứng bóng */
+                box-shadow: 0 0 8px rgba(214, 105, 42, 0.4); 
             }
 
             .pagination-container button:disabled {
@@ -279,6 +279,26 @@
                 }
             }
         </style>
+        <style>
+            .btn-page {
+                border: 1px solid #ccc;
+                padding: 5px 12px;
+                border-radius: 5px;
+                background-color: white;
+                color: #333;
+                transition: 0.2s;
+            }
+
+            .btn-page:hover {
+                background-color: #eee;
+            }
+
+            .btn-page.active {
+                background-color: #fff5e6;
+                color: white;
+                border-color: #fff5e6;
+            }
+        </style>
     </head>
     <body>
         <div class="sidebar">
@@ -446,27 +466,30 @@
         }
     </script>
 
-    <!-- 💡 xử lí load category -->
-    <script>
-        function loadDishesByCategory(catId) {
-            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
 
-            fetch('<%= request.getContextPath()%>/customer/dish-detail', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/x-www-form-urlencoded'
-                },
-                body: 'catId=' + catId
-            })
-                    .then(response => response.text())
-                    .then(html => {
-                        document.getElementById('dish-container').innerHTML = html;
-                    })
-                    .catch(error => {
-                        console.error('Error loading dishes:', error);
-                    });
-        }
+    <script>
+            function loadDishesByCategory(catId) {
+        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+        event.target.classList.add('active');
+
+        fetch('<%= request.getContextPath()%>/customer/dish-detail', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/x-www-form-urlencoded'
+            },
+            body: 'catId=' + catId
+        })
+                .then(response => response.text())
+                .then(html => {
+                    document.getElementById('dish-container').innerHTML = html;
+
+                   
+                    setupPagination();
+                })
+                .catch(error => {
+                    console.error('Error loading dishes:', error);
+                });
+    }
 
     </script>      
 
@@ -505,111 +528,126 @@
         });
     </script>
 
-    <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const itemsPerPage = 15;
-            const dishes = Array.from(document.querySelectorAll(".dish-item"));
-            const totalPages = Math.ceil(dishes.length / itemsPerPage);
-            let currentPage = 1;
+   <script>
+    function setupPagination() {
+        const itemsPerPage = 15;
+        const dishes = Array.from(document.querySelectorAll(".dish-item"));
+        const totalPages = Math.ceil(dishes.length / itemsPerPage);
+        let currentPage = 1;
 
-            const prevBtn = document.getElementById("prevPageBtn");
-            const nextBtn = document.getElementById("nextPageBtn");
-            const pageNumbers = document.getElementById("pageNumbers");
+        const prevBtn = document.getElementById("prevPageBtn");
+        const nextBtn = document.getElementById("nextPageBtn");
+        const pageNumbers = document.getElementById("pageNumbers");
 
-            function showPage(page) {
-                dishes.forEach((item, index) => {
-                    item.style.display = "none";
-                });
-                const start = (page - 1) * itemsPerPage;
-                const end = start + itemsPerPage;
-                dishes.slice(start, end).forEach(item => {
-                    item.style.display = "block";
-                });
-
-                // Update active page button
-                document.querySelectorAll("#pageNumbers button").forEach(btn => {
-                    btn.classList.remove("btn-primary");
-                    btn.classList.add("btn-outline-primary");
-                });
-                const activeBtn = document.querySelector(`#pageBtn${page}`);
-                if (activeBtn) {
-                    activeBtn.classList.add("btn-primary");
-                    activeBtn.classList.remove("btn-outline-primary");
-                }
-
-                // Disable prev/next
-                prevBtn.disabled = page === 1;
-                nextBtn.disabled = page === totalPages;
-            }
-
-            function createPagination() {
-                pageNumbers.innerHTML = "";
-
-                const maxVisible = 5;
-                let startPage = Math.max(currentPage - 2, 1);
-                let endPage = Math.min(startPage + maxVisible - 1, totalPages);
-
-                if (endPage - startPage < maxVisible - 1) {
-                    startPage = Math.max(endPage - maxVisible + 1, 1);
-                }
-
-                if (startPage > 1) {
-                    appendPageButton(1);
-                    if (startPage > 2) {
-                        pageNumbers.appendChild(createDots());
-                    }
-                }
-
-                for (let i = startPage; i <= endPage; i++) {
-                    appendPageButton(i);
-                }
-
-                if (endPage < totalPages) {
-                    if (endPage < totalPages - 1) {
-                        pageNumbers.appendChild(createDots());
-                    }
-                    appendPageButton(totalPages);
-                }
-            }
-
-            function appendPageButton(i) {
-                const btn = document.createElement("button");
-                btn.textContent = i;
-                btn.className = (i === currentPage) ? "active" : "";
-                btn.addEventListener("click", () => {
-                    currentPage = i;
-                    showPage(currentPage);
-                    createPagination();
-                });
-                pageNumbers.appendChild(btn);
-            }
-
-            function createDots() {
-                const dots = document.createElement("span");
-                dots.textContent = "...";
-                dots.className = "pagination-dots";
-                return dots;
-            }
-
-
-            prevBtn.addEventListener("click", () => {
-                if (currentPage > 1) {
-                    currentPage--;
-                    showPage(currentPage);
-                }
+       
+        function showPage(page) {
+            dishes.forEach((item, index) => {
+                item.style.display = "none";
             });
 
-            nextBtn.addEventListener("click", () => {
-                if (currentPage < totalPages) {
-                    currentPage++;
-                    showPage(currentPage);
-                }
+            const start = (page - 1) * itemsPerPage;
+            const end = start + itemsPerPage;
+            dishes.slice(start, end).forEach(item => {
+                item.style.display = "block";
             });
 
-            createPagination();
-            showPage(currentPage);
-        });
-    </script>
+           
+            document.querySelectorAll("#pageNumbers button").forEach(btn => {
+                btn.classList.remove("btn-primary");
+                btn.classList.add("btn-outline-primary");
+            });
+
+            const activeBtn = document.getElementById(`pageBtn${page}`);
+            if (activeBtn) {
+                activeBtn.classList.add("btn-primary");
+                activeBtn.classList.remove("btn-outline-primary");
+            }
+
+            prevBtn.disabled = (page === 1);
+            nextBtn.disabled = (page === totalPages);
+        }
+
+       
+        function createPagination() {
+            pageNumbers.innerHTML = "";
+
+            const maxVisible = 5;
+            let startPage = Math.max(currentPage - 2, 1);
+            let endPage = Math.min(startPage + maxVisible - 1, totalPages);
+
+            if (endPage - startPage < maxVisible - 1) {
+                startPage = Math.max(endPage - maxVisible + 1, 1);
+            }
+
+            if (startPage > 1) {
+                appendPageButton(1);
+                if (startPage > 2) {
+                    pageNumbers.appendChild(createDots());
+                }
+            }
+
+            for (let i = startPage; i <= endPage; i++) {
+                appendPageButton(i);
+            }
+
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pageNumbers.appendChild(createDots());
+                }
+                appendPageButton(totalPages);
+            }
+        }
+
+        function appendPageButton(i) {
+            const btn = document.createElement("button");
+            btn.id = `pageBtn${i}`;
+            btn.textContent = i;
+            btn.className = "btn-page" + (i === currentPage ? " active" : "");
+            btn.addEventListener("click", () => {
+                currentPage = i;
+                showPage(currentPage);
+                createPagination();
+            });
+            pageNumbers.appendChild(btn);
+        }
+
+
+       
+        function createDots() {
+            const span = document.createElement("span");
+            span.textContent = "...";
+            span.className = "pagination-dots";
+            return span;
+        }
+
+       
+        prevBtn.onclick = () => {
+            if (currentPage > 1) {
+                currentPage--;
+                showPage(currentPage);
+                createPagination();
+            }
+        };
+
+        nextBtn.onclick = () => {
+            if (currentPage < totalPages) {
+                currentPage++;
+                showPage(currentPage);
+                createPagination();
+            }
+        };
+
+      
+        createPagination();
+        showPage(currentPage);
+    }
+
+   
+    document.addEventListener('DOMContentLoaded', () => {
+        setupPagination();
+    });
+</script>
+
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.js"></script>
 </body>
