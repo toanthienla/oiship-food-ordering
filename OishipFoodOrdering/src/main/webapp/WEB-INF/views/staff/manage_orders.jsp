@@ -148,19 +148,10 @@
         <jsp:include page="staff_sidebar.jsp" />
 
         <div class="main">
-            <nav class="navbar navbar-expand-lg navbar-light bg-light shadow-sm">
-                <div class="container-fluid">
-                    <a class="navbar-brand" href="${pageContext.request.contextPath}/staff/dashboard">Oiship</a>
-                    <div class="collapse navbar-collapse" id="navbarNav">
-                        <ul class="navbar-nav ms-auto">
-                            <li class="wellcome-text">Welcome, <span><c:out value="${sessionScope.userName}" /></span>!</li>
-                            <li class="nav-item">
-                                <a class="nav-link" href="${pageContext.request.contextPath}/logout">Logout</a>
-                            </li>
-                        </ul>
-                    </div>
-                </div>
-            </nav>
+            <div class="topbar">
+                <i class="bi bi-list menu-toggle" id="menuToggle"></i>
+                <div class="profile"><span class="username">Hi, Staff</span></div>
+            </div>
 
             <!-- Content -->
             <div class="content">
