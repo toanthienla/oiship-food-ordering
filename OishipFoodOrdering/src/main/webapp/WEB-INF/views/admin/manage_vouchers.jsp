@@ -151,7 +151,7 @@
                 <div id="actionAlert" class="alert mt-3 d-none" role="alert"></div>
 
                 <!-- Existing Vouchers -->
-                <div class="mt-5">
+                <div class="mt-2">
                     <h4>Existing Vouchers</h4>
                     <div class="col-md-6 mt-3">
                         <div class="d-flex align-items-center">

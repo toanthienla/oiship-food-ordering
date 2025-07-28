@@ -375,6 +375,27 @@
             }
 
         </style>
+        <style>
+            .btn-page {
+                border: 1px solid #ccc;
+                padding: 5px 12px;
+                border-radius: 5px;
+                background-color: white;
+                color: #333;
+                transition: 0.2s;
+            }
+
+            .btn-page:hover {
+                background-color: #eee;
+            }
+
+            .btn-page.active {
+                background-color: #fff5e6;
+                color: white;
+                border-color: #fff5e6;
+            }
+        </style>
+
     </style>
 </head>
 <body>
@@ -505,27 +526,27 @@
             </div>
         </nav>
 
-<!--        <div class="hero-section">
-            <div id="carouselHero" class="carousel slide w-100" data-bs-ride="carousel">
-                <div class="carousel-inner">
-                    <div class="carousel-item active">
-                        <img src="images/panner7.jpg" class="d-block w-100" alt="Slide 1" />
+        <!--        <div class="hero-section">
+                    <div id="carouselHero" class="carousel slide w-100" data-bs-ride="carousel">
+                        <div class="carousel-inner">
+                            <div class="carousel-item active">
+                                <img src="images/panner7.jpg" class="d-block w-100" alt="Slide 1" />
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/panner8.jpg" class="d-block w-100" alt="Slide 2" />
+                            </div>
+                            <div class="carousel-item">
+                                <img src="images/panner9.jpg" class="d-block w-100" alt="Slide 3" />
+                            </div>
+                        </div>
+                        <button class="carousel-control-prev" type="button" data-bs-target="#carouselHero" data-bs-slide="prev">
+                            <span class="carousel-control-prev-icon"></span>
+                        </button>
+                        <button class="carousel-control-next" type="button" data-bs-target="#carouselHero" data-bs-slide="next">
+                            <span class="carousel-control-next-icon"></span>
+                        </button>
                     </div>
-                    <div class="carousel-item">
-                        <img src="images/panner8.jpg" class="d-block w-100" alt="Slide 2" />
-                    </div>
-                    <div class="carousel-item">
-                        <img src="images/panner9.jpg" class="d-block w-100" alt="Slide 3" />
-                    </div>
-                </div>
-                <button class="carousel-control-prev" type="button" data-bs-target="#carouselHero" data-bs-slide="prev">
-                    <span class="carousel-control-prev-icon"></span>
-                </button>
-                <button class="carousel-control-next" type="button" data-bs-target="#carouselHero" data-bs-slide="next">
-                    <span class="carousel-control-next-icon"></span>
-                </button>
-            </div>
-        </div>-->
+                </div>-->
 
 
 
@@ -732,7 +753,7 @@
 </script>
 
 
-<!-- 💡 xử lí load category -->
+
 <script>
     function loadDishesByCategory(catId) {
         document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
@@ -748,11 +769,15 @@
                 .then(response => response.text())
                 .then(html => {
                     document.getElementById('dish-container').innerHTML = html;
+
+                   
+                    setupPagination();
                 })
                 .catch(error => {
                     console.error('Error loading dishes:', error);
                 });
     }
+
 
 </script>      
 
@@ -792,7 +817,7 @@
 </script>
 
 <script>
-    document.addEventListener('DOMContentLoaded', () => {
+    function setupPagination() {
         const itemsPerPage = 15;
         const dishes = Array.from(document.querySelectorAll(".dish-item"));
         const totalPages = Math.ceil(dishes.length / itemsPerPage);
@@ -802,30 +827,35 @@
         const nextBtn = document.getElementById("nextPageBtn");
         const pageNumbers = document.getElementById("pageNumbers");
 
+       
         function showPage(page) {
             dishes.forEach((item, index) => {
                 item.style.display = "none";
             });
+
             const start = (page - 1) * itemsPerPage;
             const end = start + itemsPerPage;
             dishes.slice(start, end).forEach(item => {
                 item.style.display = "block";
             });
 
-
+           
             document.querySelectorAll("#pageNumbers button").forEach(btn => {
                 btn.classList.remove("btn-primary");
                 btn.classList.add("btn-outline-primary");
             });
-            const activeBtn = document.querySelector(`#pageBtn${page}`);
+
+            const activeBtn = document.getElementById(`pageBtn${page}`);
             if (activeBtn) {
                 activeBtn.classList.add("btn-primary");
                 activeBtn.classList.remove("btn-outline-primary");
             }
-            prevBtn.disabled = page === 1;
-            nextBtn.disabled = page === totalPages;
+
+            prevBtn.disabled = (page === 1);
+            nextBtn.disabled = (page === totalPages);
         }
 
+       
         function createPagination() {
             pageNumbers.innerHTML = "";
 
@@ -858,8 +888,9 @@
 
         function appendPageButton(i) {
             const btn = document.createElement("button");
+            btn.id = `pageBtn${i}`;
             btn.textContent = i;
-            btn.className = (i === currentPage) ? "active" : "";
+            btn.className = "btn-page" + (i === currentPage ? " active" : "");
             btn.addEventListener("click", () => {
                 currentPage = i;
                 showPage(currentPage);
@@ -868,32 +899,43 @@
             pageNumbers.appendChild(btn);
         }
 
+
+       
         function createDots() {
-            const dots = document.createElement("span");
-            dots.textContent = "...";
-            dots.className = "pagination-dots";
-            return dots;
+            const span = document.createElement("span");
+            span.textContent = "...";
+            span.className = "pagination-dots";
+            return span;
         }
 
-
-        prevBtn.addEventListener("click", () => {
+       
+        prevBtn.onclick = () => {
             if (currentPage > 1) {
                 currentPage--;
                 showPage(currentPage);
+                createPagination();
             }
-        });
+        };
 
-        nextBtn.addEventListener("click", () => {
+        nextBtn.onclick = () => {
             if (currentPage < totalPages) {
                 currentPage++;
                 showPage(currentPage);
+                createPagination();
             }
-        });
+        };
 
+      
         createPagination();
         showPage(currentPage);
+    }
+
+   
+    document.addEventListener('DOMContentLoaded', () => {
+        setupPagination();
     });
 </script>
+
 
 <script>
     const contextPath = '<%= request.getContextPath()%>';

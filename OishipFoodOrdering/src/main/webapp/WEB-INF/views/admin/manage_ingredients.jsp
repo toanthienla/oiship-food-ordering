@@ -19,10 +19,10 @@
         <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
         <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
         <style>
-        /* Ensure select2 dropdown is above the modal */
-        .select2-container--open {
-            z-index: 9999 !important;
-        }
+            /* Ensure select2 dropdown is above the modal */
+            .select2-container--open {
+                z-index: 9999 !important;
+            }
         </style>
     </head>
     <body>
@@ -486,6 +486,11 @@
                             message = '<i class="bi bi-trash-fill me-2"></i>Dish Ingredient deleted successfully!';
                             alertClass = "alert-success";
                             showAlert(dishAlertBox, message, alertClass);
+                            break;
+                        case "replaced":
+                            message = '<i class="bi bi-arrow-repeat me-2"></i>Ingredient already existed for this dish. Quantity replaced!';
+                            alertClass = "alert-success";
+                            showAlert(ingredientAlertBox, message, alertClass);
                             break;
                         default:
                             message = '<i class="bi bi-info-circle-fill me-2"></i>Unknown status.';

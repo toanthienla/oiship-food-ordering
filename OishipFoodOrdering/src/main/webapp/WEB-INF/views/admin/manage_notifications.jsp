@@ -29,27 +29,16 @@
                 <h1>Manage Notifications</h1>
                 <p>View and manage your system announcements.</p>
 
-                <!-- Add Notification Form -->
-                <form action="manage-notifications" method="post" class="row g-3 mt-4">
-                    <input type="hidden" name="accountID" value="${sessionScope.account.accountID}" />
-                    <div class="col-md-6">
-                        <label for="notTitle" class="form-label">Notification Title</label>
-                        <input type="text" class="form-control" id="notTitle" name="notTitle" required placeholder="e.g., New Voucher Released!"/>
-                    </div>
-                    <div class="col-12">
-                        <label for="notDescription" class="form-label">Notification Description</label>
-                        <textarea class="form-control" id="notDescription" name="notDescription" rows="3" required placeholder="Enter the full notification message..."></textarea>
-                    </div>
-                    <div class="col-12">
-                        <button type="submit" class="btn btn-success">Add Notification</button>
-                    </div>
-                </form>
+                <!-- Add Notification Button (triggers modal) -->
+                <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addNotificationModal">
+                    Add Notification
+                </button>
 
                 <!-- Alert Box -->
                 <div id="actionAlert" class="alert mt-3 d-none" role="alert"></div>
 
                 <!-- Notifications Table -->
-                <div class="mt-5">
+                <div class="mt-3">
                     <h4>Existing Notifications</h4>
                     <div class="col-md-6 mt-3">
                         <div class="d-flex align-items-center">
@@ -100,6 +89,33 @@
                         </table>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- Add Notification Modal -->
+        <div class="modal fade" id="addNotificationModal" tabindex="-1" aria-labelledby="addNotificationModalLabel" aria-hidden="true">
+            <div class="modal-dialog">
+                <form action="manage-notifications" method="post" class="modal-content">
+                    <div class="modal-header">
+                        <h5 class="modal-title" id="addNotificationModalLabel">Add Notification</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                    </div>
+                    <div class="modal-body">
+                        <input type="hidden" name="accountID" value="${sessionScope.account.accountID}" />
+                        <div class="mb-3">
+                            <label for="notTitle" class="form-label">Notification Title</label>
+                            <input type="text" class="form-control" id="notTitle" name="notTitle" required placeholder="e.g., New Voucher Released!"/>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notDescription" class="form-label">Notification Description</label>
+                            <textarea class="form-control" id="notDescription" name="notDescription" rows="3" required placeholder="Enter the full notification message..."></textarea>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                        <button type="submit" class="btn btn-success">Add Notification</button>
+                    </div>
+                </form>
             </div>
         </div>
 

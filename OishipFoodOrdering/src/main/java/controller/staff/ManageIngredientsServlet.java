@@ -71,8 +71,7 @@ public class ManageIngredientsServlet extends HttpServlet {
         try {
             switch (action) {
                 case "add":
-                    boolean added = handleAdd(request);
-                    response.sendRedirect("manage-ingredients?success=" + (added ? "add" : "exists"));
+                    handleAdd(request, response); // now handles redirect
                     return;
                 case "update":
                     boolean updated = handleUpdateIngredient(request);
@@ -90,7 +89,7 @@ public class ManageIngredientsServlet extends HttpServlet {
         }
     }
 
-    private boolean handleAdd(HttpServletRequest request) {
+    private boolean handleAdd(HttpServletRequest request, HttpServletResponse response) throws IOException {
         try {
             int dishID = Integer.parseInt(request.getParameter("dishID"));
             String ingredientIdParam = request.getParameter("ingredientId");
@@ -107,25 +106,37 @@ public class ManageIngredientsServlet extends HttpServlet {
                         .anyMatch(i -> i.getIngredientName().equalsIgnoreCase(newName.trim()));
 
                 if (nameExists) {
-                    // Redirect with error param
-                    return false; // Trigger ?success=exists in redirect
+                    response.sendRedirect("manage-ingredients?success=exists");
+                    return false;
                 }
 
                 Ingredient newIngredient = new Ingredient();
                 newIngredient.setIngredientName(newName);
                 newIngredient.setUnitCost(newCost);
-                newIngredient.setAccountID(1); // Placeholder
+                newIngredient.setAccountID(1);
 
                 ingredientID = ingredientDAO.addIngredient(newIngredient);
             } else {
                 ingredientID = Integer.parseInt(ingredientIdParam);
             }
 
-            dishIngredientDAO.addIngredientToDish(dishID, ingredientID, quantity);
-            return true;
+            // Check if this ingredient is already in this dish
+            DishIngredient existing = dishIngredientDAO.getDishIngredient(dishID, ingredientID);
+            if (existing != null) {
+                // Replace old quantity
+                dishIngredientDAO.updateDishIngredientQuantity(dishID, ingredientID, quantity);
+                // Notify replaced
+                response.sendRedirect("manage-ingredients?success=replaced");
+                return false;
+            } else {
+                dishIngredientDAO.addIngredientToDish(dishID, ingredientID, quantity);
+                response.sendRedirect("manage-ingredients?success=add");
+                return true;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
+            response.sendRedirect("manage-ingredients?success=false");
             return false;
         }
     }
