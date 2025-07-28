@@ -13,9 +13,7 @@
         <title>Confirm-Order</title>
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css"/>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <!-- Mapbox CSS -->
-        <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet" />
-        <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" rel="stylesheet" />
+
 
     </head>
     <style>
@@ -283,8 +281,7 @@
 
                         <div class="mb-3">
                             <label for="modalAddress" class="form-label">Address</label>
-                            <div id="mapboxAddressInput" class="geocoder"></div> <!-- Chỗ gợi ý địa chỉ -->
-                            <input type="hidden" class="form-control" id="modalAddress" /> <!-- ẩn để giữ giá trị chọn -->
+                            <input type="text" class="form-control" id="modalAddress" placeholder="Enter delivery address..." />
                         </div>
 
 
@@ -337,40 +334,12 @@
                 </div>
             </div>
         </div>
-        <!-- Mapbox -->
-        <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-        <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
-        <link href="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.css" rel="stylesheet">
-        <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.css" rel="stylesheet">
-
         <script>
-                                         mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhZmYxIiwiYSI6ImNtYWZndDRjNzAybGUybG44ZWYzdTlsNWQifQ.jSJjwMo8_OQszYjWAAi7iQ';
-
-                                         const geocoder = new MapboxGeocoder({
-                                             accessToken: mapboxgl.accessToken,
-                                             placeholder: 'Nhập địa chỉ giao hàng...',
-                                             mapboxgl: mapboxgl,
-                                             marker: false
-                                         });
-
-                                         // Gắn vào đúng vị trí mapboxAddressInput
-                                         document.getElementById('mapboxAddressInput').appendChild(geocoder.onAdd(new mapboxgl.Map({
-                                             container: document.createElement('div'),
-                                             style: 'mapbox://styles/mapbox/streets-v11'
-                                         })));
-
-                                         // Khi chọn kết quả → gán vào hidden input
-                                         geocoder.on('result', function (e) {
-                                             const address = e.result.place_name;
-                                             document.getElementById('modalAddress').value = address;
-                                         });
-
-                                         // Mở modal → gán giá trị ban đầu
+                                         // Simplified address input functionality without Mapbox
                                          function openEditCustomer() {
                                              document.getElementById('modalFullName').value = '${customer.fullName}';
                                              document.getElementById('modalPhone').value = '${customer.phone}';
                                              document.getElementById('modalAddress').value = '${customer.address}';
-                                             document.querySelector('.mapboxgl-ctrl-geocoder input').value = '${customer.address}'; // cập nhật gợi ý ban đầu
                                              new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
                                          }
 
@@ -407,8 +376,8 @@
                                                              document.getElementById("hiddenAddress").value = address;
                                                              bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
 
-                                                             // ✅ truyền cả tọa độ nếu có
-                                                             showMiniMap(address, selectedCoordinates);
+                                                             // Show a simple confirmation message instead of map
+                                                             showAddressConfirmation(address);
                                                          } else {
                                                              alert("Failed to update customer info.");
                                                          }
@@ -420,54 +389,18 @@
                                          }
 
         </script>
-        <!-- Hiển thị bản đồ nhỏ sau khi chọn địa chỉ -->
+        <!-- Simple address confirmation instead of map display -->
         <script>
-            function showMiniMap(address, coordinates = null) {
+            function showAddressConfirmation(address) {
                 const miniMapDiv = document.getElementById("miniMap");
-                miniMapDiv.innerHTML = ""; // xoá bản đồ cũ
+                miniMapDiv.innerHTML = '<div class="alert alert-success">✓ Delivery address updated: ' + address + '</div>';
                 miniMapDiv.style.display = "block";
-
-                if (coordinates) {
-                    const [lng, lat] = coordinates;
-                    const map = new mapboxgl.Map({
-                        container: 'miniMap',
-                        style: 'mapbox://styles/mapbox/streets-v11',
-                        center: [lng, lat],
-                        zoom: 14
-                    });
-                    new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-                    return;
-                }
-
-                // fallback nếu không có toạ độ (ít khi dùng tới)
-                const encodedAddress = encodeURIComponent(address);
-                const geocodingUrl = `https://api.mapbox.com/geocoding/v5/mapbox.places/${encodedAddress}.json?access_token=YOUR_TOKEN_HERE`;
-
-                fetch(geocodingUrl)
-                        .then(res => res.json())
-                        .then(data => {
-                            if (data.features && data.features.length > 0) {
-                                const [lng, lat] = data.features[0].center;
-                                const map = new mapboxgl.Map({
-                                    container: 'miniMap',
-                                    style: 'mapbox://styles/mapbox/streets-v11',
-                                    center: [lng, lat],
-                                    zoom: 14
-                                });
-                                new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-                            } else {
-                                alert("Could not locate the address on map.");
-                                miniMapDiv.style.display = "none";
-                            }
-                        })
-                        .catch(err => {
-                            console.error("Geocoding error:", err);
-                            alert("Error showing map. Try again.");
-                            miniMapDiv.style.display = "none";
-                        });
+                
+                // Hide the confirmation after 3 seconds
+                setTimeout(() => {
+                    miniMapDiv.style.display = "none";
+                }, 3000);
             }
-
-
         </script>
 
 

@@ -16,7 +16,7 @@
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
         <!-- Bootstrap CSS -->
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-        <link href="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.css" rel="stylesheet" />
+
         <!-- Bootstrap JS (modal cần cái này) -->
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <style>
@@ -607,36 +607,15 @@
         %>
 
 
-        <div id="map" style="height: 400px; width: 100%;"></div>
-
-        <!-- Mapbox JS -->
-        <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-        <script>
-                            mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhZmYxIiwiYSI6ImNtYWZndDRjNzAybGUybG44ZWYzdTlsNWQifQ.jSJjwMo8_OQszYjWAAi7iQ';
-
-                            const storeCoordinates = [105.73243159506195, 10.012620837028985]; // [lng, lat]
-
-                            const map = new mapboxgl.Map({
-                                container: 'map',
-                                style: 'mapbox://styles/mapbox/streets-v11',
-                                center: storeCoordinates,
-                                zoom: 15
-                            });
-
-                            map.on('load', () => {
-                                new mapboxgl.Marker()
-                                        .setLngLat(storeLocation)
-                                        .setPopup(new mapboxgl.Popup().setText('Oiship Store'))
-                                        .addTo(map);
-
-                                // Buộc map render lại sau 500ms
-                                setTimeout(() => {
-                                    map.resize();
-                                    map.setCenter(storeLocation); // đảm bảo giữ đúng vị trí
-                                }, 500);
-                            });
-
-        </script>
+        <iframe 
+            src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929.0558936967!2d105.73021907594678!3d10.012620892823!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a089a5f9aa4ed7%3A0xa3bb6f7e9b7a0f8e!2sOiship%20Store!5e0!3m2!1sen!2s!4v1635789123456!5m2!1sen!2s" 
+            width="100%" 
+            height="400" 
+            style="border:0; border-radius: 10px;" 
+            allowfullscreen="" 
+            loading="lazy" 
+            referrerpolicy="no-referrer-when-downgrade">
+        </iframe>
 
 </body>
 
@@ -980,6 +959,6 @@
 </script>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-<script src="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.js"></script>
+
 </body>
 </html>
