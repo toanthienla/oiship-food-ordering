@@ -68,22 +68,6 @@ public class DishIngredientDAO extends DBContext {
         }
     }
 
-    public boolean addIngredientToDish(int dishID, int ingredientID, BigDecimal quantity) {
-        String sql = "INSERT INTO DishIngredient (dishID, ingredientID, quantity) VALUES (?, ?, ?)";
-
-        try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, dishID);
-            ps.setInt(2, ingredientID);
-            ps.setBigDecimal(3, quantity);
-
-            int rows = ps.executeUpdate();
-            return rows > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
-            return false;
-        }
-    }
-
     public List<DishIngredient> getAllDishIngredients() {
         List<DishIngredient> list = new ArrayList<>();
         String sql = "SELECT di.dishID, di.ingredientID, di.quantity, i.name AS ingredientName, i.unitCost "
@@ -112,13 +96,10 @@ public class DishIngredientDAO extends DBContext {
     public boolean updateDishIngredientQuantity(int dishId, int ingredientId, BigDecimal newQuantity) {
         String sql = "UPDATE DishIngredient SET quantity = ? WHERE dishID = ? AND ingredientID = ?";
         try (PreparedStatement stmt = conn.prepareStatement(sql)) {
-
             stmt.setBigDecimal(1, newQuantity);
             stmt.setInt(2, dishId);
             stmt.setInt(3, ingredientId);
-
             return stmt.executeUpdate() > 0;
-
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -138,5 +119,38 @@ public class DishIngredientDAO extends DBContext {
             e.printStackTrace();
         }
         return false;
+    }
+
+    public DishIngredient getDishIngredient(int dishID, int ingredientID) {
+        String sql = "SELECT dishID, ingredientID, quantity FROM DishIngredient WHERE dishID = ? AND ingredientID = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, dishID);
+            ps.setInt(2, ingredientID);
+            ResultSet rs = ps.executeQuery();
+            if (rs.next()) {
+                DishIngredient di = new DishIngredient();
+                di.setDishId(rs.getInt("dishID"));
+                di.setIngredientId(rs.getInt("ingredientID"));
+                di.setQuantity(rs.getDouble("quantity"));
+                return di;
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return null;
+    }
+
+    public boolean addIngredientToDish(int dishID, int ingredientID, BigDecimal quantity) {
+        String sql = "INSERT INTO DishIngredient (dishID, ingredientID, quantity) VALUES (?, ?, ?)";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, dishID);
+            ps.setInt(2, ingredientID);
+            ps.setBigDecimal(3, quantity);
+            int rows = ps.executeUpdate();
+            return rows > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

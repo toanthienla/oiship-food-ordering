@@ -489,6 +489,11 @@
                             alertClass = "alert-success";
                             showAlert(dishAlertBox, message, alertClass);
                             break;
+                        case "replaced":
+                            message = '<i class="bi bi-arrow-repeat me-2"></i>Ingredient already existed for this dish. Quantity replaced!';
+                            alertClass = "alert-success";
+                            showAlert(ingredientAlertBox, message, alertClass);
+                            break;
                         default:
                             message = '<i class="bi bi-info-circle-fill me-2"></i>Unknown status.';
                             alertClass = "alert-secondary";
