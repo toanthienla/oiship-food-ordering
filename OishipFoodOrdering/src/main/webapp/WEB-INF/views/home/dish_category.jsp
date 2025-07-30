@@ -49,55 +49,56 @@
                                     ? menuItem.getImage()
                                     : "https://via.placeholder.com/300x200";
                 %>
-                <div class="col-md-4 mb-3 dish-item">
-                    <!-- Card món ăn mở modal -->
-                    <button class="btn btn-outline-secondary w-100" onclick="openDishDetail(<%= menuItem.getDishID()%>)">
-                        <div class="card dish-card">
+                <div class="col-sm-6 col-md-4 mb-3 dish-item">
+                    <button class="dish-card-button" onclick="openDishDetail(<%= menuItem.getDishID()%>)">
+                        <div class="card dish-card text-start">
                             <img src="<%= imageUrl%>" class="card-img-top" alt="<%= menuItem.getDishName()%>">
                             <div class="card-body">
                                 <h5 class="card-title"><%= menuItem.getDishName()%></h5>
-                                <p class="card-text">Price: <%= menuItem.getFormattedPrice()%> đ</p>
+                                <p class="card-description text-muted" style="font-size: 0.9rem;"><%= menuItem.getDishDescription()%></p>
+                                <p class="card-text price" style="font-weight: 500"><%= menuItem.getFormattedPrice()%> đ</p>
                             </div>
                         </div>
-                    </button>                  
+                    </button>
                 </div>
+
                 <% }
-        } else { %>
+                } else { %>
                 <p class="text-muted">No dishes found.</p>
                 <% }%>
             </div>     
         </div>
 
-         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            document.addEventListener("DOMContentLoaded", () => {
-                const form = document.getElementById("dishSearchForm");
-                const input = document.getElementById("searchQuery");
-                const dishContainer = document.getElementById("dishContainer");
+        document.addEventListener("DOMContentLoaded", () => {
+            const form = document.getElementById("dishSearchForm");
+            const input = document.getElementById("searchQuery");
+            const dishContainer = document.getElementById("dishContainer");
 
-                form.addEventListener("submit", function (event) {
-                    event.preventDefault(); // Ngăn form reload
+            form.addEventListener("submit", function (event) {
+                event.preventDefault(); // Ngăn form reload
 
-                    const query = input.value.trim();
+                const query = input.value.trim();
 
-                    fetch("<%=request.getContextPath()%>/customer/search-dish", {
-                        method: "POST",
-                        headers: {
-                            "Content-Type": "application/x-www-form-urlencoded"
-                        },
-                        body: new URLSearchParams({
-                            searchQuery: query
-                        })
+                fetch("<%=request.getContextPath()%>/customer/search-dish", {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/x-www-form-urlencoded"
+                    },
+                    body: new URLSearchParams({
+                        searchQuery: query
                     })
-                            .then(response => response.text())
-                            .then(data => {
-                                dishContainer.innerHTML = data;
-                            })
-                            .catch(error => {
-                                console.error("Search error:", error);
-                            });
-                });
+                })
+                        .then(response => response.text())
+                        .then(data => {
+                            dishContainer.innerHTML = data;
+                        })
+                        .catch(error => {
+                            console.error("Search error:", error);
+                        });
             });
+        });
         </script>
     </body>
 </html>

@@ -20,7 +20,7 @@ public class CartDAO extends DBContext {
 
         String sql = "SELECT "
                 + "c.cartID, c.quantity, c.FK_Cart_Customer, c.FK_Cart_Dish, "
-                + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.stock " 
+                + "d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.stock "
                 + "FROM Cart c "
                 + "JOIN Dish d ON c.FK_Cart_Dish = d.DishID "
                 + "WHERE c.FK_Cart_Customer = ?";
@@ -86,14 +86,19 @@ public class CartDAO extends DBContext {
             ps.executeUpdate();
         }
     }
-//  phương thức edit quantity nếu đã có cartID
 
-    public void updateCartQuantity(int cartID, int quantity) throws SQLException {
+    public boolean updateCartQuantity(int cartID, int quantity) throws SQLException {
         String sql = "UPDATE Cart SET quantity = ? WHERE cartID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, quantity);
             ps.setInt(2, cartID);
-            ps.executeUpdate();
+            int rowsAffected = ps.executeUpdate();
+
+            // Return true if at least one row was updated, false otherwise
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error updating cart quantity for cartID " + cartID + ": " + e.getMessage());
+            throw e;
         }
     }
 
@@ -111,12 +116,18 @@ public class CartDAO extends DBContext {
         }
     }
 
-    // Xóa một món trong giỏ hàng   
-    public void deleteCartItem(int cartId) throws SQLException {
+    // Xóa một món trong giỏ hàng
+    public boolean deleteCartItem(int cartID) throws SQLException {
         String sql = "DELETE FROM Cart WHERE cartID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, cartId);
-            ps.executeUpdate();
+            ps.setInt(1, cartID);
+            int rowsAffected = ps.executeUpdate();
+
+            // Return true if at least one row was deleted, false otherwise
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            System.err.println("Error deleting cart item with cartID " + cartID + ": " + e.getMessage());
+            throw e;
         }
     }
 
@@ -192,7 +203,7 @@ public class CartDAO extends DBContext {
                 dish.setImage(rs.getString("image"));
                 dish.setOpCost(rs.getBigDecimal("opCost"));
                 dish.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
-                dish.setStock(rs.getInt("stock")); 
+                dish.setStock(rs.getInt("stock"));
                 loadIngredientsForDish(dish);
 
                 cart.setDish(dish);
@@ -274,7 +285,7 @@ public class CartDAO extends DBContext {
                 return rs.getInt("stock");
             }
         }
-        return 0; 
+        return 0;
     }
 
 }

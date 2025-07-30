@@ -11,73 +11,231 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0" />
         <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" />
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/all.min.css" />
-        <link href="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.css" rel="stylesheet" />
-        <%-- style category --%>
         <style>
-            .menu-section .btn {
-                border-radius: 20px;
-                padding: 8px 20px;
+            :root {
+                --oiship-orange: #ff6200;
+                --oiship-orange-light: #ffeadd;
+                --oiship-dark: #232323;
+                --oiship-gray: #f8f9fa;
+                --oiship-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                --oiship-radius: 4px;
+            }
+            body {
+                font-family: 'Segoe UI', Arial, sans-serif;
+                background: var(--oiship-gray);
+            }
+            .oiship-navbar {
+                background: #fff;
+                box-shadow: var(--oiship-shadow);
+                padding: 0.6rem 2rem;
+                border-radius: 0 0 var(--oiship-radius) var(--oiship-radius);
+                position: sticky;
+                top: 0;
+                z-index: 100;
+            }
+            .oiship-navbar .navbar-brand img {
+                height: 42px;
+                width: 140px;
+                object-fit: contain;
+                margin-right: 12px;
+                transition: width 0.2s;
+            }
+            .oiship-navbar .navbar-brand {
+                color: var(--oiship-orange) !important;
+                font-weight: bold;
+                font-size: 1.5rem;
+                display: flex;
+                align-items: center;
+                gap: 6px;
+                letter-spacing: 2px;
+            }
+            .oiship-navbar .nav-link {
+                color: #333;
                 font-weight: 500;
-                transition: all 0.2s ease;
-                white-space: nowrap;
+                margin-right: 8px;
+                border-radius: var(--oiship-radius);
+                transition: 0.2s;
+                padding: 7px 18px;
             }
-
-            .menu-section .btn.active,
-            .menu-section .btn:hover {
-                background-color: #ff6200;
+            .oiship-navbar .nav-link.active,
+            .oiship-navbar .nav-link:focus-visible,
+            .oiship-navbar .nav-link.show {
+                background: var(--oiship-orange-light) !important;
+                color: var(--oiship-orange) !important;
+                font-weight: 600;
+            }
+            .oiship-navbar .nav-link:hover:not(.active) {
+                background: var(--oiship-orange);
+                color: #fff !important;
+            }
+            .oiship-navbar .badge {
+                background: var(--oiship-orange);
                 color: #fff;
-                box-shadow: 0 3px 8px rgba(255, 98, 0, 0.3);
+            }
+            .oiship-navbar .dropdown-menu {
+                border-radius: var(--oiship-radius);
+                box-shadow: var(--oiship-shadow);
+            }
+            .oiship-navbar .dropdown-item:active {
+                background: var(--oiship-orange);
+                color: #fff;
+            }
+            .login-btn {
+                background: var(--oiship-orange) !important;
+                color: #fff !important;
+                border-radius: var(--oiship-radius);
+                padding: 7px 22px;
+                font-weight: 600;
+                border: none;
+                transition: background 0.18s;
+            }
+            .login-btn:hover {
+                background: #e65c00 !important;
+                color: #fff !important;
+            }
+            /* Enhanced search bar */
+            .search-bar-navbar {
+                min-width: 260px;
+                margin-right: 18px;
+                display: flex;
+                align-items: center;
+                position: relative;
+                max-width: 340px;
+                flex: 1;
+            }
+            .search-bar-navbar .form-control {
+                border: 1px solid #ececec;
+                border-radius: 32px;
+                background: #fffdfa;
+                padding: 8px 44px 8px 16px;
+                font-size: 1.05rem;
+                box-shadow: none;
+                color: #232323;
+                transition: box-shadow 0.15s;
+            }
+            .search-bar-navbar .form-control:focus {
+                box-shadow: 0 0 0 2px #ffe5d2;
+                border-color: #ffba85;
+            }
+            .search-bar-navbar .search-btn {
+                position: absolute;
+                right: 10px;
+                top: 50%;
+                transform: translateY(-50%);
+                border: none;
+                background: none;
+                color: var(--oiship-orange);
+                font-size: 1.3rem;
+                padding: 0 6px;
+                cursor: pointer;
+                outline: none;
+                transition: color 0.18s;
+            }
+            .search-bar-navbar .search-btn:hover {
+                color: #e65c00;
+            }
+            .hero-section {
+                width: 100%;
+                height: 380px;
+                margin-bottom: 2rem;
+                border-radius: var(--oiship-radius);
+                overflow: hidden;
+                box-shadow: var(--oiship-shadow);
+            }
+            .carousel-inner img {
+                width: 100%;
+                height: 380px;
+                object-fit: cover;
+            }
+            .menu-section {
+                background: #fff;
+                border-radius: var(--oiship-radius);
+                box-shadow: var(--oiship-shadow);
+                margin-bottom: 1.8rem;
+                padding: 1.5rem 1.5rem 0.5rem 1.5rem;
+            }
+            .menu-section h2 {
+                font-weight: 700;
+                color: var(--oiship-dark);
+            }
+            .menu-section .menu-btn {
+                border-radius: var(--oiship-radius);
+                margin-right: 8px;
+                padding: 9px 23px;
+                font-weight: 600;
+                background: #f3f3f3;
+                color: #333;
+                border: none;
+                transition: all 0.25s;
+            }
+            .menu-section .menu-btn.active,
+            .menu-section .menu-btn:hover {
+                background: var(--oiship-orange) !important;
+                color: #fff !important;
+                box-shadow: 0 2px 12px rgba(255,98,0,0.18);
+            }
+            .dish-section {
+                background: #fff;
+                border-radius: var(--oiship-radius);
+                box-shadow: var(--oiship-shadow);
+                margin-bottom: 1.5rem;
+                padding: 1.2rem 1.5rem;
+            }
+            /* Remove button styles and make it full-width */
+            .dish-card-button {
+                padding: 0;
+                border: none;
+                background: none;
+                width: 100%;
+                text-align: left;
+            }
+            /* Main card style */
+            .dish-card {
+                border-radius: 3px !important;
+                transition: box-shadow 0.22s ease;
+                overflow: hidden;
+                background: #fff;
+                box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+            }
+            /* Hover effect: box shadow only, no transform */
+            .dish-card:hover {
+                box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+            }
+            /* Image styling */
+            .dish-card img {
+                height: 170px;
+                object-fit: cover;
+                border-radius: var(--oiship-radius, 3px) var(--oiship-radius, 3px) 0 0;
+                width: 100%;
+                border-bottom: 1px solid #f3f3f3;
+                background-color: #f9f9f9;
+            }
+            /* Body padding */
+            .dish-card .card-body {
+                padding: 16px 18px;
+            }
+            /* Align text to left and style title */
+            .dish-card .card-title {
+                font-size: 1.15rem;
+                font-weight: 600;
+                color: #232323;
+                margin-bottom: 6px;
+                text-align: left;
+            }
+            /* Text description */
+            .dish-card .card-text {
+                font-size: 1rem;
+                color: #666;
+                text-align: left;
+            }
+            /* Price formatting */
+            .dish-card .price {
+                font-weight: 700;
+                font-size: 1.05rem;
+                color: var(--oiship-orange, #ff6600);
+                text-align: left;
             }
 
-            .menu-section .d-flex::-webkit-scrollbar {
-                display: none;
-            }
-
-            .menu-section .d-flex {
-                -ms-overflow-style: none;
-                scrollbar-width: none;
-                .pagination-container {
-                    display: flex;
-                    justify-content: center;
-                    gap: 8px;
-                    margin-top: 30px;
-                    flex-wrap: wrap;
-                    user-select: none;
-                }
-
-                .pagination-container button {
-                    background-color: transparent;
-                    border: none;
-                    color: #666;
-                    font-size: 1rem;
-                    padding: 6px 12px;
-                    border-radius: 4px;
-                    cursor: pointer;
-                }
-
-                .pagination-container button:hover {
-                    background-color: #eee;
-                }
-
-                .pagination-container button.active {
-                    background-color: #d85c38;
-                    color: #fff;
-                }
-
-                .pagination-container button:disabled {
-                    color: #aaa;
-                    cursor: default;
-                }
-
-                .pagination-dots {
-                    padding: 6px 12px;
-                    color: #888;
-                }
-
-            }
-        </style>
-        <%-- phân trang --%>
-        <style>
             .pagination-container {
                 display: flex;
                 justify-content: center;
@@ -86,270 +244,186 @@
                 flex-wrap: wrap;
                 user-select: none;
             }
-
             .pagination-container button {
                 background-color: transparent;
                 border: none;
                 color: #666;
-                font-size: 1.25rem;      
-                padding: 10px 18px;      
-                border-radius: 8px;       
+                font-size: 1.15rem;
+                padding: 8px 16px;
+                border-radius: var(--oiship-radius);
                 cursor: pointer;
-                transition: all 0.3s ease;
+                transition: all 0.2s;
             }
-
             .pagination-container button:hover {
-                background-color: #f0f0f0;
-                font-weight: bold;
-                transform: scale(1.05);   
+                background: #ffe1ce;
             }
-
             .pagination-container button.active {
-                background-color: #d6692a;  
-                color: #fff;
-                font-weight: bold;
-                box-shadow: 0 0 8px rgba(214, 105, 42, 0.4); 
-            }
-
-            .pagination-container button:disabled {
-                color: #aaa;
-                cursor: default;
-                opacity: 0.5;
-            }
-
-            .pagination-dots {
-                padding: 10px 18px;
-                font-size: 1.2rem;
-                color: #888;
-            }
-
-            .pagination-container button:hover {
-                background-color: #f2dfd3; /* nhẹ hơn 1 chút để tương phản */
-            }
-
-            .pagination-container button.active {
-                background-color: #d85c38;
+                background: var(--oiship-orange);
                 color: #fff;
             }
-
             .pagination-container button:disabled {
                 color: #aaa;
                 cursor: default;
             }
-
             .pagination-dots {
-                padding: 6px 12px;
+                padding: 8px 12px;
                 color: #888;
             }
-
-        </style>
-        <%-- style home --%>
-        <style>
-
-            body {
-                font-family: 'Arial', sans-serif;
-                background-color: #f8f9fa;
-            }
-            .sidebar {
-                width: 250px;
-                background-color: #ffffff;
-                height: 100vh;
-                position: fixed;
-                padding-top: 20px;
-                box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
-            }
-            .sidebar a {
-                display: block;
-                padding: 10px 15px;
-                color: #000;
-                text-decoration: none;
-            }
-            .sidebar a:hover, .sidebar .active {
-                background-color: #ff6200;
-                color: #fff !important;
-            }
-            .main-content {
-                margin-left: 250px;
-                padding: 20px;
-            }
-            .search-bar {
-                margin-bottom: 20px;
-            }
-            .hero-section {
+            .ggmap-container {
                 width: 100%;
-                height: 400px;
-                margin: 0;
-                padding: 0;
-                border-radius: 10px;
-                overflow: hidden;
+                display: flex;
+                justify-content: center;
                 margin-bottom: 2rem;
             }
-
-            .carousel-inner img {
+            .ggmap-container iframe {
                 width: 100%;
-                height: 400px;
-                object-fit: cover;
-                border-radius: 10px;
-                display: block;
+                min-height: 320px;
+                max-height: 400px;
+                border-radius: var(--oiship-radius);
+                box-shadow: var(--oiship-shadow);
+                border: 0;
             }
-
-
-
-            .btn-custom {
-                background-color: #ff6200;
-                color: #fff;
+            .custom-modal-content {
+                border-radius: 12px;
+                background: #fffdfa;
+                box-shadow: 0 8px 32px rgba(0,0,0,0.18);
                 border: none;
-                padding: 10px 20px;
-                transition: background-color 0.3s ease;
-            }
-            .btn-custom:hover {
-                background-color: #e65c00;
-            }
-            .btn-outline-custom {
-                border-color: #fff;
-                color: #fff;
-                padding: 10px 20px;
-            }
-            .btn-outline-custom:hover {
-                background-color: #fff;
-                color: #ff6200;
-            }
-            .notification-bell {
-                position: relative;
-            }
-            .notification-bell .badge {
-                position: absolute;
-                top: -5px;
-                right: -10px;
-                background-color: #ff6200;
-            }
-            .menu-section, .dish-section, .contact-section {
-                background-color: #fff;
-                padding: 20px;
-                border-radius: 10px;
-                box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-                margin-bottom: 2rem;
-            }
-            .menu-btn {
-                border-radius: 30px;
-                margin-right: 8px;
-                padding: 10px 25px;
-                font-weight: 600;
-                transition: all 0.3s ease;
-            }
-            .menu-btn:hover, .menu-btn.active {
-                background-color: #ff6200 !important;
-                color: #fff !important;
-                box-shadow: 0 4px 15px rgba(255, 98, 0, 0.5);
-            }
-            .dish-card {
-                border: 1px solid #ddd;
-                border-radius: 10px;
+                padding: 0;
                 overflow: hidden;
-                transition: transform 0.3s ease;
+                animation: modalFadeIn 0.35s cubic-bezier(.4,0,.2,1);
             }
-            .dish-card:hover {
-                transform: translateY(-5px);
+            @keyframes modalFadeIn {
+                from {
+                    opacity: 0;
+                    transform: translateY(30px);
+                }
+                to {
+                    opacity: 1;
+                    transform: translateY(0);
+                }
             }
-            .dish-card img {
-                height: 200px;
-                object-fit: cover;
-                width: 100%;
+            .custom-modal-content .modal-header {
+                background: #ffeadd;
+                border-bottom: 1px solid #ffd6b0;
+                border-top-left-radius: 12px;
+                border-top-right-radius: 12px;
+                padding: 1.2rem 2rem 1.2rem 1.7rem;
             }
-            .contact-form .form-control {
-                margin-bottom: 1rem;
+            .custom-modal-content .modal-title {
+                color: #ff6200;
+                font-weight: 700;
+                font-size: 1.35rem;
+                letter-spacing: 1px;
+            }
+            .custom-modal-content .modal-body {
+                padding: 2rem 2.2rem 1.5rem 2.2rem;
+                background: #fffdfa;
+                font-size: 1.08rem;
+                color: #232323;
+            }
+            .custom-modal-content .modal-footer {
+                background: #fff5e6;
+                border-top: 1px solid #ffd6b0;
+                border-bottom-left-radius: 12px;
+                border-bottom-right-radius: 12px;
+                padding: 1rem 2rem;
+                justify-content: flex-end;
+            }
+            .custom-modal-content .btn-close {
+                filter: invert(42%) sepia(94%) saturate(1632%) hue-rotate(4deg) brightness(105%) contrast(106%);
+                opacity: 0.7;
+                transition: opacity 0.18s;
+            }
+            .custom-modal-content .btn-close:hover {
+                opacity: 1;
+            }
+            @media (max-width: 1199px) {
+                .hero-section {
+                    height: 260px;
+                }
+                .carousel-inner img {
+                    height: 260px;
+                }
+                .oiship-navbar .navbar-brand img {
+                    width: 110px;
+                }
             }
             @media (max-width: 768px) {
-                .sidebar {
-                    width: 100%;
-                    height: auto;
-                    position: relative;
+                .oiship-navbar {
+                    padding: 0.6rem 1rem;
                 }
-                .main-content {
-                    margin-left: 0;
+                .menu-section,
+                .dish-section {
+                    padding: 1rem 0.5rem;
                 }
-                .hero-section {
-                    height: 300px;
+                .hero-section,
+                .carousel-inner img {
+                    height: 180px;
                 }
-                .hero-section h1 {
-                    font-size: 1.8rem;
+                .ggmap-container iframe {
+                    min-height: 220px;
                 }
-                .dish-card img {
-                    height: 150px;
+                .oiship-navbar .navbar-brand img {
+                    width: 90px;
                 }
-            }
-        </style>
-        <style>
-            .btn-page {
-                border: 1px solid #ccc;
-                padding: 5px 12px;
-                border-radius: 5px;
-                background-color: white;
-                color: #333;
-                transition: 0.2s;
-            }
-
-            .btn-page:hover {
-                background-color: #eee;
-            }
-
-            .btn-page.active {
-                background-color: #fff5e6;
-                color: white;
-                border-color: #fff5e6;
+                .custom-modal-content .modal-body,
+                .custom-modal-content .modal-header,
+                .custom-modal-content .modal-footer {
+                    padding-left: 1rem;
+                    padding-right: 1rem;
+                }
+                .search-bar-navbar {
+                    min-width: 120px;
+                    margin-right: 5px;
+                }
             }
         </style>
     </head>
     <body>
-        <div class="sidebar">
-            <div class="text-center mb-4">
-                <img src="images/logo_1.png" alt="Oiship Logo" class="img-fluid" />
-                <h5 class="mt-2 text-orange">OISHIP</h5>
-            </div>
-            <a href="#home" class="active"><i class="fas fa-home me-2"></i> Home</a>               
-            <a href="customer/view-cart"><i class="fas fa-shopping-cart me-2"></i> Cart</a>          
-            <a href="login"><i class="fas fa-list me-2"></i> Order</a>                 
-            <a href="#contact"><i class="fas fa-phone me-2"></i> Contact</a>          
-        </div>
-
-        <div class="main-content">
-            <nav class="navbar navbar-light bg-light p-2 mb-3">
-                <form id="dishSearchForm" class="d-flex search-bar" role="search">
-                    <input class="form-control me-2" type="text" id="searchQuery" placeholder="Search for dishes..." />
-                    <button class="btn btn-outline-success" type="submit">Find</button>
+        <nav class="navbar navbar-expand-lg oiship-navbar mb-3">
+            <div class="container-fluid align-items-center">
+                <a class="navbar-brand d-flex align-items-center" href="#">
+                    <img src="images/logo_1.png" alt="Oiship Logo" />
+                </a>
+                <!-- Search form in navbar -->
+                <form id="dishSearchForm" class="search-bar-navbar mx-2" autocomplete="off" role="search">
+                    <input class="form-control" type="text" id="searchQuery" placeholder="Search for dishes..." />
+                    <button class="search-btn" type="submit" title="Search">
+                        <i class="fas fa-search"></i>
+                    </button>
                 </form>
-                <div class="d-flex align-items-center">
-                    <div class="notification-bell me-3">
-                        <i class="fas fa-bell"></i>
-                        <span class="badge rounded-pill"></span>
-                    </div>
-                    <div class="dropdown">
-                        <a class="dropdown-toggle text-decoration-none" href="#" role="button" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
-                            <i class="fas fa-user"></i>
-                            <span>
-                                <c:choose>
-                                    <c:when test="${isLoggedIn and not empty userName}">
-                                        <c:out value="${userName}" />
-                                    </c:when>
-                                    <c:otherwise>
-                                        Guest
-                                    </c:otherwise>
-                                </c:choose>
-                            </span>
-                        </a>
-                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
-                            <c:if test="${isLoggedIn}">
-                                <li><a class="dropdown-item" href="#">Profile</a></li>
-                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Log out</a></li>
-                                </c:if>
-                                <c:if test="${not isLoggedIn}">
-                                <li><a class="dropdown-item" href="${pageContext.request.contextPath}/login">Log in</a></li>
-                                </c:if>
-                        </ul>
-                    </div>
+                <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#oishipNavbarNav" aria-controls="oishipNavbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                    <span class="navbar-toggler-icon"></span>
+                </button>
+                <div class="collapse navbar-collapse justify-content-end" id="oishipNavbarNav">
+                    <ul class="navbar-nav align-items-center">
+                        <!-- Only user dropdown, always shown, no home, no login check -->
+                        <c:if test="${not isLoggedIn}">
+                            <li class="nav-item ms-2">
+                                <a class="nav-link login-btn" href="${pageContext.request.contextPath}/login">
+                                    <i class="fas fa-sign-in-alt me-1"></i> Login
+                                </a>
+                            </li>
+                        </c:if>
+                        <c:if test="${isLoggedIn}">
+                            <li class="nav-item dropdown ms-2">
+                                <a class="nav-link dropdown-toggle" href="#" id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                                    <i class="fas fa-user"></i>
+                                    <span><c:out value="${userName}" /></span>
+                                </a>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="#">Profile</a></li>
+                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout">Log out</a></li>
+                                </ul>
+                            </li>
+                        </c:if>
+                    </ul>
                 </div>
-            </nav>
-            <div class="hero-section">
+            </div>
+        </nav>
+
+        <div class="container-xl px-2 px-md-4">
+            <div class="hero-section mb-4">
                 <div id="carouselHero" class="carousel slide w-100" data-bs-ride="carousel">
                     <div class="carousel-inner">
                         <div class="carousel-item active">
@@ -373,17 +447,15 @@
 
             <!-- Menu Section -->
             <div id="menu" class="menu-section">
-                <h2 class="mb-4">MENU</h2>
+                <h2 class="mb-4">MENU CATEGORIES</h2>
                 <div class="d-flex flex-wrap gap-2 overflow-auto pb-2" style="scrollbar-width: none;">
-                    <button class="btn btn-outline-primary menu-btn active" onclick="loadDishesByCategory('all')">All</button>
-
+                    <button class="btn menu-btn active" onclick="loadDishesByCategory('all')">All</button>
                     <%
                         List<Category> categories = (List<Category>) request.getAttribute("categories");
                         if (categories != null) {
                             for (model.Category cat : categories) {
                     %>
-                    <button class="btn btn-outline-primary menu-btn"
-                            onclick="loadDishesByCategory(<%= cat.getCatID()%>)">
+                    <button class="btn menu-btn" onclick="loadDishesByCategory(<%= cat.getCatID()%>)">
                         <%= cat.getCatName()%>
                     </button>
                     <%
@@ -402,253 +474,174 @@
                 <div id="pageNumbers" class="d-flex gap-2"></div>
                 <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
             </div>
-        </div>
-    </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
-    <!-- 💡 Đặt modal rỗng tại đây -->
-    <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
-        <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
-            <div class="modal-content" id="dishDetailContent">
-                <!-- Nội dung chi tiết sẽ được load bằng AJAX -->
+            <!-- Google Map Embed -->
+            <div class="ggmap-container mt-5">
+                <iframe
+                    src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3929.0533542569992!2d105.7298566755705!3d10.012451790093596!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x31a0890033b0a4d5%3A0x5360c94ba9e67842!2zNjAwIE5ndXnhu4VuIFbEg24gQ-G7qyBO4buRaSBEw6BpLCBBbiBCw6xuaCwgQsOsbmggVGjhu6d5LCBD4bqnbiBUaMahIDkwMDAwMCwgVmlldG5hbQ!5e0!3m2!1sen!2s!4v1753673481462!5m2!1sen!2s"
+                    style="border:0;" allowfullscreen="" loading="lazy" referrerpolicy="no-referrer-when-downgrade">
+                </iframe>
             </div>
         </div>
-    </div>
 
+        <!-- Dish Detail Modal -->
+        <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
+            <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
+                <div class="modal-content custom-modal-content" id="dishDetailContent">
+                    <!-- AJAX loaded here -->
+                </div>
+            </div>
+        </div>
 
-    <div id="map" style="height: 400px; width: 100%;"></div>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
+        <script>
+                        function openDishDetail(dishId) {
+                            fetch('<%=request.getContextPath()%>/customer/dish-detail', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                                body: 'dishId=' + dishId
+                            })
+                                    .then(response => response.text())
+                                    .then(html => {
+                                        document.getElementById('dishDetailContent').innerHTML = html;
+                                        new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
+                                    })
+                                    .catch(error => console.error('Error loading dish detail:', error));
+                        }
+                        function loadDishesByCategory(catId) {
+                            document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+                            event.target.classList.add('active');
+                            document.getElementById("searchQuery").value = '';
+                            fetch('<%= request.getContextPath()%>/customer/dish-detail', {
+                                method: 'POST',
+                                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
+                                body: 'catId=' + catId
+                            })
+                                    .then(response => response.text())
+                                    .then(html => {
+                                        document.getElementById('dish-container').innerHTML = html;
+                                        setupPagination();
+                                    })
+                                    .catch(error => console.error('Error loading dishes:', error));
+                        }
+                        document.addEventListener("DOMContentLoaded", () => {
+                            const form = document.getElementById("dishSearchForm");
+                            const input = document.getElementById("searchQuery");
+                            const dishContainer = document.getElementById("dish-container");
 
-    <!-- Mapbox JS -->
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.15.0/mapbox-gl.js"></script>
-    <script>
-                                mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhZmYxIiwiYSI6ImNtYWZndDRjNzAybGUybG44ZWYzdTlsNWQifQ.jSJjwMo8_OQszYjWAAi7iQ';
-
-                                const storeCoordinates = [105.73243159506195, 10.012620837028985]; // [lng, lat]
-
-                                const map = new mapboxgl.Map({
-                                    container: 'map',
-                                    style: 'mapbox://styles/mapbox/streets-v11',
-                                    center: storeCoordinates,
-                                    zoom: 15
-                                });
-
-                                map.on('load', () => {
-                                    new mapboxgl.Marker()
-                                            .setLngLat(storeLocation)
-                                            .setPopup(new mapboxgl.Popup().setText('Oiship Store'))
-                                            .addTo(map);
-
-                                    // Buộc map render lại sau 500ms
-                                    setTimeout(() => {
-                                        map.resize();
-                                        map.setCenter(storeLocation); // đảm bảo giữ đúng vị trí
-                                    }, 500);
-                                });
-
-    </script>
-
-
-
-
-    <script>
-        function openDishDetail(dishId) {
-            fetch('<%=request.getContextPath()%>/customer/dish-detail', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/x-www-form-urlencoded'},
-                body: 'dishId=' + dishId
-            })
-                    .then(response => response.text())
-                    .then(html => {
-                        document.getElementById('dishDetailContent').innerHTML = html;
-                        new bootstrap.Modal(document.getElementById('dishDetailModal')).show();
-                    })
-                    .catch(error => console.error('Error loading dish detail:', error));
-        }
-    </script>
-
-
-    <script>
-            function loadDishesByCategory(catId) {
-        document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
-        event.target.classList.add('active');
-
-        fetch('<%= request.getContextPath()%>/customer/dish-detail', {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/x-www-form-urlencoded'
-            },
-            body: 'catId=' + catId
-        })
-                .then(response => response.text())
-                .then(html => {
-                    document.getElementById('dish-container').innerHTML = html;
-
-                   
-                    setupPagination();
-                })
-                .catch(error => {
-                    console.error('Error loading dishes:', error);
-                });
-    }
-
-    </script>      
-
-
-
-
-
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const form = document.getElementById("dishSearchForm");
-            const input = document.getElementById("searchQuery");
-            const dishContainer = document.getElementById("dish-container");
-
-            form.addEventListener("submit", function (event) {
-                event.preventDefault(); // Ngăn form reload
-
-                const query = input.value.trim();
-
-                fetch("<%=request.getContextPath()%>/customer/search-dish", {
-                    method: "POST",
-                    headers: {
-                        "Content-Type": "application/x-www-form-urlencoded"
-                    },
-                    body: new URLSearchParams({
-                        searchQuery: query
-                    })
-                })
-                        .then(response => response.text())
-                        .then(data => {
-                            dishContainer.innerHTML = data;
-                        })
-                        .catch(error => {
-                            console.error("Search error:", error);
+                            // Submit search
+                            form.addEventListener("submit", function (event) {
+                                event.preventDefault();
+                                const query = input.value.trim();
+                                if (!query)
+                                    return;
+                                // Set "All" category active
+                                document.querySelectorAll('.menu-btn').forEach(btn => btn.classList.remove('active'));
+                                document.querySelector('.menu-btn').classList.add('active');
+                                fetch("<%=request.getContextPath()%>/customer/search-dish", {
+                                    method: "POST",
+                                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
+                                    body: new URLSearchParams({searchQuery: query})
+                                })
+                                        .then(response => response.text())
+                                        .then(data => {
+                                            dishContainer.innerHTML = data;
+                                        })
+                                        .catch(error => {
+                                            console.error("Search error:", error);
+                                        });
+                            });
                         });
-            });
-        });
-    </script>
-
-   <script>
-    function setupPagination() {
-        const itemsPerPage = 15;
-        const dishes = Array.from(document.querySelectorAll(".dish-item"));
-        const totalPages = Math.ceil(dishes.length / itemsPerPage);
-        let currentPage = 1;
-
-        const prevBtn = document.getElementById("prevPageBtn");
-        const nextBtn = document.getElementById("nextPageBtn");
-        const pageNumbers = document.getElementById("pageNumbers");
-
-       
-        function showPage(page) {
-            dishes.forEach((item, index) => {
-                item.style.display = "none";
-            });
-
-            const start = (page - 1) * itemsPerPage;
-            const end = start + itemsPerPage;
-            dishes.slice(start, end).forEach(item => {
-                item.style.display = "block";
-            });
-
-           
-            document.querySelectorAll("#pageNumbers button").forEach(btn => {
-                btn.classList.remove("btn-primary");
-                btn.classList.add("btn-outline-primary");
-            });
-
-            const activeBtn = document.getElementById(`pageBtn${page}`);
-            if (activeBtn) {
-                activeBtn.classList.add("btn-primary");
-                activeBtn.classList.remove("btn-outline-primary");
-            }
-
-            prevBtn.disabled = (page === 1);
-            nextBtn.disabled = (page === totalPages);
-        }
-
-       
-        function createPagination() {
-            pageNumbers.innerHTML = "";
-
-            const maxVisible = 5;
-            let startPage = Math.max(currentPage - 2, 1);
-            let endPage = Math.min(startPage + maxVisible - 1, totalPages);
-
-            if (endPage - startPage < maxVisible - 1) {
-                startPage = Math.max(endPage - maxVisible + 1, 1);
-            }
-
-            if (startPage > 1) {
-                appendPageButton(1);
-                if (startPage > 2) {
-                    pageNumbers.appendChild(createDots());
+        </script>
+        <script>
+            function setupPagination() {
+                const itemsPerPage = 15;
+                const dishes = Array.from(document.querySelectorAll(".dish-item"));
+                const totalPages = Math.ceil(dishes.length / itemsPerPage);
+                let currentPage = 1;
+                const prevBtn = document.getElementById("prevPageBtn");
+                const nextBtn = document.getElementById("nextPageBtn");
+                const pageNumbers = document.getElementById("pageNumbers");
+                function showPage(page) {
+                    dishes.forEach((item, index) => {
+                        item.style.display = "none";
+                    });
+                    const start = (page - 1) * itemsPerPage;
+                    const end = start + itemsPerPage;
+                    dishes.slice(start, end).forEach(item => {
+                        item.style.display = "block";
+                    });
+                    document.querySelectorAll("#pageNumbers button").forEach(btn => {
+                        btn.classList.remove("btn-primary");
+                        btn.classList.add("btn-outline-primary");
+                    });
+                    const activeBtn = document.getElementById(`pageBtn${page}`);
+                    if (activeBtn) {
+                        activeBtn.classList.add("btn-primary");
+                        activeBtn.classList.remove("btn-outline-primary");
+                    }
+                    prevBtn.disabled = (page === 1);
+                    nextBtn.disabled = (page === totalPages);
                 }
-            }
-
-            for (let i = startPage; i <= endPage; i++) {
-                appendPageButton(i);
-            }
-
-            if (endPage < totalPages) {
-                if (endPage < totalPages - 1) {
-                    pageNumbers.appendChild(createDots());
+                function createPagination() {
+                    pageNumbers.innerHTML = "";
+                    const maxVisible = 5;
+                    let startPage = Math.max(currentPage - 2, 1);
+                    let endPage = Math.min(startPage + maxVisible - 1, totalPages);
+                    if (endPage - startPage < maxVisible - 1) {
+                        startPage = Math.max(endPage - maxVisible + 1, 1);
+                    }
+                    if (startPage > 1) {
+                        appendPageButton(1);
+                        if (startPage > 2)
+                            pageNumbers.appendChild(createDots());
+                    }
+                    for (let i = startPage; i <= endPage; i++)
+                        appendPageButton(i);
+                    if (endPage < totalPages) {
+                        if (endPage < totalPages - 1)
+                            pageNumbers.appendChild(createDots());
+                        appendPageButton(totalPages);
+                    }
                 }
-                appendPageButton(totalPages);
-            }
-        }
-
-        function appendPageButton(i) {
-            const btn = document.createElement("button");
-            btn.id = `pageBtn${i}`;
-            btn.textContent = i;
-            btn.className = "btn-page" + (i === currentPage ? " active" : "");
-            btn.addEventListener("click", () => {
-                currentPage = i;
-                showPage(currentPage);
+                function appendPageButton(i) {
+                    const btn = document.createElement("button");
+                    btn.id = `pageBtn${i}`;
+                    btn.textContent = i;
+                    btn.className = "btn-page" + (i === currentPage ? " active" : "");
+                    btn.addEventListener("click", () => {
+                        currentPage = i;
+                        showPage(currentPage);
+                        createPagination();
+                    });
+                    pageNumbers.appendChild(btn);
+                }
+                function createDots() {
+                    const span = document.createElement("span");
+                    span.textContent = "...";
+                    span.className = "pagination-dots";
+                    return span;
+                }
+                prevBtn.onclick = () => {
+                    if (currentPage > 1) {
+                        currentPage--;
+                        showPage(currentPage);
+                        createPagination();
+                    }
+                };
+                nextBtn.onclick = () => {
+                    if (currentPage < totalPages) {
+                        currentPage++;
+                        showPage(currentPage);
+                        createPagination();
+                    }
+                };
                 createPagination();
+                showPage(currentPage);
+            }
+            document.addEventListener('DOMContentLoaded', () => {
+                setupPagination();
             });
-            pageNumbers.appendChild(btn);
-        }
-
-
-       
-        function createDots() {
-            const span = document.createElement("span");
-            span.textContent = "...";
-            span.className = "pagination-dots";
-            return span;
-        }
-
-       
-        prevBtn.onclick = () => {
-            if (currentPage > 1) {
-                currentPage--;
-                showPage(currentPage);
-                createPagination();
-            }
-        };
-
-        nextBtn.onclick = () => {
-            if (currentPage < totalPages) {
-                currentPage++;
-                showPage(currentPage);
-                createPagination();
-            }
-        };
-
-      
-        createPagination();
-        showPage(currentPage);
-    }
-
-   
-    document.addEventListener('DOMContentLoaded', () => {
-        setupPagination();
-    });
-</script>
-
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-    <script src="https://api.mapbox.com/mapbox-gl-js/v2.16.1/mapbox-gl.js"></script>
-</body>
+        </script>
+    </body>
 </html>

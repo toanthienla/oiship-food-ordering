@@ -33,7 +33,7 @@ public class NotificationDAO extends DBContext {
                 + "SELECT c.customerID, ? FROM Customer c";
 
         try (
-            PreparedStatement st1 = conn.prepareStatement(insertNotificationSQL, Statement.RETURN_GENERATED_KEYS);) {
+                PreparedStatement st1 = conn.prepareStatement(insertNotificationSQL, Statement.RETURN_GENERATED_KEYS);) {
             st1.setString(1, noti.getNotTitle());
             st1.setString(2, noti.getNotDescription());
             st1.setInt(3, noti.getAccountID());
@@ -98,7 +98,7 @@ public class NotificationDAO extends DBContext {
                 + "        JOIN CustomerNotification cn ON n.notID = cn.notID\n"
                 + "        WHERE cn.customerID = ? AND cn.isRead = 0\n"
                 + "        ORDER BY n.notID DESC ";
-        
+
         try (
                 PreparedStatement ps = conn.prepareStatement(sql)) {
 
@@ -121,16 +121,24 @@ public class NotificationDAO extends DBContext {
         return list;
     }
 
-    public void markAsRead(int customerID, int notID) {
+    public boolean markAsRead(int customerID, int notID) {
         String sql = "UPDATE CustomerNotification SET isRead = 1 WHERE customerID = ? AND notID = ?";
-        try (
-                PreparedStatement ps = conn.prepareStatement(sql)) {
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+
+            System.out.println("Executing markAsRead - customerID: " + customerID + ", notID: " + notID); // Debug log
+
             ps.setInt(1, customerID);
             ps.setInt(2, notID);
-            ps.executeUpdate();
+
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("Rows affected: " + rowsAffected); // Debug log
+
+            return rowsAffected > 0;
+
         } catch (Exception e) {
+            System.out.println("Error in markAsRead: " + e.getMessage());
             e.printStackTrace();
+            return false;
         }
     }
-
 }
