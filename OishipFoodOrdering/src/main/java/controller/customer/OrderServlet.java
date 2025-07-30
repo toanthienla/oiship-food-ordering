@@ -10,6 +10,8 @@ import utils.TotalPriceCalculator;
 
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 
 @WebServlet(name = "OrderServlet", urlPatterns = {"/customer/order"})
@@ -19,30 +21,82 @@ public class OrderServlet extends HttpServlet {
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
+        // Check if the session exists and the user is logged in as a customer
         HttpSession session = request.getSession(false);
-        if (session == null || session.getAttribute("userId") == null) {
+        if (session == null || session.getAttribute("userId") == null || !"customer".equals(session.getAttribute("role"))) {
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
         int customerId = (int) session.getAttribute("userId");
 
+        // Get customer information using userId
+        AccountDAO accountDAO = new AccountDAO();
+        Account account = accountDAO.findByID(customerId);
+
+        if (account != null) {
+            request.setAttribute("account", account);
+            request.setAttribute("userName", account.getFullName());
+            System.out.println("OrderServlet - Found account: " + account.getFullName() + " (ID: " + customerId + ") at 2025-07-29 17:59:17");
+        } else {
+            request.setAttribute("error", "Account not found for user ID: " + customerId);
+            request.setAttribute("userName", "toanthienla"); // Current user fallback
+            System.out.println("OrderServlet - Account not found for userId: " + customerId + ", using fallback username: toanthienla");
+        }
+
+        // Get notifications for the customer
+        NotificationDAO notificationDAO = new NotificationDAO();
+        List<Notification> notifications = notificationDAO.getUnreadNotificationsByCustomer(customerId);
+        request.setAttribute("notifications", notifications);
+        System.out.println("OrderServlet - Notifications count: " + (notifications != null ? notifications.size() : 0) + " for userId: " + customerId);
+
+        // Get cart items for sidebar
+        CartDAO cartDAO = new CartDAO();
+        try {
+            List<Cart> cartItems = cartDAO.getCartByCustomerId(customerId);
+            session.setAttribute("cartItems", cartItems);
+            System.out.println("OrderServlet - Cart items count: " + (cartItems != null ? cartItems.size() : 0));
+        } catch (SQLException ex) {
+            System.err.println("OrderServlet - Error getting cart items for sidebar at 2025-07-29 17:59:17: " + ex.getMessage());
+            ex.printStackTrace();
+        }
+
         try {
             OrderDAO orderDAO = new OrderDAO();
             List<Order> orderList = orderDAO.getAllOrdersWithDetailsByCustomerId(customerId);
 
             String[] orderStatusText = {
-                    "Pending", "Confirmed", "Preparing", "Out for Delivery",
-                    "Delivered", "Cancelled", "Failed"
+                "Pending", "Confirmed", "Preparing", "Out for Delivery",
+                "Delivered", "Cancelled", "Failed"
             };
 
             request.setAttribute("orderHistory", orderList);
             request.setAttribute("orderStatusText", orderStatusText);
+
+            System.out.println("OrderServlet - Retrieved " + (orderList != null ? orderList.size() : 0)
+                    + " orders for customer " + customerId + " at 2025-07-29 17:59:17");
+            System.out.println("OrderServlet - Current user: toanthienla");
+            System.out.println("OrderServlet - Username attribute set to: " + request.getAttribute("userName"));
+
             request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
 
         } catch (Exception e) {
+            System.err.println("OrderServlet - Error retrieving order history for customer " + customerId
+                    + " at 2025-07-29 17:59:17: " + e.getMessage());
             e.printStackTrace();
-            request.setAttribute("error", "Không thể hiển thị lịch sử đơn hàng.");
+
+            request.setAttribute("error", "Unable to display order history.");
+
+            // Ensure userName is still set even on error
+            if (request.getAttribute("userName") == null) {
+                request.setAttribute("userName", "toanthienla");
+            }
+
+            // Ensure notifications are still set even on error
+            if (request.getAttribute("notifications") == null) {
+                request.setAttribute("notifications", new ArrayList<>());
+            }
+
             request.getRequestDispatcher("/WEB-INF/views/customer/order_history.jsp").forward(request, response);
         }
     }
@@ -173,8 +227,6 @@ public class OrderServlet extends HttpServlet {
 
                 int orderId = orderDAO.createOrder(customerId, finalTotal, voucherID);
                 session.setAttribute("pendingOrderId", orderId); // ✅ lưu orderId vào session
-
-                
 
                 for (Cart cart : selectedCarts) {
                     orderDAO.addOrderDetail(orderId, cart.getDish().getDishID(), cart.getQuantity());
