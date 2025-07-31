@@ -217,7 +217,7 @@
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                         <li>
-                                                            <a class="dropdown-item" href="#" onclick="toggleDetails(${account.accountID})">Details</a>
+                                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#detailsModal-${account.accountID}">Detail</a>
                                                         </li>
                                                         <li>
                                                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal-${account.accountID}">Edit</a>
@@ -252,18 +252,6 @@
                                                             </a>
                                                         </li>
                                                     </ul>
-                                                </div>
-                                            </td>
-
-                                        </tr>
-                                        <tr id="detailsRow-${account.accountID}" class="details-row" style="display: none;">
-                                            <td colspan="4">
-                                                <div class="details-content">
-                                                    <strong>Details:</strong><br>
-                                                    <label>Full Name: ${account.fullName}</label><br>
-                                                    <label>Email: ${account.email}</label><br>
-                                                    <label>Status: ${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}</label><br>
-                                                    <label>Created At: <fmt:formatDate value="${account.createAt}" pattern="dd/MM/yyyy HH:mm:ss" /></label>
                                                 </div>
                                             </td>
                                         </tr>
@@ -302,7 +290,7 @@
                                                     </button>
                                                     <ul class="dropdown-menu">
                                                         <li>
-                                                            <a class="dropdown-item" href="#" onclick="toggleDetails(${account.accountID})">Details</a>
+                                                            <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#detailsModal-${account.accountID}">Details</a>
                                                         </li>
                                                         <li>
                                                             <a class="dropdown-item" href="#" data-bs-toggle="modal" data-bs-target="#editModal-${account.accountID}">Edit</a>
@@ -339,20 +327,6 @@
                                                     </ul>
                                                 </div>
                                             </td>
-
-                                        </tr>
-                                        <tr id="detailsRow-${account.accountID}" class="details-row" style="display: none;">
-                                            <td colspan="4">
-                                                <div class="details-content">
-                                                    <strong>Details:</strong><br>
-                                                    <label>Full Name: ${account.fullName}</label><br>
-                                                    <label>Email: ${account.email}</label><br>
-                                                    <label>Phone: ${account.customer.phone}</label><br>
-                                                    <label>Address: ${account.customer.address}</label><br>
-                                                    <label>Status: ${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}</label><br>
-                                                    <label>Created At: <fmt:formatDate value="${account.createAt}" pattern="dd/MM/yyyy HH:mm:ss" /></label>
-                                                </div>
-                                            </td>
                                         </tr>
                                     </c:forEach>
                                     <c:if test="${empty customerAccounts}">
@@ -362,6 +336,7 @@
                             </table>
                         </div>
                     </div>
+                    
                     <!-- Add Staff Modal -->
                     <div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
@@ -464,6 +439,104 @@
                         </div>
                     </div>
 
+                    <!-- Details Modal for Staff -->
+                    <c:forEach var="account" items="${staffAccounts}">
+                        <div class="modal fade" id="detailsModal-${account.accountID}" tabindex="-1" aria-labelledby="detailsModalLabel-${account.accountID}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="detailsModalLabel-${account.accountID}">Account Details (ID: ${account.accountID})</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Full Name:</label>
+                                                <input type="text" class="form-control" value="${account.fullName}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email:</label>
+                                                <input type="text" class="form-control" value="${account.email}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Password:</label>
+                                                <input type="text" class="form-control" value="••••••••" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Status:</label>
+                                                <input type="text" class="form-control" value="${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Role:</label>
+                                                <input type="text" class="form-control" value="${account.role}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Created At:</label>
+                                                <input type="text" class="form-control" value="<fmt:formatDate value="${account.createAt}" pattern="dd/MM/yyyy HH:mm:ss" />" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:forEach>
+
+                    <!-- Details Modal for Customers -->
+                    <c:forEach var="account" items="${customerAccounts}">
+                        <div class="modal fade" id="detailsModal-${account.accountID}" tabindex="-1" aria-labelledby="detailsModalLabel-${account.accountID}" aria-hidden="true">
+                            <div class="modal-dialog modal-lg">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="detailsModalLabel-${account.accountID}">Account Details (ID: ${account.accountID})</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    <div class="modal-body">
+                                        <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Full Name:</label>
+                                                <input type="text" class="form-control" value="${account.fullName}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Email:</label>
+                                                <input type="text" class="form-control" value="${account.email}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Phone:</label>
+                                                <input type="text" class="form-control" value="${account.customer != null ? account.customer.phone : ''}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Address:</label>
+                                                <input type="text" class="form-control" value="${account.customer != null ? account.customer.address : ''}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Password:</label>
+                                                <input type="text" class="form-control" value="••••••••" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Status:</label>
+                                                <input type="text" class="form-control" value="${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Role:</label>
+                                                <input type="text" class="form-control" value="${account.role}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
+                                                <label class="form-label">Created At:</label>
+                                                <input type="text" class="form-control" value="<fmt:formatDate value="${account.createAt}" pattern="dd/MM/yyyy HH:mm:ss" />" readonly>
+                                            </div>
+                                        </div>
+                                        <div class="mt-3">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </c:forEach>
+
                     <!-- Edit Modal for Staff -->
                     <c:forEach var="account" items="${staffAccounts}">
                         <div class="modal fade" id="editModal-${account.accountID}" tabindex="-1" aria-labelledby="editModalLabel-${account.accountID}" aria-hidden="true">
@@ -534,47 +607,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Details Modal for Staff -->
-                        <div class="modal fade" id="detailsModal-${account.accountID}" tabindex="-1" aria-labelledby="detailsModalLabel-${account.accountID}" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="detailsModalLabel-${account.accountID}">Account Details (ID: ${account.accountID})</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Full Name:</label>
-                                                <input type="text" class="form-control" value="${account.fullName}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Email:</label>
-                                                <input type="text" class="form-control" value="${account.email}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Password:</label>
-                                                <input type="text" class="form-control" value="${account.password}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Status:</label>
-                                                <input type="text" class="form-control" value="${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Role:</label>
-                                                <input type="text" class="form-control" value="${account.role}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Created At:</label>
-                                                <input type="text" class="form-control" value="<fmt:formatDate value="${account.createAt}" pattern="dd/MM/yyyy HH:mm:ss" />" readonly>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </c:forEach>
 
                     <!-- Edit Modal for Customers -->
@@ -626,7 +658,7 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="password-${account.accountID}" class="form-label">Password</label>
-                                                        <input type="text" class="form-control" id="password-${account.accountID}" name="password" value="${account.password}" readonly>
+                                                       <input type="text" class="form-control" value="••••••••" readonly>
                                                         <div class="invalid-feedback">Password cannot be edited.</div>
                                                     </div>
                                                 </div>
@@ -661,73 +693,11 @@
                                 </div>
                             </div>
                         </div>
-
-                        <!-- Details Modal for Customers -->
-                        <div class="modal fade" id="detailsModal-${account.accountID}" tabindex="-1" aria-labelledby="detailsModalLabel-${account.accountID}" aria-hidden="true">
-                            <div class="modal-dialog modal-lg">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h5 class="modal-title" id="detailsModalLabel-${account.accountID}">Account Details (ID: ${account.accountID})</h5>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div class="row g-3">
-                                            <div class="col-md-6">
-                                                <label class="form-label">Full Name:</label>
-                                                <input type="text" class="form-control" value="${account.fullName}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Email:</label>
-                                                <input type="text" class="form-control" value="${account.email}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Phone:</label>
-                                                <input type="text" class="form-control" value="${account.customer != null ? account.customer.phone : ''}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Address:</label>
-                                                <input type="text" class="form-control" value="${account.customer != null ? account.customer.address : ''}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Password:</label>
-                                                <input type="text" class="form-control" value="${account.password}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Status:</label>
-                                                <input type="text" class="form-control" value="${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Role:</label>
-                                                <input type="text" class="form-control" value="${account.role}" readonly>
-                                            </div>
-                                            <div class="col-md-6">
-                                                <label class="form-label">Created At:</label>
-                                                <input type="text" class="form-control" value="<fmt:formatDate value="${account.createAt}" pattern="dd/MM/yyyy HH:mm:ss" />" readonly>
-                                            </div>
-                                        </div>
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
                     </c:forEach>
                 </div>
             </div>
 
-
-
-
             <script>
-
-                function toggleDetails(accountID) {
-                    var detailsRow = document.getElementById('detailsRow-' + accountID);
-                    if (detailsRow.style.display === 'none' || detailsRow.style.display === '') {
-                        detailsRow.style.display = 'table-row'; // Hiển thị hàng chi tiết
-                    } else {
-                        detailsRow.style.display = 'none'; // Ẩn hàng chi tiết
-                    }
-                }
-
                 // Bootstrap validation
                 (function () {
                     'use strict';
@@ -863,11 +833,6 @@
                     });
                 });
 
-            </script>
-
-
-
-            <script>
                 // Khi click vào một tab hoặc phần, lưu lại ID
                 document.addEventListener("DOMContentLoaded", function () {
                     const buttons = document.querySelectorAll("[data-section-target]");
@@ -889,6 +854,6 @@
                     }
                 });
             </script>
-
+        </div>
     </body>
 </html>
