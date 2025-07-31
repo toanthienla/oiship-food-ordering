@@ -904,11 +904,9 @@
                             <div class="d-flex justify-content-between align-items-start mb-3">
                                 <div>
                                     <h5 class="mb-2">
-                                        <i class="fas fa-receipt me-2"></i>
                                         Order #<%= order.getOrderID()%>
                                     </h5>
                                     <p class="text-muted mb-0">
-                                        <i class="fas fa-calendar-alt me-2"></i>
                                         Date: <%= sdf.format(order.getOrderCreatedAt())%>
                                     </p>
                                 </div>
