@@ -654,36 +654,36 @@
                                     </div>
                                 </div>
 
-                               <!-- Payment Option - Auto Expanded -->
-<div class="accordion mt-4" id="deliveryAccordion">
-    <div class="accordion-item">
-        <h2 class="accordion-header" id="headingPayment">
-            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment" aria-expanded="true" aria-controls="collapsePayment">
-                <i class="fas fa-credit-card me-2"></i>
-                Payment Option
-            </button>
-        </h2>
-        <div id="collapsePayment" class="accordion-collapse collapse show" aria-labelledby="headingPayment" data-bs-parent="#deliveryAccordion">
-            <div class="accordion-body">
-                <div class="form-check mb-2">
-                    <input class="form-check-input" type="radio" name="payment" value="cash" id="paymentCash" checked>
-                    <label class="form-check-label" for="paymentCash">
-                        <i class="fas fa-money-bill-wave me-2"></i>
-                        Cash on Delivery
-                    </label>
-                </div>
-                <div class="form-check">
-                    <input class="form-check-input" type="radio" name="payment" value="bank_transfer" id="paymentBankTransfer">
-                    <label class="form-check-label" for="paymentBankTransfer">
-                        <i class="fas fa-university me-2"></i>
-                        Bank Transfer
-                    </label>
-                </div>
-                <div class="text-danger mt-2" id="errorMsg"></div>
-            </div>
-        </div>
-    </div>
-</div>
+                                <!-- Payment Option - Auto Expanded -->
+                                <div class="accordion mt-4" id="deliveryAccordion">
+                                    <div class="accordion-item">
+                                        <h2 class="accordion-header" id="headingPayment">
+                                            <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#collapsePayment" aria-expanded="true" aria-controls="collapsePayment">
+                                                <i class="fas fa-credit-card me-2"></i>
+                                                Payment Option
+                                            </button>
+                                        </h2>
+                                        <div id="collapsePayment" class="accordion-collapse collapse show" aria-labelledby="headingPayment" data-bs-parent="#deliveryAccordion">
+                                            <div class="accordion-body">
+                                                <div class="form-check mb-2">
+                                                    <input class="form-check-input" type="radio" name="payment" value="cash" id="paymentCash" checked>
+                                                    <label class="form-check-label" for="paymentCash">
+                                                        <i class="fas fa-money-bill-wave me-2"></i>
+                                                        Cash on Delivery
+                                                    </label>
+                                                </div>
+                                                <div class="form-check">
+                                                    <input class="form-check-input" type="radio" name="payment" value="bank_transfer" id="paymentBankTransfer">
+                                                    <label class="form-check-label" for="paymentBankTransfer">
+                                                        <i class="fas fa-university me-2"></i>
+                                                        Bank Transfer
+                                                    </label>
+                                                </div>
+                                                <div class="text-danger mt-2" id="errorMsg"></div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

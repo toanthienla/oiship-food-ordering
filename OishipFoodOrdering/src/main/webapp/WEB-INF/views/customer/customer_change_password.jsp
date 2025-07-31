@@ -591,7 +591,7 @@
                                id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user"></i>
                                 <div class="welcome-text">
-                                    Welcome, <span>toanthienla</span>!
+                                    Welcome, <span><c:out value="${userName}" default="Guest" /></span>!
                                 </div>
                             </a>
 
