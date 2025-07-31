@@ -652,7 +652,6 @@
                                         <div id="addressError" class="error-message" style="display: none;">Please enter your delivery address.</div>
                                         <div id="miniMap" style="height: 200px; width: 100%; margin-top: 10px; display: none;"></div>
                                     </div>
-                                    <i class="fas fa-map-marker-alt icon"></i>
                                 </div>
 
                                <!-- Payment Option - Auto Expanded -->
@@ -793,7 +792,6 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
-                            <i class="fas fa-user-edit me-2"></i>
                             Edit Customer Info
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -801,7 +799,6 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="modalFullName" class="form-label">
-                                <i class="fas fa-user me-2"></i>
                                 Full Name
                             </label>
                             <input type="text" class="form-control" id="modalFullName" />
@@ -809,7 +806,6 @@
 
                         <div class="mb-3">
                             <label for="modalPhone" class="form-label">
-                                <i class="fas fa-phone me-2"></i>
                                 Phone
                             </label>
                             <input type="text" class="form-control" id="modalPhone" />
@@ -817,7 +813,6 @@
 
                         <div class="mb-3">
                             <label for="modalAddress" class="form-label">
-                                <i class="fas fa-map-marker-alt me-2"></i>
                                 Address
                             </label>
                             <div id="mapboxAddressInput" class="geocoder"></div>
