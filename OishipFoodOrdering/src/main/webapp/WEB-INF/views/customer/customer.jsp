@@ -242,7 +242,7 @@
                 margin-bottom: 1.5rem;
                 padding: 1.2rem 1.5rem;
             }
-            
+
             /* Remove button styles and make it full-width */
             .dish-card-button {
                 padding: 0;
@@ -297,7 +297,7 @@
                 color: var(--oiship-orange, #ff6600);
                 text-align: left;
             }
-            
+
             .pagination-container {
                 display: flex;
                 justify-content: center;
@@ -402,6 +402,17 @@
             }
             .custom-modal-content .btn-close:hover {
                 opacity: 1;
+            }
+
+            /* COMPLETELY DISABLE BACKDROPS */
+            .modal-backdrop {
+                display: none !important;
+                opacity: 0 !important;
+                visibility: hidden !important;
+            }
+
+            .dropdown-backdrop {
+                display: none !important;
             }
 
             /* Enhanced Notification Modal Styles */
@@ -518,22 +529,10 @@
             .notification-content {
                 background: white;
                 padding: 20px;
-                border-radius: 12px;
                 border-left: 4px solid var(--oiship-orange);
                 margin-bottom: 20px;
                 box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
                 position: relative;
-            }
-
-            .notification-content::before {
-                content: '"';
-                position: absolute;
-                top: 10px;
-                left: -2px;
-                font-size: 3rem;
-                color: var(--oiship-orange);
-                opacity: 0.2;
-                font-family: serif;
             }
 
             .notification-description {
@@ -541,7 +540,6 @@
                 line-height: 1.6;
                 color: #495057;
                 font-size: 1rem;
-                padding-left: 30px;
             }
 
             .notification-actions {
@@ -606,7 +604,7 @@
 
             /* Enhanced Notification Dropdown */
             .notification-dropdown-item {
-                padding: 12px 16px;
+                padding: 10px;
                 border-radius: 8px;
                 margin: 4px 8px;
                 transition: all 0.2s ease;
@@ -617,8 +615,6 @@
 
             .notification-dropdown-item:hover {
                 background: var(--oiship-orange-light);
-                border-left-color: var(--oiship-orange);
-                transform: translateX(4px);
             }
 
             .notification-dropdown-item .notification-title-small {
@@ -642,20 +638,6 @@
             /* Unread notification indicator */
             .notification-unread {
                 position: relative;
-            }
-
-            .notification-unread::before {
-                content: '';
-                position: absolute;
-                left: 8px;
-                top: 50%;
-                transform: translateY(-50%);
-                width: 8px;
-                height: 8px;
-                background: #dc3545;
-                border-radius: 50%;
-                animation: pulse 2s infinite;
-                z-index: 1;
             }
 
             @keyframes pulse {
@@ -995,7 +977,7 @@
                             </ul>
 
                             <!-- Enhanced Notification Modal -->
-                            <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
+                            <div class="modal" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-lg">
                                     <div class="modal-content notification-modal-content">
                                         <div class="modal-header notification-header">
@@ -1004,9 +986,8 @@
                                             </div>
                                             <div class="notification-title-area">
                                                 <h5 class="modal-title notification-title" id="modalTitle"></h5>
-                                                <span class="notification-timestamp" id="modalTimestamp">2025-07-29 14:22:53</span>
+                                                <span class="notification-timestamp" id="modalTimestamp">2025-07-31 07:39:35</span>
                                             </div>
-                                            <button type="button" class="btn-close notification-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
 
                                         <div class="modal-body notification-body">
@@ -1017,9 +998,9 @@
                                             <div class="notification-actions">
                                                 <input type="hidden" id="hiddenNotID" />
                                                 <button type="button" class="btn btn-mark-read" id="markReadBtn">
-                                                    <i class="fas fa-check me-2"></i>
+                                                    <i class="fas fa-check me-2 text-white"></i>
                                                     <i class="fas fa-spinner me-2" style="display: none;"></i>
-                                                    <span class="btn-text">Mark as Read</span>
+                                                    <span class="btn-text text-white">Mark as Read</span>
                                                 </button>
                                                 <button type="button" class="btn btn-dismiss" data-bs-dismiss="modal">
                                                     <i class="fas fa-times me-2"></i>
@@ -1037,7 +1018,7 @@
                                id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user"></i>
                                 <div class="welcome-text">
-                                    Welcome, <span><c:out value="${userName}" default="Guest" /></span>!
+                                    Welcome, <span>toanthienla</span>!
                                 </div>
                             </a>
 
@@ -1087,7 +1068,7 @@
                 Map<String, Object> cartSuccessDetails = (Map<String, Object>) session.getAttribute("cartSuccessDetails");
                 if (cartSuccessDetails != null) {
                     session.removeAttribute("cartSuccessDetails"); // Clear session to avoid repeated display
-            %>
+%>
             <div class="cart-success-alert" id="cartSuccessAlert">
                 <div class="alert alert-success alert-dismissible fade show" role="alert">
                     <img src="<%= cartSuccessDetails.get("image")%>" alt="Dish Image" class="img-fluid">
@@ -1115,7 +1096,7 @@
         </div>
 
         <!-- 💡 Modal Dish Detail -->
-        <div class="modal fade" id="dishDetailModal" tabindex="-1" aria-hidden="true">
+        <div class="modal" id="dishDetailModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-xl modal-dialog-centered modal-dialog-scrollable">
                 <div class="modal-content custom-modal-content" id="dishDetailContent">
                     <!-- AJAX content goes here -->
@@ -1126,6 +1107,8 @@
         <script>
             // Animate and auto-disappear cart success alert
             document.addEventListener('DOMContentLoaded', function () {
+                console.log("Page loaded - 2025-07-31 07:39:35 - User: toanthienla");
+
                 const alert = document.getElementById('cartSuccessAlert');
                 if (alert) {
                     // Add show class for animation
@@ -1395,22 +1378,59 @@
             });
         </script>
 
-        <!-- Enhanced Notification Scripts with Backdrop Removal -->
+        <!-- FIXED NOTIFICATION SCRIPTS WITH NO BACKDROP -->
         <script>
-            // Global function to open notification modal
-            function openNotificationModal(notID, title, description) {
-                console.log("Opening notification modal with:", {notID, title, description}); // Debug log
+            // Enhanced backdrop removal function
+            function removeModalBackdrops() {
+                // Remove all types of backdrops
+                const backdrops = document.querySelectorAll('.modal-backdrop, .modal-backdrop.show, .modal-backdrop.fade, .dropdown-backdrop');
+                backdrops.forEach(backdrop => {
+                    console.log("Removing backdrop:", backdrop, "- 2025-07-31 07:39:35 - User: toanthienla");
+                    backdrop.remove();
+                });
 
-                // First, close any open dropdown
+                // Reset body styles completely
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+                document.body.style.marginRight = '';
+            }
+
+            // FIXED: Global function to open notification modal WITHOUT BACKDROP
+            function openNotificationModal(notID, title, description) {
+                console.log("Opening notification modal - 2025-07-31 07:39:35 - User: toanthienla");
+                console.log("NotID:", notID, "Title:", title);
+
+                // 1. IMMEDIATELY prevent any backdrop creation
+                removeModalBackdrops();
+
+                // 2. Close dropdown WITHOUT backdrop
                 const notificationDropdown = document.getElementById('notificationDropdown');
                 const dropdownInstance = bootstrap.Dropdown.getInstance(notificationDropdown);
                 if (dropdownInstance) {
                     dropdownInstance.hide();
+                    // Force remove dropdown classes
+                    notificationDropdown.classList.remove('show');
+                    const dropdownMenu = notificationDropdown.nextElementSibling;
+                    if (dropdownMenu) {
+                        dropdownMenu.classList.remove('show');
+                    }
                 }
 
-                // Remove any existing modal backdrops before opening new modal
-                removeModalBackdrops();
+                // 3. Force close any existing modals
+                const existingModals = document.querySelectorAll('.modal.show');
+                existingModals.forEach(modal => {
+                    const modalInstance = bootstrap.Modal.getInstance(modal);
+                    if (modalInstance)
+                        modalInstance.hide();
+                });
 
+                // 4. Clean body classes immediately
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+
+                // 5. Set modal content
                 const modalTitle = document.getElementById("modalTitle");
                 const modalDescription = document.getElementById("modalDescription");
                 const hiddenNotID = document.getElementById("hiddenNotID");
@@ -1419,37 +1439,32 @@
                 modalDescription.textContent = description || 'No description';
                 hiddenNotID.value = notID || '';
 
-                console.log("Hidden input value set to:", hiddenNotID.value); // Debug log
+                console.log("Hidden input value set to:", hiddenNotID.value);
 
                 // Reset button state
                 resetMarkReadButton();
 
-                // Wait a bit to ensure dropdown is closed
+                // 6. Show modal with NO BACKDROP after short delay
                 setTimeout(() => {
-                    // Show the modal
-                    const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'), {
-                        backdrop: true,
-                        keyboard: true
+                    removeModalBackdrops(); // One more cleanup
+
+                    const notificationModal = document.getElementById('notificationModal');
+
+                    // Create modal instance with NO BACKDROP
+                    const modalInstance = new bootstrap.Modal(notificationModal, {
+                        backdrop: false, // ✅ COMPLETELY DISABLE BACKDROP
+                        keyboard: true,
+                        focus: true
                     });
-                    notificationModal.show();
-                }, 150);
-            }
 
-            // Function to remove modal backdrops
-            function removeModalBackdrops() {
-                const backdrops = document.querySelectorAll('.modal-backdrop');
-                backdrops.forEach(backdrop => {
-                    console.log("Removing backdrop:", backdrop); // Debug log
-                    backdrop.remove();
-                });
-
-                // Reset body styles
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
+                    modalInstance.show();
+                    console.log("Modal shown without backdrop - 2025-07-31 07:39:35 - User: toanthienla");
+                }, 50); // Minimal delay
             }
 
             document.addEventListener("DOMContentLoaded", function () {
+                console.log("DOM loaded - 2025-07-31 07:39:35 - User: toanthienla");
+
                 const markReadBtn = document.getElementById("markReadBtn");
                 const hiddenNotID = document.getElementById("hiddenNotID");
                 const notificationModal = document.getElementById('notificationModal');
@@ -1459,7 +1474,7 @@
                     e.preventDefault();
 
                     const notID = hiddenNotID.value;
-                    console.log("Mark read button clicked with notID:", notID); // Debug log
+                    console.log("Mark read button clicked with notID:", notID, "- 2025-07-31 07:39:35 - User: toanthienla");
 
                     if (!notID || notID.trim() === '' || notID === 'null') {
                         console.error('Error: No valid notification ID found, value is:', notID);
@@ -1470,14 +1485,8 @@
                     // Show loading state
                     showLoadingState();
 
-                    // Create form data
-                    const formData = new FormData();
-                    formData.append('notID', notID.trim());
-
-                    console.log("Sending request with notID:", formData.get('notID')); // Debug log
-
                     const params = new URLSearchParams();
-                    params.append('notID', formData.get('notID'));
+                    params.append('notID', notID.trim());
 
                     fetch('<%=request.getContextPath()%>/customer/mark-read', {
                         method: 'POST',
@@ -1487,8 +1496,7 @@
                         body: params
                     })
                             .then(response => {
-                                console.log("Response received, status:", response.status); // Debug log
-                                console.log("Response content type:", response.headers.get('content-type')); // Debug log
+                                console.log("Response received, status:", response.status, "- 2025-07-31 07:39:35 - User: toanthienla");
 
                                 if (!response.ok) {
                                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -1497,7 +1505,7 @@
                                 return response.json();
                             })
                             .then(data => {
-                                console.log("Response data:", data); // Debug log
+                                console.log("Response data:", data, "- 2025-07-31 07:39:35 - User: toanthienla");
 
                                 if (data.success) {
                                     // Success - show success state
@@ -1518,7 +1526,7 @@
                                 }
                             })
                             .catch(error => {
-                                console.error('Error:', error);
+                                console.error('Error:', error, "- 2025-07-31 07:39:35 - User: toanthienla");
                                 showErrorState(error.message);
                                 // Reset button after error
                                 setTimeout(resetMarkReadButton, 3000);
@@ -1558,7 +1566,7 @@
                     // Force cleanup after modal hide
                     setTimeout(() => {
                         removeModalBackdrops();
-                    }, 200);
+                    }, 100);
                 }
 
                 function hideNotificationFromDropdown(notificationId) {
@@ -1614,34 +1622,24 @@
 
                 // Enhanced modal event handlers
                 notificationModal.addEventListener('show.bs.modal', function () {
-                    console.log("Modal is showing");
-                    // Remove any existing backdrops before showing
+                    console.log("Modal is showing - 2025-07-31 07:39:35 - User: toanthienla");
                     removeModalBackdrops();
                 });
 
                 notificationModal.addEventListener('shown.bs.modal', function () {
-                    console.log("Modal shown");
+                    console.log("Modal shown - 2025-07-31 07:39:35 - User: toanthienla");
                 });
 
                 notificationModal.addEventListener('hide.bs.modal', function () {
-                    console.log("Modal is hiding");
+                    console.log("Modal is hiding - 2025-07-31 07:39:35 - User: toanthienla");
                 });
 
                 notificationModal.addEventListener('hidden.bs.modal', function () {
-                    console.log("Modal hidden");
-                    // Force cleanup after modal is completely hidden
+                    console.log("Modal hidden - 2025-07-31 07:39:35 - User: toanthienla");
                     removeModalBackdrops();
                 });
 
-                // Handle clicks outside modal to ensure proper cleanup
-                document.addEventListener('click', function (e) {
-                    if (e.target.classList.contains('modal-backdrop')) {
-                        console.log("Clicked on backdrop");
-                        removeModalBackdrops();
-                    }
-                });
-
-                // Cleanup backdrops on page load/reload
+                // Cleanup backdrops on page load
                 window.addEventListener('load', function () {
                     removeModalBackdrops();
                 });

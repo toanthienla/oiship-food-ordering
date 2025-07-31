@@ -48,7 +48,6 @@ public class OrderServlet extends HttpServlet {
         NotificationDAO notificationDAO = new NotificationDAO();
         List<Notification> notifications = notificationDAO.getUnreadNotificationsByCustomer(customerId);
         request.setAttribute("notifications", notifications);
-        System.out.println("OrderServlet - Notifications count: " + (notifications != null ? notifications.size() : 0) + " for userId: " + customerId);
 
         // Get cart items for sidebar
         CartDAO cartDAO = new CartDAO();
@@ -104,8 +103,41 @@ public class OrderServlet extends HttpServlet {
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
+        // Check if the session exists and the user is logged in as a customer
+        HttpSession session = request.getSession(false);
+        if (session == null || session.getAttribute("userId") == null || !"customer".equals(session.getAttribute("role"))) {
+            response.sendRedirect(request.getContextPath() + "/login");
+            return;
+        }
 
-        HttpSession session = request.getSession();
+        // Get customer information using email stored in session
+        // int userId = (int) session.getAttribute("userId");
+        AccountDAO accountDAO = new AccountDAO();
+        Account account = accountDAO.findByEmail((String) session.getAttribute("email"));
+        if (account != null) {
+            request.setAttribute("account", account);
+            request.setAttribute("userName", account.getFullName());
+        } else {
+            request.setAttribute("error", "Account not found.");
+        }
+        int userId = account.getAccountID();
+        // Refresh remember_me cookie if present
+        Cookie[] cookies = request.getCookies();
+        if (cookies != null) {
+            for (Cookie cookie : cookies) {
+                if ("email".equals(cookie.getName())) {
+                    Cookie emailCookie = new Cookie("email", cookie.getValue());
+                    emailCookie.setMaxAge(30 * 24 * 60 * 60);
+                    emailCookie.setPath(request.getContextPath());
+                    response.addCookie(emailCookie);
+                    break;
+                }
+            }
+        }
+
+        NotificationDAO notificationDAO = new NotificationDAO();
+        List<Notification> notifications = notificationDAO.getUnreadNotificationsByCustomer(userId);
+        request.setAttribute("notifications", notifications);
         String email = (String) session.getAttribute("email");
 
         if (email == null) {
