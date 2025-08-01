@@ -21,9 +21,8 @@ public class AddCartServlet extends HttpServlet {
             throws ServletException, IOException {
         String dishId = request.getParameter("dishID");
         request.setAttribute("errorMessage", "GET method is not supported. Please use the form submission.");
-        request.getRequestDispatcher("/customer/dish-detail?dishId=" + (dishId != null ? dishId : "")).forward(request, response);
+         response.sendRedirect(request.getContextPath() + "/customer");
     }
-
     @Override
     protected void doPost(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
@@ -33,14 +32,14 @@ public class AddCartServlet extends HttpServlet {
 
         // Check login
         if (session.getAttribute("userId") == null) {
-            session.setAttribute("redirectAfterLogin", "/customer/add-cart?dishID=" + dishIdStr);
+            session.setAttribute("redirectAfterLogin","You must log in to add dish to cart.");
             response.sendRedirect(request.getContextPath() + "/login");
             return;
         }
 
         if (dishIdStr == null || quantityStr == null || dishIdStr.trim().isEmpty() || quantityStr.trim().isEmpty()) {
             session.setAttribute("errorMessage", "Missing dish or quantity data.");
-            response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
+             response.sendRedirect(request.getContextPath() + "/customer");
             return;
         }
 
@@ -96,11 +95,11 @@ public class AddCartServlet extends HttpServlet {
 
         } catch (NumberFormatException e) {
             session.setAttribute("errorMessage", "Invalid input data.");
-            response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
+            response.sendRedirect(request.getContextPath() + "/customer");
         } catch (Exception e) {
             e.printStackTrace();
             session.setAttribute("errorMessage", "System error while adding to cart: " + e.getMessage());
-            response.sendRedirect(request.getContextPath() + "/customer/dish-detail?dishId=" + dishIdStr);
+             response.sendRedirect(request.getContextPath() + "/customer");
         }
     }
 }
