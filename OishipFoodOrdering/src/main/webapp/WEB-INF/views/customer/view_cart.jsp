@@ -353,9 +353,18 @@
             }
 
             @keyframes pulse {
-                0% { opacity: 1; transform: translateY(-50%) scale(1); }
-                50% { opacity: 0.7; transform: translateY(-50%) scale(1.2); }
-                100% { opacity: 1; transform: translateY(-50%) scale(1); }
+                0% {
+                    opacity: 1;
+                    transform: translateY(-50%) scale(1);
+                }
+                50% {
+                    opacity: 0.7;
+                    transform: translateY(-50%) scale(1.2);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateY(-50%) scale(1);
+                }
             }
 
             .notification-empty {
@@ -416,9 +425,15 @@
             }
 
             @keyframes bellRing {
-                0%, 50%, 100% { transform: rotate(0deg); }
-                25% { transform: rotate(-10deg); }
-                75% { transform: rotate(10deg); }
+                0%, 50%, 100% {
+                    transform: rotate(0deg);
+                }
+                25% {
+                    transform: rotate(-10deg);
+                }
+                75% {
+                    transform: rotate(10deg);
+                }
             }
 
             .notification-title-area {
@@ -554,8 +569,12 @@
             }
 
             @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
             }
 
             /* Alert Styles */
@@ -692,11 +711,11 @@
                                 </li>
                                 <% if (i < notifications.size() - 1) { %>
                                 <li><hr class="dropdown-divider"></li>
-                                <% } %>
-                                <%
-                                    }
-                                } else {
-                                %>
+                                    <% } %>
+                                    <%
+                                        }
+                                    } else {
+                                    %>
                                 <li class="notification-empty">
                                     <i class="fas fa-bell-slash"></i>
                                     <p class="mb-0">No new notifications</p>
@@ -832,16 +851,19 @@
                                                 onclick="updateQuantity(<%= item.getCartID()%>, -1)">
                                             <i class="fas fa-minus"></i>
                                         </button>
-                                        <input type="text"
+                                        <input type="number"
                                                id="qty_<%= item.getCartID()%>"
                                                data-stock="<%= stock%>"
                                                data-name="<%= dish.getDishName()%>"
                                                value="<%= quantity%>"
+
                                                required
                                                class="form-control text-center"
                                                style="width: 60px;"
-                                              oninput="updateQuantityByInput(<%= item.getCartID()%>)"                                         
+                                               oninput="handleManualQuantityChange(<%= item.getCartID()%>)"
                                                >
+
+
                                         <button class="btn btn-outline-secondary btn-sm"
                                                 onclick="updateQuantity(<%= item.getCartID()%>, 1)">
                                             <i class="fas fa-plus"></i>
@@ -893,339 +915,77 @@
                 </form>
             </div>
         </div>
-
-        <!-- Enhanced Notification Scripts -->
-        <script>
-            // Global function to open notification modal
-            function openNotificationModal(notID, title, description) {
-                console.log("Opening notification modal with:", {notID, title, description}); // Debug log
-
-                // First, close any open dropdown
-                const notificationDropdown = document.getElementById('notificationDropdown');
-                const dropdownInstance = bootstrap.Dropdown.getInstance(notificationDropdown);
-                if (dropdownInstance) {
-                    dropdownInstance.hide();
-                }
-
-                // Remove any existing modal backdrops before opening new modal
-                removeModalBackdrops();
-
-                const modalTitle = document.getElementById("modalTitle");
-                const modalDescription = document.getElementById("modalDescription");
-                const hiddenNotID = document.getElementById("hiddenNotID");
-
-                modalTitle.textContent = title || 'Notification';
-                modalDescription.textContent = description || 'No description';
-                hiddenNotID.value = notID || '';
-
-                console.log("Hidden input value set to:", hiddenNotID.value); // Debug log
-
-                // Reset button state
-                resetMarkReadButton();
-
-                // Wait a bit to ensure dropdown is closed
-                setTimeout(() => {
-                    // Show the modal
-                    const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'), {
-                        backdrop: true,
-                        keyboard: true
-                    });
-                    notificationModal.show();
-                }, 150);
-            }
-
-            // Function to remove modal backdrops
-            function removeModalBackdrops() {
-                const backdrops = document.querySelectorAll('.modal-backdrop');
-                backdrops.forEach(backdrop => {
-                    console.log("Removing backdrop:", backdrop); // Debug log
-                    backdrop.remove();
-                });
-                
-                // Reset body styles
-                document.body.classList.remove('modal-open');
-                document.body.style.overflow = '';
-                document.body.style.paddingRight = '';
-            }
-
-            document.addEventListener("DOMContentLoaded", function () {
-                const markReadBtn = document.getElementById("markReadBtn");
-                const hiddenNotID = document.getElementById("hiddenNotID");
-                const notificationModal = document.getElementById('notificationModal');
-
-                // Handle mark as read button click
-                markReadBtn.addEventListener('click', function (e) {
-                    e.preventDefault();
-
-                    const notID = hiddenNotID.value;
-                    console.log("Mark read button clicked with notID:", notID); // Debug log
-
-                    if (!notID || notID.trim() === '' || notID === 'null') {
-                        console.error('Error: No valid notification ID found, value is:', notID);
-                        alert('Error: No valid notification ID found');
-                        return;
-                    }
-
-                    // Show loading state
-                    showLoadingState();
-
-                    // Create form data
-                    const formData = new FormData();
-                    formData.append('notID', notID.trim());
-
-                    console.log("Sending request with notID:", formData.get('notID')); // Debug log
-
-                    const params = new URLSearchParams();
-                    params.append('notID', formData.get('notID'));
-
-                    fetch('${pageContext.request.contextPath}/customer/mark-read', {
-                        method: 'POST',
-                        headers: {
-                            'Content-Type': 'application/x-www-form-urlencoded'
-                        },
-                        body: params
-                    })
-                            .then(response => {
-                                console.log("Response received, status:", response.status); // Debug log
-                                console.log("Response content type:", response.headers.get('content-type')); // Debug log
-
-                                if (!response.ok) {
-                                    throw new Error(`HTTP error! status: ${response.status}`);
-                                }
-
-                                return response.json();
-                            })
-                            .then(data => {
-                                console.log("Response data:", data); // Debug log
-
-                                if (data.success) {
-                                    // Success - show success state
-                                    showSuccessState();
-
-                                    // Hide notification from dropdown
-                                    hideNotificationFromDropdown(notID);
-
-                                    // Update notification count
-                                    updateNotificationCount();
-
-                                    // Close modal properly after delay
-                                    setTimeout(() => {
-                                        closeModalProperly();
-                                    }, 1500);
-                                } else {
-                                    throw new Error(data.message || 'Failed to mark as read');
-                                }
-                            })
-                            .catch(error => {
-                                console.error('Error:', error);
-                                showErrorState(error.message);
-                                // Reset button after error
-                                setTimeout(resetMarkReadButton, 3000);
-                            });
-                });
-
-                function showLoadingState() {
-                    markReadBtn.classList.add('loading');
-                    markReadBtn.querySelector('.fa-check').style.display = 'none';
-                    markReadBtn.querySelector('.fa-spinner').style.display = 'inline-block';
-                    markReadBtn.querySelector('.btn-text').textContent = 'Marking as read...';
-                    markReadBtn.disabled = true;
-                }
-
-                function showSuccessState() {
-                    markReadBtn.classList.remove('loading');
-                    markReadBtn.querySelector('.fa-spinner').style.display = 'none';
-                    markReadBtn.querySelector('.fa-check').style.display = 'inline-block';
-                    markReadBtn.querySelector('.btn-text').textContent = 'Marked as Read!';
-                    markReadBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-                }
-
-                function showErrorState(message) {
-                    markReadBtn.classList.remove('loading');
-                    markReadBtn.querySelector('.fa-spinner').style.display = 'none';
-                    markReadBtn.querySelector('.fa-check').style.display = 'inline-block';
-                    markReadBtn.querySelector('.btn-text').textContent = 'Error: ' + (message || 'Try again');
-                    markReadBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
-                }
-
-                function closeModalProperly() {
-                    const modalInstance = bootstrap.Modal.getInstance(notificationModal);
-                    if (modalInstance) {
-                        modalInstance.hide();
-                    }
-                    
-                    // Force cleanup after modal hide
-                    setTimeout(() => {
-                        removeModalBackdrops();
-                    }, 200);
-                }
-
-                function hideNotificationFromDropdown(notificationId) {
-                    // Find all notification items and remove the one with matching ID
-                    const notificationItems = document.querySelectorAll('.notification-dropdown-item');
-                    notificationItems.forEach(item => {
-                        const onclick = item.getAttribute('onclick');
-                        if (onclick && onclick.includes(notificationId)) {
-                            const parentLi = item.closest('li');
-                            if (parentLi) {
-                                parentLi.style.opacity = '0.5';
-                                parentLi.style.pointerEvents = 'none';
-
-                                setTimeout(() => {
-                                    const nextSibling = parentLi.nextElementSibling;
-                                    if (nextSibling && nextSibling.querySelector('.dropdown-divider')) {
-                                        nextSibling.remove();
-                                    }
-                                    parentLi.remove();
-
-                                    // Check if no notifications left
-                                    const remainingNotifications = document.querySelectorAll('.notification-dropdown-item').length;
-                                    if (remainingNotifications === 0) {
-                                        const dropdownMenu = document.querySelector('#notificationDropdown + .dropdown-menu');
-                                        if (dropdownMenu) {
-                                            dropdownMenu.innerHTML = `
-                                            <li class="notification-empty">
-                                                <i class="fas fa-bell-slash"></i>
-                                                <p class="mb-0">No new notifications</p>
-                                            </li>
-                                        `;
-                                        }
-                                    }
-                                }, 500);
-                            }
-                        }
-                    });
-                }
-
-                function updateNotificationCount() {
-                    const countBadge = document.getElementById('notificationBadge');
-                    const remainingNotifications = document.querySelectorAll('.notification-dropdown-item').length;
-
-                    if (countBadge) {
-                        const newCount = Math.max(0, remainingNotifications - 1);
-                        countBadge.textContent = newCount;
-
-                        if (newCount === 0) {
-                            countBadge.style.display = 'none';
-                        }
-                    }
-                }
-
-                // Enhanced modal event handlers
-                notificationModal.addEventListener('show.bs.modal', function () {
-                    console.log("Modal is showing");
-                    // Remove any existing backdrops before showing
-                    removeModalBackdrops();
-                });
-
-                notificationModal.addEventListener('shown.bs.modal', function () {
-                    console.log("Modal shown");
-                });
-
-                notificationModal.addEventListener('hide.bs.modal', function () {
-                    console.log("Modal is hiding");
-                });
-
-                notificationModal.addEventListener('hidden.bs.modal', function () {
-                    console.log("Modal hidden");
-                    // Force cleanup after modal is completely hidden
-                    removeModalBackdrops();
-                });
-
-                // Handle clicks outside modal to ensure proper cleanup
-                document.addEventListener('click', function(e) {
-                    if (e.target.classList.contains('modal-backdrop')) {
-                        console.log("Clicked on backdrop");
-                        removeModalBackdrops();
-                    }
-                });
-
-                // Cleanup backdrops on page load/reload
-                window.addEventListener('load', function() {
-                    removeModalBackdrops();
-                });
-            });
-
-            function resetMarkReadButton() {
-                const markReadBtn = document.getElementById("markReadBtn");
-                if (markReadBtn) {
-                    markReadBtn.classList.remove('loading');
-                    markReadBtn.querySelector('.fa-check').style.display = 'inline-block';
-                    markReadBtn.querySelector('.fa-spinner').style.display = 'none';
-                    markReadBtn.querySelector('.btn-text').textContent = 'Mark as Read';
-                    markReadBtn.disabled = false;
-                    markReadBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
-                }
-            }
-        </script>
-
         <!-- Cart Functionality Scripts -->
         <script>
-            function updateQuantityByInput(cartId) {
+            function handleManualQuantityChange(cartId) {
                 const input = document.getElementById("qty_" + cartId);
-                const maxStock = parseInt(input.getAttribute("data-stock"));
-                let qty = parseInt(input.value);
+                let value = input.value;
+                if (!/^\d+$/.test(value))
+                    return;
 
-                if (qty > 50) {
-                    qty = 50;
-                    alert("The maximum quantity is 50.");
-                }
-                if (qty > maxStock) {
-                    qty = maxStock;
-                    alert("Only " + maxStock + " items in stock.");
-                }
-                if (qty < 1) qty = 1;
-
-                input.value = qty;
-
-                fetch(contextPath + "/customer/view-cart", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-                }).then(() => {
-                    const row = input.closest("tr");
-                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                    const total = qty * price;
-                    row.querySelector(".item-total").innerHTML = '<span class="fw-bold text-success">' + total.toLocaleString() + ' đ</span>';
-
-                    recalculateGrandTotal();
-                });
+                updateQuantity(cartId, 0);
             }
 
-            const contextPath = "<%= request.getContextPath()%>";
-
+            const contextPath = "<%= request.getContextPath()%>";           
             function updateQuantity(cartId, delta) {
-                const input = document.getElementById("qty_" + cartId);
-                const maxStock = parseInt(input.getAttribute("data-stock"));
-                let qty = parseInt(input.value);
+    const input = document.getElementById("qty_" + cartId);
+    const maxStock = parseInt(input.getAttribute("data-stock"));
+    let qty = parseInt(input.value);
+    qty += delta;
+    input.value = qty;
 
-                qty += delta;
-                if (qty > 50) {
-                    qty = 50;
-                    alert("The maximum quantity is 50.");
-                }
-                if (qty > maxStock) {
-                    qty = maxStock;
-                    alert("Only " + maxStock + " items in stock.");
-                }
-                if (qty < 1)
-                    qty = 1;
+    fetch(contextPath + "/customer/view-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+    })
+    .then(response => response.json())
+    .then(data => {
+        const row = input.closest("tr");
+        const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+        let finalQty = qty;
 
-                input.value = qty;
+        if (data.success) {
+          
+            const total = qty * price;
+            row.querySelector(".item-total").innerHTML = '<span class="fw-bold text-success">' + total.toLocaleString() + ' đ</span>';
+            recalculateGrandTotal();
+        } else {
+          
+            if (data.error) alert(data.error);
 
-                fetch(contextPath + "/customer/view-cart", {
-                    method: "POST",
-                    headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-                }).then(() => {
-                    const row = input.closest("tr");
-                    const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                    const total = qty * price;
-                    row.querySelector(".item-total").innerHTML = '<span class="fw-bold text-success">' + total.toLocaleString() + ' đ</span>';
-
-                    recalculateGrandTotal();
-                });
+            if (data.validQuantity !== undefined) {
+                finalQty = data.validQuantity;
+                input.value = finalQty;
+            } else if (data.maxStock !== undefined) {
+                finalQty = data.maxStock;
+                input.value = finalQty;
+            } else {
+               
+                return;
             }
+
+     
+            fetch(contextPath + "/customer/view-cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(finalQty)
+            })
+            .then(() => {
+                const total = finalQty * price;
+                row.querySelector(".item-total").innerHTML = '<span class="fw-bold text-success">' + total.toLocaleString() + ' đ</span>';
+                recalculateGrandTotal();
+            });
+        }
+    })
+    .catch(error => {
+        console.error("Fetch error:", error);
+        alert("An unexpected error occurred. Please try again.");
+    });
+}
+
+
+
 
             function recalculateGrandTotal() {
                 let total = 0;
@@ -1345,5 +1105,271 @@
                 checkboxes.forEach(cb => cb.checked = source.checked);
             }
         </script>
+        <!-- Enhanced Notification Scripts -->
+        <script>
+            // Global function to open notification modal
+            function openNotificationModal(notID, title, description) {
+                console.log("Opening notification modal with:", {notID, title, description}); // Debug log
+
+                // First, close any open dropdown
+                const notificationDropdown = document.getElementById('notificationDropdown');
+                const dropdownInstance = bootstrap.Dropdown.getInstance(notificationDropdown);
+                if (dropdownInstance) {
+                    dropdownInstance.hide();
+                }
+
+                // Remove any existing modal backdrops before opening new modal
+                removeModalBackdrops();
+
+                const modalTitle = document.getElementById("modalTitle");
+                const modalDescription = document.getElementById("modalDescription");
+                const hiddenNotID = document.getElementById("hiddenNotID");
+
+                modalTitle.textContent = title || 'Notification';
+                modalDescription.textContent = description || 'No description';
+                hiddenNotID.value = notID || '';
+
+                console.log("Hidden input value set to:", hiddenNotID.value); // Debug log
+
+                // Reset button state
+                resetMarkReadButton();
+
+                // Wait a bit to ensure dropdown is closed
+                setTimeout(() => {
+                    // Show the modal
+                    const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'), {
+                        backdrop: true,
+                        keyboard: true
+                    });
+                    notificationModal.show();
+                }, 150);
+            }
+
+            // Function to remove modal backdrops
+            function removeModalBackdrops() {
+                const backdrops = document.querySelectorAll('.modal-backdrop');
+                backdrops.forEach(backdrop => {
+                    console.log("Removing backdrop:", backdrop); // Debug log
+                    backdrop.remove();
+                });
+
+                // Reset body styles
+                document.body.classList.remove('modal-open');
+                document.body.style.overflow = '';
+                document.body.style.paddingRight = '';
+            }
+
+            document.addEventListener("DOMContentLoaded", function () {
+                const markReadBtn = document.getElementById("markReadBtn");
+                const hiddenNotID = document.getElementById("hiddenNotID");
+                const notificationModal = document.getElementById('notificationModal');
+
+                // Handle mark as read button click
+                markReadBtn.addEventListener('click', function (e) {
+                    e.preventDefault();
+
+                    const notID = hiddenNotID.value;
+                    console.log("Mark read button clicked with notID:", notID); // Debug log
+
+                    if (!notID || notID.trim() === '' || notID === 'null') {
+                        console.error('Error: No valid notification ID found, value is:', notID);
+                        alert('Error: No valid notification ID found');
+                        return;
+                    }
+
+                    // Show loading state
+                    showLoadingState();
+
+                    // Create form data
+                    const formData = new FormData();
+                    formData.append('notID', notID.trim());
+
+                    console.log("Sending request with notID:", formData.get('notID')); // Debug log
+
+                    const params = new URLSearchParams();
+                    params.append('notID', formData.get('notID'));
+
+                    fetch('${pageContext.request.contextPath}/customer/mark-read', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded'
+                        },
+                        body: params
+                    })
+                            .then(response => {
+                                console.log("Response received, status:", response.status); // Debug log
+                                console.log("Response content type:", response.headers.get('content-type')); // Debug log
+
+                                if (!response.ok) {
+                                    throw new Error(`HTTP error! status: ${response.status}`);
+                                }
+
+                                return response.json();
+                            })
+                            .then(data => {
+                                console.log("Response data:", data); // Debug log
+
+                                if (data.success) {
+                                    // Success - show success state
+                                    showSuccessState();
+
+                                    // Hide notification from dropdown
+                                    hideNotificationFromDropdown(notID);
+
+                                    // Update notification count
+                                    updateNotificationCount();
+
+                                    // Close modal properly after delay
+                                    setTimeout(() => {
+                                        closeModalProperly();
+                                    }, 1500);
+                                } else {
+                                    throw new Error(data.message || 'Failed to mark as read');
+                                }
+                            })
+                            .catch(error => {
+                                console.error('Error:', error);
+                                showErrorState(error.message);
+                                // Reset button after error
+                                setTimeout(resetMarkReadButton, 3000);
+                            });
+                });
+
+                function showLoadingState() {
+                    markReadBtn.classList.add('loading');
+                    markReadBtn.querySelector('.fa-check').style.display = 'none';
+                    markReadBtn.querySelector('.fa-spinner').style.display = 'inline-block';
+                    markReadBtn.querySelector('.btn-text').textContent = 'Marking as read...';
+                    markReadBtn.disabled = true;
+                }
+
+                function showSuccessState() {
+                    markReadBtn.classList.remove('loading');
+                    markReadBtn.querySelector('.fa-spinner').style.display = 'none';
+                    markReadBtn.querySelector('.fa-check').style.display = 'inline-block';
+                    markReadBtn.querySelector('.btn-text').textContent = 'Marked as Read!';
+                    markReadBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                }
+
+                function showErrorState(message) {
+                    markReadBtn.classList.remove('loading');
+                    markReadBtn.querySelector('.fa-spinner').style.display = 'none';
+                    markReadBtn.querySelector('.fa-check').style.display = 'inline-block';
+                    markReadBtn.querySelector('.btn-text').textContent = 'Error: ' + (message || 'Try again');
+                    markReadBtn.style.background = 'linear-gradient(135deg, #dc3545, #c82333)';
+                }
+
+                function closeModalProperly() {
+                    const modalInstance = bootstrap.Modal.getInstance(notificationModal);
+                    if (modalInstance) {
+                        modalInstance.hide();
+                    }
+
+                    // Force cleanup after modal hide
+                    setTimeout(() => {
+                        removeModalBackdrops();
+                    }, 200);
+                }
+
+                function hideNotificationFromDropdown(notificationId) {
+                    // Find all notification items and remove the one with matching ID
+                    const notificationItems = document.querySelectorAll('.notification-dropdown-item');
+                    notificationItems.forEach(item => {
+                        const onclick = item.getAttribute('onclick');
+                        if (onclick && onclick.includes(notificationId)) {
+                            const parentLi = item.closest('li');
+                            if (parentLi) {
+                                parentLi.style.opacity = '0.5';
+                                parentLi.style.pointerEvents = 'none';
+
+                                setTimeout(() => {
+                                    const nextSibling = parentLi.nextElementSibling;
+                                    if (nextSibling && nextSibling.querySelector('.dropdown-divider')) {
+                                        nextSibling.remove();
+                                    }
+                                    parentLi.remove();
+
+                                    // Check if no notifications left
+                                    const remainingNotifications = document.querySelectorAll('.notification-dropdown-item').length;
+                                    if (remainingNotifications === 0) {
+                                        const dropdownMenu = document.querySelector('#notificationDropdown + .dropdown-menu');
+                                        if (dropdownMenu) {
+                                            dropdownMenu.innerHTML = `
+                                            <li class="notification-empty">
+                                                <i class="fas fa-bell-slash"></i>
+                                                <p class="mb-0">No new notifications</p>
+                                            </li>
+                                        `;
+                                        }
+                                    }
+                                }, 500);
+                            }
+                        }
+                    });
+                }
+
+                function updateNotificationCount() {
+                    const countBadge = document.getElementById('notificationBadge');
+                    const remainingNotifications = document.querySelectorAll('.notification-dropdown-item').length;
+
+                    if (countBadge) {
+                        const newCount = Math.max(0, remainingNotifications - 1);
+                        countBadge.textContent = newCount;
+
+                        if (newCount === 0) {
+                            countBadge.style.display = 'none';
+                        }
+                    }
+                }
+
+                // Enhanced modal event handlers
+                notificationModal.addEventListener('show.bs.modal', function () {
+                    console.log("Modal is showing");
+                    // Remove any existing backdrops before showing
+                    removeModalBackdrops();
+                });
+
+                notificationModal.addEventListener('shown.bs.modal', function () {
+                    console.log("Modal shown");
+                });
+
+                notificationModal.addEventListener('hide.bs.modal', function () {
+                    console.log("Modal is hiding");
+                });
+
+                notificationModal.addEventListener('hidden.bs.modal', function () {
+                    console.log("Modal hidden");
+                    // Force cleanup after modal is completely hidden
+                    removeModalBackdrops();
+                });
+
+                // Handle clicks outside modal to ensure proper cleanup
+                document.addEventListener('click', function (e) {
+                    if (e.target.classList.contains('modal-backdrop')) {
+                        console.log("Clicked on backdrop");
+                        removeModalBackdrops();
+                    }
+                });
+
+                // Cleanup backdrops on page load/reload
+                window.addEventListener('load', function () {
+                    removeModalBackdrops();
+                });
+            });
+
+            function resetMarkReadButton() {
+                const markReadBtn = document.getElementById("markReadBtn");
+                if (markReadBtn) {
+                    markReadBtn.classList.remove('loading');
+                    markReadBtn.querySelector('.fa-check').style.display = 'inline-block';
+                    markReadBtn.querySelector('.fa-spinner').style.display = 'none';
+                    markReadBtn.querySelector('.btn-text').textContent = 'Mark as Read';
+                    markReadBtn.disabled = false;
+                    markReadBtn.style.background = 'linear-gradient(135deg, #28a745, #20c997)';
+                }
+            }
+        </script>
+
+
     </body>
 </html>

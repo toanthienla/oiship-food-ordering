@@ -118,26 +118,45 @@ public class ViewCartServlet extends HttpServlet {
             String cartIdStr = request.getParameter("cartID");
             String quantityStr = request.getParameter("quantity");
 
-            // Handle quantity update via AJAX
+            
             if (cartIdStr != null && quantityStr != null) {
                 int cartID = Integer.parseInt(cartIdStr);
                 int quantity = Integer.parseInt(quantityStr);
 
-                // Validate quantity limits
-                if (quantity < 1) {
+               
+                if (quantity <= 0) {
                     quantity = 1;
-                }
-                if (quantity > 50) {
-                    quantity = 50;
-                }
-
-                // Check stock availability
-                int stock = cartDAO.getDishStockByCartId(cartID);
-                if (quantity > stock) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
-                    response.getWriter().write("{\"success\":false,\"error\":\"Quantity exceeds available stock. Only " + stock + " items left.\"}");
+
+                    String json = "{"
+                            + "\"success\": false,"
+                            + "\"error\": \"Quantity must be at least 1.\","
+                            + "\"validQuantity\": " + quantity
+                            + "}";
+
+                    response.getWriter().write(json);
+                    System.out.println("ViewCartServlet - Quantity update failed: less than 1 for userId: " + userId);
+                    return;
+                }
+
+
+               
+                int stock = cartDAO.getDishStockByCartId(cartID);
+                if (quantity > stock || quantity > 50) {
+                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+                    response.setContentType("application/json");
+                    response.setCharacterEncoding("UTF-8");
+
+                   
+                    String json = "{"
+                            + "\"success\": false,"
+                            + "\"error\": \"Only " + stock + " items left. Quantity exceeds available stock and Quantity cannot exceed 50.\","
+                            + "\"maxStock\": " + stock
+                            + "}";
+
+                    response.getWriter().write(json);
                     System.out.println("ViewCartServlet - Quantity update failed: exceeds stock for userId: " + userId + " at 2025-07-29 17:13:33");
                     return;
                 }
