@@ -27,7 +27,7 @@ CREATE TABLE Account (
 -- Customer table
 CREATE TABLE Customer (
     customerID INT PRIMARY KEY, -- accountID
-    phone NVARCHAR(15),
+    phone NVARCHAR(15) UNIQUE,
     address NVARCHAR(255),
     FOREIGN KEY (customerID) REFERENCES Account(accountID)
 );
@@ -55,7 +55,7 @@ CREATE TABLE Dish (
 -- Ingredient table
 CREATE TABLE Ingredient (
     ingredientID INT IDENTITY(1,1) PRIMARY KEY,
-    name NVARCHAR(255),
+    name NVARCHAR(255) UNIQUE,
     unitCost DECIMAL(10,2), -- (vnđ/kg)
     FK_Ingredient_Account INT FOREIGN KEY REFERENCES Account(accountID)
 );
