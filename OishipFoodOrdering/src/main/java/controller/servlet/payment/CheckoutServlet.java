@@ -145,9 +145,9 @@ public class CheckoutServlet extends HttpServlet {
                 .returnUrl(baseUrl + "/customer/payment/success")
                 .cancelUrl(baseUrl + "/customer/payment/cancel")
                 .item(ItemData.builder()
-                        .name("Oiship Order #" + orderId)
+                        .name("Your order code: " + orderId)
                         .quantity(1)
-                        .price(price)
+                        .price(price) 
                         .build())
                 .build();
     }
