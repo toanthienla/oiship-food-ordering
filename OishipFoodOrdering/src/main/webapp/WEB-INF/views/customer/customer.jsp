@@ -1062,6 +1062,23 @@
                 <div id="pageNumbers" class="d-flex gap-2"></div>
                 <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
             </div>
+            <%
+                String errorMessage = (String) session.getAttribute("errorMessage");
+                if (errorMessage != null) {
+                    session.removeAttribute("errorMessage"); // Clear to avoid repeat
+%>
+
+            <div class="cart-success-alert" id="cartSuccessAlert" style="max-width: 400px; margin: 0 auto;">
+                <div class="alert alert-success alert-dismissible fade show" role="alert">
+                    <%= errorMessage%>
+                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                </div>
+            </div>
+
+            <%
+                }
+            %>
+
 
             <!-- Top Cart Success Alert with Animation -->
             <%
@@ -1117,65 +1134,13 @@
                     // Auto-disappear after 3 seconds
                     setTimeout(() => {
                         alert.classList.remove('show');
-                        setTimeout(() => alert.remove(), 300); // Remove after fade-out
-                    }, 3000);
+                        setTimeout(() => alert.remove(), 200); // Remove after fade-out
+                    }, 2000);
                 }
             });
         </script>
 
-        <script>
-            function validateQty(input) {
-                let qty = parseInt(input.value) || 1;
-                let stock = parseInt(input.getAttribute("data-stock"));
 
-                if (qty > 50) {
-                    alert("The maximum quantity is 50.");
-                    qty = 50;
-                }
-
-                if (qty > stock) {
-                    alert("Only " + stock + " items in stock.");
-                    qty = stock;
-                }
-
-                if (qty < 1) {
-                    alert("Quantity must be at least 1.");
-                    qty = 1;
-                }
-
-                input.value = qty;
-                const total = qty * price;
-                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
-            }
-
-            function validateBeforeSubmit() {
-                const input = document.getElementById("quantityInput");
-                const stock = parseInt(input.getAttribute("data-stock"));
-                let qty = parseInt(input.value);
-
-                if (isNaN(qty) || qty < 1) {
-                    alert("Quantity must be at least 1.");
-                    input.value = 1;
-                    return false;
-                }
-
-                if (qty > 50) {
-                    alert("The maximum quantity is 50.");
-                    input.value = 10;
-                    return false;
-                }
-
-                if (qty > stock) {
-                    alert("Only " + stock + " items in stock.");
-                    input.value = stock;
-                    return false;
-                }
-
-                const total = qty * price;
-                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
-                return true;
-            }
-        </script>
 
         <script>
             function openDishDetail(dishId) {

@@ -90,7 +90,7 @@
                     <% }%>
 
                     <!-- Form Add to Cart -->
-                    <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3" onsubmit="return validateBeforeSubmit()">
+                    <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3" >
                         <input type="hidden" name="dishID" value="<%= dish.getDishID()%>" />
 
                         <div class="mb-3 d-flex align-items-center gap-2">
@@ -98,14 +98,12 @@
                             <input type="number"
                                    name="quantity"
                                    id="quantityInput"
-                                   value="1"
-                                   min="1"
-                                   max="50"
+                                   value="1"                                  
                                    data-stock="<%= stock%>"
                                    class="form-control text-center"
                                    style="width: 80px;"
                                    required
-                                   oninput="validateQty(this)">
+                                   
                         </div>
 
                         <button type="submit" class="btn-custom">Add to Cart</button>
@@ -142,63 +140,6 @@
             <% }%>
         </div>
 
-        <!-- Scripts -->
-        <script>
-            function validateQty(input) {
-                let qty = parseInt(input.value) || 1;
-                let price = parseInt(<%= dish.getTotalPrice().intValue()%>);
-                let stock = parseInt(input.getAttribute("data-stock"));
-
-                if (qty > 50) {
-                    alert("The maximum quantity is 50.");
-                    qty = 50;
-                }
-
-                if (qty > stock) {
-                    alert("Only " + stock + " items in stock.");
-                    qty = stock;
-                }
-
-                if (qty < 1) {
-                    alert("Quantity must be at least 1.");
-                    qty = 1;
-                }
-
-                input.value = qty;
-                const total = qty * price;
-                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
-            }
-
-            function validateBeforeSubmit() {
-                const input = document.getElementById("quantityInput");
-                const stock = parseInt(input.getAttribute("data-stock"));
-                const price = parseInt(<%= dish.getTotalPrice().intValue()%>);
-                let qty = parseInt(input.value);
-
-                if (isNaN(qty) || qty < 1) {
-                    alert("Quantity must be at least 1.");
-                    input.value = 1;
-                    return false;
-                }
-
-                if (qty > 50) {
-                    alert("The maximum quantity is 50.");
-                    input.value = 50;
-                    return false;
-                }
-
-                if (qty > stock) {
-                    alert("Only " + stock + " items in stock.");
-                    input.value = stock;
-                    return false;
-                }
-
-                const total = qty * price;
-                document.getElementById("dishTotalPrice").textContent = total.toLocaleString() + " đ";
-                return true;
-            }
-        </script>
-
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+        
     </body>
 </html>
