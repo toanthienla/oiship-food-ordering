@@ -946,12 +946,12 @@
         let finalQty = qty;
 
         if (data.success) {
-            // Thành công: cập nhật tổng
+          
             const total = qty * price;
             row.querySelector(".item-total").innerHTML = '<span class="fw-bold text-success">' + total.toLocaleString() + ' đ</span>';
             recalculateGrandTotal();
         } else {
-            // Bị lỗi: backend trả về validQuantity hoặc maxStock
+          
             if (data.error) alert(data.error);
 
             if (data.validQuantity !== undefined) {
@@ -961,11 +961,11 @@
                 finalQty = data.maxStock;
                 input.value = finalQty;
             } else {
-                // Trường hợp lỗi khác
+               
                 return;
             }
 
-            // ✅ Gửi lại request để cập nhật lại DB với số lượng đã được chỉnh
+     
             fetch(contextPath + "/customer/view-cart", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },

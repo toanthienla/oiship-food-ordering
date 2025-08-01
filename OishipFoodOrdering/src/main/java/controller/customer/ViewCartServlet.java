@@ -118,12 +118,12 @@ public class ViewCartServlet extends HttpServlet {
             String cartIdStr = request.getParameter("cartID");
             String quantityStr = request.getParameter("quantity");
 
-            // Handle quantity update via AJAX
+            
             if (cartIdStr != null && quantityStr != null) {
                 int cartID = Integer.parseInt(cartIdStr);
                 int quantity = Integer.parseInt(quantityStr);
 
-                // Validate quantity limits
+               
                 if (quantity <= 0) {
                     quantity = 1;
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -141,31 +141,15 @@ public class ViewCartServlet extends HttpServlet {
                     return;
                 }
 
-//                if (quantity > 50) {
-//                    quantity = 50;
-//                    response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-//                    response.setContentType("application/json");
-//                    response.setCharacterEncoding("UTF-8");
-//
-//                    String json = "{"
-//                            + "\"success\": false,"
-//                            + "\"error\": \"Quantity cannot exceed 50.\","
-//                            + "\"validQuantity\": " + quantity
-//                            + "}";
-//
-//                    response.getWriter().write(json);
-//                    System.out.println("ViewCartServlet - Quantity update failed: more than 50 for userId: " + userId);
-//                    return;
-//                }
 
-                // Check stock availability
+               
                 int stock = cartDAO.getDishStockByCartId(cartID);
                 if (quantity > stock || quantity > 50) {
                     response.setStatus(HttpServletResponse.SC_BAD_REQUEST);
                     response.setContentType("application/json");
                     response.setCharacterEncoding("UTF-8");
 
-                    // Tạo JSON trả về có thêm maxStock
+                   
                     String json = "{"
                             + "\"success\": false,"
                             + "\"error\": \"Only " + stock + " items left. Quantity exceeds available stock and Quantity cannot exceed 50.\","

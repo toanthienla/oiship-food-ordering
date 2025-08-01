@@ -932,14 +932,14 @@
                 input.value = correctedQty;
             }
 
-            // Gửi lại request với số lượng đã được điều chỉnh
+           
             return fetch(contextPath + "/customer/view-cart", {
                 method: "POST",
                 headers: { "Content-Type": "application/x-www-form-urlencoded" },
                 body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(correctedQty)
             })
             .then(() => {
-                // Cập nhật tổng tiền
+                
                 const row = input.closest(".cart-item-row");
                 const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
                 const total = correctedQty * price;
@@ -947,7 +947,7 @@
                 recalculateTotal();
             });
         } else {
-            // Nếu không có lỗi, vẫn cập nhật tổng tiền như thường
+          
             const row = input.closest(".cart-item-row");
             const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
             const updatedQty = parseInt(input.value);
