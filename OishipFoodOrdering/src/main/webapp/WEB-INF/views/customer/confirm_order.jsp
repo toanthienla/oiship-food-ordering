@@ -894,33 +894,75 @@
         <script>
                                          function manualUpdate(cartId) {
                                              const input = document.getElementById("qty_" + cartId);
-                                             const maxStock = parseInt(input.getAttribute("data-stock"));
-                                             let qty = parseInt(input.value);
+                                             let value = input.value;
+                                             if (!/^\d+$/.test(value))
+                                                 return;
 
-                                             if (isNaN(qty) || qty < 1) {
-                                                 qty = 1;
-                                             } else if (qty > 50) {
-                                                 qty = 50;
-                                                 alert("The maximum quantity for each item is 50.");
-                                             } else if (qty > maxStock) {
-                                                 qty = maxStock;
-                                                 alert("The quantity exceeds stock: " + maxStock);
-                                             }
-
-                                             input.value = qty;
-
-                                             fetch(contextPath + "/customer/view-cart", {
-                                                 method: "POST",
-                                                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                                                 body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-                                             }).then(() => {
-                                                 const row = input.closest(".cart-item-row");
-                                                 const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                                                 const total = qty * price;
-                                                 row.querySelector(".item-total").textContent = total.toLocaleString();
-                                                 recalculateTotal();
-                                             });
+                                             updateQuantity(cartId, 0);
                                          }
+                                        
+                                         const contextPath = "<%= request.getContextPath()%>";
+
+                                       function updateQuantity(cartId, delta) {
+    const input = document.getElementById("qty_" + cartId);
+    const maxStock = parseInt(input.getAttribute("data-stock"));
+    let qty = parseInt(input.value);
+    qty += delta;
+    input.value = qty;
+
+    fetch(contextPath + "/customer/view-cart", {
+        method: "POST",
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+    })
+    .then(response => response.json())
+    .then(data => {
+        if (!data.success) {
+            if (data.error) {
+                alert(data.error);
+            }
+
+            let correctedQty = qty;
+
+            if (data.validQuantity !== undefined) {
+                correctedQty = data.validQuantity;
+                input.value = correctedQty;
+            } else if (data.maxStock !== undefined) {
+                correctedQty = data.maxStock;
+                input.value = correctedQty;
+            }
+
+            // Gửi lại request với số lượng đã được điều chỉnh
+            return fetch(contextPath + "/customer/view-cart", {
+                method: "POST",
+                headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(correctedQty)
+            })
+            .then(() => {
+                // Cập nhật tổng tiền
+                const row = input.closest(".cart-item-row");
+                const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                const total = correctedQty * price;
+                row.querySelector(".item-total").textContent = total.toLocaleString();
+                recalculateTotal();
+            });
+        } else {
+            // Nếu không có lỗi, vẫn cập nhật tổng tiền như thường
+            const row = input.closest(".cart-item-row");
+            const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+            const updatedQty = parseInt(input.value);
+            const total = updatedQty * price;
+            row.querySelector(".item-total").textContent = total.toLocaleString();
+            recalculateTotal();
+        }
+    })
+    .catch(error => {
+        console.error("Error updating cart quantity:", error);
+        alert("An unexpected error occurred.");
+    });
+}
+
+
 
                                          function handleSubmit() {
                                              const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
@@ -1098,45 +1140,7 @@
                                              modal.hide();
                                          }
 
-                                         // Other functions
-                                         const contextPath = "<%= request.getContextPath()%>";
 
-                                         function updateQuantity(cartId, delta) {
-                                             const input = document.getElementById("qty_" + cartId);
-                                             const maxStock = parseInt(input.getAttribute("data-stock"));
-                                             let qty = parseInt(input.value);
-
-                                             if (isNaN(qty))
-                                                 qty = 1;
-                                             qty += delta;
-
-                                             if (qty > 50) {
-                                                 qty = 50;
-                                                 alert("The maximum quantity for each item is 50.");
-                                             }
-
-                                             if (qty > maxStock) {
-                                                 qty = maxStock;
-                                                 alert("The quantity exceeds stock: " + maxStock);
-                                             }
-
-                                             if (qty < 1)
-                                                 qty = 1;
-
-                                             input.value = qty;
-
-                                             fetch(contextPath + "/customer/view-cart", {
-                                                 method: "POST",
-                                                 headers: {"Content-Type": "application/x-www-form-urlencoded"},
-                                                 body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-                                             }).then(() => {
-                                                 const row = input.closest(".cart-item-row");
-                                                 const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                                                 const total = qty * price;
-                                                 row.querySelector(".item-total").textContent = total.toLocaleString();
-                                                 recalculateTotal();
-                                             });
-                                         }
 
                                          function recalculateTotal() {
                                              let total = 0;

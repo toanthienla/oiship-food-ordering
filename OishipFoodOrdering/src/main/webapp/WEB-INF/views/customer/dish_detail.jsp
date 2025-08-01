@@ -88,7 +88,7 @@
                     } %>
                     </p>
                     <% }%>
-
+                   
                     <!-- Form Add to Cart -->
                     <form method="post" action="${pageContext.request.contextPath}/customer/add-cart" class="mt-3" >
                         <input type="hidden" name="dishID" value="<%= dish.getDishID()%>" />
@@ -102,7 +102,7 @@
                                    data-stock="<%= stock%>"
                                    class="form-control text-center"
                                    style="width: 80px;"
-                                   required
+                                   required>
                                    
                         </div>
 

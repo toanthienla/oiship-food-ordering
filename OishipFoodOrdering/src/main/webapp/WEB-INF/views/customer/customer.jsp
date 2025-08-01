@@ -1062,19 +1062,35 @@
                 <div id="pageNumbers" class="d-flex gap-2"></div>
                 <button id="nextPageBtn" class="page-btn rounded">&raquo;</button>
             </div>
+            <style>
+                .alert {
+                    animation: slideFromTop 0.5s ease-out;
+                }
+
+                @keyframes slideFromTop {
+                    from {
+                        opacity: 0;
+                        transform: translateY(-50px);
+                    }
+                    to {
+                        opacity: 1;
+                        transform: translateY(0);
+                    }
+                }
+            </style>
+
+
             <%
                 String errorMessage = (String) session.getAttribute("errorMessage");
                 if (errorMessage != null) {
                     session.removeAttribute("errorMessage"); // Clear to avoid repeat
 %>
 
-            <div class="cart-success-alert" id="cartSuccessAlert" style="max-width: 400px; margin: 0 auto;">
-                <div class="alert alert-success alert-dismissible fade show" role="alert">
-                    <%= errorMessage%>
-                    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-                </div>
+            <div id="cartSuccessAlert" class="alert alert-danger alert-dismissible fade show position-fixed start-50 top-0 translate-middle-x mt-4" 
+                 role="alert" style="z-index: 9999; min-width: 300px;">
+                <%= errorMessage%>
+                <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
             </div>
-
             <%
                 }
             %>
