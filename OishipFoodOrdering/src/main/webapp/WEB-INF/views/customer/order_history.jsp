@@ -822,7 +822,7 @@
                                id="userDropdown" data-bs-toggle="dropdown" aria-expanded="false">
                                 <i class="fas fa-user"></i>
                                 <div class="welcome-text">
-                                    Welcome, <span><c:out value="${userName}" default="toanthienla" /></span>!
+                                    Welcome, <span><c:out value="${userName}"/></span>!
                                 </div>
                             </a>
 

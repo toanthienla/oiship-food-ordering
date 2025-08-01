@@ -11,7 +11,7 @@
     <div class="text-center border shadow p-5 rounded bg-white" style="max-width: 500px; width: 100%;">
         <h2 class="text-success mb-3">✔ Payment Successful!</h2>
         <p class="mb-4">Thank you for using our service.</p>
-        <a href="<%= request.getContextPath() %>/customer" class="btn btn-primary">⬅ Back to Home</a>
+        <a href="<%= request.getContextPath() %>/customer/order" class="btn btn-primary">⬅ Back to Order</a>
     </div>
 
 </body>
