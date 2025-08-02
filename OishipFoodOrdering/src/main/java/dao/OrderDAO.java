@@ -45,9 +45,7 @@ public class OrderDAO extends DBContext {
                 + ") lastUpdate "
                 + "ORDER BY o.orderCreatedAt DESC";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
 
             while (rs.next()) {
                 Order order = new Order();
@@ -207,8 +205,7 @@ public class OrderDAO extends DBContext {
         int generatedID = -1;
         String sql = "INSERT INTO Account(fullName) VALUES (?)";
 
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
 
             ps.setString(1, fullName);
             ps.executeUpdate();
@@ -695,8 +692,6 @@ public class OrderDAO extends DBContext {
         return orderId;
     }
 
-
-
     public String getCheckoutUrl(int orderId) {
         String sql = "SELECT checkoutUrl FROM [Order] WHERE orderID = ?";
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -756,6 +751,7 @@ public class OrderDAO extends DBContext {
         }
         return sb.toString();
     }
+
     // Hôm nay
     public DashboardStats getTodayStats() {
         DashboardStats stats = new DashboardStats();
@@ -932,9 +928,7 @@ public class OrderDAO extends DBContext {
 
     // Helper method
     private int executeCountQuery(String sql) {
-        try (Connection conn = getConnection();
-                PreparedStatement ps = conn.prepareStatement(sql);
-                ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             if (rs.next()) {
                 return rs.getInt(1);
             }
@@ -945,13 +939,11 @@ public class OrderDAO extends DBContext {
 
     }
 
-     // Get list of years that have orders
+    // Get list of years that have orders
     public List<Integer> getAvailableOrderYears() {
         List<Integer> years = new ArrayList<>();
         String sql = "SELECT DISTINCT YEAR(orderCreatedAt) AS y FROM [Order] ORDER BY y DESC";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql);
-             ResultSet rs = ps.executeQuery()) {
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
             while (rs.next()) {
                 years.add(rs.getInt("y"));
             }
@@ -961,14 +953,13 @@ public class OrderDAO extends DBContext {
         return years;
     }
 
-    // Get month->income map for a year
+    // Get month->income map for a year (FIXED - added payment status filter)
     public Map<Integer, Double> getMonthlyIncomeMap(int year) {
         Map<Integer, Double> map = new LinkedHashMap<>();
-        String sql = "SELECT MONTH(orderCreatedAt) AS m, SUM(amount) AS total " +
-                     "FROM [Order] WHERE YEAR(orderCreatedAt)=? AND orderStatus=4 " +
-                     "GROUP BY MONTH(orderCreatedAt)";
-        try (Connection conn = getConnection();
-             PreparedStatement ps = conn.prepareStatement(sql)) {
+        String sql = "SELECT MONTH(orderCreatedAt) AS m, SUM(amount) AS total "
+                + "FROM [Order] WHERE YEAR(orderCreatedAt)=? AND orderStatus=4 AND paymentStatus=1 "
+                + "GROUP BY MONTH(orderCreatedAt)";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, year);
             try (ResultSet rs = ps.executeQuery()) {
                 while (rs.next()) {
@@ -983,5 +974,119 @@ public class OrderDAO extends DBContext {
             map.putIfAbsent(i, 0.0);
         }
         return map;
+    }
+
+    /**
+     * Calculate the total profit for a specific order by orderID Only
+     * calculates if order is delivered AND paid
+     */
+    public BigDecimal getOrderProfitByOrderId(int orderId) {
+        BigDecimal totalProfit = BigDecimal.ZERO;
+
+        String sql = "SELECT od.quantity, d.DishID, d.opCost, d.interestPercentage "
+                + "FROM OrderDetail od "
+                + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+                + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
+                + "WHERE od.FK_OD_Order = ? AND o.orderStatus = 4 AND o.paymentStatus = 1";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int quantity = rs.getInt("quantity");
+                int dishId = rs.getInt("DishID");
+                BigDecimal opCost = rs.getBigDecimal("opCost");
+                BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
+
+                // Get ingredients for this dish (using class field)
+                IngredientDAO ingredientDAO = new IngredientDAO();
+                List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
+                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+
+                // Calculate unit price (selling price per dish)
+                BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(
+                        opCost, interestPercentage, ingredientCost);
+
+                // Calculate profit per dish = unitPrice - (opCost + ingredientCost)
+                BigDecimal profitPerDish = unitPrice.subtract(opCost.add(ingredientCost));
+
+                // Calculate total profit for this dish in the order
+                BigDecimal dishTotalProfit = profitPerDish.multiply(new BigDecimal(quantity));
+
+                // Add to total order profit
+                totalProfit = totalProfit.add(dishTotalProfit);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return totalProfit;
+    }
+
+    /**
+     * Get monthly profit map for a specific year (FIXED - added payment status
+     * filter) Only considers delivered AND paid orders (orderStatus = 4 AND
+     * paymentStatus = 1)
+     */
+    public Map<Integer, Double> getMonthlyProfitMap(int year) {
+        Map<Integer, Double> profitMap = new LinkedHashMap<>();
+
+        // Initialize all months with 0
+        for (int i = 1; i <= 12; i++) {
+            profitMap.put(i, 0.0);
+        }
+
+        String sql = "SELECT MONTH(o.orderCreatedAt) AS month, od.quantity, "
+                + "d.DishID, d.opCost, d.interestPercentage "
+                + "FROM [Order] o "
+                + "JOIN OrderDetail od ON o.orderID = od.FK_OD_Order "
+                + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+                + "WHERE YEAR(o.orderCreatedAt) = ? AND o.orderStatus = 4 AND o.paymentStatus = 1";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setInt(1, year);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int month = rs.getInt("month");
+                int quantity = rs.getInt("quantity");
+                int dishId = rs.getInt("DishID");
+                BigDecimal opCost = rs.getBigDecimal("opCost");
+                BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
+
+                // Get ingredients for this dish (using class field)
+                IngredientDAO ingredientDAO = new IngredientDAO();
+                List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
+                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+
+                // Calculate unit price
+                BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(
+                        opCost, interestPercentage, ingredientCost);
+
+                // Calculate profit per dish
+                BigDecimal profitPerDish = unitPrice.subtract(opCost.add(ingredientCost));
+
+                // Calculate total profit for this order detail
+                BigDecimal totalProfitForItem = profitPerDish.multiply(new BigDecimal(quantity));
+
+                // Add to monthly profit
+                double currentMonthProfit = profitMap.get(month);
+                profitMap.put(month, currentMonthProfit + totalProfitForItem.doubleValue());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return profitMap;
+    }
+
+    /**
+     * Get formatted profit for an order (for display purposes) Only calculates
+     * if order is delivered AND paid
+     */
+    public String getFormattedOrderProfit(int orderId) {
+        BigDecimal profit = getOrderProfitByOrderId(orderId);
+        return TotalPriceCalculator.formatVND(profit);
     }
 }

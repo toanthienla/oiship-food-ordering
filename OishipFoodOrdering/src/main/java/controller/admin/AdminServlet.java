@@ -10,6 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 import dao.OrderDAO;
+import java.math.BigDecimal;
 
 @WebServlet(name = "AdminDashboardServlet", urlPatterns = {"/admin/dashboard"})
 public class AdminServlet extends HttpServlet {
@@ -38,13 +39,15 @@ public class AdminServlet extends HttpServlet {
             selectedYear = java.time.Year.now().getValue();
         }
 
-        
+        // Get both income and profit data
         Map<Integer, Double> monthlyIncomeMap = orderDAO.getMonthlyIncomeMap(selectedYear);
-
+        Map<Integer, Double> monthlyProfitMap = orderDAO.getMonthlyProfitMap(selectedYear);
         
+        // Set attributes for the JSP
         request.setAttribute("availableYears", availableYears);
         request.setAttribute("selectedYear", selectedYear);
         request.setAttribute("monthlyIncomeMap", monthlyIncomeMap);
+        request.setAttribute("monthlyProfitMap", monthlyProfitMap);
 
         request.getRequestDispatcher("/WEB-INF/views/admin/dashboard_admin.jsp").forward(request, response);
     }
