@@ -694,7 +694,7 @@
                                         </div>
 
                                         <div class="button-group">
-                                            <button type="submit" class="btn btn-primary me-2" id="submitBtn" disabled>
+                                            <button type="submit" class="btn btn-primary me-2" id="submitBtn">
                                                 <i class="fas fa-save me-2"></i>
                                                 Change Password
                                             </button>
