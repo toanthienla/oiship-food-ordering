@@ -38,10 +38,10 @@ public class AdminServlet extends HttpServlet {
             selectedYear = java.time.Year.now().getValue();
         }
 
-        // Monthly income as map: month (1-12) -> income
+        
         Map<Integer, Double> monthlyIncomeMap = orderDAO.getMonthlyIncomeMap(selectedYear);
 
-        // Set attributes for JSP
+        
         request.setAttribute("availableYears", availableYears);
         request.setAttribute("selectedYear", selectedYear);
         request.setAttribute("monthlyIncomeMap", monthlyIncomeMap);

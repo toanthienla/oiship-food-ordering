@@ -2,6 +2,10 @@ package utils.service.paymentconfig;
 
 import vn.payos.PayOS;
 
+import java.io.IOException;
+import java.io.InputStream;
+import java.util.Properties;
+
 public class PayOSConfig {
 
     private static PayOS payOSInstance;
@@ -13,8 +17,29 @@ public class PayOSConfig {
     // Thread-safe singleton method to get PayOS instance
     public static synchronized PayOS getPayOS() {
         if (payOSInstance == null) {
-            // Replace with actual PayOS configuration (e.g., client ID, API key, checksum key)
-            payOSInstance = new PayOS("a7cb7380-c77a-4f52-bbf8-dbe3f6f72e7e", "03860695-a868-4a05-bebc-5c7bc2426c85", "934b2ab1d4688c20514b7b1f980afc1a42940619a17f9ce956b3318b3ac506ba");
+            Properties props = new Properties();
+            try (InputStream input = PayOSConfig.class.getClassLoader()
+                    .getResourceAsStream(".env")) {
+
+                if (input == null) {
+                    throw new RuntimeException("Cannot find .env file in resources.");
+                }
+
+                props.load(input);
+
+                String clientId = props.getProperty("PAYOS_CLIENT_ID");
+                String apiKey = props.getProperty("PAYOS_API_KEY");
+                String checksumKey = props.getProperty("PAYOS_CHECKSUM_KEY");
+
+                if (clientId == null || apiKey == null || checksumKey == null) {
+                    throw new RuntimeException("Missing PayOS configuration in .env file.");
+                }
+
+                payOSInstance = new PayOS(clientId, apiKey, checksumKey);
+
+            } catch (IOException e) {
+                throw new RuntimeException("Failed to load PayOS configuration", e);
+            }
         }
         return payOSInstance;
     }
