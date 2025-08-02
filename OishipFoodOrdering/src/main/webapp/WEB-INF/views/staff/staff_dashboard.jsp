@@ -1,3 +1,7 @@
+<%@page import="java.util.List"%>
+<%@page import="java.util.Map"%>
+<%@page import="java.util.LinkedHashMap"%>
+<%@page import="java.util.Arrays"%>
 <%@ page contentType="text/html;charset=UTF-8" language="java" %> <%@ taglib
     uri="http://java.sun.com/jsp/jstl/core" prefix="c" %> <%@ taglib prefix="fmt"
                                                                  uri="http://java.sun.com/jsp/jstl/fmt" %>
@@ -19,6 +23,13 @@
                 rel="stylesheet"
                 href="${pageContext.request.contextPath}/css/sidebar.css"
                 />
+
+            <!--CSS for Dashboard-->
+            <link rel="stylesheet" href="<c:url value='/css/dashboard.css' />" />
+
+            <!-- Chart.js -->
+            <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+            <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
             <!-- Sidebar JS -->
             <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
@@ -202,6 +213,39 @@
                         margin-left: 200px;
                     }
                 }
+
+                .year-select-form {
+                    margin-bottom: 0;
+                }
+                .year-select {
+                    width: 120px;
+                    display: inline-block;
+                }
+                .chart-container {
+                    position: relative;
+                    width: 100%;
+                    min-width: 350px;
+                    height: 420px;
+                    margin-bottom: 20px;
+                }
+                #incomeChart {
+                    width: 100% !important;
+                    height: 400px !important;
+                    max-width: 100vw;
+                    display: block;
+                }
+                .card.mb-4 {
+                    border-radius: 10px;
+                    box-shadow: 0 2px 12px rgba(0,0,0,0.06);
+                }
+                .card-header {
+                    border-radius: 10px 10px 0 0;
+                    background: #f8fafc;
+                    font-weight: 500;
+                    color: #222;
+                    font-size: 1.1rem;
+                    border-bottom: 1px solid #eaeaea;
+                }
             </style>
         </head>
         <body>
@@ -215,281 +259,115 @@
                     <div class="profile"><span class="username">Hi, Staff</span></div>
                 </div>
 
-                <!--div.content-->
-                <div class="dashboard-container content">
-                    <h1 class="text-center">Staff Dashboard</h1>
+                <!-- Content -->
+                <div class="content">
+                    <h1>Statistics Dashboard</h1>
+                    <p>Overview of your platform's income trends.</p>
 
-                    <!-- SINGLE TABLE LAYOUT -->
-                    <div class="row justify-content-center">
-                        <div class="col-lg-10">
-                            <div class="card-body p-4">
-                                <!-- HÔM NAY -->
-                                <div class="stats-section mb-5">
-                                    <h5
-                                        class="section-title text-center p-3 rounded mb-4"
-                                        style="background-color: #ef5d10; color: white"
-                                        >
-                                        <i class="bi bi-calendar-day"></i> HÔM NAY
-                                    </h5>
-
-                                    <div class="row">
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <h3 class="stats-number" style="color: #ef5d10">
-                                                    ${todayStats.totalOrders}
-                                                </h3>
-                                                <p class="mb-0"><strong>📦 Tổng Đơn Hàng</strong></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <h3 class="stats-number" style="color: #ef5d10">
-                                                    ${todayStats.totalReviews}
-                                                </h3>
-                                                <p class="mb-0"><strong>⭐ Tổng Reviews</strong></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <div class="mb-2">
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Pending: ${todayStats.pending}</span
-                                                    >
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Confirmed: ${todayStats.confirmed}</span
-                                                    >
-                                                </div>
-                                                <div class="mb-2">
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Preparing: ${todayStats.preparing}</span
-                                                    >
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Delivery: ${todayStats.delivery}</span
-                                                    >
-                                                </div>
-                                                <div>
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Delivered: ${todayStats.delivered}</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mt-3">
-                                        <div class="col-md-12 text-center">
-                                            <div class="payment-status">
-                                                <small class="text-muted d-block mb-2"
-                                                       >Payment Status:</small
-                                                >
-                                                <span
-                                                    class="badge me-2"
-                                                    style="background-color: #ef5d10"
-                                                    >Unpaid: ${todayStats.unpaid}</span
-                                                >
-                                                <span
-                                                    class="badge me-2"
-                                                    style="background-color: #ef5d10"
-                                                    >Paid: ${todayStats.paid}</span
-                                                >
-                                                <span class="badge" style="background-color: #ef5d10"
-                                                      >Refunded: ${todayStats.refunded}</span
-                                                >
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <hr style="border-color: #ef5d10; border-width: 2px" />
-
-                                <!-- THÁNG NÀY -->
-                                <div class="stats-section mb-5">
-                                    <h5
-                                        class="section-title text-center p-3 rounded mb-4"
-                                        style="background-color: #ef5d10; color: white"
-                                        >
-                                        <i class="bi bi-calendar-month"></i> THÁNG NÀY
-                                    </h5>
-
-                                    <div class="row">
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <h3 class="stats-number" style="color: #ef5d10">
-                                                    ${monthStats.totalOrders}
-                                                </h3>
-                                                <p class="mb-0"><strong>📦 Tổng Đơn Hàng</strong></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <h3 class="stats-number" style="color: #ef5d10">
-                                                    ${monthStats.totalReviews}
-                                                </h3>
-                                                <p class="mb-0"><strong>⭐ Tổng Reviews</strong></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <div class="mb-2">
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Pending: ${monthStats.pending}</span
-                                                    >
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Confirmed: ${monthStats.confirmed}</span
-                                                    >
-                                                </div>
-                                                <div class="mb-2">
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Preparing: ${monthStats.preparing}</span
-                                                    >
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Delivery: ${monthStats.delivery}</span
-                                                    >
-                                                </div>
-                                                <div>
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Delivered: ${monthStats.delivered}</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mt-3">
-                                        <div class="col-md-12 text-center">
-                                            <div class="payment-status">
-                                                <small class="text-muted d-block mb-2"
-                                                       >Payment Status:</small
-                                                >
-                                                <span
-                                                    class="badge me-2"
-                                                    style="background-color: #ef5d10"
-                                                    >Unpaid: ${monthStats.unpaid}</span
-                                                >
-                                                <span
-                                                    class="badge me-2"
-                                                    style="background-color: #ef5d10"
-                                                    >Paid: ${monthStats.paid}</span
-                                                >
-                                                <span class="badge" style="background-color: #ef5d10"
-                                                      >Refunded: ${monthStats.refunded}</span
-                                                >
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-
-                                <hr style="border-color: #ef5d10; border-width: 2px" />
-
-                                <!-- TẤT CẢ -->
-                                <div class="stats-section">
-                                    <h5
-                                        class="section-title text-center p-3 rounded mb-4"
-                                        style="background-color: #ef5d10; color: white"
-                                        >
-                                        <i class="bi bi-calendar-range"></i> TẤT CẢ
-                                    </h5>
-
-                                    <div class="row">
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <h3 class="stats-number" style="color: #ef5d10">
-                                                    ${allStats.totalOrders}
-                                                </h3>
-                                                <p class="mb-0"><strong>📦 Tổng Đơn Hàng</strong></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <h3 class="stats-number" style="color: #ef5d10">
-                                                    ${allStats.totalReviews}
-                                                </h3>
-                                                <p class="mb-0"><strong>⭐ Tổng Reviews</strong></p>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4 text-center mb-3">
-                                            <div
-                                                class="stat-box p-3 rounded"
-                                                style="border: 2px solid #ef5d10"
-                                                >
-                                                <div class="mb-2">
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Pending: ${allStats.pending}</span
-                                                    >
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Confirmed: ${allStats.confirmed}</span
-                                                    >
-                                                </div>
-                                                <div class="mb-2">
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Preparing: ${allStats.preparing}</span
-                                                    >
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Delivery: ${allStats.delivery}</span
-                                                    >
-                                                </div>
-                                                <div>
-                                                    <span class="badge" style="background-color: #ef5d10"
-                                                          >Delivered: ${allStats.delivered}</span
-                                                    >
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                    <div class="row mt-3">
-                                        <div class="col-md-12 text-center">
-                                            <div class="payment-status">
-                                                <small class="text-muted d-block mb-2"
-                                                       >Payment Status:</small
-                                                >
-                                                <span
-                                                    class="badge me-2"
-                                                    style="background-color: #ef5d10"
-                                                    >Unpaid: ${allStats.unpaid}</span
-                                                >
-                                                <span
-                                                    class="badge me-2"
-                                                    style="background-color: #ef5d10"
-                                                    >Paid: ${allStats.paid}</span
-                                                >
-                                                <span class="badge" style="background-color: #ef5d10"
-                                                      >Refunded: ${allStats.refunded}</span
-                                                >
-                                            </div>
-                                        </div>
-                                    </div>
-
-                                </div>
+                    <!-- Income Statistics Chart -->
+                    <div class="card mb-4">
+                        <div class="card-header d-flex justify-content-between align-items-center">
+                            <h5 class="mb-0">Income Statistics (Monthly)</h5>
+                            <form method="get" action="" class="year-select-form">
+                                <select name="year" onchange="this.form.submit()" class="form-select year-select">
+                                    <%
+                                        List<Integer> years = (List<Integer>) request.getAttribute("availableYears");
+                                        int selectedYear = (request.getAttribute("selectedYear") != null)
+                                                ? (Integer) request.getAttribute("selectedYear")
+                                                : java.time.Year.now().getValue();
+                                        if (years != null) {
+                                            for (Integer y : years) {
+                                    %>
+                                    <option value="<%=y%>" <%= (y == selectedYear) ? "selected" : ""%>><%=y%></option>
+                                    <%
+                                            }
+                                        }
+                                    %>
+                                </select>
+                            </form>
+                        </div>
+                        <div class="card-body">
+                            <div class="chart-container">
+                                <canvas id="incomeChart"></canvas>
                             </div>
                         </div>
                     </div>
+                    <!-- End Income Chart -->
                 </div>
             </div>
             <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+            <script>
+                // Prepare chart data from backend attributes
+                <%
+                    Map<Integer, Double> monthlyIncomeMap = (Map<Integer, Double>) request.getAttribute("monthlyIncomeMap");
+                    List<String> monthNames = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun", 
+                                                            "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
+                    StringBuilder labelsJs = new StringBuilder("[");
+                    StringBuilder dataJs = new StringBuilder("[");
+                    for (int i = 1; i <= 12; i++) {
+                        if (i > 1) {
+                            labelsJs.append(",");
+                            dataJs.append(",");
+                        }
+                        labelsJs.append("\"").append(monthNames.get(i - 1)).append("\"");
+                        double income = (monthlyIncomeMap != null && monthlyIncomeMap.get(i) != null) ? monthlyIncomeMap.get(i) : 0.0;
+                        dataJs.append(income);
+                    }
+                    labelsJs.append("]");
+                    dataJs.append("]");
+                %>
+                const labels = <%= labelsJs.toString()%>;
+                const data = <%= dataJs.toString()%>;
+                const selectedYear = <%= request.getAttribute("selectedYear") != null ? request.getAttribute("selectedYear") : java.time.Year.now().getValue()%>;
+
+                const ctx = document.getElementById('incomeChart').getContext('2d');
+                const incomeChart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: labels,
+                        datasets: [{
+                                label: 'Income in ' + selectedYear,
+                                data: data,
+                                backgroundColor: 'rgba(13, 110, 253, 0.6)',
+                                borderColor: 'rgba(13, 110, 253, 1)',
+                                borderWidth: 1,
+                                maxBarThickness: 38
+                            }]
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: true,
+                                position: 'top'
+                            },
+                            datalabels: {
+                                display: true,
+                                color: '#000',
+                                anchor: 'end',
+                                align: 'top',
+                                formatter: function (value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        },
+                        responsive: true,
+                        scales: {
+                            x: {
+                                grid: { display: false }
+                            },
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: "#eee" },
+                                title: {
+                                    display: true,
+                                    text: 'Income (VND)'
+                                }
+                            }
+                        }
+                    },
+                    plugins: [ChartDataLabels]
+                });
+            </script>
         </body>
     </html>
