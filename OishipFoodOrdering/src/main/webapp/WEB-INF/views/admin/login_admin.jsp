@@ -512,14 +512,6 @@
             <img src="../images/logov2.png" alt="Oishop Logo" class="logo" />
         </a>
 
-        <div class="header-section">
-            <h1 class="fw-bold">
-                Admin Dashboard
-                <span class="admin-badge">ADMIN</span>
-            </h1>
-            <p class="admin-subtitle mt-2">Secure access to management panel</p>
-        </div>
-
         <div class="main-content">
             <div class="login-card">
                 <div class="inner-card">
