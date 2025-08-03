@@ -148,7 +148,65 @@ public class DishDAO extends DBContext {
                 item.setTotalPrice(totalPrice);
                 item.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
                 item.setFormattedOpCost(TotalPriceCalculator.formatVND(item.getOpCost()));
-                item.setFormattedProfit(TotalPriceCalculator.formatVND(profit)); 
+                item.setFormattedProfit(TotalPriceCalculator.formatVND(profit));
+
+                String catName = rs.getString("catName");
+                if (catName != null) {
+                    Category category = new Category();
+                    category.setCatID(item.getCategoryId());
+                    category.setCatName(catName);
+                    category.setCatDescription(rs.getString("catDescription"));
+                    item.setCategory(category);
+                }
+
+                dishes.add(item);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return dishes;
+    }
+
+    public List<Dish> getAllDishesAvailable() {
+        List<Dish> dishes = new ArrayList<>();
+        String sql = "SELECT d.DishID, d.DishName, d.image, d.opCost, d.interestPercentage, d.DishDescription, "
+                + "d.stock, d.isAvailable, d.FK_Dish_Category, "
+                + "c.catName, c.catDescription "
+                + "FROM Dish d "
+                + "LEFT JOIN Category c ON d.FK_Dish_Category = c.catID "
+                + "WHERE d.isAvailable = 1"
+                + "ORDER BY d.DishID ASC";
+
+        try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+            IngredientDAO ingredientDAO = new IngredientDAO();
+
+            while (rs.next()) {
+                Dish item = new Dish();
+                int dishId = rs.getInt("DishID");
+
+                item.setDishID(dishId);
+                item.setDishName(rs.getString("DishName"));
+                item.setImage(rs.getString("image"));
+                item.setOpCost(rs.getBigDecimal("opCost"));
+                item.setInterestPercentage(rs.getBigDecimal("interestPercentage"));
+                item.setDishDescription(rs.getString("DishDescription"));
+                item.setStock(rs.getInt("stock"));
+                item.setIsAvailable(rs.getBoolean("isAvailable"));
+                item.setCategoryId(rs.getInt("FK_Dish_Category"));
+
+                List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
+                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+                BigDecimal totalPrice = TotalPriceCalculator.calculateTotalPrice(
+                        item.getOpCost(), item.getInterestPercentage(), ingredientCost);
+
+                BigDecimal profit = totalPrice.subtract(item.getOpCost().add(ingredientCost));
+                item.setIngredients(ingredients);
+                item.setFormattedIngredientsPrice(TotalPriceCalculator.formatVND(ingredientCost));
+                item.setTotalPrice(totalPrice);
+                item.setFormattedPrice(TotalPriceCalculator.formatVND(totalPrice));
+                item.setFormattedOpCost(TotalPriceCalculator.formatVND(item.getOpCost()));
+                item.setFormattedProfit(TotalPriceCalculator.formatVND(profit));
 
                 String catName = rs.getString("catName");
                 if (catName != null) {

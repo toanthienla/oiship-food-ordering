@@ -37,7 +37,7 @@ public class HomeServlet extends HttpServlet {
         // Get all dishes to display on the home.jsp page
         List<Dish> menuItems = null;
         try {
-            menuItems = new DishDAO().getAllDishes();
+            menuItems = new DishDAO().getAllDishesAvailable()   ;
             request.setAttribute("menuItems", menuItems);
         } catch (Exception e) {
             e.printStackTrace();

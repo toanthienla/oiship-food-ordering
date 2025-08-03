@@ -42,7 +42,7 @@ public class CustomerServlet extends HttpServlet {
         // Get all dishes
         List<Dish> menuItems = null;
         try {
-            menuItems = new DishDAO().getAllDishes();
+            menuItems = new DishDAO().getAllDishesAvailable();
             request.setAttribute("menuItems", menuItems);
         } catch (Exception e) {
             e.printStackTrace();

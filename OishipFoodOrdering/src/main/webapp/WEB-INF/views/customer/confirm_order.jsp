@@ -363,7 +363,7 @@
                 color: var(--oiship-dark);
             }
 
-            /* Error Styles */
+            /* Enhanced Error Styles */
             .error-message {
                 background: #f8d7da;
                 border: 1px solid #f5c6cb;
@@ -372,6 +372,43 @@
                 border-radius: 4px;
                 font-size: 0.875rem;
                 margin-top: 5px;
+                display: flex;
+                align-items: center;
+                gap: 8px;
+            }
+
+            .error-message i {
+                color: #dc3545;
+            }
+
+            /* Phone input validation styles */
+            .form-control.is-invalid {
+                border-color: #dc3545;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 12' width='12' height='12' fill='none' stroke='%23dc3545'%3e%3ccircle cx='6' cy='6' r='4.5'/%3e%3cpath d='m5.8 3.6h.4L6 6.5z'/%3e%3ccircle cx='6' cy='8.2' r='.6' fill='%23dc3545' stroke='none'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            .form-control.is-valid {
+                border-color: #198754;
+                background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 8 8'%3e%3cpath fill='%23198754' d='m2.3 6.73.94-.94 1.36 1.36L7.07 4.7l.94.94L4.5 9.14z'/%3e%3c/svg%3e");
+                background-repeat: no-repeat;
+                background-position: right calc(0.375em + 0.1875rem) center;
+                background-size: calc(0.75em + 0.375rem) calc(0.75em + 0.375rem);
+            }
+
+            .phone-format-hint {
+                font-size: 0.875rem;
+                color: #6c757d;
+                margin-top: 5px;
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }
+
+            .phone-format-hint i {
+                color: var(--oiship-orange);
             }
 
             /* Notification Styles */
@@ -639,7 +676,10 @@
                                     <div>
                                         <div class="title">Customer</div>
                                         <div class="value" id="displayCustomerText">${customer.fullName} - ${customer.phone}</div>
-                                        <div id="phoneError" class="error-message" style="display: none;">Please enter a valid phone number.</div>
+                                        <div id="phoneError" class="error-message" style="display: none;">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            <span id="phoneErrorText">Please enter a valid phone number.</span>
+                                        </div>
                                     </div>
                                     <i class="fas fa-edit icon"></i>
                                 </div>
@@ -649,7 +689,10 @@
                                     <div style="width: 100%;">
                                         <div class="title">Delivery Address</div>
                                         <div class="value" id="displayAddressText">${customer.address}</div>
-                                        <div id="addressError" class="error-message" style="display: none;">Please enter your delivery address.</div>
+                                        <div id="addressError" class="error-message" style="display: none;">
+                                            <i class="fas fa-exclamation-triangle"></i>
+                                            Please enter your delivery address.
+                                        </div>
                                         <div id="miniMap" style="height: 200px; width: 100%; margin-top: 10px; display: none;"></div>
                                     </div>
                                 </div>
@@ -792,6 +835,7 @@
                 <div class="modal-content">
                     <div class="modal-header">
                         <h5 class="modal-title">
+                            <i class="fas fa-edit me-2"></i>
                             Edit Customer Info
                         </h5>
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
@@ -799,20 +843,40 @@
                     <div class="modal-body">
                         <div class="mb-3">
                             <label for="modalFullName" class="form-label">
+                                <i class="fas fa-user me-2"></i>
                                 Full Name
                             </label>
-                            <input type="text" class="form-control" id="modalFullName" />
+                            <input type="text" class="form-control" id="modalFullName" placeholder="Enter your full name" />
                         </div>
 
                         <div class="mb-3">
                             <label for="modalPhone" class="form-label">
-                                Phone
+                                <i class="fas fa-phone me-2"></i>
+                                Phone Number
                             </label>
-                            <input type="text" class="form-control" id="modalPhone" />
+                            <input 
+                                type="tel" 
+                                class="form-control" 
+                                id="modalPhone" 
+                                placeholder="Enter phone number"
+                                maxlength="11"
+                                oninput="validatePhoneInput(this)"
+                                onblur="validatePhoneNumber(this)"
+                                onkeypress="allowOnlyNumbers(event)"
+                            />
+                            <div class="phone-format-hint">
+                                <i class="fas fa-info-circle"></i>
+                                Format: 0xxxxxxxxx (Vietnamese phone number)
+                            </div>
+                            <div id="modalPhoneError" class="error-message" style="display: none;">
+                                <i class="fas fa-exclamation-triangle"></i>
+                                <span id="modalPhoneErrorText">Invalid phone number format.</span>
+                            </div>
                         </div>
 
                         <div class="mb-3">
                             <label for="modalAddress" class="form-label">
+                                <i class="fas fa-map-marker-alt me-2"></i>
                                 Address
                             </label>
                             <div id="mapboxAddressInput" class="geocoder"></div>
@@ -824,7 +888,7 @@
                             <i class="fas fa-times me-2"></i>
                             Cancel
                         </button>
-                        <button type="button" class="btn btn-primary" onclick="saveCustomerInfo()">
+                        <button type="button" class="btn btn-primary" id="saveCustomerBtn" onclick="saveCustomerInfo()">
                             <i class="fas fa-save me-2"></i>
                             Save
                         </button>
@@ -892,296 +956,449 @@
         <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-geocoder/v4.7.2/mapbox-gl-geocoder.min.js"></script>
 
         <script>
-                                         function manualUpdate(cartId) {
-                                             const input = document.getElementById("qty_" + cartId);
-                                             let value = input.value;
-                                             if (!/^\d+$/.test(value))
-                                                 return;
-
-                                             updateQuantity(cartId, 0);
-                                         }
-                                        
-                                         const contextPath = "<%= request.getContextPath()%>";
-
-                                       function updateQuantity(cartId, delta) {
-    const input = document.getElementById("qty_" + cartId);
-    const maxStock = parseInt(input.getAttribute("data-stock"));
-    let qty = parseInt(input.value);
-    qty += delta;
-    input.value = qty;
-
-    fetch(contextPath + "/customer/view-cart", {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
-    })
-    .then(response => response.json())
-    .then(data => {
-        if (!data.success) {
-            if (data.error) {
-                alert(data.error);
+            // FIXED: Declare selectedCoordinates variable at the top of script
+            let selectedCoordinates = null;
+            
+            // Phone validation functions
+            function allowOnlyNumbers(event) {
+                const charCode = event.which ? event.which : event.keyCode;
+                if (charCode > 31 && (charCode < 48 || charCode > 57)) {
+                    event.preventDefault();
+                    return false;
+                }
+                return true;
             }
 
-            let correctedQty = qty;
-
-            if (data.validQuantity !== undefined) {
-                correctedQty = data.validQuantity;
-                input.value = correctedQty;
-            } else if (data.maxStock !== undefined) {
-                correctedQty = data.maxStock;
-                input.value = correctedQty;
-            }
-
-           
-            return fetch(contextPath + "/customer/view-cart", {
-                method: "POST",
-                headers: { "Content-Type": "application/x-www-form-urlencoded" },
-                body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(correctedQty)
-            })
-            .then(() => {
+            function validatePhoneInput(input) {
+                // Remove non-numeric characters
+                let value = input.value.replace(/\D/g, '');
                 
-                const row = input.closest(".cart-item-row");
-                const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-                const total = correctedQty * price;
-                row.querySelector(".item-total").textContent = total.toLocaleString();
-                recalculateTotal();
+                // Limit to 11 characters
+                if (value.length > 11) {
+                    value = value.slice(0, 11);
+                }
+                
+                input.value = value;
+                
+                // Real-time validation feedback
+                const errorDiv = document.getElementById('modalPhoneError');
+                const errorText = document.getElementById('modalPhoneErrorText');
+                const saveBtn = document.getElementById('saveCustomerBtn');
+                
+                if (value.length === 0) {
+                    input.classList.remove('is-valid', 'is-invalid');
+                    errorDiv.style.display = 'none';
+                    return;
+                }
+                
+                if (validatePhoneFormat(value)) {
+                    input.classList.remove('is-invalid');
+                    input.classList.add('is-valid');
+                    errorDiv.style.display = 'none';
+                } else {
+                    input.classList.remove('is-valid');
+                    input.classList.add('is-invalid');
+                    
+                    // Show specific error messages
+                    if (value.length < 10) {
+                        errorText.textContent = 'Phone number must be at least 10 digits.';
+                    } else if (!value.startsWith('0')) {
+                        errorText.textContent = 'Phone number must start with 0.';
+                    } else if (value.length > 11) {
+                        errorText.textContent = 'Phone number cannot exceed 11 digits.';
+                    } else {
+                        errorText.textContent = 'Invalid Vietnamese phone number format.';
+                    }
+                    
+                    errorDiv.style.display = 'block';
+                }
+            }
+
+            function validatePhoneNumber(input) {
+                const value = input.value.trim();
+                
+                if (value === '') {
+                    input.classList.remove('is-valid', 'is-invalid');
+                    document.getElementById('modalPhoneError').style.display = 'none';
+                    return false;
+                }
+                
+                return validatePhoneInput(input);
+            }
+
+            function validatePhoneFormat(phone) {
+                // Vietnamese phone number patterns:
+                // Mobile: 09x, 08x, 07x, 05x, 03x (10-11 digits)
+                // Landline: 02x (10-11 digits)
+                const vietnamesePhoneRegex = /^0(2|3|5|7|8|9)\d{8,9}$/;
+                return vietnamesePhoneRegex.test(phone);
+            }
+
+            function isValidVietnamesePhone(phone) {
+                const cleanPhone = phone.replace(/\D/g, '');
+                
+                // Must start with 0 and be 10-11 digits
+                if (!cleanPhone.startsWith('0') || cleanPhone.length < 10 || cleanPhone.length > 11) {
+                    return false;
+                }
+                
+                // Check valid prefixes for Vietnamese numbers
+                const validPrefixes = ['02', '03', '05', '07', '08', '09'];
+                const prefix = cleanPhone.substring(0, 2);
+                
+                return validPrefixes.includes(prefix);
+            }
+            
+            function manualUpdate(cartId) {
+                const input = document.getElementById("qty_" + cartId);
+                let value = input.value;
+                if (!/^\d+$/.test(value))
+                    return;
+
+                updateQuantity(cartId, 0);
+            }
+           
+            const contextPath = "<%= request.getContextPath()%>";
+
+            function updateQuantity(cartId, delta) {
+                const input = document.getElementById("qty_" + cartId);
+                const maxStock = parseInt(input.getAttribute("data-stock"));
+                let qty = parseInt(input.value);
+                qty += delta;
+                input.value = qty;
+
+                fetch(contextPath + "/customer/view-cart", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                    body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(qty)
+                })
+                .then(response => response.json())
+                .then(data => {
+                    if (!data.success) {
+                        if (data.error) {
+                            alert(data.error);
+                        }
+
+                        let correctedQty = qty;
+
+                        if (data.validQuantity !== undefined) {
+                            correctedQty = data.validQuantity;
+                            input.value = correctedQty;
+                        } else if (data.maxStock !== undefined) {
+                            correctedQty = data.maxStock;
+                            input.value = correctedQty;
+                        }
+
+                        return fetch(contextPath + "/customer/view-cart", {
+                            method: "POST",
+                            headers: { "Content-Type": "application/x-www-form-urlencoded" },
+                            body: "cartID=" + encodeURIComponent(cartId) + "&quantity=" + encodeURIComponent(correctedQty)
+                        })
+                        .then(() => {
+                            const row = input.closest(".cart-item-row");
+                            const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                            const total = correctedQty * price;
+                            row.querySelector(".item-total").textContent = total.toLocaleString();
+                            recalculateTotal();
+                        });
+                    } else {
+                        const row = input.closest(".cart-item-row");
+                        const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
+                        const updatedQty = parseInt(input.value);
+                        const total = updatedQty * price;
+                        row.querySelector(".item-total").textContent = total.toLocaleString();
+                        recalculateTotal();
+                    }
+                })
+                .catch(error => {
+                    console.error("Error updating cart quantity:", error);
+                    alert("An unexpected error occurred.");
+                });
+            }
+
+            function handleSubmit() {
+                const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
+                const address = document.getElementById("hiddenAddress").value.trim();
+                const phone = document.getElementById("hiddenPhone").value.trim();
+
+                const addressError = document.getElementById("addressError");
+                const phoneError = document.getElementById("phoneError");
+                const phoneErrorText = document.getElementById("phoneErrorText");
+
+                let valid = true;
+
+                // Address validation
+                if (!address) {
+                    addressError.style.display = "block";
+                    valid = false;
+                } else {
+                    addressError.style.display = "none";
+                }
+
+                // Enhanced phone validation
+                if (!phone) {
+                    phoneErrorText.textContent = "Phone number is required.";
+                    phoneError.style.display = "block";
+                    valid = false;
+                } else if (!isValidVietnamesePhone(phone)) {
+                    phoneErrorText.textContent = "Please enter a valid Vietnamese phone number (0xxxxxxxxx).";
+                    phoneError.style.display = "block";
+                    valid = false;
+                } else {
+                    phoneError.style.display = "none";
+                }
+
+                if (!valid) {
+                    // Scroll to first error
+                    const firstError = document.querySelector('.error-message[style*="block"]');
+                    if (firstError) {
+                        firstError.scrollIntoView({ behavior: 'smooth', block: 'center' });
+                    }
+                    return;
+                }
+
+                document.getElementById("paymentMethod").value = selectedPayment;
+                document.getElementById("orderForm").submit();
+            }
+
+            // Mapbox configuration
+            mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhZmYxIiwiYSI6ImNtYWZndDRjNzAybGUybG44ZWYzdTlsNWQifQ.jSJjwMo8_OQszYjWAAi7iQ';
+
+            const geocoder = new MapboxGeocoder({
+                accessToken: mapboxgl.accessToken,
+                placeholder: 'Nhập địa chỉ giao hàng...',
+                mapboxgl: mapboxgl,
+                marker: false
             });
-        } else {
-          
-            const row = input.closest(".cart-item-row");
-            const price = parseInt(row.querySelector(".item-total").getAttribute("data-price"));
-            const updatedQty = parseInt(input.value);
-            const total = updatedQty * price;
-            row.querySelector(".item-total").textContent = total.toLocaleString();
-            recalculateTotal();
-        }
-    })
-    .catch(error => {
-        console.error("Error updating cart quantity:", error);
-        alert("An unexpected error occurred.");
-    });
-}
 
+            document.getElementById('mapboxAddressInput').appendChild(geocoder.onAdd(new mapboxgl.Map({
+                container: document.createElement('div'),
+                style: 'mapbox://styles/mapbox/streets-v11'
+            })));
 
+            geocoder.on('result', function (e) {
+                const address = e.result.place_name;
+                selectedCoordinates = e.result.geometry.coordinates;
+                document.getElementById('modalAddress').value = address;
+            });
 
-                                         function handleSubmit() {
-                                             const selectedPayment = document.querySelector('input[name="payment"]:checked').value;
-                                             const address = document.getElementById("hiddenAddress").value.trim();
-                                             const phone = document.getElementById("hiddenPhone").value.trim();
+            function openEditCustomer() {
+                // Reset modal state
+                const phoneInput = document.getElementById('modalPhone');
+                const phoneError = document.getElementById('modalPhoneError');
+                
+                phoneInput.classList.remove('is-valid', 'is-invalid');
+                phoneError.style.display = 'none';
+                
+                // Set values
+                document.getElementById('modalFullName').value = '${customer.fullName}';
+                document.getElementById('modalPhone').value = '${customer.phone}';
+                document.getElementById('modalAddress').value = '${customer.address}';
+                document.querySelector('.mapboxgl-ctrl-geocoder input').value = '${customer.address}';
+                
+                new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
+            }
 
-                                             const addressError = document.getElementById("addressError");
-                                             const phoneError = document.getElementById("phoneError");
+            function saveCustomerInfo() {
+                const name = document.getElementById('modalFullName').value.trim();
+                const phone = document.getElementById('modalPhone').value.trim();
+                const address = document.getElementById('modalAddress').value.trim();
 
-                                             let valid = true;
+                const phoneInput = document.getElementById('modalPhone');
+                const phoneError = document.getElementById('modalPhoneError');
+                const phoneErrorText = document.getElementById('modalPhoneErrorText');
 
-                                             if (!address) {
-                                                 addressError.style.display = "block";
-                                                 valid = false;
-                                             } else {
-                                                 addressError.style.display = "none";
-                                             }
+                let valid = true;
 
-                                             const phoneRegex = /^0\d{9}$/;
-                                             if (!phoneRegex.test(phone)) {
-                                                 phoneError.style.display = "block";
-                                                 valid = false;
-                                             } else {
-                                                 phoneError.style.display = "none";
-                                             }
+                // Validate required fields
+                if (!name) {
+                    alert("Please enter your full name.");
+                    return;
+                }
 
-                                             if (!valid)
-                                                 return;
+                if (!address) {
+                    alert("Please enter your delivery address.");
+                    return;
+                }
 
-                                             document.getElementById("paymentMethod").value = selectedPayment;
-                                             document.getElementById("orderForm").submit();
-                                         }
+                // Validate phone number
+                if (!phone) {
+                    phoneErrorText.textContent = "Phone number is required.";
+                    phoneError.style.display = 'block';
+                    phoneInput.classList.add('is-invalid');
+                    phoneInput.focus();
+                    return;
+                }
 
-                                         // Mapbox configuration
-                                         mapboxgl.accessToken = 'pk.eyJ1Ijoic3RhZmYxIiwiYSI6ImNtYWZndDRjNzAybGUybG44ZWYzdTlsNWQifQ.jSJjwMo8_OQszYjWAAi7iQ';
+                if (!isValidVietnamesePhone(phone)) {
+                    phoneErrorText.textContent = "Please enter a valid Vietnamese phone number.";
+                    phoneError.style.display = 'block';
+                    phoneInput.classList.add('is-invalid');
+                    phoneInput.focus();
+                    return;
+                }
 
-                                         const geocoder = new MapboxGeocoder({
-                                             accessToken: mapboxgl.accessToken,
-                                             placeholder: 'Nhập địa chỉ giao hàng...',
-                                             mapboxgl: mapboxgl,
-                                             marker: false
-                                         });
+                // Hide error if validation passes
+                phoneError.style.display = 'none';
+                phoneInput.classList.remove('is-invalid');
+                phoneInput.classList.add('is-valid');
 
-                                         document.getElementById('mapboxAddressInput').appendChild(geocoder.onAdd(new mapboxgl.Map({
-                                             container: document.createElement('div'),
-                                             style: 'mapbox://styles/mapbox/streets-v11'
-                                         })));
+                fetch('${pageContext.request.contextPath}/customer/order', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({
+                        action: "updateInfo",
+                        fullName: name,
+                        phone: phone,
+                        address: address
+                    })
+                })
+                .then(res => res.json())
+                .then(data => {
+                    if (data.success) {
+                        document.getElementById("displayCustomerText").textContent = name + " - " + phone;
+                        document.getElementById("displayAddressText").textContent = address;
+                        document.getElementById("hiddenFullName").value = name;
+                        document.getElementById("hiddenPhone").value = phone;
+                        document.getElementById("hiddenAddress").value = address;
+                        bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
+                        showMiniMap(address, selectedCoordinates);
+                        
+                        // Show success feedback
+                        const successToast = document.createElement('div');
+                        successToast.className = 'alert alert-success position-fixed';
+                        successToast.style.cssText = 'top: 20px; right: 20px; z-index: 9999; min-width: 300px;';
+                        successToast.innerHTML = '<i class="fas fa-check-circle me-2"></i>Customer information updated successfully!';
+                        document.body.appendChild(successToast);
+                        
+                        setTimeout(() => {
+                            successToast.remove();
+                        }, 3000);
+                    } else {
+                        alert("Failed to update customer info: " + (data.message || "Unknown error"));
+                    }
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert("Error occurred while updating info: " + err.message);
+                });
+            }
 
-                                         geocoder.on('result', function (e) {
-                                             const address = e.result.place_name;
-                                             selectedCoordinates = e.result.geometry.coordinates;
-                                             document.getElementById('modalAddress').value = address;
-                                         });
+            function showMiniMap(address, coordinates = null) {
+                const miniMapDiv = document.getElementById("miniMap");
+                miniMapDiv.innerHTML = "";
+                miniMapDiv.style.display = "block";
 
-                                         function openEditCustomer() {
-                                             document.getElementById('modalFullName').value = '${customer.fullName}';
-                                             document.getElementById('modalPhone').value = '${customer.phone}';
-                                             document.getElementById('modalAddress').value = '${customer.address}';
-                                             document.querySelector('.mapboxgl-ctrl-geocoder input').value = '${customer.address}';
-                                             new bootstrap.Modal(document.getElementById('editCustomerModal')).show();
-                                         }
+                if (coordinates) {
+                    const [lng, lat] = coordinates;
+                    const map = new mapboxgl.Map({
+                        container: 'miniMap',
+                        style: 'mapbox://styles/mapbox/streets-v11',
+                        center: [lng, lat],
+                        zoom: 14
+                    });
+                    new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
+                    return;
+                }
+            }
 
-                                         function saveCustomerInfo() {
-                                             const name = document.getElementById('modalFullName').value.trim();
-                                             const phone = document.getElementById('modalPhone').value.trim();
-                                             const address = document.getElementById('modalAddress').value.trim();
+            // Voucher functionality
+            const allVouchers = [
+                <% for (Voucher v : vouchers) {%>
+                {
+                    voucherID: <%= v.getVoucherID()%>,
+                    code: "<%= v.getCode()%>",
+                    discountType: "<%= v.getDiscountType()%>",
+                    discount: <%= v.getDiscount()%>,
+                    maxDiscountValue: <%= v.getMaxDiscountValue() != null ? v.getMaxDiscountValue() : "null"%>,
+                    minOrderValue: <%= v.getMinOrderValue()%>
+                },
+                <% }%>
+            ];
 
-                                             if (!name || !phone || !address) {
-                                                 alert("Please fill in all fields.");
-                                                 return;
-                                             }
+            function selectVoucher(voucherID, code) {
+                const orderTotal = parseFloat(document.getElementById("totalBefore").getAttribute("data-value"));
+                const voucherText = document.getElementById("voucherStatusText");
+                const discountText = document.getElementById("discountAmount");
+                const finalTotalText = document.getElementById("finalAmount");
+                const hiddenInput = document.getElementById("hiddenVoucherID");
 
-                                             fetch('${pageContext.request.contextPath}/customer/order', {
-                                                 method: 'POST',
-                                                 headers: {
-                                                     'Content-Type': 'application/x-www-form-urlencoded',
-                                                     'X-Requested-With': 'XMLHttpRequest'
-                                                 },
-                                                 body: new URLSearchParams({
-                                                     action: "updateInfo",
-                                                     fullName: name,
-                                                     phone: phone,
-                                                     address: address
-                                                 })
-                                             })
-                                                     .then(res => res.json())
-                                                     .then(data => {
-                                                         if (data.success) {
-                                                             document.getElementById("displayCustomerText").textContent = name + " - " + phone;
-                                                             document.getElementById("displayAddressText").textContent = address;
-                                                             document.getElementById("hiddenFullName").value = name;
-                                                             document.getElementById("hiddenPhone").value = phone;
-                                                             document.getElementById("hiddenAddress").value = address;
-                                                             bootstrap.Modal.getInstance(document.getElementById('editCustomerModal')).hide();
-                                                             showMiniMap(address, selectedCoordinates);
-                                                         } else {
-                                                             alert("Failed to update customer info.");
-                                                         }
-                                                     })
-                                                     .catch(err => {
-                                                         console.error(err);
-                                                         alert("Error occurred while updating info.");
-                                                     });
-                                         }
+                const voucher = allVouchers.find(v => v.voucherID == voucherID);
 
-                                         function showMiniMap(address, coordinates = null) {
-                                             const miniMapDiv = document.getElementById("miniMap");
-                                             miniMapDiv.innerHTML = "";
-                                             miniMapDiv.style.display = "block";
+                if (!voucher) {
+                    alert("Voucher not found.");
+                    return;
+                }
 
-                                             if (coordinates) {
-                                                 const [lng, lat] = coordinates;
-                                                 const map = new mapboxgl.Map({
-                                                     container: 'miniMap',
-                                                     style: 'mapbox://styles/mapbox/streets-v11',
-                                                     center: [lng, lat],
-                                                     zoom: 14
-                                                 });
-                                                 new mapboxgl.Marker().setLngLat([lng, lat]).addTo(map);
-                                                 return;
-                                         }
-                                         }
+                if (orderTotal < voucher.minOrderValue) {
+                    alert("Order has not reached minimum value to apply this code.");
+                    return;
+                }
 
-                                         // Voucher functionality
-                                         const allVouchers = [
-            <% for (Voucher v : vouchers) {%>
-                                             {
-                                                 voucherID: <%= v.getVoucherID()%>,
-                                                 code: "<%= v.getCode()%>",
-                                                 discountType: "<%= v.getDiscountType()%>",
-                                                 discount: <%= v.getDiscount()%>,
-                                                 maxDiscountValue: <%= v.getMaxDiscountValue() != null ? v.getMaxDiscountValue() : "null"%>,
-                                                 minOrderValue: <%= v.getMinOrderValue()%>
-                                             },
-            <% }%>
-                                         ];
+                let discountAmount = 0;
+                if (voucher.discountType === "%") {
+                    discountAmount = orderTotal * (voucher.discount / 100);
+                    if (voucher.maxDiscountValue !== null && discountAmount > voucher.maxDiscountValue) {
+                        discountAmount = voucher.maxDiscountValue;
+                    }
+                } else {
+                    discountAmount = voucher.discount;
+                }
 
-                                         function selectVoucher(voucherID, code) {
-                                             const orderTotal = parseFloat(document.getElementById("totalBefore").getAttribute("data-value"));
-                                             const voucherText = document.getElementById("voucherStatusText");
-                                             const discountText = document.getElementById("discountAmount");
-                                             const finalTotalText = document.getElementById("finalAmount");
-                                             const hiddenInput = document.getElementById("hiddenVoucherID");
+                const finalTotal = orderTotal - discountAmount;
 
-                                             const voucher = allVouchers.find(v => v.voucherID == voucherID);
+                hiddenInput.value = voucherID;
+                voucherText.textContent = "Applied: " + code;
+                discountText.textContent = "- " + discountAmount.toLocaleString() + " đ";
+                finalTotalText.textContent = finalTotal.toLocaleString() + " đ";
 
-                                             if (!voucher) {
-                                                 alert("Voucher not found.");
-                                                 return;
-                                             }
+                const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
+                modal.hide();
+            }
 
-                                             if (orderTotal < voucher.minOrderValue) {
-                                                 alert("Order has not reached minimum value to apply this code.");
-                                                 return;
-                                             }
+            function recalculateTotal() {
+                let total = 0;
+                document.querySelectorAll(".item-total").forEach(el => {
+                    const val = el.textContent.replace(/[^\d]/g, "");
+                    if (!isNaN(val))
+                        total += parseInt(val);
+                });
 
-                                             let discountAmount = 0;
-                                             if (voucher.discountType === "%") {
-                                                 discountAmount = orderTotal * (voucher.discount / 100);
-                                                 if (voucher.maxDiscountValue !== null && discountAmount > voucher.maxDiscountValue) {
-                                                     discountAmount = voucher.maxDiscountValue;
-                                                 }
-                                             } else {
-                                                 discountAmount = voucher.discount;
-                                             }
+                document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
+                document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
+                document.getElementById("discountAmount").textContent = "- 0 đ";
+            }
 
-                                             const finalTotal = orderTotal - discountAmount;
+            // Validation
+            document.getElementById("orderForm").addEventListener("submit", function (event) {
+                let totalQty = 0;
+                document.querySelectorAll("input[id^='qty_']").forEach(input => {
+                    const qty = parseInt(input.value);
+                    if (!isNaN(qty))
+                        totalQty += qty;
+                });
 
-                                             hiddenInput.value = voucherID;
-                                             voucherText.textContent = "Applied: " + code;
-                                             discountText.textContent = "- " + discountAmount.toLocaleString() + " đ";
-                                             finalTotalText.textContent = finalTotal.toLocaleString() + " đ";
+                if (totalQty > 50) {
+                    alert("The total quantity of items in the order must not exceed 50.");
+                    event.preventDefault();
+                }
+            });
 
-                                             const modal = bootstrap.Modal.getOrCreateInstance(document.getElementById('voucherModal'));
-                                             modal.hide();
-                                         }
+            document.getElementById("orderForm").addEventListener("submit", function (e) {
+                const totalBefore = document.getElementById("totalBefore").getAttribute("data-value");
+                const amount = parseFloat(totalBefore);
 
+                if (amount > 2000000) {
+                    alert("Sorry, orders over 2,000,000 VND are not allowed.");
+                    e.preventDefault();
+                }
+            });
 
-
-                                         function recalculateTotal() {
-                                             let total = 0;
-                                             document.querySelectorAll(".item-total").forEach(el => {
-                                                 const val = el.textContent.replace(/[^\d]/g, "");
-                                                 if (!isNaN(val))
-                                                     total += parseInt(val);
-                                             });
-
-                                             document.getElementById("totalBefore").textContent = total.toLocaleString() + " đ";
-                                             document.getElementById("finalAmount").textContent = total.toLocaleString() + " đ";
-                                             document.getElementById("discountAmount").textContent = "- 0 đ";
-                                         }
-
-                                         // Validation
-                                         document.getElementById("orderForm").addEventListener("submit", function (event) {
-                                             let totalQty = 0;
-                                             document.querySelectorAll("input[id^='qty_']").forEach(input => {
-                                                 const qty = parseInt(input.value);
-                                                 if (!isNaN(qty))
-                                                     totalQty += qty;
-                                             });
-
-                                             if (totalQty > 50) {
-                                                 alert("The total quantity of items in the order must not exceed 50.");
-                                                 event.preventDefault();
-                                             }
-                                         });
-
-                                         document.getElementById("orderForm").addEventListener("submit", function (e) {
-                                             const totalBefore = document.getElementById("totalBefore").getAttribute("data-value");
-                                             const amount = parseFloat(totalBefore);
-
-                                             if (amount > 2000000) {
-                                                 alert("Sorry, orders over 2,000,000 VND are not allowed.");
-                                                 e.preventDefault();
-                                             }
-                                         });
-
-                                         // Page loaded confirmation
-                                         console.log("Confirm Order page loaded - 2025-07-31 06:47:52 - User: toanthienla");
+            // Page loaded confirmation
+            console.log("Confirm Order page loaded - 2025-08-03 15:47:23 - User: toanthienla");
         </script>
     </body>
 </html>
