@@ -5,20 +5,20 @@ GO
 INSERT INTO [Account] (fullName, email, [password], role, createAt, status)
 VALUES 
     (N'Admin User', N'oiship.team@gmail.com', '$2a$12$LbQahNHNjDNd3N8QsEIVee/mh4TceoYZJNQoPD1x5aPzN9Zih/pAe', N'admin', '2025-06-18 13:00:00', 1),
-    (N'Staff User 1', N'staff1@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', N'staff', '2025-06-18 15:39:00', 1),
+    (N'Staff User 1', N'staff1@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', N'staff', '2025-06-18 15:39:00', 1), --mk staff
     (N'Staff User 2', N'staff2@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', N'staff', '2025-06-18 15:39:00', 1),
-    (N'Staff User 3', N'staff3@example.com', '$2a$12$9kL5mPx7jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde', N'staff', '2025-06-18 15:52:00', 1),
-    (N'Staff User 4', N'staff4@example.com', '$2a$12$QwErTyUiOp9kLmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO', N'staff', '2025-06-18 15:52:00', 1),
-    (N'Customer 1', N'customer1@example.com', '$2a$12$LmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLm', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 2', N'customer2@example.com', '$2a$12$Y3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 3', N'customer3@example.com', '$2a$12$5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde5j', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 4', N'customer4@example.com', '$2a$12$R1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 5', N'customer5@example.com', '$2a$12$zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 6', N'customer6@example.com', '$2a$12$8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde5jK8Q', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 7', N'customer7@example.com', '$2a$12$n4r6uO5pQrT8yZ9xLmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 8', N'customer8@example.com', '$2a$12$T8yZ9xLmNoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 9', N'customer9@example.com', '$2a$12$NoPqR1vW2xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmN', N'customer', '2025-06-18 15:52:00', 1),
-    (N'Customer 10', N'customer10@example.com', '$2a$12$xY3zA7bCde5jK8Qv2w3n4r6uO5pQrT8yZ9xLmNoPqR1vW2x', N'customer', '2025-06-18 15:52:00', 1);
+    (N'Staff User 3', N'staff3@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', N'staff', '2025-06-18 15:52:00', 1),
+    (N'Staff User 4', N'staff4@example.com', '$2a$12$0A7rM0nz6AuoNZx66i6fp.pnEpNR06gjH89Y.hYN8jEbCv9OfGIbi', N'staff', '2025-06-18 15:52:00', 1),
+    (N'Customer 1', N'customer1@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1), --mk customer
+    (N'Customer 2', N'customer2@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 3', N'customer3@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 4', N'customer4@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 5', N'customer5@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 6', N'customer6@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 7', N'customer7@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 8', N'customer8@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 9', N'customer9@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1),
+    (N'Customer 10', N'customer10@example.com', '$2a$12$REchlkptH1wSNX8ji7X/zujrOcudbNKywkH4/T5kN0SW1zOqbOB2a', N'customer', '2025-06-18 15:52:00', 1);
 
 -- Insert Customers (corresponding to accountID 6 to 15)
 INSERT INTO Customer (customerID, phone, address)
@@ -192,12 +192,12 @@ VALUES
 -- Insert Vouchers
 INSERT INTO Voucher (code, voucherDescription, discountType, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, usedCount, active, FK_Voucher_Account)
 VALUES 
-    ('SELLER10', N'Giảm 10% cho đơn từ 100k', '%', 10.0, 30000, 100000, '2025-06-18', '2025-07-18', 100, 0, 1, 1),
-    ('SELLER20K', N'Giảm 20K cho đơn từ 150k', 'VND', 20000, 20000, 150000, '2025-06-18', '2025-07-18', 50, 0, 1, 2),
-    ('FREESHIP', N'Miễn phí ship cho đơn từ 80k', 'VND', 15000, 15000, 80000, '2025-06-18', '2025-07-03', 200, 0, 1, 3),
-    ('COMBO50', N'Giảm 50K cho đơn combo từ 250k', 'VND', 50000, 50000, 250000, '2025-06-18', '2025-07-08', 30, 0, 1, 4),
-    ('THAI15', N'Giảm 15% cho món Thái', '%', 15.0, 40000, 120000, '2025-06-18', '2025-07-13', 70, 0, 1, 5),
-    ('COFFEELOVER', N'Giảm 25K cho đơn cà phê từ 100k', 'VND', 25000, 25000, 100000, '2025-06-18', '2025-06-28', 80, 0, 1, 1);
+    ('SELLER10', N'Giảm 10% cho đơn từ 100k', '%', 10.0, 30000, 100000, '2025-08-03', '2025-12-18', 100, 0, 1, 1),
+    ('SELLER20K', N'Giảm 20K cho đơn từ 150k', 'VND', 20000, 20000, 150000, '2025-08-03', '2025-12-18', 50, 0, 1, 2),
+    ('FREESHIP', N'Miễn phí ship cho đơn từ 80k', 'VND', 15000, 15000, 80000, '2025-08-01', '2025-12-03', 200, 0, 1, 3),
+    ('COMBO50', N'Giảm 50K cho đơn combo từ 250k', 'VND', 50000, 50000, 250000, '2025-08-01', '2025-12-08', 30, 0, 1, 4),
+    ('DISCOUNT15', N'Giảm 15% cho cho combo từ 120k', '%', 15.0, 40000, 120000, '2025-06-18', '2025-08-01', 70, 0, 1, 5),
+    ('SWPVOUCHER', N'Giảm 25K cho đơn từ 100k', 'VND', 25000, 25000, 100000, '2025-08-01', '2025-12-08', 80, 0, 1, 1);
 
 -- Insert Orders
 INSERT INTO [Order] (amount, orderStatus, paymentStatus, orderCreatedAt, orderUpdatedAt, FK_Order_Voucher, FK_Order_Customer)
@@ -211,7 +211,26 @@ VALUES
     (60000, 6, 0, '2025-06-13 09:00:00', '2025-06-13 09:30:00', NULL, 8),
     (100000, 1, 1, '2025-06-12 13:15:00', '2025-06-12 13:45:00', 2, 7),
     (90000, 4, 1, '2025-06-11 16:00:00', '2025-06-11 17:30:00', NULL, 6),
-    (100000, 3, 1, '2025-06-10 18:00:00', '2025-06-10 19:00:00', 6, 8);
+    (100000, 3, 1, '2025-06-10 18:00:00', '2025-06-10 19:00:00', 6, 8),
+	--thêm range
+	(85000, 4, 1, '2025-01-05 11:30:00', '2025-01-05 12:15:00', 1, 6),  -- Customer 6, January, with SELLER10 voucher
+    (120000, 4, 1, '2025-01-15 14:00:00', '2025-01-15 14:45:00', NULL, 7), -- Customer 7, January, no voucher
+    (180000, 4, 1, '2025-02-03 12:45:00', '2025-02-03 13:30:00', 3, 8),  -- Customer 8, February, with FREESHIP voucher
+    (95000, 4, 1, '2025-02-20 18:30:00', '2025-02-20 19:15:00', 2, 9),   -- Customer 9, February, with SELLER20K voucher
+    (220000, 4, 1, '2025-03-10 09:00:00', '2025-03-10 10:00:00', 4, 10), -- Customer 10, March, with COMBO50 voucher
+    (75000, 4, 1, '2025-03-25 15:15:00', '2025-03-25 16:00:00', NULL, 11),-- Customer 11, March, no voucher
+    (140000, 4, 1, '2025-04-02 13:00:00', '2025-04-02 13:45:00', 5, 12), -- Customer 12, April, with DISCOUNT15 voucher
+    (90000, 4, 1, '2025-04-18 17:00:00', '2025-04-18 17:45:00', 6, 13),  -- Customer 13, April, with SWPVOUCHER
+    (160000, 4, 1, '2025-05-05 10:30:00', '2025-05-05 11:15:00', 3, 14), -- Customer 14, May, with FREESHIP voucher
+    (110000, 4, 1, '2025-05-20 19:00:00', '2025-05-20 19:45:00', NULL, 15),-- Customer 15, May, no voucher
+    (130000, 4, 1, '2025-06-01 12:00:00', '2025-06-01 12:45:00', 1, 6),  -- Customer 6, June, with SELLER10 voucher
+    (200000, 4, 1, '2025-06-15 16:30:00', '2025-06-15 17:15:00', 4, 7),  -- Customer 7, June, with COMBO50 voucher
+    (70000, 4, 1, '2025-01-25 08:30:00', '2025-01-25 09:15:00', NULL, 8), -- Customer 8, January, no voucher
+    (105000, 4, 1, '2025-02-15 14:45:00', '2025-02-15 15:30:00', 2, 9),  -- Customer 9, February, with SELLER20K voucher
+    (190000, 4, 1, '2025-03-18 11:00:00', '2025-03-18 11:45:00', 5, 10), -- Customer 10, March, with DISCOUNT15 voucher
+    (88000, 4, 1, '2025-04-10 13:30:00', '2025-04-10 14:15:00', NULL, 11),-- Customer 11, April, no voucher
+    (170000, 4, 1, '2025-05-12 15:00:00', '2025-05-12 15:45:00', 3, 12), -- Customer 12, May, with FREESHIP voucher
+    (95000, 4, 1, '2025-06-05 10:00:00', '2025-06-05 10:45:00', 6, 13);  -- Customer 13, June, with SWPVOUCHER
 
 -- Insert OrderDetails
 INSERT INTO OrderDetail (quantity, FK_OD_Order, FK_OD_Dish)
@@ -235,6 +254,36 @@ VALUES
     (3, 1, 4),
     (1, 1, 7),
     (2, 1, 9);
+
+--thêm cho dữ liệu mẫu cho order thống kê
+-- Insert OrderDetails for orders 11-27 (the missing monthly data)
+INSERT INTO OrderDetail (quantity, FK_OD_Order, FK_OD_Dish)
+VALUES 
+    -- Order 11 (January)
+    (2, 11, 1), (1, 11, 3),
+    -- Order 12 (January) 
+    (3, 12, 5), (2, 12, 7),
+    -- Order 13 (February)
+    (1, 13, 2), (2, 13, 4),
+    -- Order 14 (February)
+    (2, 14, 6), (1, 14, 8),
+    -- Order 15 (March)
+    (3, 15, 9), (2, 15, 11),
+    -- Order 16 (March)
+    (1, 16, 10), (2, 16, 12),
+    -- Continue for orders 17-27...
+    (2, 17, 1), (3, 17, 3),
+    (1, 18, 5), (2, 18, 7),
+    (2, 19, 2), (1, 19, 4),
+    (3, 20, 6), (2, 20, 8),
+    (1, 21, 9), (2, 21, 11),
+    (2, 22, 10), (1, 22, 12),
+    (3, 23, 1), (2, 23, 2),
+    (1, 24, 3), (2, 24, 4),
+    (2, 25, 5), (3, 25, 6),
+    (1, 26, 7), (2, 26, 8),
+    (2, 27, 9), (1, 27, 10),
+    (2, 28, 1), (1, 28, 3);
 
 -- Insert Reviews
 INSERT INTO Review (rating, comment, reviewCreatedAt, FK_Review_OrderDetail, FK_Review_Customer)
