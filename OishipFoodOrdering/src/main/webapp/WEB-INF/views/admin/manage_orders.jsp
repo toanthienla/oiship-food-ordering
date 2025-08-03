@@ -97,18 +97,23 @@
                 border: 1px solid #d6b3ff !important;  /* Viền tím nhạt */
             }
 
-            /* Profit styling */
-            .profit-amount {
+            /* Income styling */
+            .income-positive {
                 color: #28a745;
                 font-weight: bold;
             }
 
-            .profit-zero {
+            .income-negative {
+                color: #dc3545;
+                font-weight: bold;
+            }
+
+            .income-zero {
                 color: #6c757d;
                 font-style: italic;
             }
 
-            .profit-amount:not(.profit-zero):before {
+            .income-positive:before {
                 content: "+";
             }
 
@@ -217,7 +222,7 @@
                                 <th>Customer</th>
                                 <th>Voucher</th>
                                 <th>Amount</th>
-                                <th>Profit</th> <!-- New Profit Column -->
+                                <th>Income</th> <!-- Changed from Profit to Income -->
                                 <th>Payment</th>
                                 <th>Status</th>
                                 <th>Last Update</th>
@@ -243,17 +248,20 @@
                                     </td>
                                     <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/></td> <!-- Removed text-center -->
 
-                                    <!-- Profit Column -->
+                                    <!-- Income Column - Updated to handle negative income -->
                                     <td>
                                         <c:choose>
-                                            <c:when test="${not empty orderProfitMap[o.orderID]}">
-                                                <c:set var="profitValue" value="${orderProfitRawMap[o.orderID]}" />
+                                            <c:when test="${not empty orderIncomeMap[o.orderID]}">
+                                                <c:set var="incomeValue" value="${orderIncomeRawMap[o.orderID]}" />
                                                 <c:choose>
-                                                    <c:when test="${profitValue eq 0}">
-                                                        <span class="profit-zero">0 VND</span>
+                                                    <c:when test="${incomeValue eq 0}">
+                                                        <span class="income-zero">0 VND</span>
+                                                    </c:when>
+                                                    <c:when test="${incomeValue lt 0}">
+                                                        <span class="income-negative">${orderIncomeMap[o.orderID]}</span>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <span class="profit-amount">${orderProfitMap[o.orderID]}</span>
+                                                        <span class="income-positive">${orderIncomeMap[o.orderID]}</span>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </c:when>

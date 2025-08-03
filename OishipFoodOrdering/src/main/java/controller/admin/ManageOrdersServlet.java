@@ -27,21 +27,21 @@ public class ManageOrdersServlet extends HttpServlet {
         OrderDAO orderDAO = new OrderDAO();
         List<Order> orderList = orderDAO.getAllOrders();
 
-        // Create a map to store order profits
-        Map<Integer, String> orderProfitMap = new HashMap<>();
-        Map<Integer, BigDecimal> orderProfitRawMap = new HashMap<>();
+        // Create a map to store order income
+        Map<Integer, String> orderIncomeMap = new HashMap<>();
+        Map<Integer, BigDecimal> orderIncomeRawMap = new HashMap<>();
         
-        // Calculate profit for each order
+        // Calculate income for each order
         for (Order order : orderList) {
             int orderId = order.getOrderID();
             
-            // Get formatted profit for display
-            String formattedProfit = orderDAO.getFormattedOrderProfit(orderId);
-            orderProfitMap.put(orderId, formattedProfit);
+            // Get formatted income for display
+            String formattedIncome = orderDAO.getFormattedOrderIncome(orderId);
+            orderIncomeMap.put(orderId, formattedIncome);
             
-            // Get raw profit value for calculations if needed
-            BigDecimal rawProfit = orderDAO.getOrderProfitByOrderId(orderId);
-            orderProfitRawMap.put(orderId, rawProfit);
+            // Get raw income value for calculations if needed
+            BigDecimal rawIncome = orderDAO.getOrderIncomeByOrderId(orderId);
+            orderIncomeRawMap.put(orderId, rawIncome);
         }
 
         // Status maps
@@ -63,8 +63,8 @@ public class ManageOrdersServlet extends HttpServlet {
         request.setAttribute("orders", orderList);
         request.setAttribute("statusMap", statusMap);
         request.setAttribute("paymentStatusMap", paymentStatusMap);
-        request.setAttribute("orderProfitMap", orderProfitMap);
-        request.setAttribute("orderProfitRawMap", orderProfitRawMap);
+        request.setAttribute("orderIncomeMap", orderIncomeMap);
+        request.setAttribute("orderIncomeRawMap", orderIncomeRawMap);
 
         // Forward to JSP
         request.getRequestDispatcher("/WEB-INF/views/admin/manage_orders.jsp").forward(request, response);

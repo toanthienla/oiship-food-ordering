@@ -241,6 +241,7 @@
                 transition: all 0.3s ease;
                 position: relative;
                 overflow: hidden;
+                border-radius: var(--oiship-radius);
             }
 
             .voucher-card::before {
@@ -283,39 +284,112 @@
                 line-height: 1.4;
             }
 
-            .modal-content {
+            /* Enhanced Voucher Modal Styles */
+            .voucher-modal .modal-content {
                 border-radius: 12px;
                 border: none;
-                box-shadow: 0 8px 32px rgba(0,0,0,0.18);
+                box-shadow: 0 8px 32px rgba(0,0,0,0.15);
+                overflow: hidden;
             }
 
-            .modal-header {
+            .voucher-modal .modal-header {
                 background: linear-gradient(135deg, var(--oiship-orange) 0%, #ff8533 100%);
                 color: white;
-                border-radius: 12px 12px 0 0;
                 border-bottom: none;
+                padding: 20px 25px;
             }
 
-            .modal-body {
+            .voucher-modal .modal-title {
+                font-weight: 600;
+                font-size: 1.25rem;
+            }
+
+            .voucher-modal .btn-close {
+                filter: brightness(0) invert(1);
+                opacity: 0.8;
+            }
+
+            .voucher-modal .btn-close:hover {
+                opacity: 1;
+            }
+
+            .voucher-modal .modal-body {
                 padding: 25px;
-                background: #fafafa;
+                background: #fafbfc;
             }
 
-            .modal-body p {
-                margin-bottom: 15px;
-                padding: 8px 0;
+            .voucher-code-display {
+                text-align: center;
+                margin-bottom: 25px;
+                padding: 20px;
+                background: white;
+                border-radius: 10px;
+                border: 2px dashed var(--oiship-orange);
+                position: relative;
+            }
+
+            .voucher-code-large {
+                font-size: 2rem;
+                font-weight: bold;
+                color: var(--oiship-orange);
+                margin-bottom: 10px;
+                letter-spacing: 2px;
+            }
+
+            .voucher-badge {
+                display: inline-block;
+                background: var(--oiship-orange);
+                color: white;
+                padding: 6px 15px;
+                border-radius: 20px;
+                font-weight: 600;
+                font-size: 0.9rem;
+            }
+
+            .voucher-details {
+                background: white;
+                border-radius: 10px;
+                padding: 20px;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            }
+
+            .detail-row {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                padding: 12px 0;
                 border-bottom: 1px solid #e9ecef;
             }
 
-            .modal-body p:last-child {
+            .detail-row:last-child {
                 border-bottom: none;
             }
 
-            .btn-close {
-                filter: brightness(0) invert(1);
+            .detail-label {
+                font-weight: 600;
+                color: #495057;
+                display: flex;
+                align-items: center;
+                gap: 8px;
             }
 
-            /* Enhanced Notification Modal Styles */
+            .detail-label i {
+                color: var(--oiship-orange);
+                width: 16px;
+            }
+
+            .detail-value {
+                color: #6c757d;
+                font-weight: 500;
+            }
+
+            .voucher-modal .modal-footer {
+                background: #f8f9fa;
+                border-top: 1px solid #e9ecef;
+                padding: 15px 25px;
+            }
+
+            /* Notification styles remain the same */
             .notification-modal-content {
                 border-radius: 16px;
                 border: none;
@@ -372,9 +446,15 @@
             }
 
             @keyframes bellRing {
-                0%, 50%, 100% { transform: rotate(0deg); }
-                25% { transform: rotate(-10deg); }
-                75% { transform: rotate(10deg); }
+                0%, 50%, 100% {
+                    transform: rotate(0deg);
+                }
+                25% {
+                    transform: rotate(-10deg);
+                }
+                75% {
+                    transform: rotate(10deg);
+                }
             }
 
             .notification-title-area {
@@ -509,7 +589,6 @@
                 color: white;
             }
 
-            /* Enhanced Notification Dropdown */
             .notification-dropdown-item {
                 padding: 12px 16px;
                 border-radius: 8px;
@@ -544,7 +623,6 @@
                 line-height: 1.3;
             }
 
-            /* Unread notification indicator */
             .notification-unread {
                 position: relative;
             }
@@ -564,9 +642,18 @@
             }
 
             @keyframes pulse {
-                0% { opacity: 1; transform: translateY(-50%) scale(1); }
-                50% { opacity: 0.7; transform: translateY(-50%) scale(1.2); }
-                100% { opacity: 1; transform: translateY(-50%) scale(1); }
+                0% {
+                    opacity: 1;
+                    transform: translateY(-50%) scale(1);
+                }
+                50% {
+                    opacity: 0.7;
+                    transform: translateY(-50%) scale(1.2);
+                }
+                100% {
+                    opacity: 1;
+                    transform: translateY(-50%) scale(1);
+                }
             }
 
             .notification-empty {
@@ -581,7 +668,6 @@
                 opacity: 0.5;
             }
 
-            /* Loading state for mark as read button */
             .btn-mark-read.loading {
                 pointer-events: none;
                 opacity: 0.7;
@@ -597,8 +683,12 @@
             }
 
             @keyframes spin {
-                0% { transform: rotate(0deg); }
-                100% { transform: rotate(360deg); }
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
             }
 
             @media (max-width: 768px) {
@@ -632,6 +722,7 @@
         </style>
     </head>
     <body>
+        <!-- Your existing sidebar -->
         <div class="sidebar">
             <div class="sidebar-content">
                 <a href="../home">
@@ -673,6 +764,7 @@
         </div>
 
         <div class="main-content">
+            <!-- Your existing navbar -->
             <nav class="navbar navbar-expand-lg oiship-navbar mb-3">
                 <div class="container-fluid">
                     <div class="d-flex align-items-center ms-auto">
@@ -700,11 +792,11 @@
                                 </li>
                                 <% if (i < notifications.size() - 1) { %>
                                 <li><hr class="dropdown-divider"></li>
-                                <% } %>
-                                <%
-                                    }
-                                } else {
-                                %>
+                                    <% } %>
+                                    <%
+                                        }
+                                    } else {
+                                    %>
                                 <li class="notification-empty">
                                     <i class="fas fa-bell-slash"></i>
                                     <p class="mb-0">No new notifications</p>
@@ -714,7 +806,7 @@
                                 %>
                             </ul>
 
-                            <!-- Enhanced Notification Modal -->
+                            <!-- Your existing notification modal -->
                             <div class="modal fade" id="notificationModal" tabindex="-1" aria-labelledby="notificationModalLabel" aria-hidden="true">
                                 <div class="modal-dialog modal-dialog-centered modal-lg">
                                     <div class="modal-content notification-modal-content">
@@ -724,7 +816,7 @@
                                             </div>
                                             <div class="notification-title-area">
                                                 <h5 class="modal-title notification-title" id="modalTitle"></h5>
-                                                <span class="notification-timestamp" id="modalTimestamp">2025-07-29 14:37:49</span>
+                                                <span class="notification-timestamp" id="modalTimestamp">2025-08-03 14:59:25</span>
                                             </div>
                                             <button type="button" class="btn-close notification-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
@@ -770,6 +862,7 @@
                 </div>
             </nav>
 
+            <!-- Voucher content with improved modals -->
             <div class="container-fluid" style="padding: 20px;">
                 <h3 class="mb-4" style="color: #000000; font-weight: 700">
                     Available Vouchers
@@ -800,27 +893,83 @@
                         </div>
                     </div>
 
-                    <!-- Modal -->
-                    <div class="modal fade" id="<%= modalId%>" tabindex="-1" aria-labelledby="<%= modalId%>Label" aria-hidden="true">
+                    <!-- Improved Voucher Modal -->
+                    <div class="modal fade voucher-modal" id="<%= modalId%>" tabindex="-1" aria-labelledby="<%= modalId%>Label" aria-hidden="true">
                         <div class="modal-dialog modal-dialog-centered modal-lg">
                             <div class="modal-content">
                                 <div class="modal-header">
                                     <h5 class="modal-title" id="<%= modalId%>Label">
                                         <i class="fas fa-ticket-alt me-2"></i>
-                                        <%= v.getCode()%>
+                                        Voucher Details
                                     </h5>
                                     <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                 </div>
                                 <div class="modal-body">
-                                    <p><strong>Description:</strong> <%= v.getVoucherDescription()%></p>
-                                    <p><strong>Discount:</strong> <%= v.getDiscountType().equals("%") ? v.getDiscount() + "%" : "₫" + v.getDiscount()%></p>                        
-                                    <p><strong>Max Discount Value:</strong> ₫<%= v.getMaxDiscountValue()%></p>
-                                    <p><strong>Min Order Value:</strong> ₫<%= v.getMinOrderValue()%></p>
-                                    <p><strong>Start Date:</strong> <%= v.getStartDate()%></p>
-                                    <p><strong>End Date:</strong> <%= v.getEndDate()%></p>                       
+                                    <!-- Voucher Code Display -->
+                                    <div class="voucher-code-display">
+                                        <div class="voucher-code-large"><%= v.getCode()%></div>
+                                        <div class="voucher-badge">
+                                            <%= v.getDiscountType().equals("%") ? v.getDiscount() + "% OFF" : "₫" + v.getDiscount() + " OFF"%>
+                                        </div>
+                                    </div>
+
+                                    <!-- Voucher Details -->
+                                    <div class="voucher-details">
+                                        <div class="detail-row">
+                                            <div class="detail-label">
+                                                <i class="fas fa-info-circle"></i>
+                                                Description
+                                            </div>
+                                            <div class="detail-value"><%= v.getVoucherDescription()%></div>
+                                        </div>
+
+                                        <div class="detail-row">
+                                            <div class="detail-label">
+                                                <i class="fas fa-percentage"></i>
+                                                Discount Type
+                                            </div>
+                                            <div class="detail-value">
+                                                <%= v.getDiscountType().equals("%") ? "Percentage (" + v.getDiscount() + "%)" : "Fixed Amount (₫" + v.getDiscount() + ")"%>
+                                            </div>
+                                        </div>
+
+                                        <div class="detail-row">
+                                            <div class="detail-label">
+                                                <i class="fas fa-coins"></i>
+                                                Max Discount Value
+                                            </div>
+                                            <div class="detail-value">₫<%= v.getMaxDiscountValue()%></div>
+                                        </div>
+
+                                        <div class="detail-row">
+                                            <div class="detail-label">
+                                                <i class="fas fa-shopping-cart"></i>
+                                                Min Order Value
+                                            </div>
+                                            <div class="detail-value">₫<%= v.getMinOrderValue()%></div>
+                                        </div>
+
+                                        <div class="detail-row">
+                                            <div class="detail-label">
+                                                <i class="fas fa-calendar-alt"></i>
+                                                Valid From
+                                            </div>
+                                            <div class="detail-value"><%= v.getStartDate()%></div>
+                                        </div>
+
+                                        <div class="detail-row">
+                                            <div class="detail-label">
+                                                <i class="fas fa-calendar-times"></i>
+                                                Valid Until
+                                            </div>
+                                            <div class="detail-value"><%= v.getEndDate()%></div>
+                                        </div>
+                                    </div>
                                 </div>
                                 <div class="modal-footer">
-                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>
+                                    <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">
+                                        <i class="fas fa-times me-2"></i>Close
+                                    </button>
                                 </div>
                             </div>
                         </div>
@@ -845,20 +994,18 @@
             </div>
         </div>
 
-        <!-- Enhanced Notification Scripts with Backdrop Removal -->
+        <!-- Your existing notification scripts -->
         <script>
-            // Global function to open notification modal
+            // All your existing notification JavaScript code remains the same
             function openNotificationModal(notID, title, description) {
-                console.log("Opening notification modal with:", {notID, title, description}); // Debug log
+                console.log("Opening notification modal with:", {notID, title, description});
 
-                // First, close any open dropdown
                 const notificationDropdown = document.getElementById('notificationDropdown');
                 const dropdownInstance = bootstrap.Dropdown.getInstance(notificationDropdown);
                 if (dropdownInstance) {
                     dropdownInstance.hide();
                 }
 
-                // Remove any existing modal backdrops before opening new modal
                 removeModalBackdrops();
 
                 const modalTitle = document.getElementById("modalTitle");
@@ -869,14 +1016,11 @@
                 modalDescription.textContent = description || 'No description';
                 hiddenNotID.value = notID || '';
 
-                console.log("Hidden input value set to:", hiddenNotID.value); // Debug log
+                console.log("Hidden input value set to:", hiddenNotID.value);
 
-                // Reset button state
                 resetMarkReadButton();
 
-                // Wait a bit to ensure dropdown is closed
                 setTimeout(() => {
-                    // Show the modal
                     const notificationModal = new bootstrap.Modal(document.getElementById('notificationModal'), {
                         backdrop: true,
                         keyboard: true
@@ -885,15 +1029,13 @@
                 }, 150);
             }
 
-            // Function to remove modal backdrops
             function removeModalBackdrops() {
                 const backdrops = document.querySelectorAll('.modal-backdrop');
                 backdrops.forEach(backdrop => {
-                    console.log("Removing backdrop:", backdrop); // Debug log
+                    console.log("Removing backdrop:", backdrop);
                     backdrop.remove();
                 });
-                
-                // Reset body styles
+
                 document.body.classList.remove('modal-open');
                 document.body.style.overflow = '';
                 document.body.style.paddingRight = '';
@@ -904,12 +1046,11 @@
                 const hiddenNotID = document.getElementById("hiddenNotID");
                 const notificationModal = document.getElementById('notificationModal');
 
-                // Handle mark as read button click
                 markReadBtn.addEventListener('click', function (e) {
                     e.preventDefault();
 
                     const notID = hiddenNotID.value;
-                    console.log("Mark read button clicked with notID:", notID); // Debug log
+                    console.log("Mark read button clicked with notID:", notID);
 
                     if (!notID || notID.trim() === '' || notID === 'null') {
                         console.error('Error: No valid notification ID found, value is:', notID);
@@ -917,14 +1058,12 @@
                         return;
                     }
 
-                    // Show loading state
                     showLoadingState();
 
-                    // Create form data
                     const formData = new FormData();
                     formData.append('notID', notID.trim());
 
-                    console.log("Sending request with notID:", formData.get('notID')); // Debug log
+                    console.log("Sending request with notID:", formData.get('notID'));
 
                     const params = new URLSearchParams();
                     params.append('notID', formData.get('notID'));
@@ -937,8 +1076,8 @@
                         body: params
                     })
                             .then(response => {
-                                console.log("Response received, status:", response.status); // Debug log
-                                console.log("Response content type:", response.headers.get('content-type')); // Debug log
+                                console.log("Response received, status:", response.status);
+                                console.log("Response content type:", response.headers.get('content-type'));
 
                                 if (!response.ok) {
                                     throw new Error(`HTTP error! status: ${response.status}`);
@@ -947,19 +1086,13 @@
                                 return response.json();
                             })
                             .then(data => {
-                                console.log("Response data:", data); // Debug log
+                                console.log("Response data:", data);
 
                                 if (data.success) {
-                                    // Success - show success state
                                     showSuccessState();
-
-                                    // Hide notification from dropdown
                                     hideNotificationFromDropdown(notID);
-
-                                    // Update notification count
                                     updateNotificationCount();
 
-                                    // Close modal properly after delay
                                     setTimeout(() => {
                                         closeModalProperly();
                                     }, 1500);
@@ -970,7 +1103,6 @@
                             .catch(error => {
                                 console.error('Error:', error);
                                 showErrorState(error.message);
-                                // Reset button after error
                                 setTimeout(resetMarkReadButton, 3000);
                             });
                 });
@@ -1004,15 +1136,13 @@
                     if (modalInstance) {
                         modalInstance.hide();
                     }
-                    
-                    // Force cleanup after modal hide
+
                     setTimeout(() => {
                         removeModalBackdrops();
                     }, 200);
                 }
 
                 function hideNotificationFromDropdown(notificationId) {
-                    // Find all notification items and remove the one with matching ID
                     const notificationItems = document.querySelectorAll('.notification-dropdown-item');
                     notificationItems.forEach(item => {
                         const onclick = item.getAttribute('onclick');
@@ -1029,7 +1159,6 @@
                                     }
                                     parentLi.remove();
 
-                                    // Check if no notifications left
                                     const remainingNotifications = document.querySelectorAll('.notification-dropdown-item').length;
                                     if (remainingNotifications === 0) {
                                         const dropdownMenu = document.querySelector('#notificationDropdown + .dropdown-menu');
@@ -1062,10 +1191,8 @@
                     }
                 }
 
-                // Enhanced modal event handlers
                 notificationModal.addEventListener('show.bs.modal', function () {
                     console.log("Modal is showing");
-                    // Remove any existing backdrops before showing
                     removeModalBackdrops();
                 });
 
@@ -1079,20 +1206,17 @@
 
                 notificationModal.addEventListener('hidden.bs.modal', function () {
                     console.log("Modal hidden");
-                    // Force cleanup after modal is completely hidden
                     removeModalBackdrops();
                 });
 
-                // Handle clicks outside modal to ensure proper cleanup
-                document.addEventListener('click', function(e) {
+                document.addEventListener('click', function (e) {
                     if (e.target.classList.contains('modal-backdrop')) {
                         console.log("Clicked on backdrop");
                         removeModalBackdrops();
                     }
                 });
 
-                // Cleanup backdrops on page load/reload
-                window.addEventListener('load', function() {
+                window.addEventListener('load', function () {
                     removeModalBackdrops();
                 });
             });

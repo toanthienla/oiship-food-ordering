@@ -97,18 +97,23 @@
                 border: 1px solid #d6b3ff !important;  /* Viền tím nhạt */
             }
 
-            /* Profit styling */
-            .profit-amount {
+            /* Income styling */
+            .income-positive {
                 color: #28a745;
                 font-weight: bold;
             }
 
-            .profit-zero {
+            .income-negative {
+                color: #dc3545;
+                font-weight: bold;
+            }
+
+            .income-zero {
                 color: #6c757d;
                 font-style: italic;
             }
 
-            .profit-amount:not(.profit-zero):before {
+            .income-positive:before {
                 content: "+";
             }
 
@@ -217,7 +222,7 @@
                                 <th>Customer</th>
                                 <th>Voucher</th>
                                 <th>Amount</th>
-                                <th>Profit</th> <!-- Added Profit Column -->
+                                <th>Income</th> <!-- Changed from Profit to Income -->
                                 <th>Payment</th>
                                 <th>Status</th>
                                 <th>Last Update</th>
@@ -228,8 +233,8 @@
                         <tbody id="orderTableBody" class="text-start">
                             <c:forEach var="o" items="${orders}" varStatus="status">
                                 <tr data-customer="${o.customerName}" data-status="${o.orderStatus}">
-                                    <td class="text-center">${status.index + 1}</td> <!-- Removed text-center -->
-                                    <td class="text-center">${o.orderID}</td> <!-- Removed text-center -->
+                                    <td class="text-center">${status.index + 1}</td>
+                                    <td class="text-center">${o.orderID}</td>
                                     <td class="truncate">${o.customerName}</td>
                                     <td>
                                         <c:choose>
@@ -241,19 +246,22 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/></td> <!-- Removed text-center -->
+                                    <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/></td>
 
-                                    <!-- Profit Column -->
+                                    <!-- Income Column - Updated to handle negative income -->
                                     <td>
                                         <c:choose>
-                                            <c:when test="${not empty orderProfitMap[o.orderID]}">
-                                                <c:set var="profitValue" value="${orderProfitRawMap[o.orderID]}" />
+                                            <c:when test="${not empty orderIncomeMap[o.orderID]}">
+                                                <c:set var="incomeValue" value="${orderIncomeRawMap[o.orderID]}" />
                                                 <c:choose>
-                                                    <c:when test="${profitValue eq 0}">
-                                                        <span class="profit-zero">0 VND</span>
+                                                    <c:when test="${incomeValue eq 0}">
+                                                        <span class="income-zero">0 VND</span>
+                                                    </c:when>
+                                                    <c:when test="${incomeValue lt 0}">
+                                                        <span class="income-negative">${orderIncomeMap[o.orderID]}</span>
                                                     </c:when>
                                                     <c:otherwise>
-                                                        <span class="profit-amount">${orderProfitMap[o.orderID]}</span>
+                                                        <span class="income-positive">${orderIncomeMap[o.orderID]}</span>
                                                     </c:otherwise>
                                                 </c:choose>
                                             </c:when>
@@ -263,7 +271,7 @@
                                         </c:choose>
                                     </td>
 
-                                    <td> <!-- Removed text-center -->
+                                    <td>
                                         <c:choose>
                                             <c:when test="${o.paymentStatus == 0}">
                                                 <span class="badge rounded-pill text-bg-danger">Unpaid</span>
@@ -291,7 +299,7 @@
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td> <!-- Removed text-center -->
+                                    <td>
                                         <c:choose>
                                             <c:when test="${not empty o.lastUpdated}">
                                                 ${o.lastUpdated}
@@ -313,8 +321,8 @@
                                         </c:choose>
                                     </td>
 
-                                    <td class="align-middle"> <!-- Removed text-center -->
-                                        <div class="d-flex justify-content-start align-items-center flex-wrap gap-2" style="min-width: 350px;"> <!-- Changed to justify-content-start -->
+                                    <td class="align-middle">
+                                        <div class="d-flex justify-content-start align-items-center flex-wrap gap-2" style="min-width: 350px;">
                                             <a class="btn btn-sm btn-primary fw-semibold text-white"
                                                href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
                                                 Detail

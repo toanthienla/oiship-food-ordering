@@ -953,41 +953,122 @@ public class OrderDAO extends DBContext {
         return years;
     }
 
-    // Get month->income map for a year (FIXED - added payment status filter)
+// Get month->income map for a year (using income terminology)
     public Map<Integer, Double> getMonthlyIncomeMap(int year) {
-        Map<Integer, Double> map = new LinkedHashMap<>();
-        String sql = "SELECT MONTH(orderCreatedAt) AS m, SUM(amount) AS total "
-                + "FROM [Order] WHERE YEAR(orderCreatedAt)=? AND orderStatus=4 AND paymentStatus=1 "
-                + "GROUP BY MONTH(orderCreatedAt)";
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
+        Map<Integer, Double> incomeMap = new LinkedHashMap<>();
+
+        // Initialize all months with 0
+        for (int i = 1; i <= 12; i++) {
+            incomeMap.put(i, 0.0);
+        }
+
+        // Handle refunded delivered orders (negative order amount)
+        String refundedSql = "SELECT MONTH(orderCreatedAt) AS month, amount "
+                + "FROM [Order] "
+                + "WHERE YEAR(orderCreatedAt) = ? AND paymentStatus = 2 AND orderStatus = 4";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(refundedSql)) {
             ps.setInt(1, year);
-            try (ResultSet rs = ps.executeQuery()) {
-                while (rs.next()) {
-                    map.put(rs.getInt("m"), rs.getDouble("total"));
-                }
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int month = rs.getInt("month");
+                double amount = rs.getDouble("amount");
+
+                // Add negative order amount to monthly income
+                double currentMonthIncome = incomeMap.get(month);
+                incomeMap.put(month, currentMonthIncome - amount); // Subtract amount (make it negative)
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
-        // Ensure all 12 months exist
-        for (int i = 1; i <= 12; i++) {
-            map.putIfAbsent(i, 0.0);
+
+        // Handle paid orders (positive calculated income)
+        String paidSql = "SELECT MONTH(o.orderCreatedAt) AS month, od.quantity, "
+                + "d.DishID, d.opCost, d.interestPercentage "
+                + "FROM [Order] o "
+                + "JOIN OrderDetail od ON o.orderID = od.FK_OD_Order "
+                + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
+                + "WHERE YEAR(o.orderCreatedAt) = ? AND o.paymentStatus = 1";
+
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(paidSql)) {
+            ps.setInt(1, year);
+            ResultSet rs = ps.executeQuery();
+
+            while (rs.next()) {
+                int month = rs.getInt("month");
+                int quantity = rs.getInt("quantity");
+                int dishId = rs.getInt("DishID");
+                BigDecimal opCost = rs.getBigDecimal("opCost");
+                BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
+
+                // Get ingredients for this dish
+                IngredientDAO ingredientDAO = new IngredientDAO();
+                List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
+                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
+
+                // Calculate unit price
+                BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(
+                        opCost, interestPercentage, ingredientCost);
+
+                // Calculate income per dish
+                BigDecimal incomePerDish = unitPrice.subtract(opCost.add(ingredientCost));
+
+                // Calculate total income for this order detail
+                BigDecimal totalIncomeForItem = incomePerDish.multiply(new BigDecimal(quantity));
+
+                // Add to monthly income
+                double currentMonthIncome = incomeMap.get(month);
+                incomeMap.put(month, currentMonthIncome + totalIncomeForItem.doubleValue());
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
         }
-        return map;
+
+        return incomeMap;
     }
 
     /**
-     * Calculate the total profit for a specific order by orderID Only
-     * calculates if order is delivered AND paid
+     * Calculate the total income for a specific order by orderID Business rule:
+     * - paymentStatus=1 => positive income (calculated income) -
+     * paymentStatus=2 AND orderStatus=4 => negative order amount (refunded
+     * delivered orders)
      */
-    public BigDecimal getOrderProfitByOrderId(int orderId) {
-        BigDecimal totalProfit = BigDecimal.ZERO;
+    public BigDecimal getOrderIncomeByOrderId(int orderId) {
+        // First check if this is a refunded delivered order
+        String checkSql = "SELECT amount, paymentStatus, orderStatus FROM [Order] WHERE orderID = ?";
+        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(checkSql)) {
+            ps.setInt(1, orderId);
+            ResultSet rs = ps.executeQuery();
+
+            if (rs.next()) {
+                int paymentStatus = rs.getInt("paymentStatus");
+                int orderStatus = rs.getInt("orderStatus");
+                BigDecimal amount = rs.getBigDecimal("amount");
+
+                // If refunded and delivered, return negative order amount
+                if (paymentStatus == 2 && orderStatus == 4) {
+                    return amount.negate();
+                }
+
+                // If not paid, return zero
+                if (paymentStatus != 1) {
+                    return BigDecimal.ZERO;
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return BigDecimal.ZERO;
+        }
+
+        // Calculate normal income for paid orders
+        BigDecimal totalIncome = BigDecimal.ZERO;
 
         String sql = "SELECT od.quantity, d.DishID, d.opCost, d.interestPercentage "
                 + "FROM OrderDetail od "
                 + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
                 + "JOIN [Order] o ON od.FK_OD_Order = o.orderID "
-                + "WHERE od.FK_OD_Order = ? AND o.orderStatus = 4 AND o.paymentStatus = 1";
+                + "WHERE od.FK_OD_Order = ? AND o.paymentStatus = 1";
 
         try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setInt(1, orderId);
@@ -999,7 +1080,7 @@ public class OrderDAO extends DBContext {
                 BigDecimal opCost = rs.getBigDecimal("opCost");
                 BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
 
-                // Get ingredients for this dish (using class field)
+                // Get ingredients for this dish
                 IngredientDAO ingredientDAO = new IngredientDAO();
                 List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
                 BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
@@ -1008,85 +1089,28 @@ public class OrderDAO extends DBContext {
                 BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(
                         opCost, interestPercentage, ingredientCost);
 
-                // Calculate profit per dish = unitPrice - (opCost + ingredientCost)
-                BigDecimal profitPerDish = unitPrice.subtract(opCost.add(ingredientCost));
+                // Calculate income per dish = unitPrice - (opCost + ingredientCost)
+                BigDecimal incomePerDish = unitPrice.subtract(opCost.add(ingredientCost));
 
-                // Calculate total profit for this dish in the order
-                BigDecimal dishTotalProfit = profitPerDish.multiply(new BigDecimal(quantity));
+                // Calculate total income for this dish in the order
+                BigDecimal dishTotalIncome = incomePerDish.multiply(new BigDecimal(quantity));
 
-                // Add to total order profit
-                totalProfit = totalProfit.add(dishTotalProfit);
+                // Add to total order income
+                totalIncome = totalIncome.add(dishTotalIncome);
             }
         } catch (SQLException e) {
             e.printStackTrace();
         }
 
-        return totalProfit;
+        return totalIncome;
     }
 
     /**
-     * Get monthly profit map for a specific year (FIXED - added payment status
-     * filter) Only considers delivered AND paid orders (orderStatus = 4 AND
-     * paymentStatus = 1)
+     * Get formatted income for an order (for display purposes) Applies business
+     * rules for income calculation
      */
-    public Map<Integer, Double> getMonthlyProfitMap(int year) {
-        Map<Integer, Double> profitMap = new LinkedHashMap<>();
-
-        // Initialize all months with 0
-        for (int i = 1; i <= 12; i++) {
-            profitMap.put(i, 0.0);
-        }
-
-        String sql = "SELECT MONTH(o.orderCreatedAt) AS month, od.quantity, "
-                + "d.DishID, d.opCost, d.interestPercentage "
-                + "FROM [Order] o "
-                + "JOIN OrderDetail od ON o.orderID = od.FK_OD_Order "
-                + "JOIN Dish d ON od.FK_OD_Dish = d.DishID "
-                + "WHERE YEAR(o.orderCreatedAt) = ? AND o.orderStatus = 4 AND o.paymentStatus = 1";
-
-        try (Connection conn = getConnection(); PreparedStatement ps = conn.prepareStatement(sql)) {
-            ps.setInt(1, year);
-            ResultSet rs = ps.executeQuery();
-
-            while (rs.next()) {
-                int month = rs.getInt("month");
-                int quantity = rs.getInt("quantity");
-                int dishId = rs.getInt("DishID");
-                BigDecimal opCost = rs.getBigDecimal("opCost");
-                BigDecimal interestPercentage = rs.getBigDecimal("interestPercentage");
-
-                // Get ingredients for this dish (using class field)
-                IngredientDAO ingredientDAO = new IngredientDAO();
-                List<Ingredient> ingredients = ingredientDAO.getIngredientsByDishId(dishId);
-                BigDecimal ingredientCost = TotalPriceCalculator.calculateIngredientCost(ingredients);
-
-                // Calculate unit price
-                BigDecimal unitPrice = TotalPriceCalculator.calculateTotalPrice(
-                        opCost, interestPercentage, ingredientCost);
-
-                // Calculate profit per dish
-                BigDecimal profitPerDish = unitPrice.subtract(opCost.add(ingredientCost));
-
-                // Calculate total profit for this order detail
-                BigDecimal totalProfitForItem = profitPerDish.multiply(new BigDecimal(quantity));
-
-                // Add to monthly profit
-                double currentMonthProfit = profitMap.get(month);
-                profitMap.put(month, currentMonthProfit + totalProfitForItem.doubleValue());
-            }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-
-        return profitMap;
-    }
-
-    /**
-     * Get formatted profit for an order (for display purposes) Only calculates
-     * if order is delivered AND paid
-     */
-    public String getFormattedOrderProfit(int orderId) {
-        BigDecimal profit = getOrderProfitByOrderId(orderId);
-        return TotalPriceCalculator.formatVND(profit);
+    public String getFormattedOrderIncome(int orderId) {
+        BigDecimal income = getOrderIncomeByOrderId(orderId);
+        return TotalPriceCalculator.formatVND(income);
     }
 }
