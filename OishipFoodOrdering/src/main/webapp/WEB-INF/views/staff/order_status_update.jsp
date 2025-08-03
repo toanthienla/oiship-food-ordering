@@ -336,6 +336,7 @@
                             <p><strong>Phone:</strong>
                                 <c:choose>
                                     <c:when test="${empty orderDetails[0].phone}">N/A</c:when>
+                                    <c:when test="${orderDetails[0].phone.startsWith('0000')}">N/A</c:when>
                                     <c:otherwise>${orderDetails[0].phone}</c:otherwise>
                                 </c:choose>
                             </p>

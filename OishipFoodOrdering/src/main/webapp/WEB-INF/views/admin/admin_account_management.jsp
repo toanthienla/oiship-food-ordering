@@ -555,7 +555,7 @@
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Phone:</label>
-                                                <input type="text" class="form-control" value="${account.customer != null ? account.customer.phone : ''}" readonly>
+                                                <input type="text" class="form-control" value="${(account.customer != null && account.customer.phone != null && !account.customer.phone.startsWith('0000')) ? account.customer.phone : 'N/A'}" readonly>
                                             </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Address:</label>
