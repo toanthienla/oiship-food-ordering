@@ -32,7 +32,7 @@
             <div class="topbar">
                 <i class="bi bi-list menu-toggle" id="menuToggle"></i>
                 <div class="profile">
-                    <span class="username">Hi, Staff</span>
+                    <span class="username">Hi, <span><c:out value="${sessionScope.userName}" /></span></span>
                 </div>
             </div>
 
