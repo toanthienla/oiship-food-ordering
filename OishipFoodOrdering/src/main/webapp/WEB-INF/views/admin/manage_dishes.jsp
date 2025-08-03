@@ -310,10 +310,20 @@
                                     <div class="text-muted" id="modalDishCategory"></div>
                                 </div>
                             </div>
-                            <div><span class="fw-normal">Operation Cost:</span> <span id="modalOpCost"></span> VND</div>
-                            <div><span class="fw-normal">Ingredients Price:</span> <span id="modalIngredientsPrice"></span> VND</div>
-                            <div><span class="fw-normal">Interest Percentage:</span> <span id="modalInterest"></span> %</div>
-                            <div><span class="fw-normal">Profit:</span> <span id="modalProfit"></span> VND</div>
+                            <div class="row">
+                                <div class="col-6 mb-2">
+                                    <strong>Operation Cost:</strong> <span id="modalOpCost"></span> VND
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <strong>Ingredients Price:</strong> <span id="modalIngredientsPrice"></span> VND
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <strong>Interest Percentage:</strong> <span id="modalInterest"></span>%
+                                </div>
+                                <div class="col-6 mb-2">
+                                    <strong>Income:</strong> <span id="modalProfit" class="text-success fw-bold"></span> VND
+                                </div>
+                            </div>
                         </div>
                         <div class="modal-footer">
                             <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Close</button>

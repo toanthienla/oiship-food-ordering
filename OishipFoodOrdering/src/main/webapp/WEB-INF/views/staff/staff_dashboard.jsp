@@ -29,7 +29,6 @@
 
         <!-- Chart.js -->
         <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-        <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js"></script>
 
         <!-- Sidebar JS -->
         <script src="${pageContext.request.contextPath}/js/sidebar.js"></script>
@@ -262,12 +261,12 @@
             <!-- Content -->
             <div class="content">
                 <h1>Statistics Dashboard</h1>
-                <p>Overview of your platform's income and profit trends.</p>
+                <p>Overview of your platform's income trends.</p>
 
-                <!-- Income & Profit Statistics Chart -->
+                <!-- Income Statistics Chart -->
                 <div class="card mb-4">
                     <div class="card-header d-flex justify-content-between align-items-center">
-                        <h5 class="mb-0">Income & Profit Statistics (Monthly)</h5>
+                        <h5 class="mb-0">Income Statistics (Monthly)</h5>
                         <form method="get" action="" class="year-select-form">
                             <select name="year" onchange="this.form.submit()" class="form-select year-select">
                                 <%
@@ -292,106 +291,105 @@
                         </div>
                     </div>
                 </div>
-                <!-- End Income & Profit Chart -->
+                <!-- End Income Chart -->
             </div>
         </div>
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                                // Prepare chart data from backend attributes
             <%
                 Map<Integer, Double> monthlyIncomeMap = (Map<Integer, Double>) request.getAttribute("monthlyIncomeMap");
-                Map<Integer, Double> monthlyProfitMap = (Map<Integer, Double>) request.getAttribute("monthlyProfitMap");
                 List<String> monthNames = Arrays.asList("Jan", "Feb", "Mar", "Apr", "May", "Jun",
                         "Jul", "Aug", "Sep", "Oct", "Nov", "Dec");
                 StringBuilder labelsJs = new StringBuilder("[");
                 StringBuilder incomeDataJs = new StringBuilder("[");
-                StringBuilder profitDataJs = new StringBuilder("[");
+                StringBuilder backgroundColorsJs = new StringBuilder("[");
+                StringBuilder borderColorsJs = new StringBuilder("[");
 
                 for (int i = 1; i <= 12; i++) {
                     if (i > 1) {
                         labelsJs.append(",");
                         incomeDataJs.append(",");
-                        profitDataJs.append(",");
+                        backgroundColorsJs.append(",");
+                        borderColorsJs.append(",");
                     }
                     labelsJs.append("\"").append(monthNames.get(i - 1)).append("\"");
 
                     double income = (monthlyIncomeMap != null && monthlyIncomeMap.get(i) != null) ? monthlyIncomeMap.get(i) : 0.0;
-                    double profit = (monthlyProfitMap != null && monthlyProfitMap.get(i) != null) ? monthlyProfitMap.get(i) : 0.0;
-
                     incomeDataJs.append(income);
-                    profitDataJs.append(profit);
+                    
+                    if (income >= 0) {
+                        backgroundColorsJs.append("'rgba(40, 167, 69, 0.6)'");
+                        borderColorsJs.append("'rgba(40, 167, 69, 1)'");
+                    } else {
+                        backgroundColorsJs.append("'rgba(220, 53, 69, 0.6)'");
+                        borderColorsJs.append("'rgba(220, 53, 69, 1)'");
+                    }
                 }
                 labelsJs.append("]");
                 incomeDataJs.append("]");
-                profitDataJs.append("]");
+                backgroundColorsJs.append("]");
+                borderColorsJs.append("]");
             %>
 
-                                const labels = <%= labelsJs.toString()%>;
-                                const incomeData = <%= incomeDataJs.toString()%>;
-                                const profitData = <%= profitDataJs.toString()%>;
-                                const selectedYear = <%= request.getAttribute("selectedYear") != null ? request.getAttribute("selectedYear") : java.time.Year.now().getValue()%>;
+            const labels = <%= labelsJs.toString()%>;
+            const incomeData = <%= incomeDataJs.toString()%>;
+            const backgroundColors = <%= backgroundColorsJs.toString()%>;
+            const borderColors = <%= borderColorsJs.toString()%>;
+            const selectedYear = <%= request.getAttribute("selectedYear") != null ? request.getAttribute("selectedYear") : java.time.Year.now().getValue()%>;
 
-                                const ctx = document.getElementById('incomeChart').getContext('2d');
-                                const incomeChart = new Chart(ctx, {
-                                    type: 'bar',
-                                    data: {
-                                        labels: labels,
-                                        datasets: [
-                                            {
-                                                label: 'Income in ' + selectedYear,
-                                                data: incomeData,
-                                                backgroundColor: 'rgba(13, 110, 253, 0.6)',
-                                                borderColor: 'rgba(13, 110, 253, 1)',
-                                                borderWidth: 1,
-                                                maxBarThickness: 30
-                                            },
-                                            {
-                                                label: 'Profit in ' + selectedYear,
-                                                data: profitData,
-                                                backgroundColor: 'rgba(40, 167, 69, 0.6)',
-                                                borderColor: 'rgba(40, 167, 69, 1)',
-                                                borderWidth: 1,
-                                                maxBarThickness: 30
-                                            }
-                                        ]
-                                    },
-                                    options: {
-                                        maintainAspectRatio: false,
-                                        plugins: {
-                                            legend: {
-                                                display: true,
-                                                position: 'top'
-                                            },
-                                            datalabels: {
-                                                display: true,
-                                                color: '#000',
-                                                anchor: 'end',
-                                                align: 'top',
-                                                formatter: function (value) {
-                                                    return value.toLocaleString();
-                                                },
-                                                font: {
-                                                    size: 10
-                                                }
-                                            }
-                                        },
-                                        responsive: true,
-                                        scales: {
-                                            x: {
-                                                grid: {display: false}
-                                            },
-                                            y: {
-                                                beginAtZero: true,
-                                                grid: {color: "#eee"},
-                                                title: {
-                                                    display: true,
-                                                    text: 'Amount (VND)'
-                                                }
-                                            }
-                                        }
-                                    },
-                                    plugins: [ChartDataLabels]
-                                });
+            const ctx = document.getElementById('incomeChart').getContext('2d');
+            const incomeChart = new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [
+                        {
+                            label: 'Income in ' + selectedYear,
+                            data: incomeData,
+                            backgroundColor: backgroundColors,
+                            borderColor: borderColors,
+                            borderWidth: 1,
+                            maxBarThickness: 30
+                        }
+                    ]
+                },
+                options: {
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'top'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    const value = context.parsed.y;
+                                    return context.dataset.label + ': ' + value.toLocaleString() + ' VND';
+                                }
+                            }
+                        }
+                    },
+                    responsive: true,
+                    scales: {
+                        x: {
+                            grid: {display: false}
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: {color: "#eee"},
+                            title: {
+                                display: true,
+                                text: 'Amount (VND)'
+                            },
+                            ticks: {
+                                callback: function(value) {
+                                    return value.toLocaleString();
+                                }
+                            }
+                        }
+                    }
+                }
+            });
         </script>
     </body>
 </html>

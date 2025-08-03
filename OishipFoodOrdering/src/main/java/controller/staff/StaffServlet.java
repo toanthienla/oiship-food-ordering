@@ -32,7 +32,7 @@ public class StaffServlet extends HttpServlet {
             return;
         }
 
-        // Get income and profit statistics data (same as admin dashboard)
+        // Get income statistics data
         try {
             // Year selection from request
             String yearParam = request.getParameter("year");
@@ -47,15 +47,13 @@ public class StaffServlet extends HttpServlet {
                 selectedYear = java.time.Year.now().getValue();
             }
 
-            // Get both income and profit data
+            // Get income data (which now includes both positive calculated income and negative refunds)
             Map<Integer, Double> monthlyIncomeMap = orderDAO.getMonthlyIncomeMap(selectedYear);
-            Map<Integer, Double> monthlyProfitMap = orderDAO.getMonthlyProfitMap(selectedYear);
 
-            // Set attributes for JSP (same as admin)
+            // Set attributes for JSP
             request.setAttribute("availableYears", availableYears);
             request.setAttribute("selectedYear", selectedYear);
             request.setAttribute("monthlyIncomeMap", monthlyIncomeMap);
-            request.setAttribute("monthlyProfitMap", monthlyProfitMap);
 
         } catch (Exception e) {
             e.printStackTrace();
@@ -63,7 +61,6 @@ public class StaffServlet extends HttpServlet {
             request.setAttribute("availableYears", List.of());
             request.setAttribute("selectedYear", java.time.Year.now().getValue());
             request.setAttribute("monthlyIncomeMap", Map.of());
-            request.setAttribute("monthlyProfitMap", Map.of());
         }
 
         request.getRequestDispatcher("/WEB-INF/views/staff/staff_dashboard.jsp").forward(request, response);
