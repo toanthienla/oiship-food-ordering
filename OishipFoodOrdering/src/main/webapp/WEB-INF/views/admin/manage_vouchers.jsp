@@ -166,7 +166,7 @@
                         <table id="voucherTable" class="table table-bordered table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
+                                    <th class="text-center">#</th>
                                     <th>Code</th>
                                     <th>Description</th>
                                     <th>Available</th>
@@ -178,7 +178,7 @@
                             <tbody>
                                 <c:forEach var="v" items="${vouchers}">
                                     <tr>
-                                        <td><%= index++%></td>
+                                        <td class="text-center"><%= index++%></td>
                                         <td>${v.code}</td>
                                         <td>${v.voucherDescription}</td>
                                         <td>

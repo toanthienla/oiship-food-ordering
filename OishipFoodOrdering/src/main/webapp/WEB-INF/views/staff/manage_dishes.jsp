@@ -78,7 +78,7 @@
                         <table class="table table-bordered table-hover align-middle" id="dishTable">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
+                                    <th class="text-center">#</th>
                                     <th>Dish Name</th>
                                     <th>Category</th>
                                     <th>Total price</th>
@@ -94,7 +94,7 @@
                             <tbody>
                                 <c:forEach var="dish" items="${dishes}">
                                     <tr data-category="${dish.category.catName}">
-                                        <td><%= index++%></td>
+                                        <td class="text-center"><%= index++%></td>
                                         <td>${dish.dishName}</td>
                                         <td>${dish.category.catName}</td>
                                         <td>${dish.formattedPrice} đ</td>

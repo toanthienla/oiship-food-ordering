@@ -1,10 +1,5 @@
 package controller.staff;
 
-/*
- * Click nbfs://nbhost/SystemFileSystem/Templates/Licenses/license-default.txt to change this license
- * Click nbfs://nbhost/SystemFileSystem/Templates/JSP_Servlet/Servlet.java to edit this template
- */
-import controller.admin.*;
 import dao.OrderDAO;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -14,9 +9,8 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import java.util.AbstractMap;
-import java.util.ArrayList;
-import java.util.Arrays;
+import java.math.BigDecimal;
+import java.util.HashMap;
 import java.util.LinkedHashMap;
 import java.util.List;
 import java.util.Map;
@@ -46,17 +40,15 @@ public class ManageOrdersServlet extends HttpServlet {
             out.println("<!DOCTYPE html>");
             out.println("<html>");
             out.println("<head>");
-            out.println("<title>Servlet ManageCategoriesServlet</title>");
+            out.println("<title>Servlet ManageOrdersServlet</title>");
             out.println("</head>");
             out.println("<body>");
-            out.println("<h1>Servlet ManageCategoriesServlet at " + request.getContextPath() + "</h1>");
+            out.println("<h1>Servlet ManageOrdersServlet at " + request.getContextPath() + "</h1>");
             out.println("</body>");
             out.println("</html>");
         }
     }
 
-    // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the
-    // + sign on the left to edit the code.">
     /**
      * Handles the HTTP <code>GET</code> method.
      *
@@ -68,10 +60,29 @@ public class ManageOrdersServlet extends HttpServlet {
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
-        // Gọi DAO để lấy danh sách đơn hàng
+        
+        // Get order list
         OrderDAO orderDAO = new OrderDAO();
         List<Order> orderList = orderDAO.getAllOrders();
 
+        // Create a map to store order profits
+        Map<Integer, String> orderProfitMap = new HashMap<>();
+        Map<Integer, BigDecimal> orderProfitRawMap = new HashMap<>();
+        
+        // Calculate profit for each order
+        for (Order order : orderList) {
+            int orderId = order.getOrderID();
+            
+            // Get formatted profit for display
+            String formattedProfit = orderDAO.getFormattedOrderProfit(orderId);
+            orderProfitMap.put(orderId, formattedProfit);
+            
+            // Get raw profit value for calculations if needed
+            BigDecimal rawProfit = orderDAO.getOrderProfitByOrderId(orderId);
+            orderProfitRawMap.put(orderId, rawProfit);
+        }
+
+        // Status maps
         Map<Integer, String> statusMap = new LinkedHashMap<>();
         statusMap.put(0, "Pending");
         statusMap.put(1, "Confirmed");
@@ -87,13 +98,15 @@ public class ManageOrdersServlet extends HttpServlet {
         paymentStatusMap.put(1, "Paid");
         paymentStatusMap.put(2, "Refunded");
 
+        // Set attributes
         request.setAttribute("orders", orderList);
         request.setAttribute("statusMap", statusMap);
         request.setAttribute("paymentStatusMap", paymentStatusMap);
+        request.setAttribute("orderProfitMap", orderProfitMap);
+        request.setAttribute("orderProfitRawMap", orderProfitRawMap);
 
         // Chuyển tiếp sang JSP để hiển thị
         request.getRequestDispatcher("/WEB-INF/views/staff/manage_orders.jsp").forward(request, response);
-
     }
 
     /**
@@ -112,9 +125,6 @@ public class ManageOrdersServlet extends HttpServlet {
             String statusStr = request.getParameter("status");
             String paymentStatusStr = request.getParameter("paymentStatus");
 
-            HttpSession session = request.getSession(); // Tạo hoặc lấy session hiện tại
-            // session.setAttribute("userId", userId); // Đây chính là accountID
-
             Integer accountID = (Integer) request.getSession().getAttribute("userId");
 
             if (accountID == null) {
@@ -123,24 +133,24 @@ public class ManageOrdersServlet extends HttpServlet {
             }
 
             OrderDAO dao = new OrderDAO();
-            // Nếu có thay đổi order status
+            
+            // Update order status if provided
             if (statusStr != null) {
                 int newStatus = Integer.parseInt(statusStr);
                 dao.updateStatusOrderByOrderId(orderId, newStatus, accountID);
             }
 
-            // Nếu có thay đổi payment status
+            // Update payment status if provided
             if (paymentStatusStr != null) {
                 int newPaymentStatus = Integer.parseInt(paymentStatusStr);
                 dao.updatePaymentStatusByOrderId(orderId, newPaymentStatus, accountID);
             }
 
-            // Có thể log kết quả hoặc set attribute để hiển thị
         } catch (Exception e) {
             e.printStackTrace();
         }
 
-        // Redirect về lại danh sách
+        // Redirect back to the list
         response.sendRedirect(request.getContextPath() + "/staff/manage-orders");
     }
 
@@ -152,9 +162,5 @@ public class ManageOrdersServlet extends HttpServlet {
     @Override
     public String getServletInfo() {
         return "Short description";
-    }// </editor-fold>
-
+    }
 }
-
-
-

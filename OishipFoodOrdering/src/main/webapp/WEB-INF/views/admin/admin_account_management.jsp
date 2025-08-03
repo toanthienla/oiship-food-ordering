@@ -67,6 +67,20 @@
             .modal-feedback.error {
                 color: red;
             }
+            /* Status badges */
+            .status-badge {
+                min-width: 70px;
+                text-align: center;
+            }
+            .status-active {
+                background-color: #198754;
+            }
+            .status-inactive {
+                background-color: #6c757d;
+            }
+            .status-banned {
+                background-color: #dc3545;
+            }
         </style>
     </head>
     <body>
@@ -194,9 +208,10 @@
                     <!-- Staff Tab -->
                     <div class="tab-pane fade ${param.tab == 'staff-tab' || empty param.tab ? 'show active' : ''}" id="staff" role="tabpanel" aria-labelledby="staff-tab">
                         <div class="table-responsive mt-3">
-                            <table class="table table-striped" id="staffTable">
-                                <thead>
+                            <table class="table table-bordered table-hover" id="staffTable">
+                                <thead class="table-light">
                                     <tr>
+                                        <th class="text-center">#</th>
                                         <th>Full Name</th>
                                         <th>Email</th>
                                         <th>Status</th>
@@ -204,11 +219,24 @@
                                     </tr>
                                 </thead>
                                 <tbody id="staffBody">
-                                    <c:forEach var="account" items="${staffAccounts}">
+                                    <c:forEach var="account" items="${staffAccounts}" varStatus="status">
                                         <tr>
+                                            <td class="text-center">${status.index + 1}</td>
                                             <td>${account.fullName}</td>
                                             <td>${account.email}</td>
-                                            <td>${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${account.status == 1}">
+                                                        <span class="badge status-badge status-active">Active</span>
+                                                    </c:when>
+                                                    <c:when test="${account.status == 0}">
+                                                        <span class="badge status-badge status-inactive">Inactive</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="badge status-badge status-banned">Banned</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
                                             <td>
                                                 <div class="btn-group">
                                                     <!-- Dropdown 1: Actions -->
@@ -257,7 +285,7 @@
                                         </tr>
                                     </c:forEach>
                                     <c:if test="${empty staffAccounts}">
-                                        <tr><td colspan="4">No staff accounts found.</td></tr>
+                                        <tr><td colspan="6">No staff accounts found.</td></tr>
                                     </c:if>
                                 </tbody>
                             </table>
@@ -267,9 +295,10 @@
                     <!-- Customer Tab -->
                     <div class="tab-pane fade ${param.tab == 'customer-tab' ? 'show active' : ''}" id="customer" role="tabpanel" aria-labelledby="customer-tab">
                         <div class="table-responsive mt-3">
-                            <table class="table table-striped" id="customerTable">
-                                <thead>
+                            <table class="table table-bordered table-hover" id="customerTable">
+                                <thead class="table-light">
                                     <tr>
+                                        <th class="text-center">#</th>
                                         <th>Full Name</th>
                                         <th>Email</th>
                                         <th>Status</th>
@@ -277,11 +306,24 @@
                                     </tr>
                                 </thead>
                                 <tbody id="customerBody">
-                                    <c:forEach var="account" items="${customerAccounts}">
+                                    <c:forEach var="account" items="${customerAccounts}" varStatus="status">
                                         <tr>
+                                            <td class="text-center">${status.index + 1}</td>
                                             <td>${account.fullName}</td>
                                             <td>${account.email}</td>
-                                            <td>${account.status == 1 ? 'Active' : account.status == 0 ? 'Inactive' : 'Banned'}</td>
+                                            <td>
+                                                <c:choose>
+                                                    <c:when test="${account.status == 1}">
+                                                        <span class="badge status-badge status-active">Active</span>
+                                                    </c:when>
+                                                    <c:when test="${account.status == 0}">
+                                                        <span class="badge status-badge status-inactive">Inactive</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="badge status-badge status-banned">Banned</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </td>
                                             <td>
                                                 <div class="btn-group">
                                                     <!-- Dropdown 1: Actions -->
@@ -330,13 +372,13 @@
                                         </tr>
                                     </c:forEach>
                                     <c:if test="${empty customerAccounts}">
-                                        <tr><td colspan="4">No customer accounts found.</td></tr>
+                                        <tr><td colspan="6">No customer accounts found.</td></tr>
                                     </c:if>
                                 </tbody>
                             </table>
                         </div>
                     </div>
-                    
+
                     <!-- Add Staff Modal -->
                     <div class="modal fade" id="addStaffModal" tabindex="-1" aria-labelledby="addStaffModalLabel" aria-hidden="true">
                         <div class="modal-dialog modal-lg">
@@ -451,6 +493,10 @@
                                     <div class="modal-body">
                                         <div class="row g-3">
                                             <div class="col-md-6">
+                                                <label class="form-label">Account ID:</label>
+                                                <input type="text" class="form-control" value="${account.accountID}" readonly>
+                                            </div>
+                                            <div class="col-md-6">
                                                 <label class="form-label">Full Name:</label>
                                                 <input type="text" class="form-control" value="${account.fullName}" readonly>
                                             </div>
@@ -495,6 +541,10 @@
                                     </div>
                                     <div class="modal-body">
                                         <div class="row g-3">
+                                            <div class="col-md-6">
+                                                <label class="form-label">Account ID:</label>
+                                                <input type="text" class="form-control" value="${account.accountID}" readonly>
+                                            </div>
                                             <div class="col-md-6">
                                                 <label class="form-label">Full Name:</label>
                                                 <input type="text" class="form-control" value="${account.fullName}" readonly>
@@ -658,7 +708,7 @@
                                                 <div class="col-md-6">
                                                     <div class="mb-3">
                                                         <label for="password-${account.accountID}" class="form-label">Password</label>
-                                                       <input type="text" class="form-control" value="••••••••" readonly>
+                                                        <input type="text" class="form-control" value="••••••••" readonly>
                                                         <div class="invalid-feedback">Password cannot be edited.</div>
                                                     </div>
                                                 </div>

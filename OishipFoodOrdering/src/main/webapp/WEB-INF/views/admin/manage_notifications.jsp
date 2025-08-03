@@ -54,7 +54,7 @@
                         <table class="table table-bordered table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
+                                    <th class="text-center">#</th>
                                     <th>Title</th>
                                     <th>Description</th>
                                     <th class="text-center">Actions</th>
@@ -63,7 +63,7 @@
                             <tbody>
                                 <c:forEach var="n" items="${notifications}">
                                     <tr>
-                                        <td><%= index++%></td>
+                                        <td class="text-center"><%= index++%></td>
                                         <td>${n.notTitle}</td>
                                         <td>${n.notDescription}</td>
                                         <td class="text-center">

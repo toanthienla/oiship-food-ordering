@@ -97,6 +97,21 @@
                 border: 1px solid #d6b3ff !important;  /* Viền tím nhạt */
             }
 
+            /* Profit styling */
+            .profit-amount {
+                color: #28a745;
+                font-weight: bold;
+            }
+
+            .profit-zero {
+                color: #6c757d;
+                font-style: italic;
+            }
+
+            .profit-amount:not(.profit-zero):before {
+                content: "+";
+            }
+
             @media (max-width: 768px) {
                 .main {
                     margin-left: 0;
@@ -197,11 +212,12 @@
                     <table id="orderTable" class="table table-bordered table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>#</th>
-                                <th>Order ID</th>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Order ID</th>
                                 <th>Customer</th>
                                 <th>Voucher</th>
                                 <th>Amount</th>
+                                <th>Profit</th> <!-- Added Profit Column -->
                                 <th>Payment</th>
                                 <th>Status</th>
                                 <th>Last Update</th>
@@ -212,8 +228,8 @@
                         <tbody id="orderTableBody" class="text-start">
                             <c:forEach var="o" items="${orders}" varStatus="status">
                                 <tr data-customer="${o.customerName}" data-status="${o.orderStatus}">
-                                    <td class="fw-bold text-center">${status.index + 1}</td>
-                                    <td class="text-center">${o.orderID}</td>
+                                    <td class="text-center">${status.index + 1}</td> <!-- Removed text-center -->
+                                    <td class="text-center">${o.orderID}</td> <!-- Removed text-center -->
                                     <td class="truncate">${o.customerName}</td>
                                     <td>
                                         <c:choose>
@@ -225,8 +241,29 @@
                                             </c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td class="text-center"><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/></td>
-                                    <td class="text-center">
+                                    <td><fmt:formatNumber value="${o.amount}" type="number" groupingUsed="true"/></td> <!-- Removed text-center -->
+
+                                    <!-- Profit Column -->
+                                    <td>
+                                        <c:choose>
+                                            <c:when test="${not empty orderProfitMap[o.orderID]}">
+                                                <c:set var="profitValue" value="${orderProfitRawMap[o.orderID]}" />
+                                                <c:choose>
+                                                    <c:when test="${profitValue eq 0}">
+                                                        <span class="profit-zero">0 VND</span>
+                                                    </c:when>
+                                                    <c:otherwise>
+                                                        <span class="profit-amount">${orderProfitMap[o.orderID]}</span>
+                                                    </c:otherwise>
+                                                </c:choose>
+                                            </c:when>
+                                            <c:otherwise>
+                                                <span class="text-muted">N/A</span>
+                                            </c:otherwise>
+                                        </c:choose>
+                                    </td>
+
+                                    <td> <!-- Removed text-center -->
                                         <c:choose>
                                             <c:when test="${o.paymentStatus == 0}">
                                                 <span class="badge rounded-pill text-bg-danger">Unpaid</span>
@@ -254,7 +291,7 @@
                                             <c:otherwise>Unknown</c:otherwise>
                                         </c:choose>
                                     </td>
-                                    <td class="text-center">
+                                    <td> <!-- Removed text-center -->
                                         <c:choose>
                                             <c:when test="${not empty o.lastUpdated}">
                                                 ${o.lastUpdated}
@@ -276,14 +313,16 @@
                                         </c:choose>
                                     </td>
 
-                                    <td class="text-center align-middle">
-                                        <div class="d-flex justify-content-center align-items-center flex-wrap gap-2" style="min-width: 350px;">
+                                    <td class="align-middle"> <!-- Removed text-center -->
+                                        <div class="d-flex justify-content-start align-items-center flex-wrap gap-2" style="min-width: 350px;"> <!-- Changed to justify-content-start -->
                                             <a class="btn btn-sm btn-primary fw-semibold text-white"
-                                               href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
+                                               href="${pageContext.request.contextPath}/admin/manage-orders/update-status?orderID=${o.orderID}"> <!-- For admin JSP -->
+                                               <!-- href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}"> For staff JSP -->
                                                 Detail
                                             </a>
                                             <!-- Dropdown Update Status -->
-                                            <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;">
+                                            <form method="post" action="${pageContext.request.contextPath}/admin/manage-orders" style="display:inline-block;"> <!-- For admin JSP -->
+                                            <!-- <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;"> For staff JSP -->
                                                 <input type="hidden" name="orderId" value="${o.orderID}" />
                                                 <select name="status" class="form-select form-select-sm w-auto d-inline-block fw-semibold text-dark bg-warning border-warning" onchange="this.form.submit()">
                                                     <c:forEach var="entry" items="${statusMap}">
@@ -293,7 +332,8 @@
                                                     </c:forEach>
                                                 </select>
                                             </form>
-                                            <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;">
+                                            <form method="post" action="${pageContext.request.contextPath}/admin/manage-orders" style="display:inline-block;"> <!-- For admin JSP -->
+                                            <!-- <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;"> For staff JSP -->
                                                 <input type="hidden" name="orderId" value="${o.orderID}" />
                                                 <select name="paymentStatus" class="form-select form-select-sm w-auto d-inline-block fw-semibold bg-purple-light"
                                                         onchange="this.form.submit()">
@@ -307,10 +347,8 @@
                                         </div>
                                     </td>
 
-
                                 </tr>
                             </c:forEach>
-
                         </tbody>
                     </table>
                 </div>
@@ -393,5 +431,3 @@
         </div>
     </body>
 </html>
-
-

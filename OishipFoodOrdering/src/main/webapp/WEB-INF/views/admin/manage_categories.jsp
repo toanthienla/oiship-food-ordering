@@ -72,7 +72,7 @@
                         <table class="table table-bordered table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
+                                    <th class="text-center">#</th>
                                     <th>Category Name</th>
                                     <th>Description</th>
                                     <th class="text-center">Actions</th>
@@ -81,7 +81,7 @@
                             <tbody>
                                 <c:forEach var="cat" items="${categories}">
                                     <tr>
-                                        <td><%= index++%></td>
+                                        <td class="text-center"><%= index++%></td>
                                         <td>${cat.catName}</td>
                                         <td>${cat.catDescription}</td>
                                         <td class="text-center">
