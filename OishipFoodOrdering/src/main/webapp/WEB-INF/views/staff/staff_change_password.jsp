@@ -174,6 +174,15 @@
                                         <i class="bi bi-key me-1 text-dark"></i>New Password
                                     </label>
                                     <input type="password" class="form-control" id="newPassword" name="newPassword" required>
+                                    <div class="form-text">
+                                        <small class="text-muted">Password requirements:</small>
+                                        <ul class="small text-muted mb-0">
+                                            <li id="length-check">At least 8 characters</li>
+                                            <li id="letter-check">Include both letters (a-z, A-Z)</li>
+                                            <li id="number-check">Include at least one number (0-9)</li>
+                                            <li id="special-check">No special characters allowed</li>
+                                        </ul>
+                                    </div>
                                 </div>
 
                                 <!-- Confirm Password -->
@@ -215,5 +224,55 @@
         </div>
         <!-- JS -->
         <script src="${pageContext.request.contextPath}/js/bootstrap.bundle.js"></script>
+        
+        <script>
+            // Password validation
+            function validatePassword(password) {
+                const requirements = {
+                    length: password.length >= 8,
+                    letters: /[a-zA-Z]/.test(password),
+                    numbers: /[0-9]/.test(password),
+                    noSpecial: /^[a-zA-Z0-9]+$/.test(password)
+                };
+                return requirements;
+            }
+
+            function updatePasswordChecks(password) {
+                const checks = validatePassword(password);
+                
+                // Update visual indicators
+                document.getElementById('length-check').style.color = checks.length ? 'green' : 'red';
+                document.getElementById('letter-check').style.color = checks.letters ? 'green' : 'red';
+                document.getElementById('number-check').style.color = checks.numbers ? 'green' : 'red';
+                document.getElementById('special-check').style.color = checks.noSpecial ? 'green' : 'red';
+                
+                return Object.values(checks).every(Boolean);
+            }
+
+            // Add event listeners
+            document.getElementById('newPassword').addEventListener('input', function() {
+                updatePasswordChecks(this.value);
+            });
+
+            // Form validation
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Check password requirements
+                if (!updatePasswordChecks(newPassword)) {
+                    e.preventDefault();
+                    alert('Please ensure your new password meets all requirements.');
+                    return false;
+                }
+                
+                // Check password confirmation
+                if (newPassword !== confirmPassword) {
+                    e.preventDefault();
+                    alert('New password and confirmation password do not match.');
+                    return false;
+                }
+            });
+        </script>
     </body>
 </html>
