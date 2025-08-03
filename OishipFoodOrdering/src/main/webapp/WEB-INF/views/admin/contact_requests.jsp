@@ -39,7 +39,7 @@
                         <table class="table table-bordered table-hover align-middle">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
+                                    <th class="text-center">#</th>
                                     <th>Subject</th>
                                     <th>Message</th>
                                     <th>Create Time</th>
@@ -53,7 +53,7 @@
                             <tbody>
                                 <c:forEach var="contact" items="${contacts}" varStatus="loop">
                                     <tr>
-                                        <td>${loop.index + 1}</td>
+                                        <td class="text-center">${loop.index + 1}</td>
                                         <td>${contact.subject}</td>
                                         <td>${contact.message}</td>
                                         <td>

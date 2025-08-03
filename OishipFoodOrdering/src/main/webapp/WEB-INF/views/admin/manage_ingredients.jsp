@@ -72,7 +72,7 @@
                         <table id="ingredientTable" class="table table-bordered table-hover">
                             <thead class="table-light">
                                 <tr>
-                                    <th>#</th>
+                                    <th class="text-center">#</th>
                                     <th>Name</th>
                                     <th>Unit Cost (vnđ/kg)</th>
                                     <th class="text-center">Actions</th>
@@ -81,7 +81,7 @@
                             <tbody>
                                 <c:forEach var="ing" items="${ingredients}" varStatus="loop">
                                     <tr>
-                                        <td>${loop.index + 1}</td>
+                                        <td class="text-center">${loop.index + 1}</td>
                                         <td>${ing.ingredientName}</td>
                                         <td>${ing.unitCost}</td>
                                         <td class="text-center">
@@ -124,7 +124,7 @@
                             <table class="table table-bordered">
                                 <thead class="table-light">
                                     <tr>
-                                        <th>#</th>
+                                        <th class="text-center">#</th>
                                         <th>Ingredient Name</th>
                                         <th>Unit Cost (vnđ/kg)</th>
                                         <th>Quantity (kg/dish)</th>
@@ -345,7 +345,7 @@
                         } else {
                             filtered.forEach(function (di, index) {
                                 var row = "<tr>" +
-                                        "<td>" + (index + 1) + "</td>" +
+                                        "<td class='text-center'>" + (index + 1) + "</td>" +
                                         "<td>" + (di.ingredientName || "") + "</td>" +
                                         "<td>" + (di.ingredientCost || "") + "</td>" +
                                         "<td>" + (di.quantity || "") + "</td>" +

@@ -185,8 +185,8 @@
                     <table id="reviewTable" class="table table-bordered table-hover">
                         <thead class="table-light">
                             <tr>
-                                <th>#</th>
-                                <th>Review ID</th>
+                                <th class="text-center">#</th>
+                                <th class="text-center">Review ID</th>
                                 <th>Dish</th>
                                 <th>Category</th>
                                 <th>Customer</th>
@@ -199,7 +199,7 @@
                         <tbody id="reviewTableBody" class="text-start">
                             <c:forEach var="r" items="${reviews}" varStatus="loop">
                                 <tr data-category="${r.catName}">
-                                    <td class="fw-bold text-center">${loop.index + 1}</td>
+                                    <td class="text-center">${loop.index + 1}</td>
                                     <td class="text-center">${r.reviewID}</td>
                                     <td>${r.dishName}</td>
                                     <td>${r.catName}</td>
