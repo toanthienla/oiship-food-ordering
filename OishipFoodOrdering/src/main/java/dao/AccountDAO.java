@@ -36,8 +36,7 @@ public class AccountDAO extends DBContext {
                             return new Customer(
                                     rs.getInt("accountID"),
                                     rs.getString("phone") != null ? rs.getString("phone") : "",
-                                    rs.getString("address") != null ? rs.getString("address") : ""
-                            );
+                                    rs.getString("address") != null ? rs.getString("address") : "");
                         } else if ("staff".equals(role)) {
                             return new Staff(
                                     rs.getInt("accountID"),
@@ -46,8 +45,7 @@ public class AccountDAO extends DBContext {
                                     hashedPassword,
                                     rs.getInt("status"),
                                     role,
-                                    rs.getTimestamp("createAt")
-                            );
+                                    rs.getTimestamp("createAt"));
                         } else if ("admin".equals(role)) {
                             return new Account(
                                     rs.getInt("accountID"),
@@ -56,8 +54,7 @@ public class AccountDAO extends DBContext {
                                     hashedPassword,
                                     rs.getInt("status"),
                                     role,
-                                    rs.getTimestamp("createAt")
-                            );
+                                    rs.getTimestamp("createAt"));
                         }
                     }
                 }
@@ -84,7 +81,8 @@ public class AccountDAO extends DBContext {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error retrieving accounts by role " + role + " at " + new java.util.Date() + ": " + e.getMessage());
+            System.out.println("Error retrieving accounts by role " + role + " at " + new java.util.Date() + ": "
+                    + e.getMessage());
             e.printStackTrace();
         }
         return accounts;
@@ -106,8 +104,7 @@ public class AccountDAO extends DBContext {
                     return new Customer(
                             rs.getInt("customerID"),
                             rs.getString("phone") != null ? rs.getString("phone") : "",
-                            rs.getString("address") != null ? rs.getString("address") : ""
-                    );
+                            rs.getString("address") != null ? rs.getString("address") : "");
                 }
             }
         } catch (SQLException e) {
@@ -124,12 +121,14 @@ public class AccountDAO extends DBContext {
             return -1;
         }
         String sqlAccount = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection();
+                PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
             psAccount.setString(1, account.getFullName());
             psAccount.setString(2, account.getEmail());
             psAccount.setString(3, account.getPassword());
             psAccount.setString(4, account.getRole());
-            psAccount.setTimestamp(5, account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
+            psAccount.setTimestamp(5,
+                    account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
             psAccount.setInt(6, account.getStatus());
 
             int affectedRows = psAccount.executeUpdate();
@@ -171,12 +170,14 @@ public class AccountDAO extends DBContext {
         }
 
         String sqlAccount = "INSERT INTO Account (fullName, email, [password], role, createAt, status) VALUES (?, ?, ?, ?, ?, ?)";
-        try (Connection conn = getConnection(); PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
+        try (Connection conn = getConnection();
+                PreparedStatement psAccount = conn.prepareStatement(sqlAccount, Statement.RETURN_GENERATED_KEYS)) {
             psAccount.setString(1, account.getFullName());
             psAccount.setString(2, account.getEmail());
             psAccount.setString(3, account.getPassword());
             psAccount.setString(4, account.getRole());
-            psAccount.setTimestamp(5, account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
+            psAccount.setTimestamp(5,
+                    account.getCreateAt() != null ? account.getCreateAt() : new Timestamp(System.currentTimeMillis()));
             psAccount.setInt(6, account.getStatus());
 
             int affectedRows = psAccount.executeUpdate();
@@ -213,7 +214,8 @@ public class AccountDAO extends DBContext {
     // Update password by email
     public boolean updatePasswordByEmail(String email, String role, String hashedPassword) {
         if (email == null || hashedPassword == null) {
-            System.out.println("updatePasswordByEmail: email or hashedPassword is null, email=" + email + ", role=" + role);
+            System.out.println(
+                    "updatePasswordByEmail: email or hashedPassword is null, email=" + email + ", role=" + role);
             return false;
         }
         if (role != null && !role.equals("admin") && !role.equals("staff") && !role.equals("customer")) {
@@ -233,7 +235,8 @@ public class AccountDAO extends DBContext {
             int rows = ps.executeUpdate();
             return rows > 0;
         } catch (SQLException e) {
-            System.out.println("Error updating password for email: " + email + ", role: " + role + ": " + e.getMessage());
+            System.out
+                    .println("Error updating password for email: " + email + ", role: " + role + ": " + e.getMessage());
             e.printStackTrace();
         }
         return false;
@@ -270,7 +273,8 @@ public class AccountDAO extends DBContext {
             ps.setInt(2, id);
 
             int affectedRows = ps.executeUpdate();
-            System.out.println("updateStatus: Updated status for accountID " + id + " to " + status + ", affected rows: " + affectedRows);
+            System.out.println("updateStatus: Updated status for accountID " + id + " to " + status
+                    + ", affected rows: " + affectedRows);
             return affectedRows > 0;
         } catch (SQLException e) {
             System.out.println("Error updating status for accountID " + id + ": " + e.getMessage());
@@ -295,8 +299,7 @@ public class AccountDAO extends DBContext {
                             rs.getString("password"),
                             rs.getInt("status"),
                             rs.getString("role"),
-                            rs.getTimestamp("createAt")
-                    );
+                            rs.getTimestamp("createAt"));
                 }
             }
         } catch (SQLException e) {
@@ -367,15 +370,18 @@ public class AccountDAO extends DBContext {
                 }
             }
         } catch (SQLException e) {
-            System.out.println("Error searching accounts for role " + role + " with term " + searchTerm + ": " + e.getMessage());
+            System.out.println(
+                    "Error searching accounts for role " + role + " with term " + searchTerm + ": " + e.getMessage());
             e.printStackTrace();
         }
         return accounts;
     }
 
-    public boolean updateAccount(Account account, String department, int accessLevel, String phone, String address, String shippingPreferences) {
+    public boolean updateAccount(Account account, String department, int accessLevel, String phone, String address,
+            String shippingPreferences) {
         if (account == null || account.getAccountID() <= 0) {
-            System.out.println("updateAccount: Invalid account or accountID: " + (account != null ? account.getAccountID() : "null"));
+            System.out.println("updateAccount: Invalid account or accountID: "
+                    + (account != null ? account.getAccountID() : "null"));
             return false;
         }
         String sqlAccount = "UPDATE Account SET fullName = ?, status = ?, role = ?, createAt = ? WHERE accountID = ?";
@@ -461,7 +467,8 @@ public class AccountDAO extends DBContext {
                     try (PreparedStatement psCustomer = conn.prepareStatement(deleteCustomerSql)) {
                         psCustomer.setInt(1, id);
                         int customerRows = psCustomer.executeUpdate();
-                        System.out.println("deleteAccount: Deleted " + customerRows + " rows from Customer for accountID " + id);
+                        System.out.println(
+                                "deleteAccount: Deleted " + customerRows + " rows from Customer for accountID " + id);
                     }
                 } else if ("staff".equals(role)) {
                     // Xóa các bản ghi liên quan đến staff trong các bảng khác
@@ -473,7 +480,8 @@ public class AccountDAO extends DBContext {
                     try (PreparedStatement psOrder = conn.prepareStatement(deleteOrderSql)) {
                         psOrder.setInt(1, id);
                         int orderRows = psOrder.executeUpdate();
-                        System.out.println("deleteAccount: Deleted " + orderRows + " rows from Order for accountID " + id);
+                        System.out.println(
+                                "deleteAccount: Deleted " + orderRows + " rows from Order for accountID " + id);
                     }
 
                     // Xóa từ bảng Log
@@ -484,12 +492,14 @@ public class AccountDAO extends DBContext {
                     }
 
                     // Thêm các bảng khác nếu cần
-                    // Ví dụ: 
+                    // Ví dụ:
                     // String deleteOtherTableSql = "DELETE FROM OtherTable WHERE accountID = ?";
-                    // try (PreparedStatement psOther = conn.prepareStatement(deleteOtherTableSql)) {
-                    //     psOther.setInt(1, id);
-                    //     int otherRows = psOther.executeUpdate();
-                    //     System.out.println("deleteAccount: Deleted " + otherRows + " rows from OtherTable for accountID " + id);
+                    // try (PreparedStatement psOther = conn.prepareStatement(deleteOtherTableSql))
+                    // {
+                    // psOther.setInt(1, id);
+                    // int otherRows = psOther.executeUpdate();
+                    // System.out.println("deleteAccount: Deleted " + otherRows + " rows from
+                    // OtherTable for accountID " + id);
                     // }
                 }
             }
@@ -514,9 +524,11 @@ public class AccountDAO extends DBContext {
             if (conn != null) {
                 try {
                     conn.rollback();
-                    System.out.println("deleteAccount: Rollback performed due to error for accountID " + id + ": " + e.getMessage());
+                    System.out.println("deleteAccount: Rollback performed due to error for accountID " + id + ": "
+                            + e.getMessage());
                 } catch (SQLException ex) {
-                    System.out.println("deleteAccount: Error during rollback for accountID " + id + ": " + ex.getMessage());
+                    System.out.println(
+                            "deleteAccount: Error during rollback for accountID " + id + ": " + ex.getMessage());
                 }
             }
             System.out.println("deleteAccount: SQL Error deleting account with ID " + id + ": " + e.getMessage());
@@ -527,7 +539,8 @@ public class AccountDAO extends DBContext {
                 try {
                     conn.setAutoCommit(true); // Khôi phục auto-commit
                 } catch (SQLException e) {
-                    System.out.println("deleteAccount: Error resetting auto-commit for accountID " + id + ": " + e.getMessage());
+                    System.out.println(
+                            "deleteAccount: Error resetting auto-commit for accountID " + id + ": " + e.getMessage());
                 }
             }
         }
@@ -583,7 +596,8 @@ public class AccountDAO extends DBContext {
         account.setPassword(rs.getString("password"));
         int status = rs.getInt("status");
         if (status != 1 && status != 0 && status != -1) {
-            System.out.println("Warning: Invalid status value " + status + " for accountID " + rs.getInt("accountID") + ". Defaulting to 0 (inactive).");
+            System.out.println("Warning: Invalid status value " + status + " for accountID " + rs.getInt("accountID")
+                    + ". Defaulting to 0 (inactive).");
             status = 0; // Default to inactive
         }
         account.setStatus(status);
@@ -640,7 +654,9 @@ public class AccountDAO extends DBContext {
     public List<Account> getAllStaff() {
         List<Account> staffList = new ArrayList<>();
         String sql = "SELECT * FROM Account WHERE role = 'staff'";
-        try (Connection conn = getConnection(); PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
+        try (Connection conn = getConnection();
+                PreparedStatement stmt = conn.prepareStatement(sql);
+                ResultSet rs = stmt.executeQuery()) {
             while (rs.next()) {
                 Account account = new Account();
                 account.setAccountID(rs.getInt("accountID"));
@@ -649,7 +665,8 @@ public class AccountDAO extends DBContext {
                 account.setPassword(rs.getString("password"));
                 int status = rs.getInt("status");
                 if (rs.wasNull() || status != 0 && status != 1 && status != 2) {
-                    System.err.println("Invalid status for accountID " + rs.getInt("accountID") + ": " + status + ", setting to 1");
+                    System.err.println("Invalid status for accountID " + rs.getInt("accountID") + ": " + status
+                            + ", setting to 1");
                     status = 1; // Mặc định là Active
                 }
                 account.setStatus(status);
@@ -664,7 +681,8 @@ public class AccountDAO extends DBContext {
     }
 
     public boolean updateCustomer(Customer customer) {
-        if (customer == null || customer.getCustomerID() <= 0 || customer.getPhone() == null || customer.getAddress() == null) {
+        if (customer == null || customer.getCustomerID() <= 0 || customer.getPhone() == null
+                || customer.getAddress() == null) {
             System.out.println("updateCustomer: Customer or required fields are null or invalid");
             return false;
         }
@@ -682,7 +700,8 @@ public class AccountDAO extends DBContext {
                         psUpdate.setString(2, customer.getAddress().trim());
                         psUpdate.setInt(3, customer.getCustomerID());
                         int affectedRows = psUpdate.executeUpdate();
-                        System.out.println("updateCustomer: Updated customerID " + customer.getCustomerID() + ", affected rows: " + affectedRows);
+                        System.out.println("updateCustomer: Updated customerID " + customer.getCustomerID()
+                                + ", affected rows: " + affectedRows);
                         return affectedRows > 0;
                     }
                 } else {
@@ -693,7 +712,8 @@ public class AccountDAO extends DBContext {
                         psInsert.setString(2, customer.getPhone().trim());
                         psInsert.setString(3, customer.getAddress().trim());
                         int affectedRows = psInsert.executeUpdate();
-                        System.out.println("updateCustomer: Inserted customerID " + customer.getCustomerID() + ", affected rows: " + affectedRows);
+                        System.out.println("updateCustomer: Inserted customerID " + customer.getCustomerID()
+                                + ", affected rows: " + affectedRows);
                         return affectedRows > 0;
                     }
                 }
@@ -781,10 +801,10 @@ public class AccountDAO extends DBContext {
         return null;
     }
 
-    //Dùng trong chức năng staff tạo order
+    // Dùng trong chức năng staff tạo order
     public int insertAnonymousCustomerAndReturnCustomerID(String fullName) {
-        String insertAccountSQL = "INSERT INTO Account (fullName, email) OUTPUT INSERTED.accountID VALUES (?, ?)";
-        String insertCustomerSQL = "INSERT INTO Customer (customerID) VALUES (?)";
+        String insertAccountSQL = "INSERT INTO Account (fullName, email, role, status) VALUES (?, ?, 'customer', 1)";
+        String insertCustomerSQL = "INSERT INTO Customer (customerID, phone) VALUES (?, ?)";
 
         try (Connection conn = getConnection()) {
             conn.setAutoCommit(false); // Bắt đầu transaction
@@ -792,29 +812,55 @@ public class AccountDAO extends DBContext {
             // Tạo email giả để tránh lỗi UNIQUE
             String fakeEmail = "anon_" + System.currentTimeMillis() + "@anon.com";
 
-            // Insert vào Account
-            try (PreparedStatement psAccount = conn.prepareStatement(insertAccountSQL)) {
+            // Tạo phone giả để tránh lỗi UNIQUE (giới hạn 15 ký tự)
+            String fakePhone = "0000" + (System.currentTimeMillis() % 100000000L); // Chỉ lấy 8 số cuối của timestamp
+
+            System.out.println("DEBUG: Creating anonymous customer with email=" + fakeEmail + ", phone=" + fakePhone
+                    + ", fullName=" + fullName);
+
+            // Insert vào Account với PreparedStatement.RETURN_GENERATED_KEYS
+            try (PreparedStatement psAccount = conn.prepareStatement(insertAccountSQL,
+                    PreparedStatement.RETURN_GENERATED_KEYS)) {
                 psAccount.setString(1, fullName);
                 psAccount.setString(2, fakeEmail);
 
-                ResultSet rs = psAccount.executeQuery();
-                if (rs.next()) {
-                    int accountId = rs.getInt("accountID");
+                System.out.println("DEBUG: Executing Account insert...");
+                int accountRows = psAccount.executeUpdate();
+                System.out.println("DEBUG: Account insert affected rows=" + accountRows);
 
-                    // Insert vào Customer
-                    try (PreparedStatement psCustomer = conn.prepareStatement(insertCustomerSQL)) {
-                        psCustomer.setInt(1, accountId);
-                        psCustomer.executeUpdate();
+                if (accountRows > 0) {
+                    ResultSet rs = psAccount.getGeneratedKeys();
+                    if (rs.next()) {
+                        int accountId = rs.getInt(1);
+                        System.out.println("DEBUG: Account created successfully with ID=" + accountId);
+
+                        // Insert vào Customer
+                        try (PreparedStatement psCustomer = conn.prepareStatement(insertCustomerSQL)) {
+                            psCustomer.setInt(1, accountId);
+                            psCustomer.setString(2, fakePhone);
+                            System.out.println("DEBUG: Executing Customer insert...");
+                            int customerRows = psCustomer.executeUpdate();
+                            System.out.println("DEBUG: Customer insert affected rows=" + customerRows);
+                        }
+
+                        conn.commit();
+                        System.out
+                                .println("DEBUG: Transaction committed successfully, returning accountId=" + accountId);
+                        return accountId; // Trả về ID đã insert
+                    } else {
+                        System.out.println("DEBUG: Account insert failed - no generated keys returned");
                     }
-
-                    conn.commit();
-                    return accountId; // Trả về ID đã insert
+                } else {
+                    System.out.println("DEBUG: Account insert failed - no rows affected");
                 }
             } catch (SQLException e) {
                 conn.rollback();
+                System.out.println(
+                        "ERROR in insertAnonymousCustomerAndReturnCustomerID - Inner catch: " + e.getMessage());
                 e.printStackTrace();
             }
         } catch (SQLException e) {
+            System.out.println("ERROR in insertAnonymousCustomerAndReturnCustomerID - Outer catch: " + e.getMessage());
             e.printStackTrace();
         }
 
@@ -916,7 +962,8 @@ public class AccountDAO extends DBContext {
                 ResultSet rs = ps.executeQuery();
                 while (rs.next()) {
                     if (rs.getInt(1) > 0) {
-                        throw new SQLException("Cannot delete Account due to references in Ingredient, Voucher, or Notification");
+                        throw new SQLException(
+                                "Cannot delete Account due to references in Ingredient, Voucher, or Notification");
                     }
                 }
             }
@@ -937,7 +984,8 @@ public class AccountDAO extends DBContext {
                     conn.commit();
                     return true;
                 } else {
-                    throw new SQLException("No Account found with customerID = " + customerID + " and role = 'customer'");
+                    throw new SQLException(
+                            "No Account found with customerID = " + customerID + " and role = 'customer'");
                 }
             }
 
@@ -1163,17 +1211,20 @@ public class AccountDAO extends DBContext {
 
                     return account;
                 } else {
-                    System.out.println("findByID: No account found for ID: " + accountID + " at " + new java.util.Date());
+                    System.out
+                            .println("findByID: No account found for ID: " + accountID + " at " + new java.util.Date());
                     return null;
                 }
             }
         } catch (SQLException e) {
-            System.err.println("findByID: SQL Error retrieving account by ID " + accountID + " at " + new java.util.Date() + ": " + e.getMessage());
+            System.err.println("findByID: SQL Error retrieving account by ID " + accountID + " at "
+                    + new java.util.Date() + ": " + e.getMessage());
             e.printStackTrace();
             Util.logError("findByID: SQL Error for accountID " + accountID + ": " + e.getMessage());
             return null;
         } catch (Exception e) {
-            System.err.println("findByID: Unexpected error retrieving account by ID " + accountID + " at " + new java.util.Date() + ": " + e.getMessage());
+            System.err.println("findByID: Unexpected error retrieving account by ID " + accountID + " at "
+                    + new java.util.Date() + ": " + e.getMessage());
             e.printStackTrace();
             return null;
         }
