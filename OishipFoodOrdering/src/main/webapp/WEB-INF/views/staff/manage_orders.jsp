@@ -316,13 +316,11 @@
                                     <td class="align-middle"> <!-- Removed text-center -->
                                         <div class="d-flex justify-content-start align-items-center flex-wrap gap-2" style="min-width: 350px;"> <!-- Changed to justify-content-start -->
                                             <a class="btn btn-sm btn-primary fw-semibold text-white"
-                                               href="${pageContext.request.contextPath}/admin/manage-orders/update-status?orderID=${o.orderID}"> <!-- For admin JSP -->
-                                               <!-- href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}"> For staff JSP -->
+                                               href="${pageContext.request.contextPath}/staff/manage-orders/update-status?orderID=${o.orderID}">
                                                 Detail
                                             </a>
                                             <!-- Dropdown Update Status -->
-                                            <form method="post" action="${pageContext.request.contextPath}/admin/manage-orders" style="display:inline-block;"> <!-- For admin JSP -->
-                                            <!-- <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;"> For staff JSP -->
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;">
                                                 <input type="hidden" name="orderId" value="${o.orderID}" />
                                                 <select name="status" class="form-select form-select-sm w-auto d-inline-block fw-semibold text-dark bg-warning border-warning" onchange="this.form.submit()">
                                                     <c:forEach var="entry" items="${statusMap}">
@@ -332,8 +330,7 @@
                                                     </c:forEach>
                                                 </select>
                                             </form>
-                                            <form method="post" action="${pageContext.request.contextPath}/admin/manage-orders" style="display:inline-block;"> <!-- For admin JSP -->
-                                            <!-- <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;"> For staff JSP -->
+                                            <form method="post" action="${pageContext.request.contextPath}/staff/manage-orders" style="display:inline-block;">
                                                 <input type="hidden" name="orderId" value="${o.orderID}" />
                                                 <select name="paymentStatus" class="form-select form-select-sm w-auto d-inline-block fw-semibold bg-purple-light"
                                                         onchange="this.form.submit()">
