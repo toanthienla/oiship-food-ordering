@@ -85,19 +85,19 @@
                                 <div class="col-md-4">
                                     <label class="form-label">Discount Value</label>
                                     <div class="input-group">
-                                        <input type="number" name="discount" step="0.01" class="form-control" required />
+                                        <input type="number" name="discount" step="0.01" min="0" class="form-control" required />
                                         <span class="input-group-text" id="discountSuffixModal">%</span>
                                     </div>
                                 </div>
                                 <div class="col-md-4" id="maxDiscountGroupModal">
                                     <label class="form-label">Max Discount (VND)</label>
-                                    <input type="number" name="maxDiscount" id="maxDiscountModal" step="0.01" class="form-control" />
+                                    <input type="number" name="maxDiscount" id="maxDiscountModal" step="0.01" min="0" class="form-control" />
                                 </div>
 
                                 <!-- Min Order -->
                                 <div class="col-md-6">
                                     <label class="form-label">Min Order Value (VND)</label>
-                                    <input type="number" name="minOrder" step="0.01" class="form-control" required />
+                                    <input type="number" name="minOrder" step="0.01" min="0" class="form-control" required />
                                 </div>
 
                                 <!-- Start Date, End Date, Usage Limit -->
@@ -111,7 +111,7 @@
                                 </div>
                                 <div class="col-md-6">
                                     <label class="form-label">Usage Limit</label>
-                                    <input type="number" name="usageLimit" class="form-control" required />
+                                    <input type="number" name="usageLimit" min="1" class="form-control" required />
                                 </div>
                             </div>
                             <div class="modal-footer">
@@ -244,7 +244,7 @@
         <!-- Edit Voucher Modal -->
         <div class="modal fade" id="editVoucherModal" tabindex="-1" aria-hidden="true">
             <div class="modal-dialog modal-dialog-centered">
-                <form action="manage-vouchers" method="post" class="modal-content">
+                <form action="manage-vouchers" method="post" class="modal-content" onsubmit="return validateEditVoucherForm()">
                     <input type="hidden" name="action" value="edit" />
                     <input type="hidden" id="editID" name="voucherID" />
 
@@ -270,7 +270,7 @@
                         <div class="mb-2">
                             <label for="editDiscount" class="form-label">Discount</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="editDiscount" name="discount" step="0.01" />
+                                <input type="number" class="form-control" id="editDiscount" name="discount" step="0.01" min="0" />
                                 <span class="input-group-text" id="discountSuffixEdit">%</span>
                             </div>
                         </div>
@@ -288,14 +288,14 @@
                         <div class="mb-2">
                             <label for="maxDiscountEdit" class="form-label">Max Discount</label>
                             <div class="input-group">
-                                <input type="number" class="form-control" id="maxDiscountEdit" name="maxDiscount" step="0.01" />
+                                <input type="number" class="form-control" id="maxDiscountEdit" name="maxDiscount" step="0.01" min="0" />
                             </div>
                         </div>
 
                         <!-- Min Order -->
                         <div class="mb-2">
                             <label for="editMin" class="form-label">Min Order</label>
-                            <input type="number" class="form-control" id="editMin" name="minOrder" step="0.01" />
+                            <input type="number" class="form-control" id="editMin" name="minOrder" step="0.01" min="0" />
                         </div>
 
                         <!-- Start Date -->
@@ -313,7 +313,7 @@
                         <!-- Usage Limit -->
                         <div class="mb-2">
                             <label for="editUsage" class="form-label">Usage Limit</label>
-                            <input type="number" class="form-control" id="editUsage" name="usageLimit" />
+                            <input type="number" class="form-control" id="editUsage" name="usageLimit" min="1" />
                         </div>
 
                         <!-- Active -->
@@ -433,7 +433,8 @@
                     return Number(num || 0).toLocaleString('vi-VN');
                 }
                 function formatDate(dateString) {
-                    if (!dateString) return 'N/A';
+                    if (!dateString)
+                        return 'N/A';
                     const date = new Date(dateString);
                     return isNaN(date) ? 'N/A' : new Intl.DateTimeFormat('vi-VN').format(date);
                 }
@@ -480,6 +481,48 @@
                 const end = new Date(document.getElementById("endDateModal").value);
                 const discountType = document.getElementById("discountTypeModal").value;
                 const maxDiscount = document.getElementById("maxDiscountModal").value;
+                const discount = parseFloat(document.querySelector('#addVoucherModal input[name="discount"]').value);
+
+                if (isNaN(discount) || discount < 0) {
+                    alert("Discount value cannot be negative.");
+                    return false;
+                }
+
+                if (discountType === "%" && discount > 100) {
+                    alert("Percentage discount cannot exceed 100%.");
+                    return false;
+                }
+
+                if (end < start) {
+                    alert("End Date must be the same as or after the Start Date.");
+                    return false;
+                }
+
+                if (discountType === "%" && (maxDiscount === "" || parseFloat(maxDiscount) <= 0)) {
+                    alert("Max Discount (VND) is required and must be greater than 0 when discount type is %.");
+                    return false;
+                }
+
+                return true;
+            }
+
+            // Edit Voucher Form Validation
+            function validateEditVoucherForm() {
+                const start = new Date(document.getElementById("editStart").value);
+                const end = new Date(document.getElementById("editEnd").value);
+                const discountType = document.getElementById("discountTypeEdit").value;
+                const maxDiscount = document.getElementById("maxDiscountEdit").value;
+                const discount = parseFloat(document.getElementById("editDiscount").value);
+
+                if (isNaN(discount) || discount < 0) {
+                    alert("Discount value cannot be negative.");
+                    return false;
+                }
+
+                if (discountType === "%" && discount > 100) {
+                    alert("Percentage discount cannot exceed 100%.");
+                    return false;
+                }
 
                 if (end < start) {
                     alert("End Date must be the same as or after the Start Date.");
@@ -499,6 +542,17 @@
                 const end = new Date(document.getElementById("endDate").value);
                 const discountType = document.getElementById("discountType").value;
                 const maxDiscount = document.getElementById("maxDiscount").value;
+                const discount = parseFloat(document.getElementById("editDiscount").value);
+
+                if (isNaN(discount) || discount < 0) {
+                    alert("Discount value cannot be negative.");
+                    return false;
+                }
+
+                if (discountType === "%" && discount > 100) {
+                    alert("Percentage discount cannot exceed 100%.");
+                    return false;
+                }
 
                 if (end < start) {
                     alert("End Date must be the same as or after the Start Date.");
