@@ -63,12 +63,29 @@ public class NotificationDAO extends DBContext {
     }
 
     public boolean deleteNotification(int id) {
-        String sql = "DELETE FROM Notification WHERE notID = ?";
-        try (PreparedStatement st = conn.prepareStatement(sql)) {
-            st.setInt(1, id);
-            return st.executeUpdate() > 0;
-        } catch (SQLException e) {
-            e.printStackTrace();
+        String deleteCustomerNotiSQL = "DELETE FROM CustomerNotification WHERE notID = ?";
+        String deleteNotiSQL = "DELETE FROM Notification WHERE notID = ?";
+        try {
+            conn.setAutoCommit(false); // Start transaction
+
+            try (PreparedStatement st1 = conn.prepareStatement(deleteCustomerNotiSQL); PreparedStatement st2 = conn.prepareStatement(deleteNotiSQL)) {
+
+                st1.setInt(1, id);
+                st1.executeUpdate();
+
+                st2.setInt(1, id);
+                boolean result = st2.executeUpdate() > 0;
+
+                conn.commit(); // Commit both deletions
+                return result;
+            } catch (SQLException e) {
+                conn.rollback(); // Rollback on error
+                e.printStackTrace();
+            } finally {
+                conn.setAutoCommit(true);
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
         }
         return false;
     }
