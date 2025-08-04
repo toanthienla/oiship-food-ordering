@@ -31,3 +31,15 @@ BEGIN
     END
 END;
 GO
+
+CREATE TRIGGER trg_AfterInsertNotification
+ON [Notification]
+AFTER INSERT
+AS
+BEGIN
+    -- Insert the new notification into CustomerNotification for ALL customers
+    INSERT INTO CustomerNotification (customerID, notID, isRead)
+    SELECT c.customerID, i.notID, 0
+    FROM Customer c
+    CROSS JOIN inserted i;
+END
