@@ -63,6 +63,13 @@ public class ManageDishesServlet extends HttpServlet {
 
         request.setCharacterEncoding("UTF-8");
 
+        // Check if this is a bulk availability action
+        String action = request.getParameter("action");
+        if ("bulkAvailability".equals(action)) {
+            handleBulkAvailability(request, response);
+            return;
+        }
+
         // === Extract form data ===
         String dishIDStr = request.getParameter("dishID");
         String name = request.getParameter("dishName");
@@ -138,5 +145,27 @@ public class ManageDishesServlet extends HttpServlet {
             response.sendRedirect("manage-dishes?success=" + (added ? "add" : "false"));
             return;
         }
+    }
+
+    /**
+     * Handle bulk availability update for all dishes
+     */
+    private void handleBulkAvailability(HttpServletRequest request, HttpServletResponse response)
+            throws ServletException, IOException {
+        
+        String makeAvailableStr = request.getParameter("makeAvailable");
+        boolean makeAvailable = "true".equals(makeAvailableStr);
+        
+        DishDAO dishDAO = new DishDAO();
+        boolean success = dishDAO.updateAllDishesAvailability(makeAvailable);
+        
+        String successParam;
+        if (success) {
+            successParam = makeAvailable ? "bulk-available" : "bulk-unavailable";
+        } else {
+            successParam = "bulk-error";
+        }
+        
+        response.sendRedirect("manage-dishes?success=" + successParam);
     }
 }

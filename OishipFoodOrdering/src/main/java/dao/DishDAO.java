@@ -51,6 +51,62 @@ public class DishDAO extends DBContext {
         }
     }
 
+    /**
+     * Update availability status for all dishes
+     * @param makeAvailable true to make all dishes available, false to make them unavailable
+     * @return true if successful, false otherwise
+     */
+    public boolean updateAllDishesAvailability(boolean makeAvailable) {
+        String sql = "UPDATE Dish SET isAvailable = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, makeAvailable);
+            int rowsAffected = ps.executeUpdate();
+            System.out.println("Bulk availability update: " + rowsAffected + " dishes updated to " + 
+                             (makeAvailable ? "available" : "unavailable"));
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    /**
+     * Get count of dishes by availability status
+     * @param isAvailable true for available dishes, false for unavailable
+     * @return count of dishes
+     */
+    public int getDishCountByAvailability(boolean isAvailable) {
+        String sql = "SELECT COUNT(*) FROM Dish WHERE isAvailable = ?";
+        try (PreparedStatement ps = conn.prepareStatement(sql)) {
+            ps.setBoolean(1, isAvailable);
+            try (ResultSet rs = ps.executeQuery()) {
+                if (rs.next()) {
+                    return rs.getInt(1);
+                }
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
+    /**
+     * Get total count of all dishes
+     * @return total number of dishes
+     */
+    public int getTotalDishCount() {
+        String sql = "SELECT COUNT(*) FROM Dish";
+        try (PreparedStatement ps = conn.prepareStatement(sql);
+             ResultSet rs = ps.executeQuery()) {
+            if (rs.next()) {
+                return rs.getInt(1);
+            }
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+        return 0;
+    }
+
     public Dish getDishById(int id) {
         String sql = "SELECT * FROM Dish WHERE DishID = ?";
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
@@ -175,7 +231,7 @@ public class DishDAO extends DBContext {
                 + "c.catName, c.catDescription "
                 + "FROM Dish d "
                 + "LEFT JOIN Category c ON d.FK_Dish_Category = c.catID "
-                + "WHERE d.isAvailable = 1"
+                + "WHERE d.isAvailable = 1 "
                 + "ORDER BY d.DishID ASC";
 
         try (PreparedStatement stmt = conn.prepareStatement(sql); ResultSet rs = stmt.executeQuery()) {
@@ -388,5 +444,4 @@ public class DishDAO extends DBContext {
         }
 
     }
-
 }

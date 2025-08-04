@@ -38,11 +38,30 @@
                 <h1>Manage Dishes</h1>
                 <p>Add, view, and manage your restaurant's dishes.</p>
 
-                <!-- Add Dish Button -->
-                <div class="mb-4">
+                <!-- Action Buttons Row -->
+                <div class="mb-4 d-flex flex-wrap gap-2">
                     <button type="button" class="btn btn-success" data-bs-toggle="modal" data-bs-target="#addDishModal">
                         <i class="bi bi-plus-circle me-1"></i> Add Dish
                     </button>
+                    
+                    <!-- Bulk Availability Buttons -->
+                    <div class="dropdown">
+                        <button class="btn btn-outline-primary dropdown-toggle" type="button" id="bulkAvailabilityDropdown" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="bi bi-lightning me-1"></i> Bulk Actions
+                        </button>
+                        <ul class="dropdown-menu" aria-labelledby="bulkAvailabilityDropdown">
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="confirmBulkAvailability(true)">
+                                    <i class="bi bi-check-circle text-success me-2"></i>Set All Dishes Available
+                                </a>
+                            </li>
+                            <li>
+                                <a class="dropdown-item" href="#" onclick="confirmBulkAvailability(false)">
+                                    <i class="bi bi-x-circle text-danger me-2"></i>Set All Dishes Unavailable
+                                </a>
+                            </li>
+                        </ul>
+                    </div>
                 </div>
 
                 <!-- Alert placeholder -->
@@ -332,6 +351,29 @@
                 </div>
             </div>
 
+            <!-- Bulk Availability Confirmation Modal -->
+            <div class="modal fade" id="bulkAvailabilityModal" tabindex="-1" aria-labelledby="bulkAvailabilityModalLabel" aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title" id="bulkAvailabilityModalLabel">Confirm Bulk Action</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+                        <div class="modal-body">
+                            <div class="text-center">
+                                <i id="bulkActionIcon" class="bi fs-1 mb-3"></i>
+                                <p id="bulkActionMessage" class="fs-5 mb-3"></p>
+                                <p class="text-muted">This action will affect all dishes in your restaurant.</p>
+                            </div>
+                        </div>
+                        <div class="modal-footer">
+                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                            <button type="button" id="confirmBulkAction" class="btn">Confirm</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
             <!-- JavaScript -->
             <script>
                 function getParam(name) {
@@ -363,6 +405,18 @@
                             case "edit":
                                 message = '<i class="bi bi-pencil-square me-2"></i>Dish updated successfully.';
                                 alertClass = "alert-success";
+                                break;
+                            case "bulk-available":
+                                message = '<i class="bi bi-check-circle-fill me-2"></i>All dishes set to available successfully!';
+                                alertClass = "alert-success";
+                                break;
+                            case "bulk-unavailable":
+                                message = '<i class="bi bi-x-circle-fill me-2"></i>All dishes set to unavailable successfully!';
+                                alertClass = "alert-warning";
+                                break;
+                            case "bulk-error":
+                                message = '<i class="bi bi-exclamation-triangle-fill me-2"></i>Failed to update dish availability. Please try again.';
+                                alertClass = "alert-danger";
                                 break;
                             default:
                                 message = '<i class="bi bi-info-circle-fill me-2"></i>Unknown status.';
@@ -411,6 +465,55 @@
                     document.getElementById('editDishImagePreview').src = imagePath;
 
                     new bootstrap.Modal(document.getElementById('editDishModal')).show();
+                }
+
+                // Bulk availability functions
+                function confirmBulkAvailability(makeAvailable) {
+                    const modal = document.getElementById('bulkAvailabilityModal');
+                    const icon = document.getElementById('bulkActionIcon');
+                    const message = document.getElementById('bulkActionMessage');
+                    const confirmButton = document.getElementById('confirmBulkAction');
+                    
+                    if (makeAvailable) {
+                        icon.className = 'bi bi-check-circle-fill text-success fs-1 mb-3';
+                        message.textContent = 'Set all dishes to AVAILABLE?';
+                        confirmButton.className = 'btn btn-success';
+                        confirmButton.textContent = 'Yes, Make Available';
+                        confirmButton.onclick = () => executeBulkAvailability(true);
+                    } else {
+                        icon.className = 'bi bi-x-circle-fill text-danger fs-1 mb-3';
+                        message.textContent = 'Set all dishes to UNAVAILABLE?';
+                        confirmButton.className = 'btn btn-danger';
+                        confirmButton.textContent = 'Yes, Make Unavailable';
+                        confirmButton.onclick = () => executeBulkAvailability(false);
+                    }
+                    
+                    new bootstrap.Modal(modal).show();
+                }
+
+                function executeBulkAvailability(makeAvailable) {
+                    // Close the modal
+                    bootstrap.Modal.getInstance(document.getElementById('bulkAvailabilityModal')).hide();
+                    
+                    // Create a form and submit it
+                    const form = document.createElement('form');
+                    form.method = 'POST';
+                    form.action = 'manage-dishes';
+                    
+                    const actionInput = document.createElement('input');
+                    actionInput.type = 'hidden';
+                    actionInput.name = 'action';
+                    actionInput.value = 'bulkAvailability';
+                    
+                    const availabilityInput = document.createElement('input');
+                    availabilityInput.type = 'hidden';
+                    availabilityInput.name = 'makeAvailable';
+                    availabilityInput.value = makeAvailable;
+                    
+                    form.appendChild(actionInput);
+                    form.appendChild(availabilityInput);
+                    document.body.appendChild(form);
+                    form.submit();
                 }
 
                 // Filter logic

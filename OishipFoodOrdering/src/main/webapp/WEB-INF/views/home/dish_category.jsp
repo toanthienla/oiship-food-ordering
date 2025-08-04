@@ -64,7 +64,7 @@
 
                 <% }
                 } else { %>
-                <p class="text-muted">No dishes found.</p>
+                <p class="text-muted">The restaurant is closed.</p>
                 <% }%>
             </div>     
         </div>
