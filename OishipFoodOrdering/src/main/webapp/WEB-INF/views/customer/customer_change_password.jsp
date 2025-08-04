@@ -691,6 +691,9 @@
                                             <div class="requirement-item" id="numberCheck">
                                                 Include at least one number (0-9)
                                             </div>
+                                            <div class="requirement-item" id="specialCheck">
+                                                No special characters allowed
+                                            </div>
                                         </div>
 
                                         <div class="button-group">
@@ -734,150 +737,68 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-                                                    document.addEventListener('DOMContentLoaded', function () {
-                                                        console.log("Change Password page loaded - 2025-07-31 07:30:15 - User: toanthienla");
+            // Password validation
+            function validatePassword(password) {
+                const requirements = {
+                    length: password.length >= 8,
+                    letters: /[a-zA-Z]/.test(password),
+                    numbers: /[0-9]/.test(password),
+                    noSpecial: /^[a-zA-Z0-9]+$/.test(password)
+                };
+                return requirements;
+            }
 
-                                                        const newPasswordInput = document.getElementById('newPassword');
-                                                        const confirmPasswordInput = document.getElementById('confirmPassword');
-                                                        const passwordMatchDiv = document.getElementById('passwordMatch');
-                                                        const submitBtn = document.getElementById('submitBtn');
-                                                        const form = document.getElementById('passwordForm');
+            function updatePasswordChecks(password) {
+                const checks = validatePassword(password);
+                
+                // Update visual indicators
+                document.getElementById('lengthCheck').style.color = checks.length ? 'green' : 'red';
+                document.getElementById('letterCheck').style.color = checks.letters ? 'green' : 'red';
+                document.getElementById('numberCheck').style.color = checks.numbers ? 'green' : 'red';
+                document.getElementById('specialCheck').style.color = checks.noSpecial ? 'green' : 'red';
+                
+                return Object.values(checks).every(Boolean);
+            }
 
-                                                        // Password validation elements
-                                                        const lengthCheck = document.getElementById('lengthCheck');
-                                                        const letterCheck = document.getElementById('letterCheck');
-                                                        const numberCheck = document.getElementById('numberCheck');
+            // Add event listeners
+            document.getElementById('newPassword').addEventListener('input', function() {
+                updatePasswordChecks(this.value);
+            });
 
-                                                        // Real-time password validation
-                                                        newPasswordInput.addEventListener('input', function () {
-                                                            const password = this.value;
-                                                            validatePassword(password);
-                                                            checkPasswordMatch();
-                                                            updateSubmitButton();
-                                                        });
+            // Form validation
+            document.querySelector('form').addEventListener('submit', function(e) {
+                const newPassword = document.getElementById('newPassword').value;
+                const confirmPassword = document.getElementById('confirmPassword').value;
+                
+                // Check password requirements
+                if (!updatePasswordChecks(newPassword)) {
+                    e.preventDefault();
+                    alert('Please ensure your new password meets all requirements.');
+                    return false;
+                }
+                
+                // Check password confirmation
+                if (newPassword !== confirmPassword) {
+                    e.preventDefault();
+                    alert('New password and confirmation password do not match.');
+                    return false;
+                }
+            });
 
-                                                        // Password match checker
-                                                        confirmPasswordInput.addEventListener('input', function () {
-                                                            checkPasswordMatch();
-                                                            updateSubmitButton();
-                                                        });
+            function togglePassword(inputId) {
+                const input = document.getElementById(inputId);
+                const toggle = input.nextElementSibling.querySelector('i');
 
-                                                        function validatePassword(password) {
-                                                            // Check length (at least 8 characters)
-                                                            const hasLength = password.length >= 8;
-                                                            updateRequirement(lengthCheck, hasLength);
-
-                                                            // Check letters (both uppercase and lowercase)
-                                                            const hasLetters = /[a-zA-Z]/.test(password);
-                                                            updateRequirement(letterCheck, hasLetters);
-
-                                                            // Check numbers
-                                                            const hasNumbers = /[0-9]/.test(password);
-                                                            updateRequirement(numberCheck, hasNumbers);
-
-                                                            return hasLength && hasLetters && hasNumbers;
-                                                        }
-
-                                                        function updateRequirement(element, isValid) {
-                                                            const icon = element.querySelector('i');
-                                                            if (isValid) {
-                                                                icon.className = 'fas fa-check requirement-check';
-                                                                element.style.color = '#28a745';
-                                                            } else {
-                                                                icon.className = 'fas fa-times requirement-cross';
-                                                                element.style.color = '#dc3545';
-                                                            }
-                                                        }
-
-                                                        function checkPasswordMatch() {
-                                                            const newPassword = newPasswordInput.value;
-                                                            const confirmPassword = confirmPasswordInput.value;
-
-                                                            if (confirmPassword.length > 0) {
-                                                                if (newPassword === confirmPassword) {
-                                                                    passwordMatchDiv.innerHTML = '<i class="fas fa-check me-1"></i>Passwords match';
-                                                                    passwordMatchDiv.className = 'password-validation validation-valid';
-                                                                    return true;
-                                                                } else {
-                                                                    passwordMatchDiv.innerHTML = '<i class="fas fa-times me-1"></i>Passwords do not match';
-                                                                    passwordMatchDiv.className = 'password-validation validation-invalid';
-                                                                    return false;
-                                                                }
-                                                            } else {
-                                                                passwordMatchDiv.innerHTML = '';
-                                                                return false;
-                                                            }
-                                                        }
-
-                                                        function updateSubmitButton() {
-                                                            const newPassword = newPasswordInput.value;
-                                                            const confirmPassword = confirmPasswordInput.value;
-                                                            const currentPassword = document.getElementById('currentPassword').value;
-
-                                                            const isPasswordValid = validatePassword(newPassword);
-                                                            const isPasswordMatched = newPassword === confirmPassword && confirmPassword.length > 0;
-                                                            const hasCurrentPassword = currentPassword.length > 0;
-
-                                                            if (isPasswordValid && isPasswordMatched && hasCurrentPassword) {
-                                                                submitBtn.disabled = false;
-                                                                submitBtn.style.opacity = '1';
-                                                            } else {
-                                                                submitBtn.disabled = true;
-                                                                submitBtn.style.opacity = '0.6';
-                                                            }
-                                                        }
-
-                                                        // Current password field listener
-                                                        document.getElementById('currentPassword').addEventListener('input', updateSubmitButton);
-
-                                                        // Form validation on submit
-                                                        form.addEventListener('submit', function (e) {
-                                                            const currentPassword = document.getElementById('currentPassword').value.trim();
-                                                            const newPassword = newPasswordInput.value.trim();
-                                                            const confirmPassword = confirmPasswordInput.value.trim();
-
-                                                            if (currentPassword.length === 0) {
-                                                                e.preventDefault();
-                                                                alert('Please enter your current password.');
-                                                                return;
-                                                            }
-
-                                                            if (!validatePassword(newPassword)) {
-                                                                e.preventDefault();
-                                                                alert('New password does not meet the requirements. Please check the password requirements below.');
-                                                                return;
-                                                            }
-
-                                                            if (newPassword !== confirmPassword) {
-                                                                e.preventDefault();
-                                                                alert('New password and confirmation do not match.');
-                                                                return;
-                                                            }
-
-                                                            if (currentPassword === newPassword) {
-                                                                e.preventDefault();
-                                                                alert('New password must be different from current password.');
-                                                                return;
-                                                            }
-
-                                                            console.log(`Password change submitted by user: toanthienla at 2025-07-31 07:30:15`);
-                                                        });
-                                                    });
-
-                                                    function togglePassword(inputId) {
-                                                        const input = document.getElementById(inputId);
-                                                        const toggle = input.nextElementSibling.querySelector('i');
-
-                                                        if (input.type === 'password') {
-                                                            input.type = 'text';
-                                                            toggle.classList.remove('fa-eye');
-                                                            toggle.classList.add('fa-eye-slash');
-                                                        } else {
-                                                            input.type = 'password';
-                                                            toggle.classList.remove('fa-eye-slash');
-                                                            toggle.classList.add('fa-eye');
-                                                        }
-                                                    }
+                if (input.type === 'password') {
+                    input.type = 'text';
+                    toggle.classList.remove('fa-eye');
+                    toggle.classList.add('fa-eye-slash');
+                } else {
+                    input.type = 'password';
+                    toggle.classList.remove('fa-eye-slash');
+                    toggle.classList.add('fa-eye');
+                }
+            }
         </script>
     </body>
 </html>
