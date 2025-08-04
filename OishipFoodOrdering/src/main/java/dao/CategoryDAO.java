@@ -8,6 +8,7 @@ import java.sql.ResultSet;
 import java.util.ArrayList;
 import java.util.List;
 import dao.DishDAO;
+import java.sql.SQLException;
 
 public class CategoryDAO extends DBContext {
 
@@ -78,7 +79,6 @@ public class CategoryDAO extends DBContext {
     public boolean deleteCategoryById(int catId) {
         String getDishIdsSql = "SELECT DishID FROM Dish WHERE FK_Dish_Category = ?";
         String deleteCategorySql = "DELETE FROM Category WHERE catID = ?";
-        DishDAO dishDAO = new DishDAO();
 
         try {
             conn.setAutoCommit(false); // Start transaction
@@ -89,8 +89,9 @@ public class CategoryDAO extends DBContext {
                 try (ResultSet rs = ps.executeQuery()) {
                     while (rs.next()) {
                         int dishId = rs.getInt("DishID");
-                        // Reuse existing method
-                        if (!dishDAO.deleteDishById(dishId)) {
+
+                        // ✅ FIXED: If deleting dish fails, rollback
+                        if (!deleteDishById(dishId)) {
                             conn.rollback();
                             return false;
                         }
@@ -99,19 +100,18 @@ public class CategoryDAO extends DBContext {
             }
 
             // Step 2: Delete the category itself
-            int affectedRows;
             try (PreparedStatement ps2 = conn.prepareStatement(deleteCategorySql)) {
                 ps2.setInt(1, catId);
-                affectedRows = ps2.executeUpdate();
-            }
+                int affectedRows = ps2.executeUpdate();
 
-            conn.commit(); // Commit if everything is successful
-            return affectedRows > 0;
+                conn.commit(); // Commit if all succeeded
+                return affectedRows > 0;
+            }
 
         } catch (Exception e) {
             e.printStackTrace();
             try {
-                conn.rollback(); // Rollback on failure
+                conn.rollback();
             } catch (Exception rollbackEx) {
                 rollbackEx.printStackTrace();
             }
@@ -125,4 +125,21 @@ public class CategoryDAO extends DBContext {
 
         return false;
     }
+
+    private boolean deleteDishById(int id) throws SQLException {
+        String deleteDishIngredientSql = "DELETE FROM DishIngredient WHERE dishID = ?";
+        String deleteDishSql = "DELETE FROM Dish WHERE DishID = ?";
+
+        try (PreparedStatement ps1 = conn.prepareStatement(deleteDishIngredientSql)) {
+            ps1.setInt(1, id);
+            ps1.executeUpdate();
+        }
+
+        try (PreparedStatement ps2 = conn.prepareStatement(deleteDishSql)) {
+            ps2.setInt(1, id);
+            int rows = ps2.executeUpdate();
+            return rows > 0;
+        }
+    }
+
 }

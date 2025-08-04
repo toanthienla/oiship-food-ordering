@@ -42,6 +42,38 @@ public class VoucherDAO extends DBContext {
         return list;
     }
 
+    public List<Voucher> getAllActiveVouchers() {
+        List<Voucher> list = new ArrayList<>();
+        String sql = "SELECT * FROM Voucher WHERE active = 1";
+
+        try (PreparedStatement ps = conn.prepareStatement(sql); ResultSet rs = ps.executeQuery()) {
+
+            while (rs.next()) {
+                Voucher v = new Voucher(
+                        rs.getInt("voucherID"),
+                        rs.getString("code"),
+                        rs.getString("voucherDescription"),
+                        rs.getString("discountType"),
+                        rs.getBigDecimal("discount"),
+                        rs.getBigDecimal("maxDiscountValue"),
+                        rs.getBigDecimal("minOrderValue"),
+                        rs.getTimestamp("startDate").toLocalDateTime(),
+                        rs.getTimestamp("endDate").toLocalDateTime(),
+                        rs.getInt("usageLimit"),
+                        rs.getInt("usedCount"),
+                        rs.getInt("active") == 1,
+                        rs.getInt("FK_Voucher_Account")
+                );
+                list.add(v);
+            }
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+
+        return list;
+    }
+
     public void addVoucher(Voucher v) {
         String sql = "INSERT INTO Voucher (code, voucherDescription, discountType, discount, maxDiscountValue, minOrderValue, startDate, endDate, usageLimit, active, FK_Voucher_Account) "
                 + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)";
@@ -49,7 +81,7 @@ public class VoucherDAO extends DBContext {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, v.getCode());
             ps.setString(2, v.getVoucherDescription());
-            ps.setString(3, v.getDiscountType()); 
+            ps.setString(3, v.getDiscountType());
             ps.setBigDecimal(4, v.getDiscount());
             ps.setBigDecimal(5, v.getMaxDiscountValue());
             ps.setBigDecimal(6, v.getMinOrderValue());
@@ -81,7 +113,7 @@ public class VoucherDAO extends DBContext {
         try (PreparedStatement ps = conn.prepareStatement(sql)) {
             ps.setString(1, v.getCode());
             ps.setString(2, v.getVoucherDescription());
-            ps.setString(3, v.getDiscountType()); 
+            ps.setString(3, v.getDiscountType());
             ps.setBigDecimal(4, v.getDiscount());
             ps.setBigDecimal(5, v.getMaxDiscountValue());
             ps.setBigDecimal(6, v.getMinOrderValue());
@@ -223,7 +255,7 @@ public class VoucherDAO extends DBContext {
             ps.setInt(1, customerId);
             ps.setInt(2, voucherId);
             ResultSet rs = ps.executeQuery();
-            return rs.next(); 
+            return rs.next();
         } catch (Exception e) {
             e.printStackTrace();
         }

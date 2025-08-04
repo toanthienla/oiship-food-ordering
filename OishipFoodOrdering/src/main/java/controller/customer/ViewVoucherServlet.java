@@ -37,7 +37,7 @@ public class ViewVoucherServlet extends HttpServlet {
 
         // Get vouchers
         VoucherDAO voucherDAO = new VoucherDAO();
-        List<Voucher> vouchers = voucherDAO.getAllVouchers();
+        List<Voucher> vouchers = voucherDAO.getAllActiveVouchers();
         request.setAttribute("vouchers", vouchers);
 
         // Get customer information using email stored in session
